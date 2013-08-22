@@ -2,11 +2,11 @@
 
 import os
 
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
 from .models import Station, Program, Episode
-from .forms import StationForm
+from .forms import StationForm, ProgramForm
 
 from ..extensions import db
 
@@ -56,3 +56,64 @@ def station_add():
         flash('Validation error','error')
 
     return render_template('radio/station.html', station=station, form=form)
+
+
+@radio.route('/program/', methods=['GET'])
+def programs():
+    programs = Program.query.all()
+    return render_template('radio/programs.html', programs=programs, active='programs')
+
+
+@radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
+def program(program_id):
+    program = Program.query.filter_by(id=program_id).first_or_404()
+    form = ProgramForm(obj=program, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(program)
+
+        db.session.add(program)
+        db.session.commit()
+        flash('Program updated.', 'success')
+
+    return render_template('radio/program.html', program=program, form=form)
+
+
+@radio.route('/program/add/', methods=['GET', 'POST'])
+@login_required
+def program_add():
+    form = ProgramForm(request.form)
+    program = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        program = program(**cleaned_data) #create new object from data
+
+        db.session.add(program)
+        db.session.commit()
+        flash('Program added.', 'success') 
+    elif request.method == "POST":
+        flash('Validation error','error')
+
+    return render_template('radio/program.html', program=program, form=form)
+
+@radio.route('/schedule/', methods=['GET'])
+def schedule():
+    return render_template('radio/schedule.html', active='schedule')
+
+@radio.route('/station/schedule.json', methods=['GET'])
+def schedule_json():
+    from datetime import datetime, timedelta, time
+    now = datetime.now()
+    today = datetime.today().date()
+    tonight = datetime.combine(today,time(22,0,0))
+    dummy_list = [
+        {'title':'next hour','start':datetime.now(),'end':datetime.now() + timedelta(hours=1)},
+        {'title':'late night','start':tonight,'end':tonight + timedelta(hours=4)}
+    ]
+    schedule_list = dummy_list
+
+    #can't use jsonify, because fullcalendar expects an array of event objects
+    #create response manually
+    return Response(json.dumps(schedule_list),  mimetype='application/json')

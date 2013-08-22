@@ -1,0 +1,26 @@
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+
+    <style>
+        #calendar {
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Schedule</h2>
+    
+    <div id='calendar'></div>
+</div>
+{% endblock %}

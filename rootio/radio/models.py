@@ -48,6 +48,9 @@ class Program(db.Model):
     __tablename__ = 'radio_program'
 
     id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(STRING_LEN),
+        info={'description': 'Name of program'},
+        nullable=False)
     length = Column(db.Time())
     language = Column(db.String(5)) #constrain to set of langs in app.config.ACCEPT_LANGUAGES ?
     

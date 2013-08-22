@@ -1,0 +1,29 @@
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Programs</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Length</th>
+                <th>Language</th>
+                <th>Last Episode</th>
+            </tr>
+        </thead>
+        {% for program in programs %}
+        <tr>
+            <td>{{ program.name }}</td>
+            <td>{{ program.length }}</td>
+            <td>{{ program.language }}</td>
+            <td>{{ program.last_episode }}</td>
+            <td><a href="{{ '#' }}">Add</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

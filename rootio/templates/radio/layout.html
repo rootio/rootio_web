@@ -6,6 +6,6 @@
 {% set tabs = [
     ("Dashboard", url_for('radio.index')), 
     ("Stations", url_for('radio.stations')),
-    ("Schedule", '#'),
-    ("Programs", '#'),
+    ("Programs", url_for('radio.programs')),
+    ("Schedule", url_for('radio.schedule')),
 ]%}
