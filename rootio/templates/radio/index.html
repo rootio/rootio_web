@@ -4,9 +4,9 @@
 <div class="container">
     <h2>Radio Dashboard</h2>
     
-    <div>Stations: {{stations}} </div>
+    <div>Stations: ({%for s in stations%}{{s.name}}{%if not loop.last%}, {%endif%}{%endfor%}) </div>
     <div>
-        <button>Send flash message</button>
+        <a class="btn btn-warning" href="{{ '#' }}"><strong>Flash Message &rarr;</strong></a>
     </div>
 </div>
 {% endblock %}
