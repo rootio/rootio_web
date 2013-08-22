@@ -9,9 +9,6 @@ from ..decorators import admin_required
 from ..user import User
 from .forms import UserForm
 
-from ..radio import Station, Program
-from ..radio.forms import StationForm
-
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 
@@ -48,48 +45,3 @@ def user(user_id):
 
     return render_template('admin/user.html', user=user, form=form)
 
-
-@admin.route('/station/', methods=['GET'])
-@login_required
-@admin_required
-def stations():
-    stations = Station.query.all()
-    return render_template('admin/stations.html', stations=stations, active='stations')
-
-
-@admin.route('/station/<int:station_id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def station(station_id):
-    station = Station.query.filter_by(id=station_id).first_or_404()
-    form = StationForm(obj=station, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(station)
-
-        db.session.add(station)
-        db.session.commit()
-        flash('Station updated.', 'success')
-
-    return render_template('admin/station.html', station=station, form=form)
-
-
-@admin.route('/station/add/', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def station_add():
-    form = StationForm(request.form)
-    station = None
-
-    if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        station = Station(**cleaned_data) #create new object from data
-
-        db.session.add(station)
-        db.session.commit()
-        flash('Station added.', 'success') 
-    elif request.method == "POST":
-        flash('Validation error','error')
-
-    return render_template('admin/station.html', station=station, form=form)

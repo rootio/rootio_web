@@ -25,6 +25,7 @@ class Station(db.Model):
     contact = Column(db.String(STRING_LEN),
         info={'description': 'Primary local contact'},
         nullable=False)
+    owner_id = Column(db.Integer, db.ForeignKey('users.id'))
     location = Column(db.String(STRING_LEN))
     latitude = Column(db.Float())
     longitude = Column(db.Float())

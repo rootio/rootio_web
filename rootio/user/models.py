@@ -68,7 +68,6 @@ class UserDetail(db.Model):
     created_time = Column(db.DateTime, default=get_current_time)
 
 
-#class User(db.Model, UserMixin):
 class User(db.Model, UserMixin):
 
     __tablename__ = 'users'

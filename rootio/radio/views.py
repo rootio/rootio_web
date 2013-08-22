@@ -2,31 +2,55 @@
 
 import os
 
-from flask import Blueprint, render_template, send_from_directory, abort
-from flask import current_app as APP
+from flask import Blueprint, render_template, request
 from flask.ext.login import login_required, current_user
 
 from .models import Station, Program, Episode
+from .forms import StationForm
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
+@radio.route('/', methods=['GET'])
+def index():
+    stations = Station.query.all()
+    return render_template('radio/index.html',stations=stations)
 
-# @user.route('/')
-# @login_required
-# def index():
-#     if not current_user.is_authenticated():
-#         abort(403)
-#     return render_template('user/index.html', user=current_user)
-
-
-# @user.route('/<int:user_id>/profile')
-# def profile(user_id):
-#     user = User.get_by_id(user_id)
-#     return render_template('user/profile.html', user=user)
+@radio.route('/station/', methods=['GET'])
+def stations():
+    stations = Station.query.all()
+    return render_template('radio/stations.html', stations=stations, active='stations')
 
 
-# @user.route('/<int:user_id>/avatar/<path:filename>')
-# @login_required
-# def avatar(user_id, filename):
-#     dir_path = os.path.join(APP.config['UPLOAD_FOLDER'], 'user_%s' % user_id)
-#     return send_from_directory(dir_path, filename, as_attachment=True)
+@radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
+def station(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash('Station updated.', 'success')
+
+    return render_template('radio/station.html', station=station, form=form)
+
+
+@radio.route('/station/add/', methods=['GET', 'POST'])
+@login_required
+def station_add():
+    form = StationForm(request.form)
+    station = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        station = Station(**cleaned_data) #create new object from data
+
+        db.session.add(station)
+        db.session.commit()
+        flash('Station added.', 'success') 
+    elif request.method == "POST":
+        flash('Validation error','error')
+
+    return render_template('radio/station.html', station=station, form=form)

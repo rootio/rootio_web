@@ -4,4 +4,31 @@
 
 {% block body %}
 <h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
+
+<h3>Your stations</h3>
+{%if stations%}
+<table class='table table-bordered table-hover'>
+    <thead>
+        <tr>
+            <th>Name (frequency)</th>
+            <th>Status</th>
+            <th>Current Program</th>
+            <th>Up Next</th>
+        </tr>
+    </thead>
+    {% for station in stations %}
+    <tr>
+        <td>{{ station.name }} ({{station.frequency}})</td>
+        <td>{{ station.status }}</td>
+        <td>{{ station.current_program }}</td>
+        <td>{{ station.next_program}}</td>
+        <td><a href="{{ url_for('radio.station', station_id=station.id) }}">Edit</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{%else%}
+<p>You don't have any stations yet, add one?</p>
+<a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>Add +</strong></a>
+{%endif%}
+
 {% endblock %}

@@ -4,6 +4,8 @@
 {% set page_title = page_header %}
 
 {% set tabs = [
-    ("Admin", url_for('admin.index')), 
-    ("Users", url_for('admin.users')),
+    ("Dashboard", url_for('radio.index')), 
+    ("Stations", url_for('radio.stations')),
+    ("Schedule", '#'),
+    ("Programs", '#'),
 ]%}
