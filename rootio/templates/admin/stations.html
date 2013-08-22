@@ -1,0 +1,27 @@
+{% extends "admin/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Stations</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="/admin/station/add"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>Name (frequency)</th>
+                <th>Status</th>
+                <th>Current Program</th>
+            </tr>
+        </thead>
+        {% for station in stations %}
+        <tr>
+            <td>{{ station.name }} ({{station.frequency}})</td>
+            <td>{{ station.status }}</td>
+            <td>{{ station.current_program }}</td>
+            <td><a href="{{ url_for('admin.station', station_id=station.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

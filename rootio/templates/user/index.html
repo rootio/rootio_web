@@ -1,0 +1,7 @@
+{% set page_title = user.name %}
+
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
+{% endblock %}

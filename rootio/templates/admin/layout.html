@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active|capitalize) %}
+{% set page_title = page_header %}
+
+{% set tabs = [
+    ("Dashboard", url_for('admin.index')), 
+    ("Users", url_for('admin.users')),
+    ("Stations", url_for('admin.stations')),
+]%}
