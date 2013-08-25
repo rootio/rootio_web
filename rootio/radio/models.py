@@ -15,15 +15,11 @@ class Station(db.Model):
 
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(STRING_LEN),
-        info={'description': 'Name or callsign of station'},
         nullable=False)
-    frequency = Column(db.Float(),
-        info={'description': 'Station broadcast frequency'})
+    frequency = Column(db.Float())
     phone = Column(db.String(STRING_LEN),
-        info={'description': 'Station cloud telephone number'},
         nullable=False)
     contact = Column(db.String(STRING_LEN),
-        info={'description': 'Primary local contact'},
         nullable=False)
     owner_id = Column(db.Integer, db.ForeignKey('users.id'))
     location = Column(db.String(STRING_LEN))
@@ -49,7 +45,6 @@ class Program(db.Model):
 
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(STRING_LEN),
-        info={'description': 'Name of program'},
         nullable=False)
     length = Column(db.Time())
     language = Column(db.String(5)) #constrain to set of langs in app.config.ACCEPT_LANGUAGES ?
