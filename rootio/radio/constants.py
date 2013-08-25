@@ -8,10 +8,10 @@ HOT_HITS = 2
 ROUNDTABLE = 3
 
 PROGRAM_TYPES = {
-    DEFAULT: 'default',
-    NEWS: 'news',
-    HOT_HITS: 'hot hits',
-    ROUNDTABLE: 'round table',
+    DEFAULT: 'Default',
+    NEWS: 'News',
+    HOT_HITS: 'Hot Hits',
+    ROUNDTABLE: 'Roundtable',
 }
 
 #enum for privacy types
@@ -22,4 +22,12 @@ PRIVACY_TYPE = {
     PRIVATE: u'Private',
     SHARED: u'Shared',
     PUBLIC: u'Public',
+}
+
+#should probably link to ACCEPT_LANGUAGES in config.py
+LANGUAGE_CODES = {
+    'en':'English',
+    'lg':'Luganda',
+    'luo':'Luo',
+    'sw':'Swahili'
 }
