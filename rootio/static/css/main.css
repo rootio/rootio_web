@@ -12,16 +12,8 @@
     margin-bottom: 0;
 }
 
-.navbar .container {
-    width: 940px;
-}
-
-.navbar .brand {
-    padding-bottom:0;
-}
-
 /* Sign up */
-.btn-signup {
+.navbar .btn-signup {
     color: white;
     text-decoration: none;
 }
