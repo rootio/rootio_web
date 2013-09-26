@@ -12,43 +12,8 @@ from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
-class DenormalizedText(Mutable, types.TypeDecorator):
-    """
-    Stores denormalized primary keys that can be
-    accessed as a set.
-
-    :param coerce: coercion function that ensures correct
-                   type is returned
-
-    :param separator: separator character
-    """
-
-    impl = types.Text
-
-    def __init__(self, coerce=int, separator=" ", **kwargs):
-
-        self.coerce = coerce
-        self.separator = separator
-
-        super(DenormalizedText, self).__init__(**kwargs)
-
-    def process_bind_param(self, value, dialect):
-        if value is not None:
-            items = [str(item).strip() for item in value]
-            value = self.separator.join(item for item in items if item)
-        return value
-
-    def process_result_value(self, value, dialect):
-        if not value:
-            return set()
-        return set(self.coerce(item) for item in value.split(self.separator))
-
-    def copy_value(self, value):
-        return set(value)
-
 
 class UserDetail(db.Model):
-
     __tablename__ = 'user_details'
 
     id = Column(db.Integer, primary_key=True)
@@ -67,10 +32,8 @@ class UserDetail(db.Model):
 
     created_time = Column(db.DateTime, default=get_current_time)
 
-
 class User(db.Model, UserMixin):
-
-    __tablename__ = 'users'
+    __tablename__ = 'user_users'
 
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(STRING_LEN), nullable=False, unique=True)
@@ -121,39 +84,6 @@ class User(db.Model, UserMixin):
     # One-to-one (uselist=False) relationship between users and user_details.
     user_detail_id = Column(db.Integer, db.ForeignKey("user_details.id"))
     user_detail = db.relationship("UserDetail", uselist=False, backref="user")
-
-    # # ================================================================
-    # # Follow / Following, from fbone
-    # # jlev removed
-    # followers = Column(DenormalizedText)
-    # following = Column(DenormalizedText)
-
-    # @property
-    # def num_followers(self):
-    #     if self.followers:
-    #         return len(self.followers)
-    #     return 0
-
-    # @property
-    # def num_following(self):
-    #     return len(self.following)
-
-    # def follow(self, user):
-    #     user.followers.add(self.id)
-    #     self.following.add(user.id)
-
-    # def unfollow(self, user):
-    #     if self.id in user.followers:
-    #         user.followers.remove(self.id)
-
-    #     if user.id in self.following:
-    #         self.following.remove(user.id)
-
-    # def get_following_query(self):
-    #     return User.query.filter(User.id.in_(self.following or set()))
-
-    # def get_followers_query(self):
-    #     return User.query.filter(User.id.in_(self.followers or set()))
 
     # ================================================================
     # Class methods
