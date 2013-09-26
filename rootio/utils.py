@@ -40,7 +40,7 @@ SEX_TYPE = {
 }
 
 # Model
-STRING_LEN = 64
+STRING_LEN = 100
 
 def get_current_time():
     return datetime.utcnow()

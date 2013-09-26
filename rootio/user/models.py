@@ -41,10 +41,14 @@ class User(db.Model, UserMixin):
     openid = Column(db.String(STRING_LEN), unique=True)
     activation_key = Column(db.String(STRING_LEN))
     created_time = Column(db.DateTime, default=get_current_time)
+    last_accessed = Column(db.DateTime)
 
     avatar = Column(db.String(STRING_LEN))
 
     _password = Column('password', db.String(STRING_LEN*3), nullable=False)
+
+    def __unicode__(self):
+        return self.name
 
     def _get_password(self):
         return self._password
