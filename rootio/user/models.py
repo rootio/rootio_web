@@ -8,10 +8,6 @@ from flask.ext.login import UserMixin
 from ..extensions import db
 from ..utils import get_current_time, SEX_TYPE, STRING_LEN
 from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
-#
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-#
 
 class UserDetail(db.Model):
     __tablename__ = 'user_details'
