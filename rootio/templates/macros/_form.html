@@ -75,9 +75,12 @@
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls">
+    <div class="controls form-inline">
         {{ field }}
-        <span class="help-inline">{{ field.description }}</span>
+        {% if field.type in ["QuerySelectField","QuerySelectMultipleField"] and not field.fixed %}
+                <a class="btn btn-success" href="{{ '#' }}">+</a>
+        {%endif%}
+         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
             <span class="help-block error">{{ error }}</span>

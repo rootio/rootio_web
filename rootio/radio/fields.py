@@ -1,4 +1,6 @@
 from sqlalchemy import types, String
+from wtforms_components.fields import TimeField
+from wtforms_components.widgets import TimeInput
 
 class FileField(types.TypeDecorator):
     impl = String
@@ -29,3 +31,10 @@ class FileNameString(object):
     @property
     def url(self):
         return self.upload_set.url(self.filename)
+
+class DurationField(TimeField):
+    widget = TimeInput(step='1')
+    error_msg = 'Not a valid duration.'
+
+    #because this is rendered as an html5 input, format depends on browser locale
+    #TODO: investigate using textfield with custom pattern instead
