@@ -6,7 +6,7 @@ from werkzeug import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin
 
 from ..extensions import db
-from ..utils import get_current_time, SEX_TYPE, STRING_LEN
+from ..utils import get_current_time, GENDER_TYPE, STRING_LEN
 from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
 
 class UserDetail(db.Model):
@@ -20,11 +20,11 @@ class UserDetail(db.Model):
     location = Column(db.String(STRING_LEN))
     bio = Column(db.String(STRING_LEN))
 
-    sex_code = db.Column(db.Integer)
+    gender_code = db.Column(db.Integer)
 
     @property
-    def sex(self):
-        return SEX_TYPE.get(self.sex_code)
+    def gender(self):
+        return GENDER_TYPE.get(self.gender_code)
 
     created_time = Column(db.DateTime, default=get_current_time)
 

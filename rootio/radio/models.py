@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 
-from ..utils import STRING_LEN, SEX_TYPE, get_current_time
+from ..utils import STRING_LEN, GENDER_TYPE, get_current_time
 from ..extensions import db
 
 
@@ -122,10 +122,10 @@ class Person(db.Model):
 
     phone = db.relationship(u'PhoneNumber', backref=db.backref('phonenumbers'))
     
-    sex_code = db.Column(db.Integer)
+    gender_code = db.Column(db.Integer)
     @property
-    def sex(self):
-        return SEX_TYPE.get(self.sex_code)
+    def gender(self):
+        return GENDER_TYPE.get(self.gender_code)
 
     privacy_code = db.Column(db.Integer)
     @property

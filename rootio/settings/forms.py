@@ -12,7 +12,7 @@ from flask.ext.login import current_user
 from ..user import User
 from ..utils import PASSWORD_LEN_MIN, PASSWORD_LEN_MAX, AGE_MIN, AGE_MAX
 from ..utils import allowed_file, ALLOWED_AVATAR_EXTENSIONS
-from ..utils import SEX_TYPE
+from ..utils import GENDER_TYPE
 
 
 class ProfileForm(Form):
@@ -21,7 +21,7 @@ class ProfileForm(Form):
     email = EmailField(u'Email', [Required(), Email()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
-    sex_code = RadioField(u"Sex", [AnyOf([str(val) for val in SEX_TYPE.keys()])], choices=[(str(val), label) for val, label in SEX_TYPE.items()])
+    gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     age = IntegerField(u'Age', [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
     phone = TelField(u'Phone', [Length(max=64)])
     url = URLField(u'URL', [Optional(), URL()])

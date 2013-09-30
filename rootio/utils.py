@@ -33,7 +33,7 @@ AGE_MAX = 120
 MALE = 1
 FEMALE = 2
 OTHER = 9
-SEX_TYPE = {
+GENDER_TYPE = {
     MALE: u'Male',
     FEMALE: u'Female',
     OTHER: u'Other',
