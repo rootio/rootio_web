@@ -85,7 +85,7 @@ class ProgramType(db.Model):
 
 
 class Program(db.Model):
-    "A recurring radio program"
+    "A single or recurring radio program"
     __tablename__ = 'radio_program'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -109,6 +109,15 @@ class Episode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     program_id = db.Column(db.Integer, db.ForeignKey('radio_program.id'))
     saved_file = db.Column(FileField([]))
+    created_time = db.Column(db.DateTime, default=get_current_time)
+    
+class Recording(db.Model):
+    "A sound file"
+    __tablename__ = 'radio_episode'
+
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(160))
+    local_file = db.Column(FileField([]))
     created_time = db.Column(db.DateTime, default=get_current_time)
 
 
