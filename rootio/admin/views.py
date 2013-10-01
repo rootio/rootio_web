@@ -75,6 +75,7 @@ def language(language_id):
 
     return render_template('admin/language.html', language=language, form=form)
 
+
 @admin.route('/language/add/', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -94,3 +95,4 @@ def language_add():
         flash('Validation error','error')
 
     return render_template('admin/language.html', language=language, form=form)
+

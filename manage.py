@@ -17,7 +17,6 @@ from alembic import command
 from alembic.config import Config
 
 
-
 app = create_app()
 manager = Manager(app)
 
@@ -46,7 +45,6 @@ def migrate(direction):
 def migration(message):
     """Create migration file"""
     command.revision(alembic_config, message=message)
-
 
 @manager.command
 def initdb():
