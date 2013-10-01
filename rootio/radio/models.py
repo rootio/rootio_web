@@ -7,6 +7,7 @@ from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 from ..utils import STRING_LEN, GENDER_TYPE, get_current_time
 from ..extensions import db
 
+from ..telephony import PhoneNumber
 
 class Location(db.Model):
     "A geographic location"
@@ -33,6 +34,8 @@ class Language(db.Model):
     iso639_2 = db.Column(db.String(3))# 3 digit code (eg, 'eng')
     locale_code = db.Column(db.String(10)) # IETF locale (eg, 'en-US')
 
+    def __unicode__(self):
+        return self.name
 
 class Station(db.Model):
     "A single radio station"
@@ -72,6 +75,15 @@ t_stationlanguage = db.Table(
 )
 
 
+class ProgramType(db.Model):
+    __tablename__ = u'radio_programtype'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN),nullable=False)
+    definition = db.Column(db.PickleType)
+    #todo program definition
+
+
 class Program(db.Model):
     "A recurring radio program"
     __tablename__ = 'radio_program'
@@ -100,27 +112,22 @@ class Episode(db.Model):
     created_time = db.Column(db.DateTime, default=get_current_time)
 
 
-class PhoneNumber(db.Model):
-    "A phone number, associated with a station or a person"
-    __tablename__ = u'radio_phonenumber'
-
-    id = db.Column(db.Integer, primary_key=True)
-    phonenumbertype = db.Column(db.String(30)) #constrain to mobile / landline?
-    carrier = db.Column(db.String(STRING_LEN))
-    countrycode = db.Column(db.String(3)) #does not include + symbol
-    areacode = db.Column(db.String(8)) #consistent across countries?
-    number = db.Column(db.String(20))
-
-
 class Person(db.Model):
     "A person associated with a station or program, but not necessarily a user of Rootio system"
     __tablename__ = 'radio_person'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(STRING_LEN))
-    phone_id = db.Column(db.ForeignKey('radio_phonenumber.id'))
+    title = db.Column(db.String(8))
+    firstname = db.Column(db.String(STRING_LEN))
+    middlename = db.Column(db.String(STRING_LEN))
+    lastname = db.Column(db.String(STRING_LEN))
+    email = db.Column(db.String(STRING_LEN))
+    additionalcontact = db.Column(db.String(STRING_LEN))
 
-    phone = db.relationship(u'PhoneNumber', backref=db.backref('phonenumbers'))
+    phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+
+    phone = db.relationship(u'PhoneNumber', backref=db.backref('telephony_phonenumber'))
+    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('radio_person'))
     
     gender_code = db.Column(db.Integer)
     @property

@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Blueprint, render_template, request, flash, Response, json
+from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
 from .models import Station, Program, Episode
@@ -42,6 +42,8 @@ def station(station_id):
 @login_required
 def station_add():
     form = StationForm(request.form)
+    #TODO: set form owner from current_user
+    #form.owner = g.current_user
     station = None
 
     if form.validate_on_submit():
@@ -88,8 +90,8 @@ def program_add():
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
-        program = program(**cleaned_data) #create new object from data
-
+        program = Program(**cleaned_data) #create new object from data
+        
         db.session.add(program)
         db.session.commit()
         flash('Program added.', 'success') 
