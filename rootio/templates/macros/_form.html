@@ -77,8 +77,11 @@
     </label>
     <div class="controls form-inline">
         {{ field }}
-        {% if field.type in ["QuerySelectField","QuerySelectMultipleField"] and not field.fixed %}
+        {# show an add button for m2m fields that are not fixed_choices #}
+        {% if field.type in ["QuerySelectField","QuerySelectMultipleField"] and not field.flags.fixed_choices %}
                 <a class="btn btn-success" href="{{ '#' }}">+</a>
+                {# determine the add route from the field name #}
+                {{ field.name+'_add' }}
         {%endif%}
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
