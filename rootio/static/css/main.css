@@ -12,10 +12,15 @@
     margin-bottom: 0;
 }
 
-/* Sign up */
+/* NavBar */
 .navbar .btn-signup {
     color: white;
     text-decoration: none;
+}
+
+ul.nav li.nav-header {
+    margin-top: 6px;
+    font-size: 14px;
 }
 
 /* form styles */

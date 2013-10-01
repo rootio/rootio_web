@@ -86,8 +86,11 @@
 
             {% block top %}
                 {% if tabs %}
-                <div>
+                <div class="tabbable">
                     <ul class="nav nav-tabs">
+                        {% if tab_title%}
+                            <li class="nav-header">{{tab_title}}</li>
+                        {%endif%}
                         {% for tab, link in tabs %}
                         <li class="{% if active == tab %}active{% endif %}">
                             <a href="{{ link }}">{{ tab|capitalize }}</a>
