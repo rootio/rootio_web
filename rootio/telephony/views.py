@@ -4,6 +4,8 @@ from flask.ext.login import login_required
 from .models import PhoneNumber, Message, Call
 from .forms import PhoneNumberForm
 
+from ..extensions import db
+
 telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])

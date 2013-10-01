@@ -3,6 +3,7 @@
 from sqlalchemy import Column, Table
 from ..extensions import db
 
+from .constants import PHONE_NUMBER_TYPE
 from ..utils import STRING_LEN
 
 class PhoneNumber(db.Model):
@@ -10,12 +11,15 @@ class PhoneNumber(db.Model):
     __tablename__ = u'telephony_phonenumber'
 
     id = db.Column(db.Integer, primary_key=True)
-    numbertype = db.Column(db.String(30)) #constrain to mobile / landline?
     carrier = db.Column(db.String(STRING_LEN))
     countrycode = db.Column(db.String(3)) #does not include + symbol
     areacode = db.Column(db.String(8)) #consistent across countries?
     number = db.Column(db.String(20))
 
+    number_type = db.Column(db.Integer)
+    @property
+    def type(self):
+        return PHONE_NUMBER_TYPE.get(self.number_type)
 
 class Call(db.Model):
     __tablename__ = u'telephony_call'
