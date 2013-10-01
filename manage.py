@@ -8,6 +8,8 @@ from flask.ext.script import Manager
 
 from rootio import create_app
 from rootio.extensions import db
+
+from rootio.radio import Station, Language
 from rootio.user import User, UserDetail, ADMIN, ACTIVE
 from rootio.utils import MALE
 
@@ -48,7 +50,7 @@ def migration(message):
 
 @manager.command
 def initdb():
-    """Init/reset database."""
+    """Init/reset database with default data."""
 
     db.drop_all()
     db.create_all()
@@ -60,16 +62,21 @@ def initdb():
             role_code=ADMIN,
             status_code=ACTIVE,
             user_detail=UserDetail(
-                sex_code=MALE,
+                gender_code=MALE,
                 age=25,
                 url=u'http://example.com',
                 location=u'Kampala',
                 bio=u''))
     db.session.add(admin)
+    
+    english = Language(name="English",iso639_1="en",iso639_2="eng",locale_code="en_UG")
+    db.session.add(english)
+    luganda = Language(name="Luganda",iso639_1="lg",iso639_2="lug",locale_code="lg_UG")
+    db.session.add(luganda)
+
     db.session.commit()
     alembic_cfg = Config("alembic.ini")
     command.stamp(alembic_cfg, "head")
-
 
 manager.add_option('-c', '--config',
                    dest="config",

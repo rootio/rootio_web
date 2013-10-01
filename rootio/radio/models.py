@@ -46,13 +46,13 @@ class Station(db.Model):
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_users.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
-    phone_id = db.Column(db.ForeignKey('radio_phonenumber.id'))
+    phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
     phone = db.relationship(u'PhoneNumber')
-    languages = db.relationship(u'Language', secondary=u'stationlanguage', backref=db.backref('stations'))
+    languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('radio_stations'))
 
     @property
     def current_program(self):
@@ -66,7 +66,7 @@ class Station(db.Model):
 
 
 t_stationlanguage = db.Table(
-    u'stationlanguage',
+    u'radio_stationlanguage',
     db.Column(u'language_pk', db.ForeignKey('radio_language.id'), primary_key=True),
     db.Column(u'station_pk', db.ForeignKey('radio_station.id'), primary_key=True)
 )
@@ -80,12 +80,12 @@ class Program(db.Model):
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
     length = db.Column(db.Time)
-    language = db.Column(db.String(5))
-    
-    program_type = db.Column(db.SmallInteger, default=0)
-    @property
-    def type(self):
-        return PROGRAM_TYPE[self.program_type]
+    language_id = db.Column(db.ForeignKey('radio_language.id'))
+    program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
+
+    #relationships
+    language = db.relationship(u'Language')
+    programtype = db.relationship(u'ProgramType')
 
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
 
@@ -129,10 +129,15 @@ class Person(db.Model):
 
     privacy_code = db.Column(db.Integer)
     @property
-
     def privacy(self):
         return PRIVACY_TYPE.get(self.privacy_code)
 
+
+t_personlanguage = db.Table(
+    u'radio_personlanguage',
+    db.Column(u'language_pk', db.ForeignKey('radio_language.id'), primary_key=True),
+    db.Column(u'person_pk', db.ForeignKey('radio_person.id'), primary_key=True)
+)
 
 class Role(db.Model):
     "A role for a person at a particular station"

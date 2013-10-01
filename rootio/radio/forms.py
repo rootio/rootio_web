@@ -42,3 +42,8 @@ class ProgramForm(Form):
 PersonFormBase = model_form(Person, db_session=db.session, base_class=Form)
 class PersonForm(PersonFormBase):
     submit = SubmitField(u'Save')
+
+
+LanguageFormBase = model_form(Language, db_session=db.session, base_class=Form)
+class LanguageForm(LanguageFormBase):
+    submit = SubmitField(u'Save')
