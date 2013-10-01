@@ -21,9 +21,9 @@ class Call(db.Model):
     __tablename__ = u'telephony_call'
 
     id = db.Column(db.Integer, primary_key=True)
+    call_uuid = db.Column(db.String(100))
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
-    call_uuid = db.Column(db.String(100))
     from_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     to_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
@@ -35,6 +35,7 @@ class Message(db.Model):
     __tablename__ = u'telephony_message'
 
     id = db.Column(db.Integer, primary_key=True)
+    message_uuid = db.Column(db.String(100))
     sendtime = db.Column(db.DateTime)
     text = db.Column(db.String(200))
     from_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))

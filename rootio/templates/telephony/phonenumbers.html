@@ -1,0 +1,30 @@
+{% extends "telephony/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Phone Numbers</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('telephony.phonenumber_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Country</th>
+                <th>Area code</th>
+                <th>Number</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for phonenumber in phonenumbers %}
+        <tr>
+            <td>{{ phonenumber.numbertype }}</td>
+            <td>{{ phonenumber.countrycode }}</td>
+            <td>{{ phonenumber.areacode }}</td>
+            <td>{{ phonenumber.number }}</td>
+            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

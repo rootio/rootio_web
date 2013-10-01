@@ -1,0 +1,12 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active|capitalize) %}
+{% set page_title = page_header %}
+
+{% set tab_title = "Telephony" %}
+{% set tabs = [
+    ("Status", url_for('telephony.index')), 
+    ("Phone Numbers", url_for('telephony.phonenumbers')),
+    ("Calls", url_for('telephony.calls')),
+    ("Messages", url_for('telephony.messages'))
+]%}

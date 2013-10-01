@@ -1,0 +1,28 @@
+{% extends "telephony/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Calls</h2>
+
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>UUID</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>From</th>
+                <th>To</th>
+            </tr>
+        </thead>
+        {% for call in calls %}
+        <tr>
+            <td>{{ call.uuid }}</td>
+            <td>{{ call.start }}</td>
+            <td>{{ call.end }}</td>
+            <td>{{ call.from_phonenumber }}</td>
+            <td>{{ call.to_phonenumber }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "telephony/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Messages</h2>
+
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>UUID</th>
+                <th>Sendtime</th>
+                <th>Text</th>
+                <th>From</th>
+                <th>To</th>
+            </tr>
+        </thead>
+        {% for message in messages %}
+        <tr>
+            <td>{{ message.uuid }}</td>
+            <td>{{ message.sendtime }}</td>
+            <td>{{ message.text }}</td>
+            <td>{{ message.from_phonenumber }}</td>
+            <td>{{ message.to_phonenumber }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

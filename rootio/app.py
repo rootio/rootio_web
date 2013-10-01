@@ -14,6 +14,7 @@ from .frontend import frontend
 from .api import api
 from .admin import admin
 from .radio import radio
+from .telephony import telephony
 from .extensions import db, mail, cache, login_manager, oid
 from .utils import INSTANCE_FOLDER_PATH
 
@@ -25,6 +26,7 @@ DEFAULT_BLUEPRINTS = (
     frontend,
     user,
     radio,
+    telephony,
     settings,
     api,
     admin,
