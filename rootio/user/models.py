@@ -29,7 +29,7 @@ class UserDetail(db.Model):
     created_time = Column(db.DateTime, default=get_current_time)
 
 class User(db.Model, UserMixin):
-    __tablename__ = 'user_users'
+    __tablename__ = 'user_user'
 
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(STRING_LEN), nullable=False, unique=True)

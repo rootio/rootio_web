@@ -37,6 +37,25 @@ class Language(db.Model):
     def __unicode__(self):
         return self.name
 
+class Network(db.Model):
+    "A network of radio stations"
+    __tablename__ = "radio_network"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN), nullable=False)
+    about = db.Column(db.Text())
+
+    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('user_user'))
+    #networks can have multiple admins
+
+
+t_networkadmins = db.Table(
+    u'radio_networkadmins',
+    db.Column(u'user_id', db.ForeignKey('user_user.id')),
+    db.Column(u'network_id', db.ForeignKey('radio_network.id'))
+)
+
+
 class Station(db.Model):
     "A single radio station"
     __tablename__ = 'radio_station'
@@ -47,12 +66,14 @@ class Station(db.Model):
     frequency = db.Column(db.Float)
 
     #foreign keys
-    owner_id = db.Column(db.ForeignKey('user_users.id'))
+    owner_id = db.Column(db.ForeignKey('user_user.id'))
+    network_id = db.Column(db.ForeignKey('radio_network.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
     phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
     #relationships
     owner = db.relationship(u'User')
+    network = db.relationship(u'Network')
     location = db.relationship(u'Location')
     phone = db.relationship(u'PhoneNumber')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('radio_stations'))
@@ -70,8 +91,8 @@ class Station(db.Model):
 
 t_stationlanguage = db.Table(
     u'radio_stationlanguage',
-    db.Column(u'language_pk', db.ForeignKey('radio_language.id'), primary_key=True),
-    db.Column(u'station_pk', db.ForeignKey('radio_station.id'), primary_key=True)
+    db.Column(u'language_id', db.ForeignKey('radio_language.id')),
+    db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
 
 
@@ -142,8 +163,8 @@ class Person(db.Model):
 
 t_personlanguage = db.Table(
     u'radio_personlanguage',
-    db.Column(u'language_pk', db.ForeignKey('radio_language.id'), primary_key=True),
-    db.Column(u'person_pk', db.ForeignKey('radio_person.id'), primary_key=True)
+    db.Column(u'language_id', db.ForeignKey('radio_language.id'), primary_key=True),
+    db.Column(u'person_id', db.ForeignKey('radio_person.id'), primary_key=True)
 )
 
 class Role(db.Model):

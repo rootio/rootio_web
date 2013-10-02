@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 # User role
-ADMIN = 0
-STAFF = 1
-USER = 2
+ADMIN = 0 #edit all
+NETWORK_ADMIN = 1
+STAFF = 2 #edit own stations only
+USER = 3 #view only
 USER_ROLE = {
     ADMIN: 'admin',
+    NETWORK_ADMIN: 'network admin',
     STAFF: 'staff',
     USER: 'user',
 }
