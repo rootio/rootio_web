@@ -34,6 +34,9 @@ class Language(db.Model):
     iso639_2 = db.Column(db.String(3))# 3 digit code (eg, 'eng')
     locale_code = db.Column(db.String(10)) # IETF locale (eg, 'en-US')
 
+    #relationships
+    programs = db.relationship(u'Program', backref=db.backref('language'))
+
     def __unicode__(self):
         return self.name
 
@@ -45,7 +48,8 @@ class Network(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
 
-    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('user_user'))
+    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('networks'))
+    stations = db.relationship(u'Station', backref=db.backref('network'))
     #networks can have multiple admins
 
 
@@ -73,10 +77,11 @@ class Station(db.Model):
 
     #relationships
     owner = db.relationship(u'User')
-    network = db.relationship(u'Network')
     location = db.relationship(u'Location')
     phone = db.relationship(u'PhoneNumber')
-    languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('radio_stations'))
+    schedules = db.relationship(u'ProgramSchedule', backref=db.backref('station'))
+    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station'))
+    languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
     @property
     def current_program(self):
@@ -97,6 +102,7 @@ t_stationlanguage = db.Table(
 
 
 class ProgramType(db.Model):
+    "A flexible definition of program dynamics"
     __tablename__ = u'radio_programtype'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -113,12 +119,10 @@ class Program(db.Model):
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
     length = db.Column(db.Time)
+    update_recurrence = db.Column(db.Text()) #when new episodes are available
+
     language_id = db.Column(db.ForeignKey('radio_language.id'))
     program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
-
-    #relationships
-    language = db.relationship(u'Language')
-    programtype = db.relationship(u'ProgramType')
 
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
 
@@ -128,13 +132,37 @@ class Episode(db.Model):
     __tablename__ = 'radio_episode'
 
     id = db.Column(db.Integer, primary_key=True)
-    program_id = db.Column(db.Integer, db.ForeignKey('radio_program.id'))
-    saved_file = db.Column(FileField([]))
+    program_id = db.Column(db.ForeignKey('radio_program.id'))
+    recording_id = db.Column(db.ForeignKey('radio_recording.id'))
     created_time = db.Column(db.DateTime, default=get_current_time)
-    
+
+    recording = db.relationship(u'Recording')
+
+
+class ProgramSchedule(db.Model):
+    "A commitment by a station to air a program on a recurring schedule"
+    __tablename__ = "radio_programschedule"
+    id = db.Column(db.Integer, primary_key=True)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    program_id = db.Column(db.ForeignKey('radio_program.id'))
+    recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
+
+    program = db.relationship(u'Program')
+
+
+class ScheduledEpisode(db.Model):
+    "An episode scheduled to air on a station at a time"
+    __tablename__ = "radio_scheduledepisode"
+    id = db.Column(db.Integer, primary_key=True)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    program_id = db.Column(db.ForeignKey('radio_episode.id'))
+    start = db.Column(db.DateTime)
+    end = db.Column(db.DateTime)
+
+
 class Recording(db.Model):
-    "A sound file"
-    __tablename__ = 'radio_episode'
+    "A recorded sound file"
+    __tablename__ = 'radio_recording'
 
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(160))
@@ -156,9 +184,10 @@ class Person(db.Model):
 
     phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
-    phone = db.relationship(u'PhoneNumber', backref=db.backref('telephony_phonenumber'))
-    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('radio_person'))
-    
+    phone = db.relationship(u'PhoneNumber', backref=db.backref('person'))
+    role = db.relationship(u'Role', backref=db.backref('person'))
+    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person'))
+
     gender_code = db.Column(db.Integer)
     @property
     def gender(self):
@@ -185,6 +214,3 @@ class Role(db.Model):
 
     person_id = db.Column(db.ForeignKey('radio_person.id'))
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-
-    person = db.relationship(u'Person')
-    station = db.relationship(u'Station')
