@@ -7,7 +7,18 @@ import requests
 GOIP_server = '127.0.0.1' #'172.248.114.178'
 
 
-app = Flask(__name__)           
+app = Flask(__name__)    
+from rootio.extensions import db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./test.db'
+db.init_app(app)
+db.create_all()
+
+from rootio.telephony.models import PhoneNumber, Message
+m = Message()
+m.text = "mmmmmmmm"
+db.session.add(m)
+db.commit()
+       
 
 def debug(request):
     s = ""
