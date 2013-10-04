@@ -5,7 +5,7 @@ import os
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
-from .models import Station, Program, Episode
+from .models import Station, Program, Content
 from .forms import StationForm, ProgramForm
 
 from ..extensions import db
