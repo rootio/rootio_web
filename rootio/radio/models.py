@@ -79,8 +79,8 @@ class Station(db.Model):
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
     phone = db.relationship(u'PhoneNumber')
-    schedules = db.relationship(u'ProgramSchedule', backref=db.backref('station'))
-    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station'))
+    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
+    scheduled_content = db.relationship(u'ScheduledContent', backref=db.backref('station'))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
     @property
@@ -118,18 +118,18 @@ class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
-    length = db.Column(db.Time)
-    update_recurrence = db.Column(db.Text()) #when new episodes are available
+    duration = db.Column(db.Time)
+    update_recurrence = db.Column(db.Text()) #when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
     program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
-    episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
+    contents = db.relationship('Content', backref=db.backref('program'), lazy='dynamic')
 
 
-class Episode(db.Model):
-    "A particular instance of a program"
-    __tablename__ = 'radio_episode'
+class Content(db.Model):
+    "A particular instance of a program, or other broadcasted audio content"
+    __tablename__ = 'radio_content'
 
     id = db.Column(db.Integer, primary_key=True)
     program_id = db.Column(db.ForeignKey('radio_program.id'))
@@ -139,25 +139,60 @@ class Episode(db.Model):
     recording = db.relationship(u'Recording')
 
 
-class ProgramSchedule(db.Model):
-    "A commitment by a station to air a program on a recurring schedule"
-    __tablename__ = "radio_programschedule"
+class ScheduledBlock(db.Model):
+    """A block of similar programs, with a recurrence rule and duration.
+    Similar to advertising 'dayparts'
+    """
+    __tablename__ = "radio_scheduledblock"
+    id = db.Column(db.Integer, primary_key = True)
+    recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
+    duration = db.Column(db.Time)
+    #start / end?
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+
+class BlockedProgram(db.Model):
+    "A commitment by a station to air a program in a block"
+    __tablename__ = "radio_blockedprogram"
     id = db.Column(db.Integer, primary_key=True)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
-    recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
+    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
+    #order / priority
 
+    scheduled_block = db.relationship(u'ScheduledBlock')
     program = db.relationship(u'Program')
 
 
-class ScheduledEpisode(db.Model):
-    "An episode scheduled to air on a station at a time"
-    __tablename__ = "radio_scheduledepisode"
+class ScheduledContent(db.Model):
+    """Content scheduled to air on a station at a time.
+    Read these in order to determine a station's next to air."""
+    __tablename__ = "radio_scheduledcontent"
     id = db.Column(db.Integer, primary_key=True)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-    program_id = db.Column(db.ForeignKey('radio_episode.id'))
+    content_id = db.Column(db.ForeignKey('radio_content.id'))
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
+
+
+class PaddingContent(db.Model):
+    """An advertisement or PSA to run on a network in a block.
+    Actual air schedule to be determined by the scheduler."""
+    __tablename__ = "radio_paddingcontent"
+    id = db.Column(db.Integer, primary_key=True)
+    recording_id = db.Column(db.ForeignKey('radio_recording.id'))
+    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
+    #sponsoring org?
+
+    block = db.relationship(u'ScheduledBlock')
+    networks = db.relationship(u'Network', secondary=u'radio_networkpadding', backref=db.backref('paddingcontents'))
+
+
+t_networkpadding = db.Table(
+    u'radio_networkpadding',
+    db.Column(u'network_id', db.ForeignKey('radio_network.id')),
+    db.Column(u'paddingcontent_id', db.ForeignKey('radio_paddingcontent.id'))
+)
 
 
 class Recording(db.Model):
@@ -198,11 +233,13 @@ class Person(db.Model):
     def privacy(self):
         return PRIVACY_TYPE.get(self.privacy_code)
 
+    #user_id
+
 
 t_personlanguage = db.Table(
     u'radio_personlanguage',
-    db.Column(u'language_id', db.ForeignKey('radio_language.id'), primary_key=True),
-    db.Column(u'person_id', db.ForeignKey('radio_person.id'), primary_key=True)
+    db.Column(u'language_id', db.ForeignKey('radio_language.id')),
+    db.Column(u'person_id', db.ForeignKey('radio_person.id'))
 )
 
 class Role(db.Model):
@@ -213,4 +250,5 @@ class Role(db.Model):
     name = db.Column(db.String)
 
     person_id = db.Column(db.ForeignKey('radio_person.id'))
+    #add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
