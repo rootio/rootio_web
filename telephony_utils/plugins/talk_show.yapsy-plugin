@@ -1,0 +1,10 @@
+[Core]
+Name = Talk Show
+Module = talk_show
+
+[Documentation]
+Author = John Smith
+Version = 0.1
+Website = http://lotsofplugins.com
+Description = My first plugin
+
