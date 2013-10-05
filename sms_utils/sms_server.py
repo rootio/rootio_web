@@ -1,5 +1,7 @@
 from flask import Flask
 from flask import request   
+from flask.ext.sqlalchemy import SQLAlchemy
+
 import sys 
 import requests
 
@@ -9,15 +11,14 @@ GOIP_server = '127.0.0.1' #'172.248.114.178'
 
 app = Flask(__name__)    
 from rootio.extensions import db
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./test.db'
-db.init_app(app)
-db.create_all()
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost'
+db = SQLAlchemy(app)
 from rootio.telephony.models import PhoneNumber, Message
+#db.create_all()
 m = Message()
 m.text = "mmmmmmmm"
 db.session.add(m)
-db.commit()
+db.session.commit()
        
 
 def debug(request):
@@ -94,3 +95,4 @@ if __name__ == "__main__":
                                 
     
     
+
