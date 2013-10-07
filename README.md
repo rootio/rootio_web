@@ -29,6 +29,6 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 
 ## ACKNOWLEDGEMENTS
 
-* Includes some application layout and structure from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
-.
+* Application layout and structure from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
 * Includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
+* and [RRule.js](http://jkbr.github.io/rrule/), Copyright (c) 2013 by Jakub Roztočil @jkbr
