@@ -87,12 +87,12 @@ $.widget("rrule.recurringinput", {
     tmpl += '<label for="end">End </label>';
 
     tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value=0" checked="checked"/> Never</label>';
+    tmpl += '<input type="radio" name="end" value="0" checked="checked"/> Never</label>';
     tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value=1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
+    tmpl += '<input type="radio" name="end" value="1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
     tmpl += '</label>';
     tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value=2"> On date <input type="date" name="until"/>';
+    tmpl += '<input type="radio" name="end" value="2"> On date <input type="date" name="until"/>';
     tmpl += '</label>';
 
     tmpl += '</div>';
@@ -109,9 +109,12 @@ $.widget("rrule.recurringinput", {
     //save input references to widget for later use
     this.frequency_select = this.element.find('select[name="freq"]');
     this.interval_input = this.element.find('input[name="interval"]');
+    this.end_input = this.element.find('input[type="radio"][name="end"]');
+    end_input = this.end_input;
+
     //bind event handlers
     this._on(this.element.find('select, input'), {
-        'change': this._refresh
+      'change': this._refresh
     });
 
     //set sensible defaults
@@ -134,9 +137,35 @@ $.widget("rrule.recurringinput", {
     }
 
     // display appropriate repeat options
-    this.element.find('.repeat-options').hide();
+    var repeatOptions = this.element.find('.repeat-options');
+    repeatOptions.hide();
+    
     if (frequency !== "") {
-      this.element.find('.repeat-options').filter('[data-freq='+frequency.text()+']').show();
+      //show options for the selected frequency
+      var selectedOptions = repeatOptions.filter('[data-freq='+frequency.text()+']');
+      selectedOptions.show();
+      
+      //and clear descendent fields for the others
+      nonSelectedOptions = repeatOptions.filter('[data-freq!='+frequency.text()+']');
+      nonSelectedOptions.find('input[type=checkbox]:checked').removeAttr('checked');
+      nonSelectedOptions.find('select').val('');
+    }
+
+    //reset end
+    switch (this.end_input.filter(':checked').val()) {
+      case "0":
+        //never, clear count and until
+        this.end_input.siblings('input[name=count]').val('');
+        this.end_input.siblings('input[name=until]').val('');
+        break;
+      case "1":
+        //after, clear until
+        this.end_input.siblings('input[name=until]').val('');
+        break;
+      case "2":
+        //date, clear count
+        this.end_input.siblings('input[name=count]').val('');
+        break;
     }
 
     //determine rrule
