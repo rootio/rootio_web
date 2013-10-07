@@ -14,13 +14,7 @@ from rootio.extensions import db
 from config import SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
-from rootio.telephony.models import PhoneNumber, Message
-#db.create_all()
-m = Message()
-m.text = "mmmmmmmm"
-db.session.add(m)
-db.session.commit()
-       
+from rootio.telephony.models import PhoneNumber, Message       
 
 def debug(request):
     s = ""
@@ -82,13 +76,15 @@ def sms_in():
     Expected args: Event-Date-Timestamp (Unix epoch), from, to, from_number, body
     """
     import datetime
+    import uuid as uid
     debug(request)
+    uuid = uid.uuid5(uid.NAMESPACE_DNS, 'rootio.org')
     edt = datetime.datetime.fromtimestamp(int(request.args.get('Event-Date-Timestamp'))/1000000) #.strftime('%Y-%m-%d %H:%M:%S')    
     fr = request.args.get('from')    #This line should look up the station through its from address 
     to = request.args.get('to')    #This will be the same for all related units -- again may make sense to have a representation of sending units
     from_number = request.args.get('from_number')    #look up a number now?  Save a foreign key
     body = request.args.get('body')      
-    return str(str(edt)+fr+'->'+to+from_number+body) 
+    return str(str(edt)+fr+'->'+to+from_number+body+uuid) 
       
 if __name__ == "__main__":
     app.run(debug=True)

@@ -69,13 +69,15 @@ class Station(db.Model):
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
-    phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+    cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id')) #number at simbox or sip trunk
+    transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id')) #number for phone running rootio app
 
     #relationships
     owner = db.relationship(u'User')
     network = db.relationship(u'Network')
     location = db.relationship(u'Location')
-    phone = db.relationship(u'PhoneNumber')
+    cloud_phone = db.relationship(u'PhoneNumber')
+    transmitter_phone = db.relationship(u'PhoneNumber')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('radio_stations'))
 
     @property
