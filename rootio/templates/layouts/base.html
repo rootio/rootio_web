@@ -120,7 +120,6 @@
         </ul>
     </footer>
 
-    {% block js_btm %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <!--
@@ -128,8 +127,9 @@
     <script>window.jQuery || document.write('<script src="{{ jquery_path }}"><\/script>')</script>
     -->
     <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    {% block js_btm %}{% endblock %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% endblock %}
+
 
     {% block ga %}
     {% include "macros/_google_analytics.html" %}

@@ -13,8 +13,10 @@ $(document).ready(function() {
         }
     });
 
+//init recurring input fieldset
     $('#recurringinput').recurringinput();
 
+//shim html5 input types
     if (!Modernizr.inputtypes.date) {
         $('input[type=date]').datepicker();
     }
