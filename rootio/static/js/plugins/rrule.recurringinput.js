@@ -101,6 +101,7 @@ $.widget("rrule.recurringinput", {
     tmpl += '<label for="output">Summary ';
     tmpl += '<em id="text-output"></em>'; // human readable
     tmpl += '<br><code id="rrule-output"></code>'; // ugly rrule
+    //TODO: show next few instances to help user debug
     tmpl += '</label>';
 
     //render template
@@ -110,7 +111,6 @@ $.widget("rrule.recurringinput", {
     this.frequency_select = this.element.find('select[name="freq"]');
     this.interval_input = this.element.find('input[name="interval"]');
     this.end_input = this.element.find('input[type="radio"][name="end"]');
-    end_input = this.end_input;
 
     //bind event handlers
     this._on(this.element.find('select, input'), {
