@@ -7,6 +7,14 @@
     width:50px;
 }
 
+#recurringinput label:not(.inline) {
+    font-weight:bold;
+    margin-right:5px;
+}
+#recurringinput label span {
+    font-weight:normal;
+}
+
 #recurringinput label.inline {
     margin-right:5px;
 }

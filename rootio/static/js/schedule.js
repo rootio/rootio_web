@@ -14,5 +14,10 @@ $(document).ready(function() {
     });
 
     $('#recurringinput').recurringinput();
+
+    if (!Modernizr.inputtypes.date) {
+        $('input[type=date]').datepicker();
+    }
+    
 });
 

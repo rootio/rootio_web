@@ -8,7 +8,9 @@
 // add helpful constants to RRule
 RRule.FREQUENCY_NAMES = ['year','month','week','day','hour','minute','second'];
 RRule.DAYCODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-RRule.DAYNAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+RRule.DAYNAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+RRule.MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// note, month num for these values should be one-based, not zero-based
 
 $.widget("rrule.recurringinput", {
   // default options
@@ -18,10 +20,9 @@ $.widget("rrule.recurringinput", {
   },
 
   _create: function() {
-    console.log('_create');
     //set up inputs
     // TODO: convert to underscore template
-    var tmpl = "";
+    var tmpl = "<!-- janky inline template -->";
 
     //frequency
     tmpl += '<label class="controls">Repeat ';
@@ -39,33 +40,68 @@ $.widget("rrule.recurringinput", {
     tmpl += '&nbsp;<span id="frequency_name"></span>';
     tmpl += '</label>';
 
-    
-
     // repeat options, frequency specific
-    tmpl += '<div class="repeat-options controls form-inline" data-freq="weekly"><label>On ';
+    // data-freq should be lowercase value from FREQUENCY_NAMES
+    
+    //bymonth
+    tmpl += '<div class="repeat-options controls form-inline" data-freq="monthly"><label>Only in ';
+    _.each(RRule.MONTHS, function(element, index) {
+      tmpl += '<label class="inline">';
+      tmpl += '<input type="checkbox" name="bymonth" value="'+(index+1)+'" />';
+      tmpl += element+'</label>';
+    });
+    tmpl += '</div>';
+
+    //byweekday
+    tmpl += '<div class="repeat-options controls form-inline" data-freq="weekly">';
+    tmpl += '<label for="byweekday">On </label>';
     _.each(RRule.DAYCODES, function(element, index) {
       var d = window['RRule'][element];
       tmpl += '<label class="inline">';
-      tmpl += '<input type="checkbox" name="byweekday" value="'+d.weekday+'">'+RRule.DAYNAMES[index]+'</input>';
-      tmpl += '</label>';
+      tmpl += '<input type="checkbox" name="byweekday" value="'+d.weekday+'" />';
+      tmpl += RRule.DAYNAMES[index]+'</label>';
     });
     tmpl += '</div>';
-    
-    //other repeat options?
+
+    //byhour
+    tmpl += '<label class="repeat-options" data-freq="hourly">Only at ';
+    tmpl += '<input name="byhour" /> <span>o\'clock</span></label>';
+
+    //byminute
+    tmpl += '<label class="repeat-options" data-freq="minutely">Only at ';
+    tmpl += '<input name="byminute" />  <span>minutes<span></label>';
+
+    //bysecond
+    tmpl += '<label class="repeat-options" data-freq="secondly">Only at ';
+    tmpl += '<input name="bysecond" /> <span>seconds</span></label>';
+
+    // end repeat options
 
     // starts on
-    //TODO
+    tmpl += '<label>Start ';
+    tmpl += '<input name="dtstart" type="date"/>';
+    tmpl += '</label>';
 
     // end on
-    //TODO
+    tmpl += '<div class="end-options controls">';
+    tmpl += '<label for="end">End </label>';
 
-    // count
-    //TODO
+    tmpl += '<label class="inline">';
+    tmpl += '<input type="radio" name="end" value=0" checked="checked"/> Never</label>';
+    tmpl += '<label class="inline">';
+    tmpl += '<input type="radio" name="end" value=1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
+    tmpl += '</label>';
+    tmpl += '<label class="inline">';
+    tmpl += '<input type="radio" name="end" value=2"> On date <input type="date" name="until"/>';
+    tmpl += '</label>';
+
+    tmpl += '</div>';
 
     // summary
-    // human readable rule
-
-    // ugly rrule
+    tmpl += '<label for="output">Summary ';
+    tmpl += '<em id="text-output"></em>'; // human readable
+    tmpl += '<br><code id="rrule-output"></code>'; // ugly rrule
+    tmpl += '</label>';
 
     //render template
     this.element.append(tmpl);
@@ -73,25 +109,23 @@ $.widget("rrule.recurringinput", {
     //save input references to widget for later use
     this.frequency_select = this.element.find('select[name="freq"]');
     this.interval_input = this.element.find('input[name="interval"]');
-
     //bind event handlers
-    this._on(this.frequency_select, {
+    this._on(this.element.find('select, input'), {
         'change': this._refresh
     });
-    this._on(this.interval_input, {
-        'change': this._refresh
-    });
-    
+
+    //set sensible defaults
+    this.frequency_select.val(2);
+    this.interval_input.val(1);
+
     //refresh
     this._refresh();
  },
 
   // called on create and when changing options
   _refresh: function() {
-    console.log('_refresh');
-    
+    //determine selected frequency
     var frequency = this.frequency_select.find("option:selected");
-
     // fill in frequency-name span
     this.element.find('#frequency_name').text(RRule.FREQUENCY_NAMES[frequency.val()]);
     // and pluralize
@@ -105,7 +139,77 @@ $.widget("rrule.recurringinput", {
       this.element.find('.repeat-options').filter('[data-freq='+frequency.text()+']').show();
     }
 
+    //determine rrule
+    var rrule = this._getRRule();
 
+    $('#rrule-output').text(rrule.toString());
+    $('#text-output').text(rrule.toText());
+  },
+
+  _getFormValues: function($form) {
+    //modified from rrule/tests/demo/demo.js
+    var paramObj;
+    paramObj = {};
+
+    $.each($form.serializeArray(), function(_, kv) {
+      if (paramObj.hasOwnProperty(kv.name)) {
+        paramObj[kv.name] = $.makeArray(paramObj[kv.name]);
+        return paramObj[kv.name].push(kv.value);
+      } else {
+        return paramObj[kv.name] = kv.value;
+      }
+    });
+    return paramObj;
+  },
+  _getRRule: function() {
+    //modified from rrule/tests/demo/demo.js
+    //ignore 'end', because it's part of the ui but not the spec
+    values = this._getFormValues($(this.element).find('select, input[name!=end]'));
+
+    options = {};
+    getDay = function(i) {
+      return [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR, RRule.SA, RRule.SU][i];
+    };
+    for (k in values) {
+      v = values[k];
+      if (!v) {
+        continue;
+      }
+      if (_.contains(["dtstart", "until"], k)) {
+        d = new Date(Date.parse(v));
+        v = new Date(d.getTime() + (d.getTimezoneOffset() * 60 * 1000));
+      } else if (k === 'byweekday') {
+        if (v instanceof Array) {
+          v = _.map(v, getDay);
+        } else {
+          v = getDay(v);
+        }
+      } else if (/^by/.test(k)) {
+        if (!(v instanceof Array)) {
+          v = _.compact(v.split(/[,\s]+/));
+        }
+        v = _.map(v, function(n) {
+          return parseInt(n, 10);
+        });
+      } else {
+        v = parseInt(v, 10);
+      }
+      if (k === 'wkst') {
+        v = getDay(v);
+      }
+      if (k === 'interval' && v === 1) {
+        continue;
+      }
+      options[k] = v;
+    }
+    try {
+        rule = new RRule(options);
+      } catch (_error) {
+        e = _error;
+        $("#text-output").append($('<pre class="error"/>').text('=> ' + String(e || null)));
+        return;
+      }
+    return rule;
   },
 
   // _setOptions is called with a hash of all options that are changing
