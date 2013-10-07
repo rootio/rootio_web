@@ -8,6 +8,7 @@
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
@@ -52,7 +53,7 @@
             </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
