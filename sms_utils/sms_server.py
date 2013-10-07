@@ -7,6 +7,7 @@ import requests
 
 
 GOIP_server = '127.0.0.1' #'172.248.114.178'
+telephony_server = '127.0.0.1:5000/sms/in'
 
 
 app = Flask(__name__)    
@@ -78,13 +79,23 @@ def sms_in():
     import datetime
     import uuid as uid
     debug(request)
+    
+    
     uuid = uid.uuid5(uid.NAMESPACE_DNS, 'rootio.org')
     edt = datetime.datetime.fromtimestamp(int(request.args.get('Event-Date-Timestamp'))/1000000) #.strftime('%Y-%m-%d %H:%M:%S')    
     fr = request.args.get('from')    #This line should look up the station through its from address 
     to = request.args.get('to')    #This will be the same for all related units -- again may make sense to have a representation of sending units
     from_number = request.args.get('from_number')    #look up a number now?  Save a foreign key
     body = request.args.get('body')      
-    return str(str(edt)+fr+'->'+to+from_number+body+uuid) 
+    payload = { 'uuid': uuid, 
+                'edt': edt, 
+                'fr': fr, 
+                'to': to, 
+                'from_number': from_number, 
+                'body': body,
+               }
+    r = requests.post(telephony_server, data=payload)
+    return str(str(edt)+'\n'+fr+'->'+to+'\n'+from_number+'\n'+body+'\n'+uuid) 
       
 if __name__ == "__main__":
     app.run(debug=True)
