@@ -107,9 +107,12 @@ class ProgramType(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),nullable=False)
-    definition = db.Column(db.PickleType)
-    #todo program definition
+    description = db.Column(db.Text,nullable=False)
+    definition = db.Column(db.PickleType,nullable=False)
+    #TODO: more complex program definition?
 
+    def __unicode__(self):
+        return self.name
 
 class Program(db.Model):
     "A single or recurring radio program"
@@ -124,6 +127,7 @@ class Program(db.Model):
     language_id = db.Column(db.ForeignKey('radio_language.id'))
     program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
+    program_type = db.relationship(u'ProgramType')
     contents = db.relationship('Content', backref=db.backref('program'), lazy='dynamic')
 
 

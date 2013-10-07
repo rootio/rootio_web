@@ -27,18 +27,25 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=Form,
 class StationForm(StationFormBase):
     submit = SubmitField(u'Save')
 
+
 def all_languages():
     return Language.query.all()
-
 def all_program_types():
     return ProgramType.query.all()
-
 class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField(description="") #different syntax here, pass description directly to field constructor
-    length = DurationField(description="Duration of the program, in H:MM:SS")
+    duration = DurationField(description="Duration of the program, in H:MM:SS")
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
+    submit = SubmitField(u'Save')
+
+
+ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
+    field_args={
+        'definition':{"description":"This field accepts arbitrary Python-dictionaries"},
+    })
+class ProgramTypeForm(ProgramTypeFormBase):
     submit = SubmitField(u'Save')
 
 
