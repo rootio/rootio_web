@@ -9,8 +9,8 @@ from ..decorators import admin_required
 from ..user import User
 from ..user.forms import UserForm
 
-from ..radio import Language
-from ..radio.forms import LanguageForm
+from ..radio import Language, ProgramType
+from ..radio.forms import LanguageForm, ProgramTypeForm
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -54,7 +54,6 @@ def user(user_id):
 @admin_required
 def languages():
     languages = Language.query.all()
-    print "languages",languages
     return render_template('admin/languages.html', languages=languages, active='languages')
 
 
@@ -96,3 +95,29 @@ def language_add():
 
     return render_template('admin/language.html', language=language, form=form)
 
+
+@admin.route('/program_type/')
+@login_required
+@admin_required
+def program_types():
+    program_types = ProgramType.query.all()
+    return render_template('admin/program_types.html', program_types=program_types, active='program_types')
+
+@admin.route('/program_type/<int:program_type_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def program_type(program_type_id):
+    program_type = ProgramType.query.filter_by(id=program_type_id).first_or_404()
+    form = ProgramTypeForm(obj=program_type, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(program_type)
+
+        db.session.add(program_type)
+        db.session.commit()
+
+        flash('Program Type updated.', 'success')
+
+    return render_template('admin/program_type.html', program_type=program_type, form=form)
+
+#TODO: program_type_add, with custom widget for picklefield

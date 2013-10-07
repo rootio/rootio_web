@@ -102,7 +102,8 @@ def program_add():
 
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
-    return render_template('radio/schedule.html', active='schedule')
+    programs = Program.query.all() #TODO: limit to those not yet scheduled
+    return render_template('radio/schedule.html', programs=programs, active='schedule')
 
 @radio.route('/station/schedule.json', methods=['GET'])
 def schedule_json():
