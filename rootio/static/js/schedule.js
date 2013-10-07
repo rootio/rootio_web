@@ -1,9 +1,4 @@
-$(document).ready(function() {
-    var date = new Date();
-    var d = date.getDate();
-    var m = date.getMonth();
-    var y = date.getFullYear();
-    
+$(document).ready(function() {    
     $('#calendar').fullCalendar({
         header: {
             left: 'prev,next today',
@@ -17,6 +12,7 @@ $(document).ready(function() {
             url: '/radio/station/schedule.json'
         }
     });
-    
+
+    $('#recurringinput').recurringinput();
 });
 
