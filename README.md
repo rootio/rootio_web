@@ -8,7 +8,7 @@
 * SQLAlchemy
 * Alembic
 
-Complete list of packages in requirements.txt
+Complete list of packages in [requirements.txt](https://github.com/rootio/rootio-cloud/blob/master/requirements.txt)
 
 ## LICENSE
 
