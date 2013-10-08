@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>{% block title %}{{ page_title|default(_('Project')) }}{% endblock %} - Rootio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="Shortcut Icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
@@ -128,6 +129,7 @@
     -->
     <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
     {% block js_btm %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 

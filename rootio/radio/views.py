@@ -8,6 +8,7 @@ from flask.ext.login import login_required, current_user
 from .models import Station, Program, Content
 from .forms import StationForm, ProgramForm
 
+from ..decorators import returns_json
 from ..extensions import db
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -42,8 +43,6 @@ def station(station_id):
 @login_required
 def station_add():
     form = StationForm(request.form)
-    #TODO: set form owner from current_user
-    #form.owner = g.current_user
     station = None
 
     if form.validate_on_submit():
@@ -100,12 +99,15 @@ def program_add():
 
     return render_template('radio/program.html', program=program, form=form)
 
+
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
     programs = Program.query.all() #TODO: limit to those not yet scheduled
     return render_template('radio/schedule.html', programs=programs, active='schedule')
 
+
 @radio.route('/station/schedule.json', methods=['GET'])
+@returns_json
 def schedule_json():
     from datetime import datetime, timedelta, time
     now = datetime.now()
@@ -116,7 +118,4 @@ def schedule_json():
         {'title':'late night','start':tonight,'end':tonight + timedelta(hours=4)}
     ]
     schedule_list = dummy_list
-
-    #can't use jsonify, because fullcalendar expects an array of event objects
-    #create response manually
-    return Response(json.dumps(schedule_list),  mimetype='application/json')
+    return schedule_list
