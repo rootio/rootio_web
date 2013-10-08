@@ -4,7 +4,10 @@ from flask.ext.login import login_required
 from .models import PhoneNumber, Message, Call
 from .forms import PhoneNumberForm
 
+from ..utils import error_dict
+from ..decorators import returns_json
 from ..extensions import db
+
 
 telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
@@ -52,6 +55,27 @@ def phonenumber_add():
         flash('Validation error','error')
 
     return render_template('telephony/phonenumber.html', phonenumber=phonenumber, form=form)
+
+
+@telephony.route('/phonenumber/add/inline/', methods=['POST'])
+@login_required
+@returns_json
+def phonenumber_add_inline():
+    data = json.loads(request.form.get('data'))
+    form = PhoneNumberForm(None, **data) #use this format to avoid multidict-type issue
+    phonenumber = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        phonenumber = PhoneNumber(**cleaned_data) #create new object from data
+        db.session.add(phonenumber)
+        db.session.commit()
+        response = {'status':'success','result':{'id':phonenumber.id,'string':unicode(phonenumber)},'status_code':200}
+    elif request.method == "POST":
+        #convert the error dictionary to something serializable
+        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+    print response
+    return response
 
 
 @telephony.route('/calls/', methods=['GET'])

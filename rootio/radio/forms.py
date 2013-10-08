@@ -38,8 +38,10 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
     },
     exclude=['scheduled_content','blocks'])
 class StationForm(StationFormBase):
-    owner = QuerySelectField(query_factory=all_users,allow_blank=False)
-    phone_inline = FormField(PhoneNumberForm) #inline form for phone creation modal
+    owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
+    phone_inline = FormField(PhoneNumberForm,description='/telephony/phonenumber/add/inline/')
+        #inline form and POST url for phone creation modal
+        #ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = FormField(LocationForm)
     submit = SubmitField(u'Save')
     field_order = ('owner','name','*')

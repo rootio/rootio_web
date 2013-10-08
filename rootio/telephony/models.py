@@ -14,7 +14,7 @@ class PhoneNumber(db.Model):
     carrier = db.Column(db.String(STRING_LEN))
     countrycode = db.Column(db.String(3)) #does not include + symbol
     areacode = db.Column(db.String(8)) #consistent across countries?
-    number = db.Column(db.String(20))
+    number = db.Column(db.String(20),nullable=False)
 
     number_type = db.Column(db.Integer)
     @property

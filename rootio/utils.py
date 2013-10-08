@@ -11,7 +11,6 @@ from datetime import datetime
 
 from flask.ext.wtf import Form
 
-
 # Instance folder path, make it independent.
 INSTANCE_FOLDER_PATH = os.path.join('/tmp', 'instance')
 
@@ -100,6 +99,15 @@ def make_dir(dir_path):
     except Exception, e:
         raise e
 
+def error_dict(form_errors):
+    d = {}
+    for (field,messages) in form_errors.items():
+        msgs = []
+        for m in messages:
+            msgs.append(unicode(m))
+        d[field] = ". ".join(msgs)
+    return d
+    
 #monkey patch wtforms to allow field_order attribute
 #from http://stackoverflow.com/a/18475322
 class OrderedForm(Form):
