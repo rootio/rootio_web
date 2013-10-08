@@ -3,29 +3,46 @@
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField 
+from wtforms import StringField, SelectField, SubmitField, FormField
 
 from .fields import DurationField
-from .models import Station, Program, ProgramType, Person, Language
+from .models import Station, Program, ProgramType, Person, Language, Location
 from .widgets import ChoicesSelect
 from .constants import PROGRAM_TYPES, LANGUAGE_CODES
 
+from ..user.models import User
+from ..telephony.forms import PhoneNumberForm
+
+from ..utils import OrderedForm
 from ..extensions import db
 
-class fixed_choices_field(object):
-    field_flags = ('fixed_choices',) #do not display the add-link inline in the admin
+LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
+    exclude=['modifieddate'])
+class LocationForm(LocationFormBase):
+    submit = SubmitField(u'Save')
 
+
+def all_users():
+    return User.query.all()
+class has_inline_form(object):
+    field_flags = ('has_inline_form',) #if True, look for a FormField with {{field.name}}_inline to render as a modal
 #define field help text here, instead of in model info
-StationFormBase = model_form(Station, db_session=db.session, base_class=Form,
+StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
     field_args={
         'name':{'description':'Name or callsign of station'},
         'frequency':{'description':'Station broadcast frequency'},
-        'phone':{'description': 'Station contact telephone number'},
-        'owner':{'description': 'User who is the owner of the station','validators':[fixed_choices_field,]},
+        'location':{'validators':[has_inline_form,]},
+        'phone':{'description': 'Station contact telephone number','validators':[has_inline_form,]},
+        'owner':{'description': 'User who is the owner of the station'},
+        'languages':{'description':"Primary languages the station will broadcast in"},
     },
-    exclude=[])
+    exclude=['scheduled_content','blocks'])
 class StationForm(StationFormBase):
+    owner = QuerySelectField(query_factory=all_users,allow_blank=False)
+    phone_inline = FormField(PhoneNumberForm) #inline form for phone creation modal
+    location_inline = FormField(LocationForm)
     submit = SubmitField(u'Save')
+    field_order = ('owner','name','*')
 
 
 def all_languages():
