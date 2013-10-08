@@ -3,7 +3,7 @@ import plivohelper
 from time import sleep
 
 
-def call(gateway, phone_number):
+def call(gateway, phone_number, answered):
     """
     Make a call, using (gateway, phone_number)
     TODO: actually make the other parameters correspond
@@ -23,7 +23,7 @@ def call(gateway, phone_number):
         'GatewayTimeouts' : "10,10",      # Seconds to timeout in string for each gateway separated by comma
         'GatewayRetries' : "2,1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
         'ExtraDialString' : extra_dial_string,
-        'AnswerUrl' : "http://127.0.0.1:5000/answered/",
+        'AnswerUrl' : answered,
         'HangupUrl' : "http://127.0.0.1:5000/hangup/",
         'RingUrl' : "http://127.0.0.1:5000/ringing/",
     #    'TimeLimit' : '10',
@@ -38,7 +38,7 @@ def call(gateway, phone_number):
     except Exception, e:
         print e
         raise
-    return [result.get('Success'),result.get('RequestUUID)]
+    return [result.get('Success'),result.get('RequestUUID')]
     
     
     
