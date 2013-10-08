@@ -24,6 +24,8 @@ class Location(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
+    def __unicode__(self):
+        return self.name
 
 class Language(db.Model):
     __tablename__ = u'radio_language'
@@ -51,6 +53,9 @@ class Network(db.Model):
     admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('networks'))
     stations = db.relationship(u'Station', backref=db.backref('network'))
     #networks can have multiple admins
+
+    def __unicode__(self):
+        return self.name
 
 
 t_networkadmins = db.Table(
@@ -93,6 +98,9 @@ class Station(db.Model):
         #TODO
         return "status() stub"
 
+    def __unicode__(self):
+        return self.name
+
 
 t_stationlanguage = db.Table(
     u'radio_stationlanguage',
@@ -129,6 +137,9 @@ class Program(db.Model):
 
     program_type = db.relationship(u'ProgramType')
     contents = db.relationship('Content', backref=db.backref('program'), lazy='dynamic')
+
+    def __unicode__(self):
+        return self.name
 
 
 class Content(db.Model):
@@ -237,7 +248,7 @@ class Person(db.Model):
     def privacy(self):
         return PRIVACY_TYPE.get(self.privacy_code)
 
-    #user_id
+    #TODO: fk to user_id?
 
 
 t_personlanguage = db.Table(
@@ -254,5 +265,5 @@ class Role(db.Model):
     name = db.Column(db.String)
 
     person_id = db.Column(db.ForeignKey('radio_person.id'))
-    #add program_id
+    #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))

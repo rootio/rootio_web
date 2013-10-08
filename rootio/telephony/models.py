@@ -21,6 +21,9 @@ class PhoneNumber(db.Model):
     def type(self):
         return PHONE_NUMBER_TYPE.get(self.number_type)
 
+    def __unicode__(self):
+        return "+%s %s %s" % (self.countrycode, self.areacode, self.number)
+
 class Call(db.Model):
     __tablename__ = u'telephony_call'
 
