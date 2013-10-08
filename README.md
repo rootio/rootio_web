@@ -32,3 +32,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 * Includes some application layout and structure from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
 .
 * Includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
+
+* Includes elements of [plivohelper-python](https://github.com/plivo/plivohelper-python), which in turn was derived from work Copyright (c) 2009 Twilio, Inc.
+
+* This project is built in part on the great telephony system [Freeswitch](http://freeswitch.org/)
