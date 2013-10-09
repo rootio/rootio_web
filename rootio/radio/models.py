@@ -143,11 +143,11 @@ class Program(db.Model):
 
 
 class Content(db.Model):
-    "A particular instance of a program, or other broadcasted audio content"
+    "A particular instance of a program, or other broadcast audio"
     __tablename__ = 'radio_content'
 
     id = db.Column(db.Integer, primary_key=True)
-    program_id = db.Column(db.ForeignKey('radio_program.id'))
+    program_id = db.Column(db.ForeignKey('radio_program.id'), nullable=False)
     recording_id = db.Column(db.ForeignKey('radio_recording.id'))
     created_time = db.Column(db.DateTime, default=get_current_time)
 

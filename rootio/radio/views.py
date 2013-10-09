@@ -6,7 +6,7 @@ from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
 from .models import Station, Program, Content, Location
-from .forms import StationForm, ProgramForm, LocationForm
+from .forms import StationForm, ProgramForm, LocationForm, SchedulingForm
 
 from ..decorators import returns_json
 from ..utils import error_dict
@@ -133,10 +133,25 @@ def location_add_inline():
     return response
 
 
-@radio.route('/schedule/', methods=['GET'])
+@radio.route('/schedule/', methods=['GET','POST'])
 def schedule():
-    programs = Program.query.all() #TODO: limit to those not yet scheduled
-    return render_template('radio/schedule.html', programs=programs, active='schedule')
+    form = SchedulingForm()
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        
+        print form.data
+        #create new ScheduledContent objects
+
+        
+        db.session.add(program)
+        db.session.commit()
+        flash('Schedule updated.', 'success') 
+    elif request.method == "POST":
+        flash('Validation error','error')
+
+    return render_template('radio/schedule.html', form=form, active='schedule')
 
 
 @radio.route('/station/schedule.json', methods=['GET'])
