@@ -49,12 +49,15 @@ def station_add():
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('phone_inline',None) #and also inline forms
+        cleaned_data.pop('location_inline',None)
         station = Station(**cleaned_data) #create new object from data
 
         db.session.add(station)
         db.session.commit()
         flash('Station added.', 'success') 
     elif request.method == "POST":
+        print "form.errors",form.errors
         flash('Validation error','error')
 
     return render_template('radio/station.html', station=station, form=form)

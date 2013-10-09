@@ -1,4 +1,5 @@
 from sqlalchemy import types, String
+from wtforms.fields import FormField
 from wtforms_components.fields import TimeField
 from wtforms_components.widgets import TextInput
 
@@ -39,3 +40,8 @@ class DurationField(TimeField):
     #html5 time inputs include am/pm, which doesn't make sense for duration
     #use textfield with custom pattern instead
     #matches (H)H.:MM(.:SS)
+
+class InlineFormField(FormField):
+    def validate(self, form, extra_validators=tuple()):
+        #don't validate inline form fields, we'll do it client side
+        return True
