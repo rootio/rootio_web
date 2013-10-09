@@ -26,6 +26,7 @@ def all_users():
     return User.query.all()
 class has_inline_form(object):
     field_flags = ('has_inline_form',) #if True, look for a FormField with {{field.name}}_inline to render as a modal
+
 #define field help text here, instead of in model info
 StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
     field_args={
@@ -42,7 +43,7 @@ class StationForm(StationFormBase):
     phone_inline = FormField(PhoneNumberForm,description='/telephony/phonenumber/add/inline/')
         #inline form and POST url for phone creation modal
         #ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
-    location_inline = FormField(LocationForm)
+    location_inline = FormField(LocationForm, description='/radio/location/add/inline/')
     submit = SubmitField(u'Save')
     field_order = ('owner','name','*')
 
