@@ -120,4 +120,25 @@ def program_type(program_type_id):
 
     return render_template('admin/program_type.html', program_type=program_type, form=form)
 
+
+@admin.route('/program_type/add/', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def program_type_add():
+    form = ProgramTypeForm(request.form)
+    program_type = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        program_type = ProgramType(**cleaned_data) #create new object from data
+        
+        db.session.add(program_type)
+        db.session.commit()
+        flash('Program Type added.', 'success') 
+    elif request.method == "POST":
+        flash('Validation error','error')
+
+    return render_template('admin/program_type.html', program_type=program_type, form=form)
+
 #TODO: program_type_add, with custom widget for picklefield

@@ -3,7 +3,7 @@
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField
 
 from .fields import DurationField
 from .models import Station, Program, ProgramType, Person, Language, Location
@@ -66,6 +66,7 @@ ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=
         'definition':{"description":"This field accepts arbitrary Python-dictionaries"},
     })
 class ProgramTypeForm(ProgramTypeFormBase):
+    definition = TextField()
     submit = SubmitField(u'Save')
 
 
