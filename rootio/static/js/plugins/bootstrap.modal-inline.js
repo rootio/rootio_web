@@ -4,11 +4,11 @@
  */
 
 $(document).ready(function() {
-    $('.modal-dialog.inline-form button[data-submit').click(function(event) {
+    $('.modal-dialog.inline-form button[data-submit]').click(function(event) {
         event.preventDefault();
 
         //get the parent .inline-form element
-        inline_form = $(event.target).parents('.inline-form');
+        var inline_form = $(event.target).parents('.inline-form');
 
         //pull the data attributes we need
         var post_url = inline_form.data('url');
@@ -26,27 +26,44 @@ $(document).ready(function() {
             cleaned_data[cleaned_name] = form_data[i].value;
         }
 
-        //submit them via ajax
-        $.post(post_url, {
-            data:JSON.stringify(cleaned_data, null, '\t'),
-            dataType:'json',
+        //clear previous errors
+        inline_form.find('.help-block.error').remove();
+        inline_form.find('.control-group.error').removeClass('error');
+
+        //submit via ajax
+        $.ajax(post_url, {
+            type: 'POST',
+            data: JSON.stringify(cleaned_data, null, '\t'),
+            dataType: 'json',
             contentType: 'application/json;charset=UTF-8',
             success: function(data, status, xhr) {
-                console.log('success data',data);
-                console.log('status',status);
                 //insert new option into the appropriate select
+                new_option = $('<option value='+data.result.id+'>'+data.result.string+'</option>');
+                main_input_id = input_prefix.replace('_inline-','');
+                $('select#'+main_input_id).append(new_option);
+                $('select#'+main_input_id).children('option').last().attr('selected','selected');
+
+                //clear fields
+                form_inputs.val('');
 
                 //and close modal
-                
+                inline_form.parents('.modal').modal('hide');
             },
             error: function(xhr, status, err) {
-                console.log('error status',status);
-                console.log('code',err);
-                //show user field validation
+                var errors = xhr.responseJSON.errors;
                 
+                //show user field validation
+                for (var field in errors) {
+                    var sel = input_prefix+field;
+                    var label = inline_form.find('label[for='+sel+']');
+                    label.parents('.control-group').addClass('error');
+                    //error goes on control-group
+                    var msg = $('<span class="help-block error">'+errors[field]+'</span>');
+                    label.siblings('.controls').append(msg);
+                    //message goes at end of controls
+                }
             },
         });
 
-        console.log('submitted');
     });
 })
