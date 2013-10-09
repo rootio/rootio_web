@@ -99,10 +99,9 @@ $.widget("rrule.recurringinput", {
 
     // summary
     tmpl += '<label for="output">Summary ';
-    tmpl += '<em id="text-output"></em>'; // human readable
-    tmpl += '<br><code id="rrule-output"></code>'; // ugly rrule
+    tmpl += '<em id="text-output"></em></label>'; // human readable
+    tmpl += '<br><label>RRule <code id="rrule-output"></code></label>'; // ugly rrule
     //TODO: show next few instances to help user debug
-    tmpl += '</label>';
 
     //render template
     this.element.append(tmpl);
@@ -173,6 +172,7 @@ $.widget("rrule.recurringinput", {
 
     $('#rrule-output').text(rrule.toString());
     $('#text-output').text(rrule.toText());
+    this.element.trigger('rrule-update');
   },
 
   _getFormValues: function($form) {

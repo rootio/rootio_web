@@ -3,7 +3,8 @@
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField
+from wtforms_components.fields import TimeField
 from wtforms.validators import Required
 
 from .fields import DurationField, InlineFormField
@@ -78,4 +79,13 @@ class PersonForm(PersonFormBase):
 LanguageFormBase = model_form(Language, db_session=db.session, base_class=Form,
     only=['name','iso639_1','iso639_2','locale_code'],) #explicitly include only these fields, so we don't have to exclude m2m fks
 class LanguageForm(LanguageFormBase):
+    submit = SubmitField(u'Save')
+
+def all_programs():
+    return Program.query.all()
+class SchedulingForm(Form):
+    """Not a model form, instead used to render the add to schedule modal"""
+    program = QuerySelectField(query_factory=all_programs,allow_blank=False)
+    recurrence = HiddenField()
+    start_time = TimeField()
     submit = SubmitField(u'Save')
