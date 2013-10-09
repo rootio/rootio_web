@@ -5,10 +5,11 @@ import os
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
-from .models import Station, Program, Content
-from .forms import StationForm, ProgramForm
+from .models import Station, Program, Content, Location
+from .forms import StationForm, ProgramForm, LocationForm
 
 from ..decorators import returns_json
+from ..utils import error_dict
 from ..extensions import db
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -98,6 +99,35 @@ def program_add():
         flash('Validation error','error')
 
     return render_template('radio/program.html', program=program, form=form)
+
+
+@radio.route('/location/add/inline/', methods=['POST'])
+@login_required
+@returns_json
+def location_add_inline():
+    data = json.loads(request.data)
+    #handle floats individually
+    float_vals = ['latitude','longitude']
+    for field in float_vals:
+        try:
+            data[field] = float(data[field])
+        except ValueError:
+            response = {'status':'error','errors':{field:'Invalid '+field},'status_code':400}
+            return response
+
+    form = LocationForm(None, **data) #use this format to avoid multidict-type issue
+    location = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        location = Location(**cleaned_data) #create new object from data
+        db.session.add(location)
+        db.session.commit()
+        response = {'status':'success','result':{'id':location.id,'string':unicode(location)},'status_code':200}
+    elif request.method == "POST":
+        #convert the error dictionary to something serializable
+        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+    return response
 
 
 @radio.route('/schedule/', methods=['GET'])
