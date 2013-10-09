@@ -61,7 +61,7 @@ def phonenumber_add():
 @login_required
 @returns_json
 def phonenumber_add_inline():
-    data = json.loads(request.form.get('data'))
+    data = json.loads(request.data)
     form = PhoneNumberForm(None, **data) #use this format to avoid multidict-type issue
     phonenumber = None
     if form.validate_on_submit():
@@ -74,7 +74,6 @@ def phonenumber_add_inline():
     elif request.method == "POST":
         #convert the error dictionary to something serializable
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
-    print response
     return response
 
 
