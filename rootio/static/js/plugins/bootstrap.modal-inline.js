@@ -15,7 +15,7 @@ $(document).ready(function() {
         var input_prefix = inline_form.data('prefix');
 
         //serialize the form inputs
-        var form_inputs = inline_form.find('input');
+        var form_inputs = inline_form.find('input, select');
         var form_data = form_inputs.serializeArray();
 
         //remove prefix
