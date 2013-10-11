@@ -159,11 +159,15 @@ class ScheduledBlock(db.Model):
     Similar to advertising 'dayparts'
     """
     __tablename__ = "radio_scheduledblock"
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN), nullable=False)
     recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
-    duration = db.Column(db.Time)
-    #start / end?
+    start_time = db.Column(db.Time)
+    end_time = db.Column(db.Time)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    def __unicode__(self):
+        return self.name
 
 
 class BlockedProgram(db.Model):
