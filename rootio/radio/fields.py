@@ -45,3 +45,7 @@ class InlineFormField(FormField):
     def validate(self, form, extra_validators=tuple()):
         #don't validate inline form fields, we'll do it client side
         return True
+
+    def populate_obj(self, obj, name):
+        #don't populate inline forms
+        return True
