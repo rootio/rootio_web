@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+from datetime import datetime
+from dateutil import rrule
 
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 
-from .models import Station, Program, Content, Location
-from .forms import StationForm, ProgramForm, LocationForm, SchedulingForm
+from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledContent, Location
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm
 
 from ..decorators import returns_json
 from ..utils import error_dict
@@ -51,13 +53,13 @@ def station_add():
         cleaned_data.pop('submit',None) #remove submit field from list
         cleaned_data.pop('phone_inline',None) #and also inline forms
         cleaned_data.pop('location_inline',None)
+        print cleaned_data
         station = Station(**cleaned_data) #create new object from data
 
         db.session.add(station)
         db.session.commit()
         flash('Station added.', 'success') 
     elif request.method == "POST":
-        print "form.errors",form.errors
         flash('Validation error','error')
 
     return render_template('radio/station.html', station=station, form=form)
@@ -133,37 +135,118 @@ def location_add_inline():
     return response
 
 
-@radio.route('/schedule/', methods=['GET','POST'])
-def schedule():
-    form = SchedulingForm()
+@radio.route('/block/', methods=['GET'])
+def scheduled_blocks():
+    scheduled_blocks = ScheduledBlock.query.all()
+    return render_template('radio/scheduled_blocks.html', scheduled_blocks=scheduled_blocks, active='blocks')
 
+
+@radio.route('/block/<int:block_id>', methods=['GET', 'POST'])
+def scheduled_block(block_id):
+    block = ScheduledBlock.query.filter_by(id=block_id).first_or_404()
+    form = BlockForm(obj=block, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(block)
+        db.session.add(block)
+        db.session.commit()
+        flash('Block updated.', 'success')
+
+    return render_template('radio/scheduled_block.html', scheduled_block=block, form=form)
+
+
+@radio.route('/block/add/', methods=['GET', 'POST'])
+@login_required
+def scheduled_block_add():
+    form = BlockForm(request.form)
+    block = None
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
-        
-        print form.data
-        #create new ScheduledContent objects
-
-        
-        db.session.add(program)
+        block = ScheduledBlock(**cleaned_data) #create new object from data
+        print cleaned_data
+        db.session.add(block)
         db.session.commit()
-        flash('Schedule updated.', 'success') 
+        flash('Block added.', 'success') 
     elif request.method == "POST":
+        print "form.errors",form.errors
+        print form.data
         flash('Validation error','error')
 
-    return render_template('radio/schedule.html', form=form, active='schedule')
+    return render_template('radio/scheduled_block.html', program=program, form=form)
 
 
-@radio.route('/station/schedule.json', methods=['GET'])
+@radio.route('/blockedprogram/add/inline/', methods=['POST'])
+@login_required
 @returns_json
-def schedule_json():
-    from datetime import datetime, timedelta, time
-    now = datetime.now()
-    today = datetime.today().date()
-    tonight = datetime.combine(today,time(22,0,0))
-    dummy_list = [
-        {'title':'next hour','start':datetime.now(),'end':datetime.now() + timedelta(hours=1)},
-        {'title':'late night','start':tonight,'end':tonight + timedelta(hours=4)}
-    ]
-    schedule_list = dummy_list
-    return schedule_list
+def blocked_program_inline():
+    data = json.loads(request.data)
+
+    form = BlockedProgramForm(None, **data)
+    location = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        blocked_program = BlockedProgram(**cleaned_data) #create new object from data
+        db.session.add(location)
+        db.session.commit()
+        response = {'status':'success','result':{'id':blocked_program.id,'string':unicode(blocked_program)},'status_code':200}
+    elif request.method == "POST":
+        #convert the error dictionary to something serializable
+        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+    return response
+
+
+@radio.route('/station/<int:station_id>/scheduledcontent.json', methods=['GET'])
+@returns_json
+def scheduled_content_json(station_id):
+    scheduled_content = ScheduledContent.query.filter_by(station_id=station_id)
+    resp = []
+    for s in scheduled_content:
+        print s
+    return resp
+
+
+@radio.route('/station/<int:station_id>/scheduledblocks.json', methods=['GET'])
+@returns_json
+def scheduled_block_json(station_id):
+    scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
+    start = request.args.get('start')
+    end = request.args.get('end')
+    #TODO: hook fullcalendar updates into these params
+
+    resp = []
+    for block in scheduled_blocks:
+        r = rrule.rrulestr(block.recurrence)
+        for instance in r.between(start,end):
+            d = {'title':block.name,
+                'start':datetime.combine(instance,block.start_time),
+                'end':datetime.combine(instance,block.end_time)}
+            resp.append(d)
+    print resp
+    return resp
+
+
+@radio.route('/schedule/', methods=['GET'])
+def schedule():
+    #todo, make this deal with multiple stations
+    #station = Station.query.filter_by(id=station_id).first_or_404()
+
+    #hack, hardcode for now
+    station = Station.query.get(1)
+
+    scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
+    block_list = []
+    for block in scheduled_blocks:
+        r = rrule.rrulestr(block.recurrence)
+        for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
+            d = {'title':block.name,
+                'start':datetime.combine(instance,block.start_time),
+                'end':datetime.combine(instance,block.end_time)}
+            block_list.append(d)
+
+
+    form = BlockedProgramForm()
+    return render_template('radio/schedule.html',
+        form=form, station=station, block_list=block_list,
+        active='schedule')

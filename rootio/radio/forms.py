@@ -9,7 +9,7 @@ from wtforms.validators import Required
 
 from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
-from .models import Station, Program, ProgramType, Person, Language, Location
+from .models import Station, Program, ProgramType, ScheduledBlock, Person, Language, Location
 from .widgets import ChoicesSelect
 from .constants import PROGRAM_TYPES, LANGUAGE_CODES
 
@@ -55,7 +55,7 @@ def all_program_types():
     return ProgramType.query.all()
 class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
-    name = StringField(description="") #different syntax here, pass description directly to field constructor
+    name = StringField()
     duration = DurationField(description="Duration of the program, in H:MM:SS")
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
@@ -81,11 +81,25 @@ LanguageFormBase = model_form(Language, db_session=db.session, base_class=Form,
 class LanguageForm(LanguageFormBase):
     submit = SubmitField(u'Save')
 
+
+def all_stations():
+    return Station.query.all()
+class BlockForm(Form):
+    name = StringField()
+    station = QuerySelectField(query_factory=all_stations,allow_blank=False)
+    start_time = TimeField()
+    end_time = TimeField()
+    recurrence = HiddenField()
+
+    submit = SubmitField(u'Save')
+
+
 def all_programs():
     return Program.query.all()
-class SchedulingForm(Form):
-    """Not a model form, instead used to render the add to schedule modal"""
+def all_blocks():
+    return ScheduledBlock.query.all()
+class BlockedProgramForm(Form):
     program = QuerySelectField(query_factory=all_programs,allow_blank=False)
-    recurrence = HiddenField()
-    start_time = TimeField()
+    block = QuerySelectField(query_factory=all_blocks,allow_blank=False)
+    # other options for flexibility?
     submit = SubmitField(u'Save')
