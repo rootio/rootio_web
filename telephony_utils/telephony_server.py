@@ -4,11 +4,14 @@ from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
 import utils
 
-import sys
+import sys, os
+import datetime
 import requests
 
 import plivohelper
-import os
+         
+                 
+from functools import wraps 
 
 show_host = "+16176424223"
 
@@ -33,14 +36,16 @@ from rootio.telephony.models import *
 from rootio.radio.models import *
 
 
-from flask import Flask, request, render_template
-import plivohelper
-import os
-
-
-
-
-
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.session.add(instance)
+        db.session.commit()
+        return instance
+                          
 @telephony_server.errorhandler(404)
 def page_not_found(error):
     """error page"""
@@ -70,37 +75,76 @@ def heartbeat():
     if request.method == 'POST':
         print request.form
     else:
-        print request.args
-
+        print request.args      
     return "OK"
-    
-@telephony_server.route('/sms/in', methods=['GET', 'POST'])
-def sms_in():
-    """Receive an sms"""
-    # Post params- 'request_uuid': request id given at the time of api call,
-    #               'CallUUID': unique id of call, 'reason': reason of hangup   
-    if request.method == 'POST':  
-        print "POST"
-        parameters = dict(request.form.items())
-    else:         
-        print "GET" 
-        parameters = dict(request.args.items())    
-    try:
-        print "CallUUID: {0}".format(parameters['uuid']) 
-        print parameters
-    except:
-        pass
+                                
+
+def get_caller(func):
+    @wraps(func) 
+    def inner(*args, **kwargs):         
+        print """"#######################################################################
+                  #     entering function: ---------------> {0}                         
+                  #######################################################################""".format(func.func_name)
+        if request.method == 'POST':  
+            parameters = dict(request.form.items())
+        else:         
+            parameters = dict(request.args.items())    
+        try:                                                            
+            if parameters.get('uuid'):
+                print request.method + ", CallUUID: {0}".format(parameters['uuid']) 
+            else:
+                print request.method + ", CallUUID: {0}".format(parameters['CallUUID']) 
+            print parameters  
+            kwargs['parameters'] = parameters
+        except:
+            pass                     
+        if func.func_name == 'sms_in':
+            m = Message()
+            m.message_uuid = parameters.get('uuid')
+            m.sendtime = parameters.get('edt')
+            m.text = parameters.get('body')
+            m.from_phonenumber_id = get_or_create(db.session, PhoneNumber, number = parameters.get('from_number')).id
+            m.to_phonenumber_id = get_or_create(db.session, PhoneNumber, number = parameters.get('to_number')).id         
+            db.session.add(m)
+            db.session.commit()      
+        else:
+            c = Call()
+            c.message_uuid = parameters.get('CallUUID')
+            c.start_time = datetime.datetime.now()                                                                     
+            c.from_phonenumber_id = get_or_create(db.session, PhoneNumber, number = parameters.get('From')).id
+            c.to_phonenumber_id = get_or_create(db.session, PhoneNumber, number = parameters.get('To')).id      
+            db.session.add(c)
+            db.session.commit()
+                                                                 
+        return func(*args, **kwargs)
+    return inner
         
+        
+@telephony_server.route('/sms/in', methods=['GET', 'POST'])   
+@get_caller
+def sms_in(parameters):
+    """Receive an sms
+    { 'uuid': uuid, 
+      'edt': edt, 
+      'fr': fr, 
+      'to': to, 
+      'from_number': from_number, 
+      'body': body,
+    } 
+    """
+    print "Parameters =" + str(parameters)    
     print "We received an SMS"      
     print parameters['from_number']
     print show_host
     print parameters['from_number'] == show_host
-    print str(parameters['from_number']) == show_host   
-    answered_url = "http://127.0.0.1:5000/answered/"         
+    print str(parameters['from_number']) == show_host                
     #look at conferenceplay
-    if parameters['from_number'] == show_host:
-        utils.call("sofia/gateway/switch2voip/",parameters['from_number'], answered_url)        
-    #utils.call("sofia/gateway/switch2voip/",parameters['from_number'])        
+    if parameters['from_number'] == show_host or parameters['from_number'] == show_host[2:]:     
+        answered_url = "http://127.0.0.1:5000/answered/"
+        utils.call("sofia/gateway/switch2voip/",parameters['from_number'], answered_url) 
+    else:  #obviously the below would only happen with approval of host
+        answered_url = "http://127.0.0.1:5000/answered/"
+        utils.call("sofia/gateway/switch2voip/",parameters['from_number'], answered_url)       
     return "OK"
 
 @telephony_server.route('/waitmusic/', methods=['GET', 'POST'])
@@ -109,11 +153,11 @@ def waitmusic():
         print request.form.items()
     else:
         print request.args.items()
-    r = plivohelper.Response()
-    r.addSpeak("Please wait")
-    r.addSpeak("Be patient")
-    r.addPlay(telephony_ip+"/~csik/duck.mp3")
-    r.addPlay("/usr/local/freeswitch/sounds/en/us/callie/ivr/8000/ivr-welcome.wav")
+    r = plivohelper.Response()     
+    r.addSpeak('Your mama is so fat.')
+    r.addSpeak("Your father was a hampster and your mother smelt of elderberries.")
+    #r.addPlay("/usr/local/freeswitch/sounds/en/us/callie/ivr/8000/ivr-welcome.wav")
+    #r.addPlay("/usr/local/freeswitch/sounds/music/8000/suite-espanola-op-47-leyenda.wav")
     print "RESTXML Response => %s" % r
     return render_template('response_template.xml', response=r)    
 
@@ -124,33 +168,23 @@ def hostwait():
     else:
         print request.args.items()
     r = plivohelper.Response()
-    r.addSpeak("The program will commence in 3 minutes.")
-    r.addSpeak("Be patient.")
+    r.addPlay(telephony_ip+"/~csik/Hello_Host.mp3")
+    r.addPlay(telephony_ip+"/~csik/You_Have_X_Listeners.mp3")
+    r.addPlay(telephony_ip+"/~csik/Instructions.mp3")
     print "RESTXML Response => %s" % r
     return render_template('response_template.xml', response=r)
 
 @telephony_server.route('/answered/', methods=['GET', 'POST'])
-def answered():
+@get_caller 
+def answered(parameters):
     # Post params- 'CallUUID': unique id of call, 'Direction': direction of call,
     #               'To': Number which was called, 'From': calling number,
     #               If Direction is outbound then 2 additional params:
     #               'ALegUUID': Unique Id for first leg,
     #               'ALegRequestUUID': request id given at the time of api call
-
-    if request.method == 'POST':  
-        print "POST"
-        parameters = dict(request.form.items())
-    else:         
-        print "GET" 
-        parameters = dict(request.args.items())    
-    try:
-        print "CallUUID: {0}".format(parameters['uuid']) 
-        print parameters
-    except:
-        pass
-        
+                                                                          
     r = plivohelper.Response() 
-    print str(parameters['From'])
+    from_number = parameters.get('From')
     print show_host
     print "Match Host: " + str(str(parameters['From']) == show_host or str(parameters['From']) == show_host[2:])                 
     if str(parameters['From']) == show_host or str(parameters['From']) == show_host[2:] :     
@@ -158,13 +192,13 @@ def answered():
                             enterSound="beep:2", exitSound="beep:1",
                             startConferenceOnEnter=True, endConferenceOnExit=True,
                             waitSound="http://127.0.0.1:5000/hostwait/",
-                            timeLimit=60, hangupOnStar=True)
+                            timeLimit=0, hangupOnStar=True)
     else:
         p = r.addConference("plivo", muted=False, 
                             enterSound="beep:2", exitSound="beep:1",
                             startConferenceOnEnter=True, endConferenceOnExit=False,
                             waitSound="http://127.0.0.1:5000/waitmusic/",
-                            timeLimit=60, hangupOnStar=True)
+                            timeLimit=0, hangupOnStar=True)
     print "RESTXML Response => %s" % r
     return render_template('response_template.xml', response=r)
 
