@@ -7,5 +7,10 @@ $(document).ready(function() {
             }
         }
     })
-    //sitewide customizations here    
+    //sitewide customizations here
+
+    $('form#language-selector select').on('change',function() {
+        console.log('change!');
+        this.form.submit();
+    });
 })
