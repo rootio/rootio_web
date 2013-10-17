@@ -1,6 +1,7 @@
 from sqlalchemy import types, String
+from wtforms.fields import FormField
 from wtforms_components.fields import TimeField
-from wtforms_components.widgets import TimeInput
+from wtforms_components.widgets import TextInput
 
 class FileField(types.TypeDecorator):
     impl = String
@@ -33,8 +34,18 @@ class FileNameString(object):
         return self.upload_set.url(self.filename)
 
 class DurationField(TimeField):
-    widget = TimeInput(step='1')
+    widget = TextInput(pattern="^(0*[0-9]|1[0-9]|2[0-3])([.:][0-5][0-9])([.:][0-5][0-9])?$")
     error_msg = 'Not a valid duration.'
 
-    #because this is rendered as an html5 input, format depends on browser locale
-    #TODO: investigate using textfield with custom pattern instead
+    #html5 time inputs include am/pm, which doesn't make sense for duration
+    #use textfield with custom pattern instead
+    #matches (H)H.:MM(.:SS)
+
+class InlineFormField(FormField):
+    def validate(self, form, extra_validators=tuple()):
+        #don't validate inline form fields, we'll do it client side
+        return True
+
+    def populate_obj(self, obj, name):
+        #don't populate inline forms
+        return True

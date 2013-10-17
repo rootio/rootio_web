@@ -1,12 +1,11 @@
-/* Author: Wilson Xu */
-
-function hide_flask_message_container() {
-    $('#flash_message_container').slideUp('fast');
-}
-
 $(document).ready(function() {
-    /* Show and hide flash message. */
-    //$('#flash_message_container').slideDown(function() {
-        //setTimeout(hide_flask_message_container, 3000);
-    //});
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+            }
+        }
+    })
+    //sitewide customizations here    
 })

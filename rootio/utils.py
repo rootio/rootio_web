@@ -9,6 +9,7 @@ import os
 
 from datetime import datetime
 
+from flask.ext.wtf import Form
 
 # Instance folder path, make it independent.
 INSTANCE_FOLDER_PATH = os.path.join('/tmp', 'instance')
@@ -29,7 +30,7 @@ PASSWORD_LEN_MAX = 16
 AGE_MIN = 1
 AGE_MAX = 120
 
-# Sex type.
+# Gender type.
 MALE = 1
 FEMALE = 2
 OTHER = 9
@@ -97,3 +98,27 @@ def make_dir(dir_path):
             os.mkdir(dir_path)
     except Exception, e:
         raise e
+
+def error_dict(form_errors):
+    d = {}
+    for (field,messages) in form_errors.items():
+        msgs = []
+        for m in messages:
+            msgs.append(unicode(m))
+        d[field] = ". ".join(msgs)
+    return d
+    
+#monkey patch wtforms to allow field_order attribute
+#from http://stackoverflow.com/a/18475322
+class OrderedForm(Form):
+    def __iter__(self):
+        field_order = getattr(self, 'field_order', None)
+        if field_order:
+            temp_fields = []
+            for name in field_order:
+                if name == '*':
+                    temp_fields.extend([f for f in self._unbound_fields if f[0] not in field_order])
+                else:
+                    temp_fields.append([f for f in self._unbound_fields if f[0] == name][0])
+            self._unbound_fields = temp_fields
+        return super(OrderedForm, self).__iter__()
