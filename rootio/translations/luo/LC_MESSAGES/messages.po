@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-10-17 16:03+0300\n"
-"PO-Revision-Date: 2013-10-17 16:18+0300\n"
+"PO-Revision-Date: 2013-10-17 18:50+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: luo <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -629,7 +628,7 @@ msgstr ""
 
 #: templates/user/index.html:6
 msgid "Hello"
-msgstr ""
+msgstr "Nisawa"
 
 #: templates/user/index.html:11
 msgid "Find a program"
