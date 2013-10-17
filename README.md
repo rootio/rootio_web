@@ -31,7 +31,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 
 * Includes some application layout and structure from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
 .
-* Includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
+* Web interface includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
+* and [RRule.js](http://jkbr.github.io/rrule/), Copyright (c) 2013 by Jakub Roztočil @jkbr
 
 * Includes elements of [plivohelper-python](https://github.com/plivo/plivohelper-python), which in turn was derived from work Copyright (c) 2009 Twilio, Inc.
 
