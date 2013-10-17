@@ -2,17 +2,17 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Programs</h2>
+    <h2 class="pull-left">{{ _('Programs') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Duration</th>
-                <th>Language</th>
-                <th>Last Episode</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Duration') }}</th>
+                <th>{{ _('Language') }}</th>
+                <th>{{ _('Last Episode') }}</th>
             </tr>
         </thead>
         {% for program in programs %}
@@ -21,7 +21,7 @@
             <td>{{ program.duration }}</td>
             <td>{{ program.language }}</td>
             <td>{{ program.last_episode }}</td>
-            <td><a href="{{ '#' }}">Schedule</a></td>
+            <td><a href="{{ '#' }}">{{ _('Schedule') }}</a></td>
         </tr>
         {% endfor %}
     </table>

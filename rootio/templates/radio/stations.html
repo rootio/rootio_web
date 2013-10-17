@@ -2,17 +2,17 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Stations</h2>
+    <h2 class="pull-left">{{ _('Stations') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name (frequency)</th>
-                <th>Status</th>
-                <th>Current Program</th>
-                <th>Next Program</th>
+                <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
+                <th>{{ _('Status') }}</th>
+                <th>{{ _('Current Program') }}</th>
+                <th>{{ _('Next Program') }}</th>
             </tr>
         </thead>
         {% for station in stations %}
@@ -21,7 +21,7 @@
             <td>{{ station.status }}</td>
             <td>{{ station.current_program }}</td>
             <td>{{ station.next_program }}</td>
-            <td><a href="{{ url_for('radio.station', station_id=station.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
     </table>

@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if language%}
-        <h2>Edit Language</h2>
+        <h2>{{ _('Edit') }} {{ _('Language') }}</h2>
         {{ render_form(url_for('admin.language', language_id=language.id), form) }}
     {%else%}
-        <h2>Add Language</h2>
+        <h2>{{ _('Add') }} {{ _('Language') }}</h2>
         {{ render_form(url_for('admin.language_add'), form) }}
     {%endif%}
 </div>

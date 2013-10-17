@@ -55,8 +55,8 @@
                     {% else %}
                     <div class="nav-collapse collapse pull-right">
                         <ul class="nav">
-                            <li><span><a class="btn btn-success" href="{{ url_for('frontend.signup') }}"><strong>Sign up</strong></a></span></li>
-                            <li><a href="{{ url_for('frontend.login') }}">Sign in</a></li>
+                            <li><span><a class="btn btn-success" href="{{ url_for('frontend.signup') }}"><strong>{{ _('Sign up') }}</strong></a></span></li>
+                            <li><a href="{{ url_for('frontend.login') }}">{{ _('Sign in') }}</a></li>
                         </ul>
                     </div>
                     {% endif %}
@@ -113,11 +113,11 @@
     <footer id="footer">
         <ul class="footer-links">
             <li>© 2013</li>
-            <li><a href='http://rootio.org/'>About</a></li>
+            <li><a href='http://rootio.org/'>{{ _('About') }}</a></li>
             <li class="muted">&middot;</li>
-            <li><a href='{{ url_for('frontend.help') }}'>Help</a></li>
+            <li><a href='{{ url_for('frontend.help') }}'>{{ _('Help') }}</a></li>
             <li class="muted">&middot;</li>
-            <li><a href='https://github.com/rootio/rootio-cloud/blob/master/LICENSE'>Terms</a></li>
+            <li><a href='https://github.com/rootio/rootio-cloud/blob/master/LICENSE'>{{ _('Terms') }}</a></li>
         </ul>
     </footer>
 
