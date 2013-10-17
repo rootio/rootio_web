@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-10-17 15:48+0300\n"
+"POT-Creation-Date: 2013-10-17 16:03+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,70 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: frontend/views.py:85
-msgid "Please input keyword(s)"
+#: frontend/forms.py:19
+msgid "Username or email"
 msgstr ""
 
-#: frontend/views.py:104
+#: frontend/forms.py:20 frontend/forms.py:29 templates/settings/layout.html:8
+msgid "Password"
+msgstr ""
+
+#: frontend/forms.py:21
+msgid "Remember me"
+msgstr ""
+
+#: frontend/forms.py:22 templates/layouts/base.html:59
+msgid "Sign in"
+msgstr ""
+
+#: frontend/forms.py:27 templates/frontend/login_openid.html:8
+#: templates/macros/_misc.html:7 templates/radio/people.html:13
+msgid "Email"
+msgstr ""
+
+#: frontend/forms.py:28
+msgid "What's your email address?"
+msgstr ""
+
+#: frontend/forms.py:30
+#, python-format
+msgid "%s characters or more"
+msgstr ""
+
+#: frontend/forms.py:31
+msgid "Choose your username"
+msgstr ""
+
+#: frontend/forms.py:32
+msgid "Don't worry. you can change it later."
+msgstr ""
+
+#: frontend/forms.py:35 templates/layouts/base.html:58
+msgid "Sign up"
+msgstr ""
+
+#: frontend/forms.py:39
+msgid "This username is already registered"
+msgstr ""
+
+#: frontend/forms.py:43
+msgid "This email is already registered"
+msgstr ""
+
+#: frontend/forms.py:47
+msgid "Your email"
+msgstr ""
+
+#: frontend/forms.py:48
+msgid "Send instructions"
+msgstr ""
+
+#: frontend/views.py:37 frontend/views.py:104
 msgid "Logged in"
+msgstr ""
+
+#: frontend/views.py:85
+msgid "Please input keyword(s)"
 msgstr ""
 
 #: frontend/views.py:107
@@ -45,8 +103,102 @@ msgstr ""
 msgid "Your password has been changed, please log in again"
 msgstr ""
 
-#: frontend/views.py:212
+#: frontend/views.py:198
+msgid "Please see your email for instructions on how to access your account"
+msgstr ""
+
+#: frontend/views.py:211
 msgid "Sorry, no user found for that email address"
+msgstr ""
+
+#: radio/forms.py:26 radio/forms.py:49 radio/forms.py:63 radio/forms.py:72
+#: radio/forms.py:79 radio/forms.py:85 radio/forms.py:97 radio/forms.py:111
+#: user/forms.py:19
+msgid "Save"
+msgstr ""
+
+#: radio/forms.py:35
+msgid "Name or callsign of station"
+msgstr ""
+
+#: radio/forms.py:36
+msgid "Station broadcast frequency"
+msgstr ""
+
+#: radio/forms.py:38
+msgid "Station contact telephone number"
+msgstr ""
+
+#: radio/forms.py:39
+msgid "User who is the owner of the station"
+msgstr ""
+
+#: radio/forms.py:40
+msgid "Primary languages the station will broadcast in"
+msgstr ""
+
+#: radio/forms.py:60
+msgid "Duration of the program, in H:MM:SS"
+msgstr ""
+
+#: radio/forms.py:68
+msgid "This field accepts arbitrary Python-dictionaries"
+msgstr ""
+
+#: radio/forms.py:107
+msgid "Time to air since beginning of block, in H:MM:SS"
+msgstr ""
+
+#: radio/forms.py:109
+msgid "Ascending values"
+msgstr ""
+
+#: radio/views.py:41
+msgid "Station updated."
+msgstr ""
+
+#: radio/views.py:62
+msgid "Station added."
+msgstr ""
+
+#: radio/views.py:64 radio/views.py:105 radio/views.py:145 radio/views.py:214
+msgid "Validation error"
+msgstr ""
+
+#: radio/views.py:85
+msgid "Program updated."
+msgstr ""
+
+#: radio/views.py:103
+msgid "Program added."
+msgstr ""
+
+#: radio/views.py:125
+msgid "Person updated."
+msgstr ""
+
+#: radio/views.py:143
+msgid "Person added."
+msgstr ""
+
+#: radio/views.py:161
+msgid "Invalid "
+msgstr ""
+
+#: radio/views.py:194
+msgid "Block updated."
+msgstr ""
+
+#: radio/views.py:211
+msgid "Block added."
+msgstr ""
+
+#: telephony/views.py:36
+msgid "Phone Number updated."
+msgstr ""
+
+#: telephony/views.py:54
+msgid "Phone Number added."
 msgstr ""
 
 #: templates/index.html:9
@@ -145,10 +297,12 @@ msgstr ""
 
 #: templates/admin/users.html:10 templates/radio/layout.html:8
 #: templates/radio/stations.html:13 templates/telephony/layout.html:8
+#: user/forms.py:15
 msgid "Status"
 msgstr ""
 
 #: templates/admin/users.html:11 templates/radio/people.html:15
+#: user/forms.py:13
 msgid "Role"
 msgstr ""
 
@@ -202,11 +356,6 @@ msgstr ""
 msgid "Sorry for the inconvenience"
 msgstr ""
 
-#: templates/frontend/login_openid.html:8 templates/macros/_misc.html:7
-#: templates/radio/people.html:13
-msgid "Email"
-msgstr ""
-
 #: templates/frontend/login_openid.html:9
 msgid "Error"
 msgstr ""
@@ -250,14 +399,6 @@ msgid ""
 "       <li>Try more general keywords.</li>\n"
 "    </ul>\n"
 "    "
-msgstr ""
-
-#: templates/layouts/base.html:58
-msgid "Sign up"
-msgstr ""
-
-#: templates/layouts/base.html:59
-msgid "Sign in"
 msgstr ""
 
 #: templates/layouts/base.html:116
@@ -421,10 +562,6 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-#: templates/settings/layout.html:8
-msgid "Password"
-msgstr ""
-
 #: templates/settings/password.html:7
 msgid "Change Password"
 msgstr ""
@@ -499,5 +636,9 @@ msgstr ""
 
 #: templates/user/index.html:12
 msgid "Start a poll"
+msgstr ""
+
+#: user/forms.py:18
+msgid "Created time"
 msgstr ""
 

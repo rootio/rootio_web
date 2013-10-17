@@ -6,6 +6,7 @@ from dateutil import rrule
 
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
+from flask.ext.babel import ngettext as _
 
 from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledContent, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm, PersonForm
@@ -37,7 +38,7 @@ def station(station_id):
 
         db.session.add(station)
         db.session.commit()
-        flash('Station updated.', 'success')
+        flash(_('Station updated.'), 'success')
 
     return render_template('radio/station.html', station=station, form=form)
 
@@ -58,9 +59,9 @@ def station_add():
 
         db.session.add(station)
         db.session.commit()
-        flash('Station added.', 'success') 
+        flash(_('Station added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/station.html', station=station, form=form)
 
@@ -81,7 +82,7 @@ def program(program_id):
 
         db.session.add(program)
         db.session.commit()
-        flash('Program updated.', 'success')
+        flash(_('Program updated.'), 'success')
 
     return render_template('radio/program.html', program=program, form=form)
 
@@ -99,9 +100,9 @@ def program_add():
         
         db.session.add(program)
         db.session.commit()
-        flash('Program added.', 'success') 
+        flash(_('Program added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/program.html', program=program, form=form)
 
@@ -121,7 +122,7 @@ def person(person_id):
 
         db.session.add(person)
         db.session.commit()
-        flash('Person updated.', 'success')
+        flash(_('Person updated.'), 'success')
 
     return render_template('radio/person.html', person=person, form=form)
 
@@ -139,9 +140,9 @@ def person_add():
         
         db.session.add(person)
         db.session.commit()
-        flash('Person added.', 'success') 
+        flash(_('Person added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/person.html', person=person, form=form)
 
@@ -157,7 +158,7 @@ def location_add_inline():
         try:
             data[field] = float(data[field])
         except ValueError:
-            response = {'status':'error','errors':{field:'Invalid '+field},'status_code':400}
+            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
             return response
 
     form = LocationForm(None, **data) #use this format to avoid multidict-type issue
@@ -190,7 +191,7 @@ def scheduled_block(block_id):
         form.populate_obj(block)
         db.session.add(block)
         db.session.commit()
-        flash('Block updated.', 'success')
+        flash(_('Block updated.'), 'success')
 
     return render_template('radio/scheduled_block.html', scheduled_block=block, form=form)
 
@@ -207,11 +208,10 @@ def scheduled_block_add():
         print cleaned_data
         db.session.add(block)
         db.session.commit()
-        flash('Block added.', 'success') 
+        flash(_('Block added.'), 'success') 
     elif request.method == "POST":
-        print "form.errors",form.errors
         print form.data
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/scheduled_block.html', program=program, form=form)
 
