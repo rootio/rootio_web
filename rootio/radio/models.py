@@ -238,9 +238,9 @@ class Person(db.Model):
 
     phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
-    phone = db.relationship(u'PhoneNumber', backref=db.backref('person'))
+    phone = db.relationship(u'PhoneNumber', backref=db.backref('person',uselist=False))
     role = db.relationship(u'Role', backref=db.backref('person'))
-    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person'))
+    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person',uselist=False))
 
     gender_code = db.Column(db.Integer)
     @property
@@ -252,6 +252,9 @@ class Person(db.Model):
     def privacy(self):
         return PRIVACY_TYPE.get(self.privacy_code)
 
+    def __unicode__(self):
+        return " ".join([self.title,self.firstname,self.middlename,self.lastname])
+    
     #TODO: fk to user_id?
 
 

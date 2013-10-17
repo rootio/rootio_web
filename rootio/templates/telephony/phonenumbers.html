@@ -11,8 +11,8 @@
             <tr>
                 <th>Type</th>
                 <th>Country</th>
-                <th>Area code</th>
                 <th>Number</th>
+                <th>Person</th>
                 <th></th>
             </tr>
         </thead>
@@ -20,8 +20,8 @@
         <tr>
             <td>{{ phonenumber.type }}</td>
             <td>{{ phonenumber.countrycode }}</td>
-            <td>{{ phonenumber.areacode }}</td>
             <td>{{ phonenumber.number }}</td>
+            <td><a href="{{ url_for('radio.person', person_id=phonenumber.person.id) }}">{{ phonenumber.person }}</td>
             <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
