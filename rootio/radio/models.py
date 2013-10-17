@@ -85,8 +85,8 @@ class Station(db.Model):
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
 
-    cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station',uselist=False))
-    transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station',uselist=False))
+    cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
+    transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
     scheduled_content = db.relationship(u'ScheduledContent', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
