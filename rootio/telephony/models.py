@@ -33,8 +33,8 @@ class Call(db.Model):
     end_time = db.Column(db.DateTime)
     from_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     to_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
-    ALegUUID = db.Column(db.String(100)) #only for outgoing
-    ALegRequestUUID = db.Column(db.String(100)) #only for outgoing
+    a_leg_uuid = db.Column(db.String(100)) #only for outgoing
+    a_leg_request_uuid = db.Column(db.String(100)) #only for outgoing
 
     from_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.from_phonenumber_id == PhoneNumber.id')
     to_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.to_phonenumber_id == PhoneNumber.id')
