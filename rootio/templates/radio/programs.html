@@ -10,7 +10,7 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Length</th>
+                <th>Duration</th>
                 <th>Language</th>
                 <th>Last Episode</th>
             </tr>
@@ -18,10 +18,10 @@
         {% for program in programs %}
         <tr>
             <td>{{ program.name }}</td>
-            <td>{{ program.length }}</td>
+            <td>{{ program.duration }}</td>
             <td>{{ program.language }}</td>
             <td>{{ program.last_episode }}</td>
-            <td><a href="{{ '#' }}">Add</a></td>
+            <td><a href="{{ '#' }}">Schedule</a></td>
         </tr>
         {% endfor %}
     </table>

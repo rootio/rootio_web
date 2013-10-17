@@ -19,3 +19,4 @@ WTForms==1.0.4
 WTForms-Alchemy==0.7.12
 alembic==0.6.0
 Fabric==1.7.0
+python-dateutil

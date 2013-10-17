@@ -1,26 +1,101 @@
 {% extends "radio/layout.html" %}
+{% from "macros/_form.html" import render_input %}
+{% from "macros/_calendar.js" import render_datetime_tojs %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
-
-    <style>
-        #calendar {
-            width: 100%;
-            margin: 0 auto;
-        }
-    </style>
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
 {% endblock %}
 
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var date = new Date();
+        d = date.getDate();
+        m = date.getMonth();
+        y = date.getFullYear();
+
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            allDayDefault: false,
+            defaultView: 'agendaWeek',
+            editable: false,
+            events: {
+                url: '/radio/station/{{station.id}}/scheduledcontent.json'
+            },
+            //fork of fullcalendar doesn't support loading annotations from url,
+            //hack: render them inline
+            annotations: [
+                {% for b in block_list %}
+                    {
+                        title: "{{b.title}}",
+                        start: {{ render_datetime_tojs(b.start) }},
+                        end: {{ render_datetime_tojs(b.end) }}
+                    },
+                {%endfor%}
+            ]
+        });
+    });
+    </script>
+
+});
+
 {% endblock %}
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Schedule</h2>
+    <h2 class="pull-left">{{station.name}} Schedule</h2>
+    <div class="pull-right">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal">Add +</button>
+    </div>
     
     <div id='calendar'></div>
 </div>
+
+<!-- Add Schedule Modal -->
+  <div class="modal fade" id="addSchedule_modal" tabindex="-1" role="dialog" aria-labelledby="addSchedule" aria-hidden="true">
+    <div class="modal-dialog inline-form" data-url="/radio/blockedprogram/add/inline/" data-prefix="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add to Schedule</h4>
+        </div>
+        <div class="modal-body">
+            <form action="POST">
+                {{ form.hidden_tag() }}
+
+                {{ render_input(form.program) }}
+
+                <ul id="program_extra">
+                    <li>Description: </li>
+                    <li>Duration: </li>
+                    <li>Update: </li>
+                </ul>
+
+                {{ render_input(form.block) }}
+
+                {{ render_input(form.air_time) }}
+
+                {{ render_input(form.priority) }}
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" data-submit="modal">Save</button>
+            </div>
+        </form>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
 {% endblock %}

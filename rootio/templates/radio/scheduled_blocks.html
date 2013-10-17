@@ -1,0 +1,27 @@
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">Blocks</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('radio.scheduled_block_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Start-End</th>
+                <th>Recurrence</th>
+            </tr>
+        </thead>
+        {% for scheduled_block in scheduled_blocks %}
+        <tr>
+            <td>{{ scheduled_block.name }}</td>
+            <td>{{ scheduled_block.start_time }} - {{scheduled_block.end_time}} </td>
+            <td>{{ scheduled_block.recurrence }}</td>
+            <td><a href="{{ url_for('radio.scheduled_block', block_id=scheduled_block.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -1,9 +1,13 @@
 from flask import Flask
 from flask import request   
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy 
+
+import datetime
+import uuid as uid
 
 import sys 
 import requests
+import urllib2
 
 
 GOIP_server = '127.0.0.1' #'172.248.114.178'
@@ -17,17 +21,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
 from rootio.telephony.models import PhoneNumber, Message       
 
-def debug(request):
+def debug(request): 
+    if request.method == 'POST':
+        deets = request.form.items() 
+        print >> sys.stderr, type(deets)
+        deets_method = 'POST'
+    else:
+        deets = request.args.items() 
+        print >> sys.stderr, type(deets)
+        deets_method = 'GET'
     s = ""
-    print "form data ({0}):".format(len(request.form))
-    for arg in request.form.items():
-        s += str(arg)
+    #print "({0}) parameters via {1}".format(len(deets)-1, deets_method)
+    for deet in deets:
+        s += str(deet)
     print s 
-    s = ""
-    print "arg data ({0}):".format(len(request.args))
-    for arg in request.args.items():
-        s += str(arg)
-    print s
+
 
 @app.route("/", methods=['GET', 'POST'])
 def hello():
@@ -69,18 +77,14 @@ def sms_out():
     else: 
         return "Sent!"
 
-@app.route("/in", methods=['GET', 'POST'])
+@app.route("/in/", methods=['GET', 'POST'])
 def sms_in():  
     """
     Handles incoming messages.
     Currently getting incoming messages from GOIP8, routed to extension 1100 which triggers handle_chat.py
     Expected args: Event-Date-Timestamp (Unix epoch), from, to, from_number, body
-    """
-    import datetime
-    import uuid as uid
-    print "IN /in"
+    """                              
     debug(request)
-    
     
     uuid = uid.uuid5(uid.NAMESPACE_DNS, 'rootio.org')
     edt = datetime.datetime.fromtimestamp(int(request.args.get('Event-Date-Timestamp'))/1000000) #.strftime('%Y-%m-%d %H:%M:%S')    
@@ -95,9 +99,9 @@ def sms_in():
                 'from_number': from_number, 
                 'body': body,
                }
-    #r = requests.post(telephony_server, data=payload)
-    #print r.text
-    return "Looks alright."
+    r= requests.get('http://127.0.0.1:5000/sms/in',params=payload)    
+    print r.text
+    return "looks alright " + str(uuid)
     #return str(str(edt)+'\n'+fr+'->'+to+'\n'+from_number+'\n'+body+'\n'+uuid) 
       
 if __name__ == "__main__":
