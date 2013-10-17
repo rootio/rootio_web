@@ -78,6 +78,7 @@ def sms_in():
     """
     import datetime
     import uuid as uid
+    print "IN /in"
     debug(request)
     
     
@@ -94,8 +95,10 @@ def sms_in():
                 'from_number': from_number, 
                 'body': body,
                }
-    r = requests.post(telephony_server, data=payload)
-    return str(str(edt)+'\n'+fr+'->'+to+'\n'+from_number+'\n'+body+'\n'+uuid) 
+    #r = requests.post(telephony_server, data=payload)
+    #print r.text
+    return "Looks alright."
+    #return str(str(edt)+'\n'+fr+'->'+to+'\n'+from_number+'\n'+body+'\n'+uuid) 
       
 if __name__ == "__main__":
     app.run(debug=True)
