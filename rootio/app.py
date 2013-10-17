@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, request, render_template
+from flask import Flask, g, request, render_template, current_app, session
 from flask.ext.babel import Babel
 from flask_wtf.csrf import CsrfProtect
 
@@ -84,10 +84,25 @@ def configure_extensions(app):
 
     @babel.localeselector
     def get_locale():
-        accept_languages = app.config.get('ACCEPT_LANGUAGES')
-        return request.accept_languages.best_match(accept_languages)
-        #print "in get_locale"
-        #return "lg_UG"
+        #TODO, first check user config?
+        g.accept_languages = app.config.get('ACCEPT_LANGUAGES')
+        accept_languages = g.accept_languages.keys()
+        browser_default = request.accept_languages.best_match(accept_languages)
+        if 'language' in session:
+            language = session['language']
+            current_app.logger.debug('lang from session: %s' % language)
+            if not language in accept_languages:
+                #clear it
+                current_app.logger.debug('invalid %s, clearing' % language)
+                session['language'] = None
+                language = browser_default
+        else:
+            language = browser_default
+            current_app.logger.debug('lang from browser: %s' % language)
+        session['language'] = language #save it to session
+
+        #and to user?
+        return language
 
     # flask-login
     login_manager.login_view = 'frontend.login'

@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if program_type%}
-        <h2>Edit Program Type</h2>
+        <h2>{{ _('Edit') }} {{ _('Program Type') }}</h2>
         {{ render_form(url_for('admin.program_type', program_type_id=program_type.id), form) }}
     {%else%}
-        <h2>Add Program Type</h2>
+        <h2>{{ _('Add') }} {{ _('Program Type') }}</h2>
         {{ render_form(url_for('admin.program_type_add'), form) }}
     {%endif%}
 </div>

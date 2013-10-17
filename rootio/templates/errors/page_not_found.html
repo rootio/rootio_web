@@ -1,12 +1,14 @@
 {% extends 'errors/layout.html' %}
 {% set page_title = _('Page not found') %}
 {% block body %}
-<h1>Page not found <span>:(</span></h1>
+<h1>{{ _('Page not found') }} <span>:(</span></h1>
+{% trans %}
 <p>This might be the result of either:</p>
 <ul>
     <li>a mistyped address</li>
     <li>a broken link</li>
 </ul>
+{%endtrans%}
 <script>
     var GOOG_FIXURL_LANG = (navigator.language || '').slice(0,2),GOOG_FIXURL_SITE = location.host;
 </script>

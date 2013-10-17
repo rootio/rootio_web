@@ -5,8 +5,8 @@
 
 {% set tab_title = "Telephony" %}
 {% set tabs = [
-    ("Status", url_for('telephony.index')), 
-    ("Phone Numbers", url_for('telephony.phonenumbers')),
-    ("Calls", url_for('telephony.calls')),
-    ("Messages", url_for('telephony.messages'))
+    (_("Status"), url_for('telephony.index')), 
+    (_("Phone Numbers"), url_for('telephony.phonenumbers')),
+    (_("Calls"), url_for('telephony.calls')),
+    (_("Messages"), url_for('telephony.messages'))
 ]%}

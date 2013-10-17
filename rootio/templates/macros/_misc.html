@@ -3,8 +3,8 @@
     <thead>
         <tr>
             <td>#</td>
-            <td>Username</td>
-            <td>Email</td>
+            <td>{{ _('Username') }}</td>
+            <td>{{ _('Email') }}</td>
         </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
     {% if pagination.pages > 1 %}
         <div class='pagination'>
             <ul>
-                <li class="prev {% if not pagination.has_prev %}disabled{% endif %}"><a href="{{ url_for(endpoint, page=pagination.page-1) }}">&larr; Previous</a></li>
+                <li class="prev {% if not pagination.has_prev %}disabled{% endif %}"><a href="{{ url_for(endpoint, page=pagination.page-1) }}">&larr; {{ _('Previous') }}</a></li>
                 {% for page in pagination.iter_pages() %}
                     {% if page %}
                         <li class='{% if page == pagination.page %}active{% endif %}'>
@@ -35,7 +35,7 @@
                         </li>
                     {% endif %}
                 {% endfor %}
-                <li class="next {% if not pagination.has_next %}disabled{% endif %}"><a href="{{ url_for(endpoint, page=pagination.page+1) }}">Next &rarr;</a></li>
+                <li class="next {% if not pagination.has_next %}disabled{% endif %}"><a href="{{ url_for(endpoint, page=pagination.page+1) }}">{{ _('Next') }} &rarr;</a></li>
             </ul>
         </div>
     {% endif %}

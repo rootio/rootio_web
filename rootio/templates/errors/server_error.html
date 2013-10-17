@@ -1,8 +1,8 @@
 {% extends 'errors/layout.html' %}
 {% set page_title = _('Server error') %}
 {% block body %}
-<h1>Server Error <span>:(</span></h1>
-<p>Sorry for the inconvenience</p>
+<h1>{{ _('Server Error') }} <span>:(</span></h1>
+<p>{{ _('Sorry for the inconvenience') }}</p>
 <script>
     var GOOG_FIXURL_LANG = (navigator.language || '').slice(0,2),GOOG_FIXURL_SITE = location.host;
 </script>
