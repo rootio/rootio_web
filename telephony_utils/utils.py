@@ -40,6 +40,14 @@ def call(gateway, phone_number, answered):
         raise
     return [result.get('Success'),result.get('RequestUUID')]
     
-    
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.session.add(instance)
+        db.session.commit()
+        return instance    
     
     
