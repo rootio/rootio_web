@@ -214,3 +214,12 @@ def reset_password():
 @frontend.route('/help')
 def help():
     return render_template('frontend/footers/help.html', active="help")
+
+
+@frontend.route('/lang/', methods=['POST'])
+def lang():
+    session['language'] = request.form['language']
+    current_app.logger.debug('set lang: %s' % session['language'])
+    return redirect(url_for('frontend.index'))
+
+

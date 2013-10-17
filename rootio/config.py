@@ -44,8 +44,14 @@ class DefaultConfig(BaseConfig):
     #SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
-    ACCEPT_LANGUAGES = ['en','lg','luo','sw',]
-    BABEL_DEFAULT_LOCALE = 'lg_UG' #see http://cldr.unicode.org/index/cldr-spec/picking-the-right-language-code
+    ACCEPT_LANGUAGES = {#'ach':'Acholi',
+                        'en':'English',
+                        #'kdj':'Karamjong',
+                        #'mhd':"Ma'di",
+                        'nyn':'Nyankore',
+                        'lug':'Luganda',
+                        'luo':'Luo',}
+    BABEL_DEFAULT_LOCALE = 'en' #see http://cldr.unicode.org/index/cldr-spec/picking-the-right-language-code
                                 #abd http://unicode.org/cldr/utility/languageid.jsp
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'
