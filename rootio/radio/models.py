@@ -91,12 +91,20 @@ class Station(db.Model):
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
+    def init(self):
+        #load dummy program
+        #init state machine
+        return "init() stub"
+
     @property
     def current_program(self):
         #TODO
         return "current_program() stub"
 
-    #TODO, link to memory location of instance of program type pickled object
+    @property
+    def current_episode(self):
+        #TODO, link to memory location of instance of program type pickled object
+        return "current_episode() stub"
 
     @property
     def status(self):
@@ -158,6 +166,7 @@ class Episode(db.Model):
     created_time = db.Column(db.DateTime, default=get_current_time)
 
     recording = db.relationship(u'Recording')
+    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('episode',uselist=False))
 
 
 class ScheduledBlock(db.Model):
@@ -184,9 +193,6 @@ class BlockedProgram(db.Model):
     program_id = db.Column(db.ForeignKey('radio_program.id'))
     block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
     #order / priority
-
-    scheduled_block = db.relationship(u'ScheduledBlock')
-    program = db.relationship(u'Program')
 
 
 class ScheduledEpisode(db.Model):
