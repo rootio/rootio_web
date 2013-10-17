@@ -30,7 +30,7 @@ PASSWORD_LEN_MAX = 16
 AGE_MIN = 1
 AGE_MAX = 120
 
-# Sex type.
+# Gender type.
 MALE = 1
 FEMALE = 2
 OTHER = 9

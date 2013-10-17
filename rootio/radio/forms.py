@@ -3,9 +3,9 @@
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField, RadioField
 from wtforms_components.fields import TimeField
-from wtforms.validators import Required
+from wtforms.validators import Required, AnyOf
 
 from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
@@ -16,7 +16,7 @@ from .constants import PROGRAM_TYPES, LANGUAGE_CODES
 from ..user.models import User
 from ..telephony.forms import PhoneNumberForm
 
-from ..utils import OrderedForm
+from ..utils import OrderedForm, GENDER_TYPE
 from ..extensions import db
 
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
@@ -73,6 +73,8 @@ class ProgramTypeForm(ProgramTypeFormBase):
 
 PersonFormBase = model_form(Person, db_session=db.session, base_class=Form)
 class PersonForm(PersonFormBase):
+    gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
+            choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     submit = SubmitField(u'Save')
 
 
