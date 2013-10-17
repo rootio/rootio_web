@@ -24,6 +24,8 @@ class Location(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
+    def __unicode__(self):
+        return self.name
 
 class Language(db.Model):
     __tablename__ = u'radio_language'
@@ -33,6 +35,9 @@ class Language(db.Model):
     iso639_1 = db.Column(db.String(2)) # 2 digit code (eg, 'en')
     iso639_2 = db.Column(db.String(3))# 3 digit code (eg, 'eng')
     locale_code = db.Column(db.String(10)) # IETF locale (eg, 'en-US')
+
+    #relationships
+    programs = db.relationship(u'Program', backref=db.backref('language'))
 
     def __unicode__(self):
         return self.name
@@ -45,8 +50,12 @@ class Network(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
 
-    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('user_user'))
+    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('networks'))
+    stations = db.relationship(u'Station', backref=db.backref('network'))
     #networks can have multiple admins
+
+    def __unicode__(self):
+        return self.name
 
 
 t_networkadmins = db.Table(
@@ -72,8 +81,11 @@ class Station(db.Model):
 
     #relationships
     owner = db.relationship(u'User')
-    network = db.relationship(u'Network')
     location = db.relationship(u'Location')
+
+    phone = db.relationship(u'PhoneNumber')
+    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
+    scheduled_content = db.relationship(u'ScheduledContent', backref=db.backref('station'))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('radio_stations'))
 
     @property
@@ -86,6 +98,9 @@ class Station(db.Model):
         #TODO
         return "status() stub"
 
+    def __unicode__(self):
+        return self.name
+
 
 t_stationlanguage = db.Table(
     u'radio_stationlanguage',
@@ -95,13 +110,17 @@ t_stationlanguage = db.Table(
 
 
 class ProgramType(db.Model):
+    "A flexible definition of program dynamics"
     __tablename__ = u'radio_programtype'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),nullable=False)
-    definition = db.Column(db.PickleType)
-    #todo program definition
+    description = db.Column(db.Text,nullable=False)
+    definition = db.Column(db.PickleType,nullable=False)
+    #TODO: more complex program definition?
 
+    def __unicode__(self):
+        return self.name
 
 class Program(db.Model):
     "A single or recurring radio program"
@@ -110,26 +129,89 @@ class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
-    length = db.Column(db.Time)
+    duration = db.Column(db.Time)
+    update_recurrence = db.Column(db.Text()) #when new content updates are available
+
     language_id = db.Column(db.ForeignKey('radio_language.id'))
     program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
-    #relationships
-    language = db.relationship(u'Language')
-    programtype = db.relationship(u'ProgramType')
+    program_type = db.relationship(u'ProgramType')
+    contents = db.relationship('Content', backref=db.backref('program'), lazy='dynamic')
 
-    episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
+    def __unicode__(self):
+        return self.name
 
 
-class Episode(db.Model):
-    "A particular instance of a program"
-    __tablename__ = 'radio_episode'
+class Content(db.Model):
+    "A particular instance of a program, or other broadcast audio"
+    __tablename__ = 'radio_content'
 
     id = db.Column(db.Integer, primary_key=True)
-    program_id = db.Column(db.Integer, db.ForeignKey('radio_program.id'))
-    saved_file = db.Column(FileField([]))
+    program_id = db.Column(db.ForeignKey('radio_program.id'), nullable=False)
+    recording_id = db.Column(db.ForeignKey('radio_recording.id'))
     created_time = db.Column(db.DateTime, default=get_current_time)
 
+    recording = db.relationship(u'Recording')
+
+
+class ScheduledBlock(db.Model):
+    """A block of similar programs, with a recurrence rule and duration.
+    Similar to advertising 'dayparts'
+    """
+    __tablename__ = "radio_scheduledblock"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN), nullable=False)
+    recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
+    start_time = db.Column(db.Time)
+    end_time = db.Column(db.Time)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    def __unicode__(self):
+        return self.name
+
+
+class BlockedProgram(db.Model):
+    "A commitment by a station to air a program in a block"
+    __tablename__ = "radio_blockedprogram"
+    id = db.Column(db.Integer, primary_key=True)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    program_id = db.Column(db.ForeignKey('radio_program.id'))
+    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
+    #order / priority
+
+    scheduled_block = db.relationship(u'ScheduledBlock')
+    program = db.relationship(u'Program')
+
+
+class ScheduledContent(db.Model):
+    """Content scheduled to air on a station at a time.
+    Read these in order to determine a station's next to air."""
+    __tablename__ = "radio_scheduledcontent"
+    id = db.Column(db.Integer, primary_key=True)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    content_id = db.Column(db.ForeignKey('radio_content.id'))
+    start = db.Column(db.DateTime)
+    end = db.Column(db.DateTime)
+
+
+class PaddingContent(db.Model):
+    """An advertisement or PSA to run on a network in a block.
+    Actual air schedule to be determined by the scheduler."""
+    __tablename__ = "radio_paddingcontent"
+    id = db.Column(db.Integer, primary_key=True)
+    recording_id = db.Column(db.ForeignKey('radio_recording.id'))
+    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
+    #sponsoring org?
+
+    block = db.relationship(u'ScheduledBlock')
+    networks = db.relationship(u'Network', secondary=u'radio_networkpadding', backref=db.backref('paddingcontents'))
+
+
+t_networkpadding = db.Table(
+    u'radio_networkpadding',
+    db.Column(u'network_id', db.ForeignKey('radio_network.id')),
+    db.Column(u'paddingcontent_id', db.ForeignKey('radio_paddingcontent.id'))
+)
 
 class Recording(db.Model):
     "A recorded sound file"
@@ -155,9 +237,10 @@ class Person(db.Model):
 
     phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
-    phone = db.relationship(u'PhoneNumber', backref=db.backref('telephony_phonenumber'))
-    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('radio_person'))
-    
+    phone = db.relationship(u'PhoneNumber', backref=db.backref('person',uselist=False))
+    role = db.relationship(u'Role', backref=db.backref('person'))
+    languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person',uselist=False))
+
     gender_code = db.Column(db.Integer)
     @property
     def gender(self):
@@ -168,11 +251,16 @@ class Person(db.Model):
     def privacy(self):
         return PRIVACY_TYPE.get(self.privacy_code)
 
+    def __unicode__(self):
+        return " ".join([self.title,self.firstname,self.middlename,self.lastname])
+    
+    #TODO: fk to user_id?
+
 
 t_personlanguage = db.Table(
     u'radio_personlanguage',
-    db.Column(u'language_id', db.ForeignKey('radio_language.id'), primary_key=True),
-    db.Column(u'person_id', db.ForeignKey('radio_person.id'), primary_key=True)
+    db.Column(u'language_id', db.ForeignKey('radio_language.id')),
+    db.Column(u'person_id', db.ForeignKey('radio_person.id'))
 )
 
 class Role(db.Model):
@@ -183,7 +271,5 @@ class Role(db.Model):
     name = db.Column(db.String)
 
     person_id = db.Column(db.ForeignKey('radio_person.id'))
+    #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-
-    person = db.relationship(u'Person')
-    station = db.relationship(u'Station')

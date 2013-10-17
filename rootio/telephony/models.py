@@ -14,12 +14,15 @@ class PhoneNumber(db.Model):
     carrier = db.Column(db.String(STRING_LEN))
     countrycode = db.Column(db.String(3)) #does not include + symbol
     areacode = db.Column(db.String(8)) #consistent across countries?
-    number = db.Column(db.String(20))
+    number = db.Column(db.String(20),nullable=False)
 
     number_type = db.Column(db.Integer)
     @property
     def type(self):
         return PHONE_NUMBER_TYPE.get(self.number_type)
+
+    def __unicode__(self):
+        return "+%s %s %s" % (self.countrycode, self.areacode, self.number)
 
 class Call(db.Model):
     __tablename__ = u'telephony_call'
