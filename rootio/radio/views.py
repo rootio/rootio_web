@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dateutil import rrule
 
-from flask import g, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import ngettext as _
 
@@ -54,7 +54,6 @@ def station_add():
         cleaned_data.pop('submit',None) #remove submit field from list
         cleaned_data.pop('phone_inline',None) #and also inline forms
         cleaned_data.pop('location_inline',None)
-        print cleaned_data
         station = Station(**cleaned_data) #create new object from data
 
         db.session.add(station)
@@ -205,12 +204,10 @@ def scheduled_block_add():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
         block = ScheduledBlock(**cleaned_data) #create new object from data
-        print cleaned_data
         db.session.add(block)
         db.session.commit()
         flash(_('Block added.'), 'success') 
     elif request.method == "POST":
-        print form.data
         flash(_('Validation error'),'error')
 
     return render_template('radio/scheduled_block.html', program=program, form=form)
@@ -223,7 +220,7 @@ def blocked_program_inline():
     data = json.loads(request.data)
     
     form = BlockedProgramForm(None, **data)
-    print "*** form",form.data
+    current_app.logger.debug( "*** form",form.data)
     #lookup fk's manually?
 
     blocked_program = None
@@ -245,7 +242,7 @@ def scheduled_content_json(station_id):
     scheduled_content = ScheduledContent.query.filter_by(station_id=station_id)
     resp = []
     for s in scheduled_content:
-        print s
+        current_app.logger.debug(s)
     return resp
 
 
