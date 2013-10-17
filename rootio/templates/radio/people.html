@@ -2,17 +2,17 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">People</h2>
+    <h2 class="pull-left">{{ _('People') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ ('_(Add') }} +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Email') }}</th>
+                <th>{{ _('Phone') }}</th>
+                <th>{{ _('Role') }}</th>
             </tr>
         </thead>
         {% for person in people %}
@@ -21,7 +21,7 @@
             <td>{{ person.email }}</td>
             <td>{{ person.phone }}</td>
             <td>{{ person.role }}</td>
-            <td><a href="{{ url_for('radio.person', person_id=person.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('radio.person', person_id=person.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
     </table>

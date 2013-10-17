@@ -1,9 +1,11 @@
 {% extends 'errors/layout.html' %}
 {% set page_title = _('Forbidden page') %}
 {% block body %}
-<h1>Forbidden Page <span>:(</span></h1>
+<h1>{{ _('Forbidden Page') }} <span>:(</span></h1>
+{% trans %}
 <p>You do not have permission to access this page.</p>
 <p>Log in and try again?</p>
+{% endtrans %}
 <script>
     var GOOG_FIXURL_LANG = (navigator.language || '').slice(0,2),GOOG_FIXURL_SITE = location.host;
 </script>
