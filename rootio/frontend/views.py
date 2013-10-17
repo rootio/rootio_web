@@ -34,7 +34,7 @@ def login_openid():
 def create_or_login(resp):
     user = User.query.filter_by(openid=resp.identity_url).first()
     if user and login_user(user):
-        flash('Logged in', 'success')
+        flash(_('Logged in'), 'success')
         return redirect(oid.get_next_url() or url_for('user.index'))
     return redirect(url_for('frontend.create_profile', next=oid.get_next_url(),
             name=resp.fullname or resp.nickname, email=resp.email,
@@ -195,8 +195,7 @@ def reset_password():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user:
-            flash('Please see your email for instructions on '
-                  'how to access your account', 'success')
+            flash(_('Please see your email for instructions on how to access your account'), 'success')
 
             user.activation_key = str(uuid4())
             db.session.add(user)
