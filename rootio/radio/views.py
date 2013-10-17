@@ -4,10 +4,11 @@ import os
 from datetime import datetime
 from dateutil import rrule
 
-from flask import g, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
+from flask.ext.babel import ngettext as _
 
-from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledContent, Location, Person
+from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledEpisode, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm, PersonForm
 
 from ..decorators import returns_json
@@ -37,7 +38,7 @@ def station(station_id):
 
         db.session.add(station)
         db.session.commit()
-        flash('Station updated.', 'success')
+        flash(_('Station updated.'), 'success')
 
     return render_template('radio/station.html', station=station, form=form)
 
@@ -53,14 +54,13 @@ def station_add():
         cleaned_data.pop('submit',None) #remove submit field from list
         cleaned_data.pop('phone_inline',None) #and also inline forms
         cleaned_data.pop('location_inline',None)
-        print cleaned_data
         station = Station(**cleaned_data) #create new object from data
 
         db.session.add(station)
         db.session.commit()
-        flash('Station added.', 'success') 
+        flash(_('Station added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/station.html', station=station, form=form)
 
@@ -81,7 +81,7 @@ def program(program_id):
 
         db.session.add(program)
         db.session.commit()
-        flash('Program updated.', 'success')
+        flash(_('Program updated.'), 'success')
 
     return render_template('radio/program.html', program=program, form=form)
 
@@ -99,9 +99,9 @@ def program_add():
         
         db.session.add(program)
         db.session.commit()
-        flash('Program added.', 'success') 
+        flash(_('Program added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/program.html', program=program, form=form)
 
@@ -121,7 +121,7 @@ def person(person_id):
 
         db.session.add(person)
         db.session.commit()
-        flash('Person updated.', 'success')
+        flash(_('Person updated.'), 'success')
 
     return render_template('radio/person.html', person=person, form=form)
 
@@ -139,9 +139,9 @@ def person_add():
         
         db.session.add(person)
         db.session.commit()
-        flash('Person added.', 'success') 
+        flash(_('Person added.'), 'success') 
     elif request.method == "POST":
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/person.html', person=person, form=form)
 
@@ -157,7 +157,7 @@ def location_add_inline():
         try:
             data[field] = float(data[field])
         except ValueError:
-            response = {'status':'error','errors':{field:'Invalid '+field},'status_code':400}
+            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
             return response
 
     form = LocationForm(None, **data) #use this format to avoid multidict-type issue
@@ -190,7 +190,7 @@ def scheduled_block(block_id):
         form.populate_obj(block)
         db.session.add(block)
         db.session.commit()
-        flash('Block updated.', 'success')
+        flash(_('Block updated.'), 'success')
 
     return render_template('radio/scheduled_block.html', scheduled_block=block, form=form)
 
@@ -204,14 +204,11 @@ def scheduled_block_add():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
         block = ScheduledBlock(**cleaned_data) #create new object from data
-        print cleaned_data
         db.session.add(block)
         db.session.commit()
-        flash('Block added.', 'success') 
+        flash(_('Block added.'), 'success') 
     elif request.method == "POST":
-        print "form.errors",form.errors
-        print form.data
-        flash('Validation error','error')
+        flash(_('Validation error'),'error')
 
     return render_template('radio/scheduled_block.html', program=program, form=form)
 
@@ -223,7 +220,7 @@ def blocked_program_inline():
     data = json.loads(request.data)
     
     form = BlockedProgramForm(None, **data)
-    print "*** form",form.data
+    current_app.logger.debug( "*** form",form.data)
     #lookup fk's manually?
 
     blocked_program = None
@@ -239,13 +236,13 @@ def blocked_program_inline():
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledcontent.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledepisodes.json', methods=['GET'])
 @returns_json
-def scheduled_content_json(station_id):
-    scheduled_content = ScheduledContent.query.filter_by(station_id=station_id)
+def scheduled_episodes_json(station_id):
+    scheduled_episodes = ScheduledEpisode.query.filter_by(station_id=station_id)
     resp = []
-    for s in scheduled_content:
-        print s
+    for s in scheduled_episodes:
+        current_app.logger.debug(s)
     return resp
 
 

@@ -2,16 +2,16 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Program Types</h2>
+    <h2 class="pull-left">{{ _('Program Types') }}</h2>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('admin.program_type_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Definition</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Description') }}</th>
+                <th>{{ _('Definition') }}</th>
                 <th></th>
             </tr>
         </thead>

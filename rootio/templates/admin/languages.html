@@ -2,16 +2,16 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Languages</h2>
+    <h2 class="pull-left">{{ _('Languages') }}</h2>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('admin.language_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>ISO Codes</th>
-                <th>Locale</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('ISO Codes') }}</th>
+                <th>{{ _('Locale') }}</th>
                 <th></th>
             </tr>
         </thead>

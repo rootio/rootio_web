@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if phonenumber%}
-        <h2>Edit Phone Number</h2>
+        <h2>{{ _('Edit') }} {{ _('Phone Number' }}</h2>
         {{ render_form(url_for('telephony.phonenumber', phonenumber_id=phonenumber.id), form) }}
     {%else%}
-        <h2>Edit Phone Number</h2>
+        <h2>{{ _('Add') }} {{ _('Phone Number') }}</h2>
         {{ render_form(url_for('telephony.phonenumber_add'), form) }}
     {%endif%}
 </div>
