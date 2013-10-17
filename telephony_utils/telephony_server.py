@@ -2,7 +2,7 @@
 from flask import Flask, request, render_template
 from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
-import utils
+from utils import call, get_or_create
 
 import sys, os
 import datetime
@@ -34,17 +34,6 @@ telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPo
 db = SQLAlchemy(telephony_server)
 from rootio.telephony.models import *
 from rootio.radio.models import *
-
-
-def get_or_create(session, model, **kwargs):
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        return instance
-    else:
-        instance = model(**kwargs)
-        db.session.add(instance)
-        db.session.commit()
-        return instance
                           
 @telephony_server.errorhandler(404)
 def page_not_found(error):
@@ -168,9 +157,9 @@ def hostwait():
     else:
         print request.args.items()
     r = plivohelper.Response()
-    r.addPlay(telephony_ip+"/~csik/Hello_Host.mp3")
-    r.addPlay(telephony_ip+"/~csik/You_Have_X_Listeners.mp3")
-    r.addPlay(telephony_ip+"/~csik/Instructions.mp3")
+    r.addPlay(telephony_ip+"/~csik/sounds/english/Hello_Host.mp3")
+    r.addPlay(telephony_ip+"/~csik/sounds/english/You_Have_X_Listeners.mp3")
+    r.addPlay(telephony_ip+"/~csik/sounds/english/Instructions.mp3")
     print "RESTXML Response => %s" % r
     return render_template('response_template.xml', response=r)
 
