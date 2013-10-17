@@ -3,7 +3,7 @@
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField, RadioField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField, RadioField, IntegerField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 
@@ -103,5 +103,8 @@ def all_blocks():
 class BlockedProgramForm(Form):
     program = QuerySelectField(query_factory=all_programs,allow_blank=False)
     block = QuerySelectField(query_factory=all_blocks,allow_blank=False)
+    air_time = DurationField(description="Time to air since beginning of block, in H:MM:SS")
+        #not really a duration, but a time without am/pm
+    priority = IntegerField(description="Ascending values")
     # other options for flexibility?
     submit = SubmitField(u'Save')

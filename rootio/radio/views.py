@@ -270,7 +270,7 @@ def scheduled_block_json(station_id):
 
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
-    #todo, make this deal with multiple stations
+    #TODO, make this deal with multiple stations
     #station = Station.query.filter_by(id=station_id).first_or_404()
 
     #hack, hardcode for now
