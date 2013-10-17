@@ -8,7 +8,7 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import ngettext as _
 
-from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledContent, Location, Person
+from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledEpisode, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm, PersonForm
 
 from ..decorators import returns_json
@@ -236,12 +236,12 @@ def blocked_program_inline():
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledcontent.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledepisodes.json', methods=['GET'])
 @returns_json
-def scheduled_content_json(station_id):
-    scheduled_content = ScheduledContent.query.filter_by(station_id=station_id)
+def scheduled_episodes_json(station_id):
+    scheduled_episodes = ScheduledEpisode.query.filter_by(station_id=station_id)
     resp = []
-    for s in scheduled_content:
+    for s in scheduled_episodes:
         current_app.logger.debug(s)
     return resp
 
