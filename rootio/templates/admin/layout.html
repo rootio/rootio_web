@@ -5,9 +5,9 @@
 
 {% set tab_title = "Admin" %}
 {% set tabs = [
-    ("System", url_for('admin.index')), 
-    ("Users", url_for('admin.users')),
-    ("Languages", url_for('admin.languages')),
-    ("Networks", '#'),
-    ("Program Types", url_for('admin.program_types')),
+    (_("System"), url_for('admin.index')), 
+    (_("Users"), url_for('admin.users')),
+    (_("Languages"), url_for('admin.languages')),
+    (_("Networks"), '#'),
+    (_("Program Types"), url_for('admin.program_types')),
 ]%}

@@ -2,17 +2,17 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Phone Numbers</h2>
+    <h2 class="pull-left">{{ _('Phone Numbers') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('telephony.phonenumber_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('telephony.phonenumber_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Type</th>
-                <th>Country</th>
-                <th>Number</th>
-                <th>Person</th>
+                <th>{{ _('Type') }}</th>
+                <th>{{ _('Country') }}</th>
+                <th>{{ _('Number') }}</th>
+                <th>{{ _('Person') }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -22,7 +22,7 @@
             <td>{{ phonenumber.countrycode }}</td>
             <td>{{ phonenumber.number }}</td>
             <td><a href="{{ url_for('radio.person', person_id=phonenumber.person.id) }}">{{ phonenumber.person }}</td>
-            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
     </table>

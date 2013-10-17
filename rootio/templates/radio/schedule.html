@@ -54,7 +54,7 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">{{station.name}} Schedule</h2>
+    <h2 class="pull-left">{{station.name}} {{ _('Schedule') }}</h2>
     <div class="pull-right">
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal">Add +</button>
     </div>
@@ -68,7 +68,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add to Schedule</h4>
+          <h4 class="modal-title">{{ _('Add to Schedule') }}</h4>
         </div>
         <div class="modal-body">
             <form action="POST">
@@ -77,9 +77,9 @@
                 {{ render_input(form.program) }}
 
                 <ul id="program_extra">
-                    <li>Description: </li>
-                    <li>Duration: </li>
-                    <li>Update: </li>
+                    <li>{{ _('Description') }}: </li>
+                    <li>{{ _('Duration') }}: </li>
+                    <li>{{ _('Update Frequency') }}: </li>
                 </ul>
 
                 {{ render_input(form.block) }}
