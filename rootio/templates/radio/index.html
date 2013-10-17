@@ -2,11 +2,11 @@
 
 {% block body %}
 <div class="container">
-    <h2>Radio Dashboard</h2>
+    <h2>{{ _('Radio Dashboard') }}</h2>
     
-    <div>Stations: ({%for s in stations%}{{s.name}}{%if not loop.last%}, {%endif%}{%endfor%}) </div>
+    <div>{{ _('Stations') }}: ({%for s in stations%}{{s.name}}{%if not loop.last%}, {%endif%}{%endfor%}) </div>
     <div>
-        <a class="btn btn-warning" href="{{ '#' }}"><strong>Flash Message &rarr;</strong></a>
+        <a class="btn btn-warning" href="{{ '#' }}"><strong>{{ _('Flash Message') }} &rarr;</strong></a>
     </div>
 </div>
 {% endblock %}

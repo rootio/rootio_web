@@ -5,10 +5,10 @@
 
 {% set tab_title = "Radio" %}
 {% set tabs = [
-    ("Status", url_for('radio.index')), 
-    ("Stations", url_for('radio.stations')),
-    ("People", url_for('radio.people')),
-    ("Programs", url_for('radio.programs')),
-    ("Blocks", url_for('radio.scheduled_blocks')),
-    ("Schedule", url_for('radio.schedule')),
+    (_("Status"), url_for('radio.index')), 
+    (_("Stations"), url_for('radio.stations')),
+    (_("People"), url_for('radio.people')),
+    (_("Programs"), url_for('radio.programs')),
+    (_("Blocks"), url_for('radio.scheduled_blocks')),
+    (_("Schedule"), url_for('radio.schedule')),
 ]%}

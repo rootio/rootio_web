@@ -6,10 +6,10 @@
 <h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
 
 <ul>
-    <li><a href="{{ url_for('radio.index') }}">Radio Dashboard</a></li>
-    <li><a href="{{ url_for('telephony.index') }}">Telephony Dashboard</a></li>
-    <li><a href="{{ '#' }}">Find a program</a></li>    
-    <li><a href="{{ '#' }}">Start a poll</a></li>
+    <li><a href="{{ url_for('radio.index') }}">{{ _('Radio Dashboard') }}</a></li>
+    <li><a href="{{ url_for('telephony.index') }}">{{ _('Telephony Dashboard') }}</a></li>
+    <li><a href="{{ '#' }}">{{ _('Find a program') }}</a></li>    
+    <li><a href="{{ '#' }}">{{ _('Start a poll') }}</a></li>
 </ul>
 
 

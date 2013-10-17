@@ -23,9 +23,9 @@
 {% block body %}
 <div class="container">
     {%if scheduled_block%}
-        <h2>Edit Block</h2>
+        <h2>{{ _('Edit') }} {{ _('Block') }}</h2>
     {%else%}
-        <h2>Add Block</h2>
+        <h2>{{ _('Add') }} {{ _('Block') }}</h2>
     {%endif%}
 
     <form method="POST" action="{%if scheduled_block%}{{url_for('radio.scheduled_block', block_id=scheduled_block.id)}}
@@ -42,10 +42,10 @@
             </label>
             <div class="controls">
                 <!-- common schedules -->
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> Daily</label>
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> Weekdays</label>
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> Weekends</label>
-                    <label><input type="radio" name="preset-recurrence" value="custom" /> Custom</label>
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> {{ _('Daily') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> {{ _('Weekdays') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> {{ _('Weekends') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="custom" /> {{ _('Custom') }}</label>
                     <div id="recurringinput">
                         <!-- custom user inputs created here by rrule.recurringinput.js -->
                     </div>
