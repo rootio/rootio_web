@@ -1,0 +1,59 @@
+{% from "macros/_form.html" import render_form, render_field %}
+
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/block.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/block.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+    {%if scheduled_block%}
+        <h2>Edit Block</h2>
+    {%else%}
+        <h2>Add Block</h2>
+    {%endif%}
+
+    <form method="POST" action="{%if scheduled_block%}{{url_for('radio.scheduled_block', block_id=scheduled_block.id)}}
+                                {%else%}{{ url_for('radio.scheduled_block_add') }}{%endif%}" >
+        {{ form.hidden_tag() }}
+        {{ render_field(form, form.station) }} {# todo: hide this if user is only allowed access to one station? #}
+        {{ render_field(form, form.name) }}
+        {{ render_field(form, form.start_time) }}
+        {{ render_field(form, form.end_time) }}
+
+        <div class="control-group">
+            <label class="control-label " for="recurrence">
+                <label for="recurrence">Recurrence</label>
+            </label>
+            <div class="controls">
+                <!-- common schedules -->
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> Daily</label>
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> Weekdays</label>
+                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> Weekends</label>
+                    <label><input type="radio" name="preset-recurrence" value="custom" /> Custom</label>
+                    <div id="recurringinput">
+                        <!-- custom user inputs created here by rrule.recurringinput.js -->
+                    </div>
+                
+            </div>
+        </div>
+
+        {{ render_field(form, form.submit) }}
+    </form>
+</div>
+{% endblock %}

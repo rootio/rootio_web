@@ -2,6 +2,16 @@
 
 {% extends "radio/layout.html" %}
 
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+    {{ super() }}
+{% endblock %}
+
+
 {% block body %}
 <div class="container">
     {%if program%}
