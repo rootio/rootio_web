@@ -11,11 +11,11 @@ from .config import DefaultConfig
 from .user import User, user
 from .settings import settings
 from .frontend import frontend
-from .api import api
+from .api import api, restless_routes
 from .admin import admin
 from .radio import radio
 from .telephony import telephony
-from .extensions import db, mail, cache, login_manager, oid
+from .extensions import db, mail, cache, login_manager, oid, rest
 from .utils import INSTANCE_FOLDER_PATH
 
 
@@ -116,8 +116,12 @@ def configure_extensions(app):
     # flask-openid
     oid.init_app(app)
 
-    #csrf for wtforms
+    # csrf for wtforms
     CsrfProtect(app)
+
+    # flask-restless
+    rest.init_app(app, flask_sqlalchemy_db=db)
+    restless_routes() #actually setup the routes
 
 
 def configure_blueprints(app, blueprints):

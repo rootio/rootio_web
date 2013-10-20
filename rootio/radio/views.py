@@ -6,7 +6,7 @@ from dateutil import rrule
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
-from flask.ext.babel import ngettext as _
+from flask.ext.babel import gettext as _
 
 from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledEpisode, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm, PersonForm

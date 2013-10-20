@@ -96,20 +96,26 @@ class Station(db.Model):
         #init state machine
         return "init() stub"
 
-    @property
     def current_program(self):
         #TODO
         return "current_program() stub"
 
-    @property
     def current_episode(self):
         #TODO, link to memory location of instance of program type pickled object
         return "current_episode() stub"
 
-    @property
     def status(self):
         #TODO
-        return "status() stub"
+
+        #random appearance for demo
+        from random import random
+        r = random()
+        if r > 0.8:
+            return "unknown"
+        elif r > 0.6:
+            return "off"
+        else:
+            return "on"
 
     def __unicode__(self):
         return self.name
