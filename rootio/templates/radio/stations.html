@@ -18,9 +18,9 @@
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.status }}</td>
-            <td>{{ station.current_program }}</td>
-            <td>{{ station.next_program }}</td>
+            <td>{{ station.status() }}</td>
+            <td>{{ station.current_program() }}</td>
+            <td></td>
             <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
