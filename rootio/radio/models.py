@@ -88,18 +88,34 @@ class Station(db.Model):
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
-    scheduled_content = db.relationship(u'ScheduledContent', backref=db.backref('station',uselist=False))
+    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
-    @property
+    def init(self):
+        #load dummy program
+        #init state machine
+        return "init() stub"
+
     def current_program(self):
         #TODO
         return "current_program() stub"
 
-    @property
+    def current_episode(self):
+        #TODO, link to memory location of instance of program type pickled object
+        return "current_episode() stub"
+
     def status(self):
         #TODO
-        return "status() stub"
+
+        #random appearance for demo
+        from random import random
+        r = random()
+        if r > 0.8:
+            return "unknown"
+        elif r > 0.6:
+            return "off"
+        else:
+            return "on"
 
     def __unicode__(self):
         return self.name
@@ -125,6 +141,7 @@ class ProgramType(db.Model):
     def __unicode__(self):
         return self.name
 
+
 class Program(db.Model):
     "A single or recurring radio program"
     __tablename__ = 'radio_program'
@@ -139,15 +156,15 @@ class Program(db.Model):
     program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
     program_type = db.relationship(u'ProgramType')
-    contents = db.relationship('Content', backref=db.backref('program'), lazy='dynamic')
+    episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
 
     def __unicode__(self):
         return self.name
 
 
-class Content(db.Model):
+class Episode(db.Model):
     "A particular instance of a program, or other broadcast audio"
-    __tablename__ = 'radio_content'
+    __tablename__ = 'radio_episode'
 
     id = db.Column(db.Integer, primary_key=True)
     program_id = db.Column(db.ForeignKey('radio_program.id'), nullable=False)
@@ -155,6 +172,7 @@ class Content(db.Model):
     created_time = db.Column(db.DateTime, default=get_current_time)
 
     recording = db.relationship(u'Recording')
+    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('episode',uselist=False))
 
 
 class ScheduledBlock(db.Model):
@@ -182,17 +200,14 @@ class BlockedProgram(db.Model):
     block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
     #order / priority
 
-    scheduled_block = db.relationship(u'ScheduledBlock')
-    program = db.relationship(u'Program')
 
-
-class ScheduledContent(db.Model):
+class ScheduledEpisode(db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
-    __tablename__ = "radio_scheduledcontent"
+    __tablename__ = "radio_scheduledepisode"
     id = db.Column(db.Integer, primary_key=True)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-    content_id = db.Column(db.ForeignKey('radio_content.id'))
+    episode_id = db.Column(db.ForeignKey('radio_episode.id'))
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
 

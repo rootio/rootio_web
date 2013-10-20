@@ -2,23 +2,28 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Languages</h2>
+    <h2 class="pull-left">{{ _('Languages') }}</h2>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('admin.language_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>ISO Codes</th>
-                <th>Locale</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('ISO Code') }}</th>
+                <th>{{ _('Locale') }}</th>
                 <th></th>
             </tr>
         </thead>
         {% for language in languages %}
         <tr>
             <td>{{ language.name }}</td>
-            <td>{{ language.iso639_1 }} / {{language.iso639_2 }}</td>
+            <td>{% if language.iso639_1 and language.iso639_2 %} {{ language.iso639_1 }} / {{language.iso639_2 }}
+                {% else%}
+                {% if language.iso639_1 %} {{ language.iso639_1 }} {%endif%}
+                {% if language.iso639_2 %} {{ language.iso639_2 }} {%endif%}
+            {%endif%}
+            </td>
             <td>{{ language.locale_code }}</td>
             <td><a href="{{ url_for('admin.language', language_id=language.id) }}">Edit</a></td>
         </tr>

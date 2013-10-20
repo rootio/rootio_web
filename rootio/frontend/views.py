@@ -25,7 +25,6 @@ def login_openid():
     form = OpenIDForm()
     if form.validate_on_submit():
         openid = form.openid.data
-        current_app.logger.debug('login with openid(%s)...' % openid)
         return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
     return render_template('frontend/login_openid.html', form=form, error=oid.fetch_error())
 
@@ -34,7 +33,7 @@ def login_openid():
 def create_or_login(resp):
     user = User.query.filter_by(openid=resp.identity_url).first()
     if user and login_user(user):
-        flash('Logged in', 'success')
+        flash(_('Logged in'), 'success')
         return redirect(oid.get_next_url() or url_for('user.index'))
     return redirect(url_for('frontend.create_profile', next=oid.get_next_url(),
             name=resp.fullname or resp.nickname, email=resp.email,
@@ -64,8 +63,6 @@ def create_profile():
 
 @frontend.route('/')
 def index():
-    current_app.logger.debug('debug')
-
     if current_user.is_authenticated():
         return redirect(url_for('user.index'))
 
@@ -119,7 +116,6 @@ def reauth():
                                     form.password.data)
         if user and authenticated:
             confirm_login()
-            current_app.logger.debug('reauth: %s' % session['_fresh'])
             flash(_('Reauthenticated.'), 'success')
             return redirect('/change_password')
 
@@ -195,8 +191,7 @@ def reset_password():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user:
-            flash('Please see your email for instructions on '
-                  'how to access your account', 'success')
+            flash(_('Please see your email for instructions on how to access your account'), 'success')
 
             user.activation_key = str(uuid4())
             db.session.add(user)
@@ -217,3 +212,11 @@ def reset_password():
 @frontend.route('/help')
 def help():
     return render_template('frontend/footers/help.html', active="help")
+
+
+@frontend.route('/lang/', methods=['POST'])
+def lang():
+    session['language'] = request.form['language']
+    return redirect(url_for('frontend.index'))
+
+
