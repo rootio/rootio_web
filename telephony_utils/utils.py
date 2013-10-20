@@ -9,6 +9,9 @@ def call(gateway, phone_number, answered):
     Make a call, using (gateway, phone_number)
     TODO: actually make the other parameters correspond
     """
+    print "gateway = "+gateway
+    print "phone_numbers = "+phone_number
+    print "answered = "+answered
     # Define Channel Variable - http://wiki.freeswitch.org/wiki/Channel_Variables
     extra_dial_string = "bridge_early_media=true,hangup_after_bridge=true"
     
@@ -21,12 +24,12 @@ def call(gateway, phone_number, answered):
         #"sofia/gateway/switch2voip/"
         #alternately, see originate sofia/gateway/GOIP/66176424223 &conference('conf_uuid-Test_Con')
         'GatewayCodecs' : "", # Codec string as needed by FS for each gateway separated by comma
-        'GatewayTimeouts' : "10,10",      # Seconds to timeout in string for each gateway separated by comma
+        'GatewayTimeouts' : "20,20",      # Seconds to timeout in string for each gateway separated by comma
         'GatewayRetries' : "2,1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
         'ExtraDialString' : extra_dial_string,
-        'AnswerUrl' : answered,
-        'HangupUrl' : "http://127.0.0.1:5000/hangup/",
-        'RingUrl' : "http://127.0.0.1:5000/ringing/",
+        'AnswerUrl' : answered+'answered/',
+        'HangupUrl' : answered+'hangup/',
+        'RingUrl' : answered+'ringing/',
     #    'TimeLimit' : '10',
     #    'HangupOnRing': '0',
     }
@@ -41,7 +44,12 @@ def call(gateway, phone_number, answered):
         raise
     return [result.get('Success'),result.get('RequestUUID')]
 
-def group_call(gateway, phone_numbers, answered):
+
+def group_call(gateway, phone_numbers, answered): 
+    print "gateway = "+gateway
+    print "phone_numbers = "+phone_numbers
+    print "answered = "+answered
+
     # Define Channel Variable - http://wiki.freeswitch.org/wiki/Channel_Variables
     extra_dial_string = "bridge_early_media=true,hangup_after_bridge=true"
     
@@ -52,16 +60,16 @@ def group_call(gateway, phone_numbers, answered):
     # All parameters for bulk calls shall be separated by a delimeter
     call_params = {
         'Delimiter' : '>', # Delimter for the bulk list
-        'From': show_host, # Caller Id
+        'From': SHOW_HOST, # Caller Id
         'To' : phone_numbers, # User Numbers to Call separated by delimeter
         'Gateways' : gateway, # Gateway string for each number separated by delimeter
         'GatewayCodecs' : "", # Codec string as needed by FS for each gateway separated by delimeter
-        'GatewayTimeouts' : "10>10", # Seconds to timeout in string for each gateway separated by delimeter
+        'GatewayTimeouts' : "20>20", # Seconds to timeout in string for each gateway separated by delimeter
         'GatewayRetries' : "2>1", # Retry String for Gateways separated by delimeter, on how many times each gateway should be retried
         'ExtraDialString' : extra_dial_string,
-        'AnswerUrl' : answered,
-        'HangupUrl' : "http://127.0.0.1:5000/hangup/",
-        'RingUrl' : "http://127.0.0.1:5000/ringing/",
+        'AnswerUrl' : answered+'answered/',
+        'HangupUrl' : answered+'hangup/',
+        'RingUrl' : answered+'ringing/',
     #    'ConfirmSound' : "test.wav",
     #    'ConfirmKey' : "1",
     #    'RejectCauses': 'NO_USER_RESPONSE,NO_ANSWER,CALL_REJECTED,USER_NOT_REGISTERED',
@@ -71,19 +79,16 @@ def group_call(gateway, phone_numbers, answered):
     #    'HangupOnRing': '0>0',
     }
 
-try:
-    print plivo.group_call(call_params)
-except Exception, e:
-    print e
-    
-def get_or_create(session, model, **kwargs):
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        return instance
-    else:
-        instance = model(**kwargs)
-        db.session.add(instance)
-        db.session.commit()
-        return instance    
-    
-    
+    request_uuid = ""
+
+    #Perform the Call on the Rest API
+    try:
+        result = plivo.call(call_params)
+        print result
+    except Exception, e:
+        print e
+        raise
+    return [result.get('Success'),result.get('RequestUUID')]
+
+
+   

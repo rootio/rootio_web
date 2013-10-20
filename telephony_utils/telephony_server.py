@@ -2,7 +2,7 @@
 from flask import Flask, request, render_template
 from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
-from utils import call, get_or_create
+from utils import call
 
 import sys, os
 import datetime
@@ -35,6 +35,15 @@ db = SQLAlchemy(telephony_server)
 from rootio.telephony.models import *
 from rootio.radio.models import *
                           
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.session.add(instance)
+        db.session.commit()
+        return instance  
 @telephony_server.errorhandler(404)
 def page_not_found(error):
     """error page"""
