@@ -12,7 +12,6 @@ from ..user import User, UserDetail
 from ..extensions import db, mail, login_manager, oid
 from .forms import SignupForm, LoginForm, RecoverPasswordForm, ReauthForm, ChangePasswordForm, OpenIDForm, CreateProfileForm
 
-
 frontend = Blueprint('frontend', __name__)
 
 
@@ -219,7 +218,8 @@ def help():
 @frontend.route('/lang/', methods=['POST'])
 def lang():
     session['language'] = request.form['language']
-    current_app.logger.debug('set lang: %s' % session['language'])
+    new_language = current_app.config['ACCEPT_LANGUAGES'][request.form['language']]
+    flash(_('Language changed to ')+new_language, 'success')
     return redirect(url_for('frontend.index'))
 
 
