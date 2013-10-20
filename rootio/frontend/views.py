@@ -25,7 +25,6 @@ def login_openid():
     form = OpenIDForm()
     if form.validate_on_submit():
         openid = form.openid.data
-        current_app.logger.debug('login with openid(%s)...' % openid)
         return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
     return render_template('frontend/login_openid.html', form=form, error=oid.fetch_error())
 
@@ -117,7 +116,6 @@ def reauth():
                                     form.password.data)
         if user and authenticated:
             confirm_login()
-            current_app.logger.debug('reauth: %s' % session['_fresh'])
             flash(_('Reauthenticated.'), 'success')
             return redirect('/change_password')
 
@@ -219,7 +217,6 @@ def help():
 @frontend.route('/lang/', methods=['POST'])
 def lang():
     session['language'] = request.form['language']
-    current_app.logger.debug('set lang: %s' % session['language'])
     return redirect(url_for('frontend.index'))
 
 
