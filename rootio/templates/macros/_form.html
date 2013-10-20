@@ -182,7 +182,6 @@
     {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %} 
     {% if form.multipart %}enctype="multipart/form-data"{% endif %} >
     {{ form.hidden_tag() }}
-    {{ form.csrf_token() }}
     <fieldset>
         {% if legend %}
         <legend>{{ legend|safe }}</legend>

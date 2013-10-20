@@ -23,6 +23,10 @@ ul.nav li.nav-header {
     font-size: 14px;
 }
 
+form#language-selector select {
+    width:100px;
+}
+
 /* form styles */
 form .required {
     font-weight: bold;

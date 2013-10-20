@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if station%}
-        <h2>Edit Station</h2>
+        <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station', station_id=station.id), form) }}
     {%else%}
-        <h2>Add Station</h2>
+        <h2>{{ _('Add') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station_add'), form) }}
     {%endif%}
 </div>

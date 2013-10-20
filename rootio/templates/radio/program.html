@@ -15,10 +15,10 @@
 {% block body %}
 <div class="container">
     {%if program%}
-        <h2>Edit Program</h2>
+        <h2>{{ _('Edit') }} {{ _('Program') }}</h2>
         {{ render_form(url_for('radio.program', program_id=program.id), form) }}
     {%else%}
-        <h2>Add Program</h2>
+        <h2>{{ _('Add') }} {{ _('Program') }}</h2>
         {{ render_form(url_for('radio.program_add'), form) }}
     {%endif%}
 </div>

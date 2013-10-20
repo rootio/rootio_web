@@ -2,16 +2,16 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">Calls</h2>
+    <h2 class="pull-left">{{ _('Calls') }}</h2>
 
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>UUID</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>From</th>
-                <th>To</th>
+                <th>{{ _('UUID') }}</th>
+                <th>{{ _('Start') }}</th>
+                <th>{{ _('End') }}</th>
+                <th>{{ _('From') }}</th>
+                <th>{{ _('To') }}</th>
             </tr>
         </thead>
         {% for call in calls %}

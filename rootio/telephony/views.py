@@ -1,5 +1,6 @@
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required
+from flask.ext.babel import ngettext as _
 
 from .models import PhoneNumber, Message, Call
 from .forms import PhoneNumberForm
@@ -32,7 +33,7 @@ def phonenumber(phonenumber_id):
 
         db.session.add(phonenumber)
         db.session.commit()
-        flash('Phone Number updated.', 'success')
+        flash(_('Phone Number updated.'), 'success')
 
     return render_template('telephony/phonenumber.html', phonenumber=phonenumber, form=form)
 
@@ -50,7 +51,7 @@ def phonenumber_add():
 
         db.session.add(phonenumber)
         db.session.commit()
-        flash('Phone Number added.', 'success') 
+        flash(_('Phone Number added.'), 'success') 
     elif request.method == "POST":
         flash('Validation error','error')
 

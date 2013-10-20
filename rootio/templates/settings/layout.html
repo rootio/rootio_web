@@ -4,6 +4,6 @@
 {% set page_title = page_header %}
 
 {% set tabs = [
-    ("profile", url_for('settings.profile')), 
-    ("password", url_for('settings.password')),
+    (_("Profile"), url_for('settings.profile')), 
+    (_("Password"), url_for('settings.password')),
 ]%}
