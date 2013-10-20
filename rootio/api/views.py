@@ -2,12 +2,15 @@
 
 from flask import Blueprint, current_app, request, jsonify
 from flask.ext.login import login_user, current_user, logout_user
+from flask.ext.restless import APIManager
+
+from ..extensions import db, rest
 
 from ..user import User
+from ..radio import Station, Program
 
-
+#the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
-
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -31,3 +34,11 @@ def logout():
     if current_user.is_authenticated():
         logout_user()
     return jsonify(flag='success', msg='Logged out.')
+
+
+#the restless api
+#needs to be called after app instantiation
+def restless_routes():
+    rest.create_api(Station, collection_name='station', methods=['GET'],
+        exclude_columns=['owner'], include_methods=['status',]) #'current_program','current_episode'])
+    rest.create_api(Program, collection_name='program', methods=['GET'])
