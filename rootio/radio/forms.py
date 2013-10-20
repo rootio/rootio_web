@@ -21,6 +21,8 @@ from ..utils import OrderedForm, GENDER_TYPE
 from ..extensions import db
 
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
+    field_args = {'latitude':{'description': 'N/S'},
+                 'longitude':{'description': 'E/W'}},
     exclude=['modifieddate'])
 class LocationForm(LocationFormBase):
     submit = SubmitField(_('Save'))

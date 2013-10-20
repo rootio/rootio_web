@@ -10,7 +10,7 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
-                <th>{{ _('ISO Codes') }}</th>
+                <th>{{ _('ISO Code') }}</th>
                 <th>{{ _('Locale') }}</th>
                 <th></th>
             </tr>
@@ -18,7 +18,12 @@
         {% for language in languages %}
         <tr>
             <td>{{ language.name }}</td>
-            <td>{{ language.iso639_1 }} / {{language.iso639_2 }}</td>
+            <td>{% if language.iso639_1 and language.iso639_2 %} {{ language.iso639_1 }} / {{language.iso639_2 }}
+                {% else%}
+                {% if language.iso639_1 %} {{ language.iso639_1 }} {%endif%}
+                {% if language.iso639_2 %} {{ language.iso639_2 }} {%endif%}
+            {%endif%}
+            </td>
             <td>{{ language.locale_code }}</td>
             <td><a href="{{ url_for('admin.language', language_id=language.id) }}">Edit</a></td>
         </tr>
