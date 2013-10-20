@@ -33,6 +33,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 .
 * Web interface includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
 * and [RRule.js](http://jkbr.github.io/rrule/), Copyright (c) 2013 by Jakub Roztočil @jkbr
+* and [Leaflet.js](http://leafletjs.com/), Copyright (c) by Vladimir Agafonkin and Cloudmade @Leaflet
 
 * Includes elements of [plivohelper-python](https://github.com/plivo/plivohelper-python), which in turn was derived from work Copyright (c) 2009 Twilio, Inc.
 
