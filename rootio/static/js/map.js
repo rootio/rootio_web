@@ -1,9 +1,18 @@
 var map = L.map('map').setView([1.1975, 32.223], 6); //centered on uganda
 
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+var Stamen_TonerLite = L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+    attribution: 'Tiles <a href="http://stamen.com">Stamen</a> | Data <a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC</a>',
+    subdomains: 'abcd',
+    minZoom: 0,
+    maxZoom: 20
+});
+
+var OSM = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
     maxZoom: 18
-}).addTo(map);
+})
+
+Stamen_TonerLite.addTo(map);
 
 $.ajax({
     type: "GET",
