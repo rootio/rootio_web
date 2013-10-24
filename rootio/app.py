@@ -14,6 +14,7 @@ from .frontend import frontend
 from .api import api, restless_routes
 from .admin import admin
 from .radio import radio
+from .onair import onair
 from .telephony import telephony
 from .extensions import db, mail, cache, login_manager, oid, rest
 from .utils import INSTANCE_FOLDER_PATH
@@ -26,6 +27,7 @@ DEFAULT_BLUEPRINTS = (
     frontend,
     user,
     radio,
+    onair,
     telephony,
     settings,
     api,
