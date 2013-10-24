@@ -35,6 +35,7 @@ class Call(db.Model):
     to_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     a_leg_uuid = db.Column(db.String(100)) #only for outgoing
     a_leg_request_uuid = db.Column(db.String(100)) #only for outgoing
+    onairepisode_id = db.Column(db.ForeignKey('onair_episode.id'))
 
     from_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.from_phonenumber_id == PhoneNumber.id')
     to_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.to_phonenumber_id == PhoneNumber.id')
@@ -46,9 +47,10 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_uuid = db.Column(db.String(100))
     sendtime = db.Column(db.DateTime)
-    text = db.Column(db.String(200))
-    from_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
-    to_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+    text = db.Column(db.String(160))
+    from_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id')) #nullable=False?
+    to_phonenumber_id = db.Column(db.ForeignKey('telephony_phonenumber.id')) #nullable=False?
+    onairepisode_id = db.Column(db.ForeignKey('onair_episode.id'))
 
     phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Message.from_phonenumber_id == PhoneNumber.id')
     phonenumber1 = db.relationship(u'PhoneNumber', primaryjoin='Message.to_phonenumber_id == PhoneNumber.id')
