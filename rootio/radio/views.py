@@ -22,6 +22,16 @@ def index():
     stations = Station.query.all()
     return render_template('radio/index.html',stations=stations)
 
+@radio.route('/emergency/', methods=['GET'])
+def emergency():
+    stations = Station.query.all()
+    #demo, override station statuses
+    for s in stations:
+        s.status = "on"
+
+    #end demo
+    return render_template('radio/emergency.html',stations=stations)
+
 @radio.route('/station/', methods=['GET'])
 def stations():
     stations = Station.query.all()
