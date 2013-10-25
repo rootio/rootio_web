@@ -82,6 +82,15 @@ manager.add_option('-c', '--config',
                    help="config file")
 
 @manager.command
+def dropdb():
+    #for when db.drop_all won't cut it, particularly with postgres on server
+    import sqlalchemy
+    engine = sqlalchemy.create_engine('postgresql://postgres:NLPog1986@localhost')
+    meta = sqlalchemy.MetaData(engine)
+    meta.reflect()
+    meta.drop_all()
+
+@manager.command
 def list_routes():
     import urllib
     from flask import url_for
