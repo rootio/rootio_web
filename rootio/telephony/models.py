@@ -16,7 +16,7 @@ class PhoneNumber(db.Model):
     carrier = db.Column(db.String(STRING_LEN))
     countrycode = db.Column(db.String(3)) #does not include + symbol
     number = db.Column(db.String(20),nullable=False) #filtered data
-    raw_number = db.Column(db.String(20),nullable=False) #raw from telephony
+    raw_number = db.Column(db.String(20)) #raw from telephony
 
     number_type = db.Column(db.Integer) #convert to enum?
     @property
