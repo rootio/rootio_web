@@ -24,7 +24,7 @@ class BaseConfig(object):
     LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
     make_dir(LOG_FOLDER)
 
-    # Fild upload, should override in production.
+    # File upload, should override in production.
     # Limited the maximum allowed payload to 16 megabytes.
     # http://flask.pocoo.org/docs/patterns/fileuploads/#improving-uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
@@ -39,7 +39,7 @@ class DefaultConfig(BaseConfig):
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
     # Postgres for production.
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:NLPog1986@localhost'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
     ACCEPT_LANGUAGES = {#'ach':'Acholi',
