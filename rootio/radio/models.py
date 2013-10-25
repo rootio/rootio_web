@@ -27,6 +27,7 @@ class Location(db.Model):
     def __unicode__(self):
         return self.name
 
+
 class Language(db.Model):
     __tablename__ = u'radio_language'
 
@@ -41,6 +42,7 @@ class Language(db.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class Network(db.Model):
     "A network of radio stations"
@@ -87,6 +89,7 @@ class Station(db.Model):
 
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
+
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
@@ -163,7 +166,7 @@ class Program(db.Model):
 
 
 class Episode(db.Model):
-    "A particular instance of a program, or other broadcast audio"
+    "A particular episode of a program, or other broadcast audio"
     __tablename__ = 'radio_episode'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -281,6 +284,7 @@ t_personlanguage = db.Table(
     db.Column(u'person_id', db.ForeignKey('radio_person.id'))
 )
 
+
 class Role(db.Model):
     "A role for a person at a particular station"
     __tablename__ = u'radio_role'
@@ -291,3 +295,4 @@ class Role(db.Model):
     person_id = db.Column(db.ForeignKey('radio_person.id'))
     #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
+

@@ -1,9 +1,18 @@
-var map = L.map('map').setView([1.1975, 32.223], 6); //centered on uganda
+map = L.map('map').setView([1.1975, 32.223], 6); //centered on uganda
 
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+var Stamen_TonerLite = L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+    attribution: 'Tiles <a href="http://stamen.com">Stamen</a> | Data <a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC</a>',
+    subdomains: 'abcd',
+    minZoom: 0,
+    maxZoom: 20
+});
+
+var OSM = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
     maxZoom: 18
-}).addTo(map);
+});
+
+Stamen_TonerLite.addTo(map);
 
 $.ajax({
     type: "GET",
@@ -27,17 +36,44 @@ $.ajax({
                     "type": "Point",
                     "coordinates": [station.location.longitude,station.location.latitude]
                 }
-            }
+            };
             stations.push(geojson);
         }
         drawStations(stations);
     }
 });
 
-function drawStations(stations) {
-    L.geoJson(stations,{
-        onEachFeature: function bindPopup(feature, layer) {
-            if (feature.properties) {
+function stationsToLayer(feature, latlng) {
+    var status_color, icon_name;
+    //marker color and name of the glyphicon to display
+    switch(feature.properties.status) {
+        case 'on':
+            status_color = 'blue';
+            icon_name = "ok-sign";
+            break;
+        case 'off':
+            status_color = 'red';
+            icon_name = 'remove-sign';
+            break;
+        case 'unknown':
+            status_color = 'orange';
+            icon_name = 'question-sign';
+            break;
+        default:
+            status_color = 'grey';
+            icon_name = '';
+            break;
+    }
+    return L.marker(latlng, {
+            icon: L.AwesomeMarkers.icon({
+                icon: icon_name,
+                color: status_color
+            })
+        });
+}
+
+function stationPopup(feature, layer) {
+    if (feature.properties) {
                 var popupContent = '<h4>'+feature.properties.name+'</h4><ul class="status">';
                 if (feature.properties.languages) {
                     var language_names = [];
@@ -55,35 +91,12 @@ function drawStations(stations) {
                 popupContent += "</ul>";
                 layer.bindPopup(popupContent);
             }
-        },
-        pointToLayer: function(feature, latlng) {
-            var status_color, icon_name;
-            //marker color and name of the glyphicon to display
-            switch(feature.properties.status) {
-                case 'on':
-                    status_color = 'blue';
-                    icon_name = "ok-sign";
-                    break;
-                case 'off':
-                    status_color = 'red';
-                    icon_name = 'remove-sign';
-                    break;
-                case 'unknown':
-                    status_color = 'orange';
-                    icon_name = 'question-sign';
-                    break;
-                default:
-                    status_color = 'grey';
-                    icon_name = '';
-                    break;
-            }
-            return L.marker(latlng, {
-                    icon: L.AwesomeMarkers.icon({
-                        icon: icon_name,
-                        color: status_color
-                    })
-                });
-        }
+}
+
+function drawStations(stations) {
+    L.geoJson(stations,{
+        onEachFeature: stationPopup,
+        pointToLayer: stationsToLayer
     }).addTo(map);
 }
 
