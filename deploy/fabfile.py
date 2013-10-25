@@ -12,7 +12,7 @@ def virtualenv():
 
 env.hosts = ['176.58.125.166']
 env.user = 'rootio'
-env.project_root = '/home/rootio/public_python/rootio'
+env.project_root = '/home/rootio/public_python/rootio_web'
 env.virtualenv_activate = 'source .venv/bin/activate'
 env.forward_agent = True
 
