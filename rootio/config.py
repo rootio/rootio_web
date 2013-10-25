@@ -19,7 +19,7 @@ class BaseConfig(object):
     ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
-    SECRET_KEY = 'SeekritKey'
+    SECRET_KEY = os.env("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
 
     LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
     make_dir(LOG_FOLDER)
@@ -38,13 +38,17 @@ class DefaultConfig(BaseConfig):
 
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
-    # SQLITE for prototyping.
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:NLPog1986@localhost'
     # Postgres for production.
-    #SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
-    ACCEPT_LANGUAGES = ['en','lg','luo','sw',]
+    ACCEPT_LANGUAGES = {#'ach':'Acholi',
+                        'en':'English',
+                        #'kdj':'Karamjong',
+                        #'mhd':"Ma'di",
+                        'nyn':'Nyankore',
+                        'lug':'Luganda',
+                        'luo':'Luo',}
     BABEL_DEFAULT_LOCALE = 'lg_UG' #see http://cldr.unicode.org/index/cldr-spec/picking-the-right-language-code
                                 #abd http://unicode.org/cldr/utility/languageid.jsp
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
@@ -58,8 +62,8 @@ class DefaultConfig(BaseConfig):
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
-    MAIL_USERNAME = 'gmail_username'
-    MAIL_PASSWORD = 'gmail_password'
+    MAIL_USERNAME = os.env("MAIL_USERNAME",'gmail_username')
+    MAIL_PASSWORD = os.env("MAIL_PASSWORD",'gmail_password')
     DEFAULT_MAIL_SENDER = '%s@gmail.com' % MAIL_USERNAME
 
     # Flask-openid: http://pythonhosted.org/Flask-OpenID/
