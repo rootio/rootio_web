@@ -1,13 +1,13 @@
 """Added initial tables
 
-Revision ID: 57f461d001ec
+Revision ID: initial
 Revises: None
 Create Date: 2013-10-25 16:52:12.150570
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '57f461d001ec'
+revision = 'initial'
 down_revision = None
 
 from alembic import op
