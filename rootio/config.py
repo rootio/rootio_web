@@ -19,7 +19,7 @@ class BaseConfig(object):
     ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
-    SECRET_KEY = os.env("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
+    SECRET_KEY = os.environ.get("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
 
     LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
     make_dir(LOG_FOLDER)
@@ -62,8 +62,8 @@ class DefaultConfig(BaseConfig):
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
-    MAIL_USERNAME = os.env("MAIL_USERNAME",'gmail_username')
-    MAIL_PASSWORD = os.env("MAIL_PASSWORD",'gmail_password')
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME",'gmail_username')
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD",'gmail_password')
     DEFAULT_MAIL_SENDER = '%s@gmail.com' % MAIL_USERNAME
 
     # Flask-openid: http://pythonhosted.org/Flask-OpenID/
