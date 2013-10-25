@@ -74,7 +74,7 @@ def initdb():
 
     db.session.commit()
     alembic_cfg = Config("alembic.ini")
-    command.stamp(alembic_cfg, "head")
+    command.stamp(alembic_cfg, "initial")
 
 manager.add_option('-c', '--config',
                    dest="config",
