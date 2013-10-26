@@ -44,7 +44,7 @@ def migrate(direction):
 @manager.command
 def migration(message):
     """Create migration file"""
-    command.revision(alembic_config, message=message)
+    command.revision(alembic_config, autogenerate=True, message=message)
 
 @manager.command
 def initdb():
