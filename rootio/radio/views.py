@@ -8,8 +8,8 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, BlockedProgram, ScheduledEpisode, Location, Person
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, BlockedProgramForm, PersonForm
+from .models import Station, Program, ScheduledBlock, ScheduledEpisode, Location, Person
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json
 from ..utils import error_dict
@@ -188,6 +188,8 @@ def location_add_inline():
 @radio.route('/block/', methods=['GET'])
 def scheduled_blocks():
     scheduled_blocks = ScheduledBlock.query.all()
+    #TODO, display only those that are scheduled on stations the user can view
+
     return render_template('radio/scheduled_blocks.html', scheduled_blocks=scheduled_blocks, active='blocks')
 
 
@@ -210,37 +212,39 @@ def scheduled_block(block_id):
 def scheduled_block_add():
     form = BlockForm(request.form)
     block = None
+
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
         block = ScheduledBlock(**cleaned_data) #create new object from data
+
         db.session.add(block)
         db.session.commit()
         flash(_('Block added.'), 'success') 
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
-    return render_template('radio/scheduled_block.html', program=program, form=form)
+    return render_template('radio/scheduled_block.html', block=block, form=form)
 
 
-@radio.route('/blockedprogram/add/inline/', methods=['POST'])
+@radio.route('/scheduleprogram/add/inline/', methods=['POST'])
 @login_required
 @returns_json
-def blocked_program_inline():
+def schedule_program_inline():
     data = json.loads(request.data)
     
-    form = BlockedProgramForm(None, **data)
+    form = ScheduleProgramForm(None, **data)
     current_app.logger.debug( "*** form",form.data)
     #lookup fk's manually?
 
-    blocked_program = None
+    scheduled_episode = None
     if form.validate_on_submit():
     #    cleaned_data = form.data #make a copy
     #    cleaned_data.pop('submit',None) #remove submit field from list
-        blocked_program = BlockedProgram(**cleaned_data) #create new object from data
-        db.session.add(blocked_program)
+        scheduled_episode = ScheduledEpisode(**cleaned_data) #create new object from data
+        db.session.add(scheduled_episode)
         db.session.commit()
-        response = {'status':'success','result':{'id':blocked_program.id,'string':unicode(blocked_program)},'status_code':200}
+        response = {'status':'success','result':{'id':scheduled_episode.id,'string':unicode(scheduled_episode)},'status_code':200}
     elif request.method == "POST":
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
@@ -274,14 +278,17 @@ def scheduled_block_json(station_id):
             resp.append(d)
     return resp
 
-
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
-    #TODO, make this deal with multiple stations
-    #station = Station.query.filter_by(id=station_id).first_or_404()
+    #TODO, if user is authorized to view only one station, redirect them there
 
-    #hack, hardcode for now
-    station = Station.query.get(1)
+    stations = Station.query.all()
+    return render_template('radio/schedules.html',
+        stations=stations, active='schedule')
+
+@radio.route('/schedule/<int:station_id>/', methods=['GET'])
+def schedule_station(station_id):
+    station = Station.query.get(station_id)
 
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
@@ -293,7 +300,7 @@ def schedule():
                 'end':datetime.combine(instance,block.end_time)}
             block_list.append(d)
 
-    form = BlockedProgramForm()
+    form = ScheduleProgramForm()
     return render_template('radio/schedule.html',
         form=form, station=station, block_list=block_list,
         active='schedule')

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
 <![endif]-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 400px; border:1px solid #ddd; margin-bottom:20px; }</style>
+<style>#map { min-height: 300px; border:1px solid #ddd; margin-bottom:20px; }</style>
 {% endblock %}
 
 {% block js_top %}
@@ -20,21 +20,34 @@
         <h2>{{ _('Radio Dashboard') }}</h2>
 
         <h3>{{ _('Stations') }}</h3>
-        <div id="map" class="span8"></div>
+        <div id="map" class="span4"></div>
 
-        <div class="span3">
-            <h4>{{ _('Send Message') }}</h4>
-            <form id="flash-message" action="post">
-                <ul id="station-list">
-                {%for s in stations%}
-                <li><label><input name="{{s.id}}" type="checkbox"/> {{s.name}}</label></li>
-                {%endfor%}
-                <li><a href="#" id="all">All / None</a></li>
-                </ul>
-                <input type="text" placeholder="type message here"/>
-
-                <input type="button" class="btn btn-warning" value="{{ _('Send') }} &rarr;"/>
-            </form>
+        <div class="span6">
+            <table class='table table-bordered table-hover'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Battery') }}</th>
+                    <th>{{ _('CPU Load') }}</th>
+                    <th>{{ _('Memory') }}</th>
+                    <th>{{ _('Storage') }}</th>
+                    <th>{{ _('GSM Connection') }}</th>
+                    <th>{{ _('Headphone Plug') }}</th>
+                </tr>
+            </thead>
+            {%for station in stations %}
+            {% set analytics = station.recent_analytics() %}
+            <tr>
+                <td>{{station.name}}</td>
+                <td><span class="sparkline">{{analytics.battery_level}}</span></td>
+                <td><span class="sparkline">{{analytics.cpu_load}}</span></td>
+                <td><span class="sparkline">{{analytics.memory_utilization}}</span></td>
+                <td><span class="sparkline">{{analytics.storage_usage}}</span></td>
+                <td><span class="sparkline">{{analytics.gsm_connectivity}}</span></td>
+                <td><span class="sparkline">{{analytics.headphone_plug}}</span></td>
+            </tr>
+            {%endfor%}
+            </table>
         </div>
         
     </div>
@@ -43,4 +56,15 @@
 
 {% block js_btm %}
 <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        //strip python [] from the values
+        $('.sparkline').each(function() {
+            var cleaned = $(this).html().replace('[','').replace(']','');
+            $(this).html(cleaned);
+        });
+        $('.sparkline').sparkline('html');
+    });
+</script>
 {% endblock %}

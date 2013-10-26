@@ -24,7 +24,10 @@ class PhoneNumber(db.Model):
         return PHONE_NUMBER_TYPE.get(self.number_type)
 
     def __unicode__(self):
-        return "+%s %s %s" % (self.countrycode, self.areacode, self.number)
+        if self.countrycode:
+            return "+%s %s" % (self.countrycode, self.number)
+        else:
+            return self.number
 
 
 class Call(db.Model):

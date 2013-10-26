@@ -56,14 +56,14 @@
 <div class="container">
     <h2 class="pull-left">{{station.name}} {{ _('Schedule') }}</h2>
     <div class="pull-right">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal">Add +</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal"><strong>Add +</strong></button>
     </div>
     
     <div id='calendar'></div>
 </div>
 
 <!-- Add Schedule Modal -->
-  <div class="modal fade" id="addSchedule_modal" tabindex="-1" role="dialog" aria-labelledby="addSchedule" aria-hidden="true">
+  <div class="modal fade" id="addSchedule_modal" tabindex="-1" role="dialog" aria-labelledby="addSchedule" aria-hidden="true" style="display:none;">
     <div class="modal-dialog inline-form" data-url="/radio/blockedprogram/add/inline/" data-prefix="">
       <div class="modal-content">
         <div class="modal-header">
