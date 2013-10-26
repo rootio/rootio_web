@@ -16,7 +16,7 @@
         </thead>
         {% for call in calls %}
         <tr>
-            <td>{{ call.uuid }}</td>
+            <td>{{ call.call_uuid }}</td>
             <td>{{ call.start }}</td>
             <td>{{ call.end }}</td>
             <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.from_phonenumber.id) }}">{{ call.from_phonenumber }}</a></td>
