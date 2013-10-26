@@ -233,30 +233,54 @@ def scheduled_block_add():
 @returns_json
 def schedule_program_inline():
     data = json.loads(request.data)
-    
-    form = ScheduleProgramForm(None, **data)
-    current_app.logger.debug( "*** form",form.data)
-    #lookup fk's manually?
 
-    scheduled_episode = None
+    #lookup fks manually, this seems really hack-ish
+    #TODO: cleanup
+    fk_lookup = {'program':Program,'station':Station}
+    for (field,cls) in fk_lookup.items():
+        try:
+            data[field] = cls.query.get(int(data[field]))
+        except ValueError:
+            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
+            return response
+
+    form = ScheduleProgramForm(None, **data)
+
+    try:
+        air_time = time.strptime(form.data['air_time'],'%H:%M')
+    except ValueError:
+        response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
+        return response
+
     if form.validate_on_submit():
-    #    cleaned_data = form.data #make a copy
-    #    cleaned_data.pop('submit',None) #remove submit field from list
-        scheduled_episode = ScheduledEpisode(**cleaned_data) #create new object from data
-        db.session.add(scheduled_episode)
+        #parse recurrence rule
+        r = rrule.rrulestr(form.data['recurrence'])
+        for instance in r[:10]: #TODO: dynamically determine instance limit
+            scheduled_program = ScheduledProgram(program=form.data['program'],
+                                                station=form.data['station'])
+            scheduled_program.start = datetime.combine(instance,air_time),
+            scheduled_program.end = scheduled_program.start + program.duration
+            db.session.add(scheduled_program)
+
         db.session.commit()
-        response = {'status':'success','result':{'id':scheduled_episode.id,'string':unicode(scheduled_episode)},'status_code':200}
+        response = {'status':'success','result':{},'status_code':200}
     elif request.method == "POST":
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledepisodes.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
 @returns_json
-def scheduled_episodes_json(station_id):
-    scheduled_episodes = ScheduledEpisode.query.filter_by(station_id=station_id)
+def scheduled_programs_json(station_id):
+    if request.args.get('start') and request.args.get('end'):
+        start = datetime.utcfromtimestamp(float(request.args.get('start')))
+        end = datetime.utcfromtimestamp(float(request.args.get('end')))
+        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
+        #TODO: filter by start > start, end < end
+    else:
+        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
     resp = []
-    for s in scheduled_episodes:
+    for s in scheduled_programs:
         current_app.logger.debug(s)
     return resp
 
@@ -265,8 +289,8 @@ def scheduled_episodes_json(station_id):
 @returns_json
 def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
-    start = request.args.get('start')
-    end = request.args.get('end')
+    start = datetime.utcfromtimestamp(float(request.args.get('start')))
+    end = datetime.utcfromtimestamp(float(request.args.get('end')))
     #TODO: hook fullcalendar updates into these params
 
     resp = []
@@ -291,6 +315,7 @@ def schedule():
 def schedule_station(station_id):
     station = Station.query.get(station_id)
 
+    #TODO: move this logic to an ajax call, like scheduled_block_json
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
     for block in scheduled_blocks:
