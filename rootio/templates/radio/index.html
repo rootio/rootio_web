@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
 <![endif]-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 400px; border:1px solid #ddd; margin-bottom:20px; }</style>
+<style>#map { min-height: 300px; border:1px solid #ddd; margin-bottom:20px; }</style>
 {% endblock %}
 
 {% block js_top %}
@@ -20,21 +20,15 @@
         <h2>{{ _('Radio Dashboard') }}</h2>
 
         <h3>{{ _('Stations') }}</h3>
-        <div id="map" class="span8"></div>
+        <div id="map" class="span4"></div>
 
-        <div class="span3">
-            <h4>{{ _('Send Message') }}</h4>
-            <form id="flash-message" action="post">
+        <div class="span6">
+            <h4>{{ _('Status') }}</h4>
                 <ul id="station-list">
                 {%for s in stations%}
-                <li><label><input name="{{s.id}}" type="checkbox"/> {{s.name}}</label></li>
+                <li>{{s.name}} {{s.analytics}}</li>
                 {%endfor%}
-                <li><a href="#" id="all">All / None</a></li>
                 </ul>
-                <input type="text" placeholder="type message here"/>
-
-                <input type="button" class="btn btn-warning" value="{{ _('Send') }} &rarr;"/>
-            </form>
         </div>
         
     </div>

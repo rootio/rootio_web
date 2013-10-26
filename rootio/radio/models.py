@@ -95,6 +95,7 @@ class Station(db.Model):
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
+    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
 
     def init(self):
         #load dummy program
@@ -292,3 +293,18 @@ class Role(db.Model):
     #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
+
+class StationAnalytic(db.Model):
+    "A store for analytics from the client"
+    __tablename__ = 'radio_stationanalytic'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime, default=get_current_time)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    battery_level = db.Column(db.Float)
+    cpu_load = db.Column(db.Float)
+    memory_utilization = db.Column(db.Float)
+    storage_usage = db.Column(db.Float)
+    gsm_connectivity = db.Column(db.Float)
+    headphone_plug = db.Column(db.Boolean)
