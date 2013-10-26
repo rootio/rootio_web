@@ -75,6 +75,7 @@ class Station(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
+    api_key = db.Column(db.String(STRING_LEN),nullable=False)
 
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))

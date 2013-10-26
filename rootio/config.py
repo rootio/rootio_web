@@ -4,14 +4,12 @@ import os
 
 from utils import make_dir, INSTANCE_FOLDER_PATH
 
+# Get app root path, also can use flask.root_path.
+# ../../config.py
+PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 class BaseConfig(object):
-
     PROJECT = "rootio"
-
-    # Get app root path, also can use flask.root_path.
-    # ../../config.py
-    PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
     DEBUG = True
     TESTING = False
@@ -33,8 +31,7 @@ class BaseConfig(object):
 
 
 class DefaultConfig(BaseConfig):
-
-    DEBUG = True
+    DEBUG = False
 
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
@@ -76,4 +73,4 @@ class TestConfig(BaseConfig):
     CSRF_ENABLED = False
 
     SQLALCHEMY_ECHO = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SQLALCHEMY_DATABASE_URI = 'sqlite://' # store db in memory
