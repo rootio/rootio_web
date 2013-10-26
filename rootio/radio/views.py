@@ -188,6 +188,8 @@ def location_add_inline():
 @radio.route('/block/', methods=['GET'])
 def scheduled_blocks():
     scheduled_blocks = ScheduledBlock.query.all()
+    #TODO, display only those that are scheduled on stations the user can view
+
     return render_template('radio/scheduled_blocks.html', scheduled_blocks=scheduled_blocks, active='blocks')
 
 
