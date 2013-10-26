@@ -17,7 +17,7 @@ from .radio import radio
 from .onair import onair
 from .telephony import telephony
 from .extensions import db, mail, cache, login_manager, oid, rest
-from .utils import INSTANCE_FOLDER_PATH
+from .utils import INSTANCE_FOLDER_PATH, CustomJSONEncoder
 
 
 # For import *
@@ -44,6 +44,7 @@ def create_app(config=None, app_name=None, blueprints=None):
         blueprints = DEFAULT_BLUEPRINTS
 
     app = Flask(app_name, instance_relative_config=True)
+    app.json_encoder = CustomJSONEncoder
 
     configure_app(app, config)
     configure_hook(app)
