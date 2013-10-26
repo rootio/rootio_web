@@ -1,5 +1,6 @@
 *.py[cod]
 .venv/
+instance/
 
 # C extensions
 *.so
