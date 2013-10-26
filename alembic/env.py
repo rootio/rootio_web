@@ -20,22 +20,12 @@ import os,sys
 parentdir = os.path.abspath(os.path.join('.', '.'))
 sys.path.insert(0,parentdir) 
 
-from flask.ext.sqlalchemy import SQLAlchemy
-
 from rootio import create_app
 from rootio.extensions import db
-from rootio.user import User
 app = create_app()
+config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
 
-db = SQLAlchemy(app)
-#db.init_app(app)
-
-db.engine.connect()
-db.metadata.bind = db.engine
-db.metadata.tables = User.metadata.tables
-
-target_metadata = db.metadata
-#ENDCSIK
+target_metadata = db.Model.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

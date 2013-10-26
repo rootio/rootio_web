@@ -31,7 +31,7 @@ def run():
 @manager.command
 def alembic():
     """Run in local machine."""
-    subprocess.call(["env/bin/alembic", "init", "alembic"])
+    subprocess.call(["venv/bin/alembic", "init", "alembic"])
 
 @manager.command
 def migrate(direction):
@@ -44,7 +44,7 @@ def migrate(direction):
 @manager.command
 def migration(message):
     """Create migration file"""
-    command.revision(alembic_config, message=message)
+    command.revision(alembic_config, autogenerate=True, message=message)
 
 @manager.command
 def initdb():
