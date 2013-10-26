@@ -109,6 +109,10 @@ class Station(db.Model):
         #TODO, link to memory location of instance of program type pickled object
         return "current_episode() stub"
 
+    def current_block(self):
+        #TODO
+        return "current_block() stub"
+
     def status(self):
         #TODO
 

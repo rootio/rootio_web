@@ -276,14 +276,17 @@ def scheduled_block_json(station_id):
             resp.append(d)
     return resp
 
-
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
-    #TODO, make this deal with multiple stations
-    #station = Station.query.filter_by(id=station_id).first_or_404()
+    #TODO, if user is authorized to view only one station, redirect them there
 
-    #hack, hardcode for now
-    station = Station.query.get(1)
+    stations = Station.query.all()
+    return render_template('radio/schedules.html',
+        stations=stations, active='schedule')
+
+@radio.route('/schedule/<int:station_id>/', methods=['GET'])
+def schedule_station(station_id):
+    station = Station.query.get(station_id)
 
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
