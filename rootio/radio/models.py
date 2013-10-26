@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 
-from ..utils import STRING_LEN, GENDER_TYPE, get_current_time
+from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator
 from ..extensions import db
 
 from ..telephony import PhoneNumber
@@ -75,7 +75,8 @@ class Station(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
-    api_key = db.Column(db.String(STRING_LEN),nullable=False)
+    api_key = db.Column(db.String(STRING_LEN),nullable=False,default=id_generator(),unique=True)
+    #todo, make sure this default function fires each time a new object is created
 
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
