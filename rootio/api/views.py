@@ -40,5 +40,5 @@ def logout():
 #needs to be called after app instantiation
 def restless_routes():
     rest.create_api(Station, collection_name='station', methods=['GET'],
-        exclude_columns=['owner'], include_methods=['status',]) #'current_program','current_episode'])
+        exclude_columns=['owner',], include_methods=['status','current_program','current_episode'])
     rest.create_api(Program, collection_name='program', methods=['GET'])

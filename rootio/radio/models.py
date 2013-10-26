@@ -92,7 +92,7 @@ class Station(db.Model):
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
 
-    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
+    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
@@ -194,16 +194,6 @@ class ScheduledBlock(db.Model):
 
     def __unicode__(self):
         return self.name
-
-
-class BlockedProgram(db.Model):
-    "A commitment by a station to air a program in a block"
-    __tablename__ = "radio_blockedprogram"
-    id = db.Column(db.Integer, primary_key=True)
-    station_id = db.Column(db.ForeignKey('radio_station.id'))
-    program_id = db.Column(db.ForeignKey('radio_program.id'))
-    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
-    #order / priority
 
 
 class ScheduledEpisode(db.Model):
