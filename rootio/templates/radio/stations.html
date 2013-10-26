@@ -10,17 +10,19 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
-                <th>{{ _('Status') }}</th>
-                <th>{{ _('Current Program') }}</th>
-                <th>{{ _('Next Program') }}</th>
+                <th>{{ _('Location') }}</th>
+                <th>{{ _('Owner') }}</th>
+                <th>{{ _('Phone Numbers') }}</th>
+                <th>{{ _('Languages') }}</th>
             </tr>
         </thead>
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.status() }}</td>
-            <td>{{ station.current_program() }}</td>
-            <td></td>
+            <td>{{ station.location }}</td>
+            <td>{{ station.owner }}</td>
+            <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
+            <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
             <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
