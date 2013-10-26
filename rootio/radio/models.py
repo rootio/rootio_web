@@ -127,6 +127,41 @@ class Station(db.Model):
         else:
             return "on"
 
+    def recent_analytics(self):
+        #TODO, load from db
+
+        #fake a week's worth for the demo
+        #guess reasonable ranges
+        from random import random, randint
+        analytics_list = []
+        for i in xrange(7):
+            a = StationAnalytic()
+            a.battery_level = randint(50,100)
+            a.cpu_load = random()
+            a.memory_utilization = randint(60,80)
+            a.storage_usage = randint(20,50)
+            a.gsm_connectivity = randint(0,100)
+            a.headphone_plug = randint(0,1)
+            analytics_list.append(a)
+
+        #should really do something like
+        # analytics_list = StationAnalytics.query.filter(station_id=self.id,
+        #     created_time>datetime.now()-datetime.timedelta(days=14))
+
+        #convert from StationAnalytic object list to dict of values
+        #for display as sparkline
+        analytics_dict = {}
+        for a in analytics_list:
+            for (k,v) in a.__dict__.items():
+                #skip privates
+                if k.startswith('_'):
+                    continue
+                if k in analytics_dict:
+                    analytics_dict[k].append(v)
+                else:
+                    analytics_dict[k] = [v]
+        return analytics_dict
+
     def __unicode__(self):
         return self.name
 
@@ -302,9 +337,11 @@ class StationAnalytic(db.Model):
     created_time = db.Column(db.DateTime, default=get_current_time)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    battery_level = db.Column(db.Float)
-    cpu_load = db.Column(db.Float)
-    memory_utilization = db.Column(db.Float)
-    storage_usage = db.Column(db.Float)
-    gsm_connectivity = db.Column(db.Float)
-    headphone_plug = db.Column(db.Boolean)
+    #TODO, decide on range with Jude
+    battery_level = db.Column(db.Float) # percentage 0,100 
+    cpu_load = db.Column(db.Float) # load level 0,inf (should be under 1)
+    memory_utilization = db.Column(db.Float) # percentage 0,100
+    storage_usage = db.Column(db.Float) # percentage 0,100
+    gsm_connectivity = db.Column(db.Float) # signal strength in db?
+    headphone_plug = db.Column(db.Boolean) # boolean 0,1
+
