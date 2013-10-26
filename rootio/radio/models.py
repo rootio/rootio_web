@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 
-from ..utils import STRING_LEN, GENDER_TYPE, get_current_time
+from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator
 from ..extensions import db
 
 from ..telephony import PhoneNumber
@@ -75,7 +75,8 @@ class Station(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
-    api_key = db.Column(db.String(STRING_LEN),nullable=False)
+    api_key = db.Column(db.String(STRING_LEN),nullable=False,default=id_generator(),unique=True)
+    #todo, make sure this default function fires each time a new object is created
 
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
@@ -91,7 +92,7 @@ class Station(db.Model):
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
 
-    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
+    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
 
@@ -193,16 +194,6 @@ class ScheduledBlock(db.Model):
 
     def __unicode__(self):
         return self.name
-
-
-class BlockedProgram(db.Model):
-    "A commitment by a station to air a program in a block"
-    __tablename__ = "radio_blockedprogram"
-    id = db.Column(db.Integer, primary_key=True)
-    station_id = db.Column(db.ForeignKey('radio_station.id'))
-    program_id = db.Column(db.ForeignKey('radio_program.id'))
-    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
-    #order / priority
 
 
 class ScheduledEpisode(db.Model):

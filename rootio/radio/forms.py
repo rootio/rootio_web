@@ -21,8 +21,8 @@ from ..utils import OrderedForm, GENDER_TYPE
 from ..extensions import db
 
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
-    field_args = {'latitude':{'description': 'N/S'},
-                 'longitude':{'description': 'E/W'}},
+    field_args = {'latitude':{'description': '+N / -S'},
+                 'longitude':{'description': '+E / -W'}},
     exclude=['modifieddate'])
 class LocationForm(LocationFormBase):
     submit = SubmitField(_('Save'))
@@ -103,7 +103,7 @@ def all_programs():
     return Program.query.all()
 def all_blocks():
     return ScheduledBlock.query.all()
-class BlockedProgramForm(Form):
+class ScheduleProgramForm(Form):
     program = QuerySelectField(query_factory=all_programs,allow_blank=False)
     block = QuerySelectField(query_factory=all_blocks,allow_blank=False)
     air_time = DurationField(description=_("Time to air since beginning of block, in H:MM:SS"))
