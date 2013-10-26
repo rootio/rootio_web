@@ -103,7 +103,7 @@ def all_programs():
     return Program.query.all()
 def all_blocks():
     return ScheduledBlock.query.all()
-class BlockedProgramForm(Form):
+class ScheduleProgramForm(Form):
     program = QuerySelectField(query_factory=all_programs,allow_blank=False)
     block = QuerySelectField(query_factory=all_blocks,allow_blank=False)
     air_time = DurationField(description=_("Time to air since beginning of block, in H:MM:SS"))
