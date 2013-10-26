@@ -13,7 +13,7 @@ def virtualenv():
 env.hosts = ['176.58.125.166']
 env.user = 'rootio'
 env.project_root = '/home/rootio/public_python/rootio_web'
-env.virtualenv_activate = 'source .venv/bin/activate'
+env.virtualenv_activate = 'source venv/bin/activate'
 env.forward_agent = True
 
 def git_update():
@@ -35,7 +35,7 @@ def touch_wsgi():
     # Touching the deploy.wsgi file will cause apache's mod_wsgi to
     # reload all python modules having to restart apache.
     with cd(env.project_root):
-        run("touch deploy/wsgi_handler.py")
+        run("touch deploy/rootio_web.wsgi")
 
 
 def update(full=False):
@@ -43,10 +43,10 @@ def update(full=False):
         git_update()
         with virtualenv():
             run("pip install -r requirements.txt")
-            #todo: alembic update
+            run("python manage.py migrate up")
             #todo: static files
     touch_wsgi()
-    restart_cache()
+    #restart_cache()
     #restart_apache()
 
 
