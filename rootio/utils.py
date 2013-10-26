@@ -7,7 +7,7 @@ import string
 import random
 import os
 
-from datetime import datetime
+from datetime import datetime, time
 
 from flask.ext.wtf import Form
 
@@ -107,7 +107,17 @@ def error_dict(form_errors):
             msgs.append(unicode(m))
         d[field] = ". ".join(msgs)
     return d
-    
+
+
+#custom json encoder class that can handle python times
+from flask import json
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, time):
+            return time.isoformat(obj)
+        #add support for other serialization formats here...
+        return super(CustomJSONEncoder, self).default(obj)
+
 #monkey patch wtforms to allow field_order attribute
 #from http://stackoverflow.com/a/18475322
 class OrderedForm(Form):
