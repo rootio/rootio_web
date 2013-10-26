@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from dateutil import rrule
 
@@ -247,19 +247,30 @@ def schedule_program_inline():
     form = ScheduleProgramForm(None, **data)
 
     try:
-        air_time = time.strptime(form.data['air_time'],'%H:%M')
+        air_time = datetime.strptime(form.data['air_time'],'%H:%M').time()
     except ValueError:
         response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
         return response
 
     if form.validate_on_submit():
+        #save refs to form objects
+        program = form.data['program']
+        station = form.data['station']
+
         #parse recurrence rule
         r = rrule.rrulestr(form.data['recurrence'])
         for instance in r[:10]: #TODO: dynamically determine instance limit
-            scheduled_program = ScheduledProgram(program=form.data['program'],
-                                                station=form.data['station'])
-            scheduled_program.start = datetime.combine(instance,air_time),
-            scheduled_program.end = scheduled_program.start + program.duration
+            scheduled_program = ScheduledProgram(program=program, station=station)
+            scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
+            scheduled_program.end = scheduled_program.start + timedelta(hours=program.duration.hour,
+                                                                        minutes=program.duration.minute,
+                                                                        seconds=program.duration.second)
+            #add start and program.duration, using timedelta
+
+            print "schedule program on",instance.date()
+            print "start",scheduled_program.start
+            print "end",scheduled_program.end
+
             db.session.add(scheduled_program)
 
         db.session.commit()
@@ -281,7 +292,10 @@ def scheduled_programs_json(station_id):
         scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
     resp = []
     for s in scheduled_programs:
-        current_app.logger.debug(s)
+        d = {'title':s.program.name,
+            'start':s.start.isoformat(),
+            'end':s.end.isoformat()}
+        resp.append(d)
     return resp
 
 
