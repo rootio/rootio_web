@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 
-from ..utils import STRING_LEN, GENDER_TYPE, get_current_time
+from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator
 from ..extensions import db
 
 from ..telephony import PhoneNumber
@@ -75,7 +75,8 @@ class Station(db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
-    api_key = db.Column(db.String(STRING_LEN),nullable=False)
+    api_key = db.Column(db.String(STRING_LEN),nullable=False,default=id_generator(),unique=True)
+    #todo, make sure this default function fires each time a new object is created
 
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
@@ -91,9 +92,10 @@ class Station(db.Model):
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
 
-    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('stations'))
+    blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
+    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
 
     def init(self):
         #load dummy program
@@ -108,6 +110,10 @@ class Station(db.Model):
         #TODO, link to memory location of instance of program type pickled object
         return "current_episode() stub"
 
+    def current_block(self):
+        #TODO
+        return "current_block() stub"
+
     def status(self):
         #TODO
 
@@ -120,6 +126,41 @@ class Station(db.Model):
             return "off"
         else:
             return "on"
+
+    def recent_analytics(self):
+        #TODO, load from db
+
+        #fake a week's worth for the demo
+        #guess reasonable ranges
+        from random import random, randint
+        analytics_list = []
+        for i in xrange(7):
+            a = StationAnalytic()
+            a.battery_level = randint(50,100)
+            a.cpu_load = random()
+            a.memory_utilization = randint(60,80)
+            a.storage_usage = randint(20,50)
+            a.gsm_connectivity = randint(0,100)
+            a.headphone_plug = randint(0,1)
+            analytics_list.append(a)
+
+        #should really do something like
+        # analytics_list = StationAnalytics.query.filter(station_id=self.id,
+        #     created_time>datetime.now()-datetime.timedelta(days=14))
+
+        #convert from StationAnalytic object list to dict of values
+        #for display as sparkline
+        analytics_dict = {}
+        for a in analytics_list:
+            for (k,v) in a.__dict__.items():
+                #skip privates
+                if k.startswith('_'):
+                    continue
+                if k in analytics_dict:
+                    analytics_dict[k].append(v)
+                else:
+                    analytics_dict[k] = [v]
+        return analytics_dict
 
     def __unicode__(self):
         return self.name
@@ -193,16 +234,6 @@ class ScheduledBlock(db.Model):
 
     def __unicode__(self):
         return self.name
-
-
-class BlockedProgram(db.Model):
-    "A commitment by a station to air a program in a block"
-    __tablename__ = "radio_blockedprogram"
-    id = db.Column(db.Integer, primary_key=True)
-    station_id = db.Column(db.ForeignKey('radio_station.id'))
-    program_id = db.Column(db.ForeignKey('radio_program.id'))
-    block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
-    #order / priority
 
 
 class ScheduledEpisode(db.Model):
@@ -296,4 +327,21 @@ class Role(db.Model):
     person_id = db.Column(db.ForeignKey('radio_person.id'))
     #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+
+class StationAnalytic(db.Model):
+    "A store for analytics from the client"
+    __tablename__ = 'radio_stationanalytic'
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_time = db.Column(db.DateTime, default=get_current_time)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    #TODO, decide on range with Jude
+    battery_level = db.Column(db.Float) # percentage 0,100 
+    cpu_load = db.Column(db.Float) # load level 0,inf (should be under 1)
+    memory_utilization = db.Column(db.Float) # percentage 0,100
+    storage_usage = db.Column(db.Float) # percentage 0,100
+    gsm_connectivity = db.Column(db.Float) # signal strength in db?
+    headphone_plug = db.Column(db.Boolean) # boolean 0,1
 

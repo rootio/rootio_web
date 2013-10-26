@@ -80,8 +80,14 @@ def phonenumber_add_inline():
 
 @telephony.route('/calls/', methods=['GET'])
 def calls():
-    return render_template('telephony/calls.html', active='calls')
+    recent_calls = Call.query.all()
+    #todo, paginate?
+
+    return render_template('telephony/calls.html', active='calls', calls=recent_calls)
 
 @telephony.route('/messages/', methods=['GET'])
 def messages():
-    return render_template('telephony/messages.html', active='messages')
+    recent_messages = Message.query.all()
+    #todo, paginate?
+
+    return render_template('telephony/messages.html', active='messages', messages=recent_messages)

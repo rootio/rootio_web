@@ -19,8 +19,8 @@
             <td>{{ call.uuid }}</td>
             <td>{{ call.start }}</td>
             <td>{{ call.end }}</td>
-            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ call.from_phonenumber }}</a></td>
-            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ call.to_phonenumber }}</a></td>
+            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.from_phonenumber.id) }}">{{ call.from_phonenumber }}</a></td>
+            <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.to_phonenumber.id) }}">{{ call.to_phonenumber }}</a></td>
         </tr>
         {% endfor %}
     </table>

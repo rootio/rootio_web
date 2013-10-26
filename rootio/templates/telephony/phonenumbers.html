@@ -21,7 +21,7 @@
             <td>{{ phonenumber.type }}</td>
             <td>{{ phonenumber.countrycode }}</td>
             <td>{{ phonenumber.number }}</td>
-            <td><a href="{{ url_for('radio.person', person_id=phonenumber.person.id) }}">{{ phonenumber.person }}</td>
+            <td>{%if phonenumber.person%}<a href="{{ url_for('radio.person', person_id=phonenumber.person.id) }}">{{ phonenumber.person }}</a>{%else%}None{%endif%}</td>
             <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
