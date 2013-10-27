@@ -93,7 +93,7 @@ class Station(db.Model):
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
 
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
-    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('station',uselist=False))
+    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False))
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
 
@@ -202,6 +202,7 @@ class Program(db.Model):
 
     program_type = db.relationship(u'ProgramType')
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
+    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('program',uselist=False))
 
     def __unicode__(self):
         return self.name
@@ -217,7 +218,6 @@ class Episode(db.Model):
     created_time = db.Column(db.DateTime, default=get_current_time)
 
     recording = db.relationship(u'Recording')
-    scheduled_episodes = db.relationship(u'ScheduledEpisode', backref=db.backref('episode',uselist=False))
 
 
 class ScheduledBlock(db.Model):
@@ -236,13 +236,13 @@ class ScheduledBlock(db.Model):
         return self.name
 
 
-class ScheduledEpisode(db.Model):
+class ScheduledProgram(db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
-    __tablename__ = "radio_scheduledepisode"
+    __tablename__ = "radio_scheduledprogram"
     id = db.Column(db.Integer, primary_key=True)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-    episode_id = db.Column(db.ForeignKey('radio_episode.id'))
+    program_id = db.Column(db.ForeignKey('radio_program.id'))
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
 

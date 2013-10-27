@@ -3,3 +3,6 @@
     margin: 0 auto;
 }
 
+.modal-content form {
+    margin-bottom:0;
+}

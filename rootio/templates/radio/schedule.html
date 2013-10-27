@@ -12,6 +12,11 @@
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
 
     <script type="text/javascript">
@@ -29,9 +34,9 @@
             },
             allDayDefault: false,
             defaultView: 'agendaWeek',
-            editable: false,
+            editable: true,
             events: {
-                url: '/radio/station/{{station.id}}/scheduledepisodes.json'
+                url: '/radio/station/{{station.id}}/scheduledprograms.json'
             },
             //fork of fullcalendar doesn't support loading annotations from url,
             //hack: render them inline
@@ -56,7 +61,7 @@
 <div class="container">
     <h2 class="pull-left">{{station.name}} {{ _('Schedule') }}</h2>
     <div class="pull-right">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal"><strong>Add +</strong></button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addSchedule_modal"><strong>{{ _('Add Program') }} +</strong></button>
     </div>
     
     <div id='calendar'></div>
@@ -64,15 +69,17 @@
 
 <!-- Add Schedule Modal -->
   <div class="modal fade" id="addSchedule_modal" tabindex="-1" role="dialog" aria-labelledby="addSchedule" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog inline-form" data-url="/radio/blockedprogram/add/inline/" data-prefix="">
+    <div class="modal-dialog inline-form" data-url="/radio/scheduleprogram/add/inline/" data-prefix="">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">{{ _('Add to Schedule') }}</h4>
         </div>
+
+        <form action="POST">
         <div class="modal-body">
-            <form action="POST">
                 {{ form.hidden_tag() }}
+                <input type="hidden" name="station" value="{{station.id}}" />
 
                 {{ render_input(form.program) }}
 
@@ -82,11 +89,21 @@
                     <li>{{ _('Update Frequency') }}: </li>
                 </ul>
 
-                {{ render_input(form.block) }}
-
                 {{ render_input(form.air_time) }}
 
-                {{ render_input(form.priority) }}
+                <label class="control-label " for="recurrence">
+                    <label for="recurrence">Recurrence</label>
+                </label>
+                <div class="controls">
+                    <!-- common schedules -->
+                        <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> {{ _('Daily') }}</label>
+                        <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> {{ _('Weekdays') }}</label>
+                        <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> {{ _('Weekends') }}</label>
+                        <label><input type="radio" name="preset-recurrence" value="custom" /> {{ _('Custom') }}</label>
+                        <div id="recurringinput">
+                            <!-- custom user inputs created here by rrule.recurringinput.js -->
+                        </div>
+                </div>
             </div>
 
             <div class="modal-footer">

@@ -21,7 +21,7 @@
             <td>{{ program.duration }}</td>
             <td>{{ program.language }}</td>
             <td>{{ program.last_episode }}</td>
-            <td><a href="{{ '#' }}">{{ _('Schedule') }}</a></td>
+            <td><a href="{{ url_for('radio.program',program_id=program.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
     </table>
