@@ -17,11 +17,10 @@ env.virtualenv_activate = 'source venv/bin/activate'
 env.forward_agent = True
 
 def git_update():
-    with cd(env.project_root):
-	stash_str = run("git stash")
-    	run("git pull origin master")
-    	if stash_str.strip() != 'No local changes to save':
-        	run("git stash pop")
+    stash_str = run("git stash")
+    run("git pull origin master")
+    if stash_str.strip() != 'No local changes to save':
+    	run("git stash pop")
 
 
 def restart_apache():
