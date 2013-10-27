@@ -4,24 +4,25 @@ from sqlalchemy import Column, Table, types
 from ..extensions import db
 
 
-class OnAirEpisode(db.Model):
-    """Repository for actions that occur while the episode is on the air.
+class OnAirProgram(db.Model):
+    """Repository for actions that occur while the program is on the air.
     Defined here for easy readability by the web server, but should not be written to in this process."""
-    __tablename__ = "onair_episode"
+    __tablename__ = "onair_program"
     id = db.Column(db.Integer, primary_key=True)
     created_time = db.Column(db.DateTime)
-    scheduledepisode_id = db.Column(db.ForeignKey('radio_scheduledepisode.id'))
+    scheduledprogram_id = db.Column(db.ForeignKey('radio_scheduledprogram.id'))
+    episode_id = db.Column(db.ForeignKey('radio_episode.id'))
 
     #backrefs
-    scheduled_episode = db.relationship(u'ScheduledEpisode', backref=db.backref('onairepisodes'))
+    scheduled_program = db.relationship(u'ScheduledProgram', backref=db.backref('onairprograms'))
     # incoming calls and messages
-    calls = db.relationship(u'Call', backref=db.backref('onairepisode'))
-    messages = db.relationship(u'Message', backref=db.backref('onairepisode'))
+    calls = db.relationship(u'Call', backref=db.backref('onairprogram'))
+    messages = db.relationship(u'Message', backref=db.backref('onairprogram'))
     # alternate architectures:
     # increment counters?
     # log in redis?
 
     def __init__(self):
         #init station, program type, etc thru foreign keys
-        self.station = self.scheduled_episode.station
-        self.program_type = self.scheduled_episode.episode.program.program_type
+        self.station = self.scheduled_program.station
+        self.program_type = self.scheduled_program.program_type

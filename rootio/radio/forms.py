@@ -104,10 +104,11 @@ def all_programs():
 def all_blocks():
     return ScheduledBlock.query.all()
 class ScheduleProgramForm(Form):
-    program = QuerySelectField(query_factory=all_programs,allow_blank=False)
-    block = QuerySelectField(query_factory=all_blocks,allow_blank=False)
-    air_time = DurationField(description=_("Time to air since beginning of block, in H:MM:SS"))
-        #not really a duration, but a time without am/pm
-    priority = IntegerField(description=_("Ascending values"))
+    station = QuerySelectField(query_factory=all_stations,allow_blank=False)
+    program = QuerySelectField(query_factory=all_programs,allow_blank=True)
+    #block = QuerySelectField(query_factory=all_blocks,allow_blank=False) #let user select block?
+    air_time = TimeField(description=_("Time to begin airing"))
+    recurrence = HiddenField()
+    #priority = IntegerField(description=_("Ascending values"))
     # other options for flexibility?
     submit = SubmitField(_('Save'))
