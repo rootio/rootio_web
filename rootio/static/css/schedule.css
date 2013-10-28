@@ -1,8 +1,35 @@
 #calendar {
-    width: 100%;
-    margin: 0 auto;
+/*    width: 100%;
+    margin: 0 auto;*/
 }
 
 .modal-content form {
     margin-bottom:0;
+}
+
+#addable-programs ul {
+    margin:20px 0 10px 0;
+    padding: 5px;
+    border:1px solid #ddd;
+    background: #eee;
+    list-style: none;
+}
+
+#addable-programs li.external-event { /* try to mimick the look of a real event */
+    margin: 10px 0;
+    padding: 2px 4px;
+    background: #3366CC;
+    color: #fff;
+    font-size: .85em;
+    cursor: pointer;
+}
+
+#addable-programs li.recurring-button {
+    height:20px;
+    margin:10px 0;
+}
+
+#addable-programs button {
+    margin-bottom:10px;
+    float:left;
 }
