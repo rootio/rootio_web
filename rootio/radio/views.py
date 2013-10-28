@@ -341,6 +341,10 @@ def schedule_station(station_id):
             block_list.append(d)
 
     form = ScheduleProgramForm()
+
+    all_programs = Program.query.all()
+    #TODO: filter by language?
+
     return render_template('radio/schedule.html',
-        form=form, station=station, block_list=block_list,
+        form=form, station=station, block_list=block_list, addable_programs=all_programs,
         active='schedule')
