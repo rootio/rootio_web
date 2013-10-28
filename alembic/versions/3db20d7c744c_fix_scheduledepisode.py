@@ -15,7 +15,13 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.alter_column(u'radio_scheduledprogram', 'episode_id', new_column_name='program_id')
+    op.add_column('radio_scheduledprogram',
+        sa.Column('program_id', INTEGER, sa.ForeignKey('radio_program.id'))
+    )
+    op.drop_column('radio_scheduledprogram','episode_id')
 
 def downgrade():
-    op.alter_column(u'radio_scheduledprogram', 'program_id', new_column_name='episode_id')
+    op.add_column('radio_scheduledprogram',
+        sa.Column('episode_id', INTEGER, sa.ForeignKey('radio_epside.id'))
+    )
+    op.drop_column('radio_scheduledprogram','program_id')
