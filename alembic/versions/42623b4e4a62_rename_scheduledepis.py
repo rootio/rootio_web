@@ -16,8 +16,8 @@ import sqlalchemy as sa
 
 def upgrade():
     #rename instead of add/drop, because of existing fk constraints
-    op.rename_table('radio_scheduledprogram','radio_scheduledepisode')
-    op.rename_table('onair_program','onair_episode')
+    op.rename_table('radio_scheduledepisode','radio_scheduledprogram')
+    op.rename_table('onair_episode','onair_program')
 
     op.alter_column(u'telephony_call', 'onairepisode_id', new_column_name='onairprogram_id')
     op.alter_column(u'telephony_message', 'onairepisode_id', new_column_name='onairprogram_id')
@@ -26,8 +26,8 @@ def upgrade():
 
 def downgrade():
     #rename instead of add/drop, because of existing fk constraints
-    op.rename_table('radio_scheduledepisode','radio_scheduledprogram')
-    op.rename_table('onair_episode','onair_program')
+    op.rename_table('radio_scheduledprogram','radio_scheduledepisode')
+    op.rename_table('onair_program','onair_episode')
 
     op.alter_column(u'telephony_call', 'onairprogram_id', new_column_name='onairepisode_id')
     op.alter_column(u'telephony_message', 'onairprogram_id', new_column_name='onairepisode_id')
