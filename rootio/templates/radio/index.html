@@ -58,26 +58,5 @@
 {% block js_btm %}
 <script src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
-<script>
-    $(document).ready(function() {
-        $('.sparkline').each(function() {
-            //strip python [] from the values
-            var cleaned = $(this).html().replace('[','').replace(']','');
-            $(this).html(cleaned);
-
-            //setup  sparkline options
-            var type = $(this).data('type');
-            var options = {type:type};
-            if (type === 'boolean') {
-                //really a bar with a special color
-                options.type = 'bar';
-                options.colorMap = $.range_map({
-                    0: 'red',
-                    1: 'blue'
-                });
-            }
-            $(this).sparkline('html',options);
-        });
-    });
-</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
