@@ -39,12 +39,12 @@
             {% set analytics = station.recent_analytics() %}
             <tr>
                 <td>{{station.name}}</td>
-                <td><span class="sparkline">{{analytics.battery_level}}</span></td>
-                <td><span class="sparkline">{{analytics.cpu_load}}</span></td>
-                <td><span class="sparkline">{{analytics.memory_utilization}}</span></td>
-                <td><span class="sparkline">{{analytics.storage_usage}}</span></td>
-                <td><span class="sparkline">{{analytics.gsm_connectivity}}</span></td>
-                <td><span class="sparkline">{{analytics.headphone_plug}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.gsm_connectivity}}</span></td>
+                <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
                 <td><a href="#">More</a></td>
             </tr>
             {%endfor%}
@@ -60,12 +60,24 @@
 <script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
 <script>
     $(document).ready(function() {
-        //strip python [] from the values
         $('.sparkline').each(function() {
+            //strip python [] from the values
             var cleaned = $(this).html().replace('[','').replace(']','');
             $(this).html(cleaned);
+
+            //setup  sparkline options
+            var type = $(this).data('type');
+            var options = {type:type};
+            if (type === 'boolean') {
+                //really a bar with a special color
+                options.type = 'bar';
+                options.colorMap = $.range_map({
+                    0: 'red',
+                    1: 'blue'
+                });
+            }
+            $(this).sparkline('html',options);
         });
-        $('.sparkline').sparkline('html');
     });
 </script>
 {% endblock %}
