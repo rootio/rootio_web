@@ -1,7 +1,43 @@
 {% extends "telephony/layout.html" %}
 
 {% block body %}
-<div class="container">
-    <h2>{{ _('Telephony Dashboard') }}</h2>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <h2>{{ _('Telephony Dashboard') }}</h2>
+
+        <div class="span12">
+            <table class='table table-bordered table-hover'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('SIM') }}</th>
+                    <th>{{ _('GSM') }}</th>
+                    <th>{{ _('VOIP ') }}</th>
+                    <th>{{ _('Credits') }}</th>
+                    <th>{{ _('Messages') }}</th>
+                    <th>{{ _('Calls') }}</th>
+                </tr>
+            </thead>
+            {%for station in stations %}
+            {% set analytics = station.recent_telephony() %}
+            <tr>
+                <td>{{station.name}}</td>
+                <td><span class="sparkline" data-type="boolean">{{analytics.sim}}</span></td>
+                <td><span class="sparkline" data-type="boolean">{{analytics.gsm}}</span></td>
+                <td><span class="sparkline" data-type="boolean">{{analytics.voip}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.credits}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.messages}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.calls}}</span></td>
+                <td><a href="#">More</a></td>
+            </tr>
+            {%endfor%}
+            </table>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block js_btm %}
+<script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

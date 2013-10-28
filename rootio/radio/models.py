@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
 
-from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator
+from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator, object_list_to_named_dict
 from ..extensions import db
 
 from ..telephony import PhoneNumber
@@ -148,19 +148,42 @@ class Station(db.Model):
         # analytics_list = StationAnalytics.query.filter(station_id=self.id,
         #     created_time>datetime.now()-datetime.timedelta(days=14))
 
-        #convert from StationAnalytic object list to dict of values
-        #for display as sparkline
-        analytics_dict = {}
-        for a in analytics_list:
-            for (k,v) in a.__dict__.items():
-                #skip privates
-                if k.startswith('_'):
-                    continue
-                if k in analytics_dict:
-                    analytics_dict[k].append(v)
-                else:
-                    analytics_dict[k] = [v]
+        #convert to named dict for sparkline display
+        analytics_dict = object_list_to_named_dict(analytics_list)
         return analytics_dict
+
+    def recent_telephony(self):
+        #TODO, load from GOIP
+
+        #fake a week's worth for the demo
+
+        #do we need a db object for this?
+        class TelephonyAnalytic():
+            pass
+
+        from random import random, randint
+        def random_boolean(threshold):
+            "returns 1 threshold percent of the time, otherwise 0"
+            r = random()
+            if r > threshold:
+                return 0
+            else:
+                return 1
+
+        telephony_list = []
+        for i in xrange(7):
+            a = TelephonyAnalytic()
+            a.sim = random_boolean(0.9)
+            a.gsm = random_boolean(0.7)
+            a.voip = random_boolean(0.5)
+            a.credits = randint(1000,5000)
+            a.messages = randint(0,100)
+            a.calls = randint(0,100)
+            telephony_list.append(a)
+
+        #convert to named dict for sparkline display
+        telephony_dict = object_list_to_named_dict(telephony_list)
+        return telephony_dict
 
     def __unicode__(self):
         return self.name

@@ -14,7 +14,13 @@ telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])
 def index():
-    return render_template('telephony/index.html')
+    from ..radio.models import Station
+    #ugh, circular imports...
+
+    stations = Station.query.all()
+    #TODO, limit to currently logged in user's view
+
+    return render_template('telephony/index.html',stations=stations)
 
 
 @telephony.route('/phonenumber/', methods=['GET'])
