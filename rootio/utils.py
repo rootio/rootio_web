@@ -108,6 +108,22 @@ def error_dict(form_errors):
         d[field] = ". ".join(msgs)
     return d
 
+def object_list_to_named_dict(object_list):
+    """convert from object list to dict of values
+    for display as sparkline"""
+
+    named_dict = {}
+    for a in object_list:
+        for (k,v) in a.__dict__.items():
+            #skip privates
+            if k.startswith('_'):
+                continue
+            if k in named_dict:
+                named_dict[k].append(v)
+            else:
+                named_dict[k] = [v]
+    return named_dict
+
 
 #custom json encoder class that can handle python times
 from flask import json
