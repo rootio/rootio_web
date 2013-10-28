@@ -47,6 +47,12 @@ def migration(message):
     command.revision(alembic_config, autogenerate=True, message=message)
 
 @manager.command
+def stamp(revision):
+    """Fake a migration to a particular revision"""
+    alembic_cfg = Config("alembic.ini")
+    command.stamp(alembic_cfg, revision)
+
+@manager.command
 def initdb():
     """Init/reset database with default data."""
 
@@ -74,7 +80,7 @@ def initdb():
 
     db.session.commit()
     alembic_cfg = Config("alembic.ini")
-    command.stamp(alembic_cfg, "initial")
+    command.stamp(alembic_cfg, "head")
 
 manager.add_option('-c', '--config',
                    dest="config",
