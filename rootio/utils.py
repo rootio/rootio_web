@@ -129,6 +129,8 @@ def object_list_to_named_dict(object_list):
 from flask import json
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
+        if isinstance(obj,datetime):
+            return datetime.isoformat(obj)
         if isinstance(obj, time):
             return time.isoformat(obj)
         #add support for other serialization formats here...
