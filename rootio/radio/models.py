@@ -112,6 +112,7 @@ class Station(db.Model):
     def next_program(self):
         now = datetime.now()
         upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id)
+        #TODO, how to resolve overlaps?
         return upcoming_programs.first()
 
     def current_block(self):

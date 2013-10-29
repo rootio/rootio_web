@@ -9,6 +9,7 @@ import os
 
 from datetime import datetime, time
 
+from flask import json
 from flask.ext.wtf import Form
 
 # Instance folder path, make it independent.
@@ -99,6 +100,7 @@ def make_dir(dir_path):
     except Exception, e:
         raise e
 
+#convert a form errors to an error dict for json display
 def error_dict(form_errors):
     d = {}
     for (field,messages) in form_errors.items():
@@ -108,10 +110,10 @@ def error_dict(form_errors):
         d[field] = ". ".join(msgs)
     return d
 
+
 def object_list_to_named_dict(object_list):
     """convert from object list to dict of values
     for display as sparkline"""
-
     named_dict = {}
     for a in object_list:
         for (k,v) in a.__dict__.items():
@@ -125,18 +127,17 @@ def object_list_to_named_dict(object_list):
     return named_dict
 
 
-#really naive way of serializing a sqlalchemy model or query to a dictionary
-#no joins, model attributes only
-#ignores privates
 def simple_serialize_sqlalchemy(model):
+    """really naive way of serializing a sqlalchemy model to a dictionary
+    no joins, model attributes only
+    ignores privates"""
     keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
     serial_dict = {attr: getattr(model, attr) for attr in keys}
     return serial_dict
 
 
-#custom json encoder class that can handle python times
-from flask import json
 class CustomJSONEncoder(json.JSONEncoder):
+    """custom json encoder class that can handle python times"""
     def default(self, obj):
         if isinstance(obj,datetime):
             return datetime.isoformat(obj)
@@ -144,6 +145,7 @@ class CustomJSONEncoder(json.JSONEncoder):
             return time.isoformat(obj)
         #add support for other serialization formats here...
         return super(CustomJSONEncoder, self).default(obj)
+
 
 #monkey patch wtforms to allow field_order attribute
 #from http://stackoverflow.com/a/18475322
