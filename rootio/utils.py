@@ -125,6 +125,15 @@ def object_list_to_named_dict(object_list):
     return named_dict
 
 
+#really naive way of serializing a sqlalchemy model or query to a dictionary
+#no joins, model attributes only
+#ignores privates
+def simple_serialize_sqlalchemy(model):
+    keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
+    serial_dict = {attr: getattr(model, attr) for attr in keys}
+    return serial_dict
+
+
 #custom json encoder class that can handle python times
 from flask import json
 class CustomJSONEncoder(json.JSONEncoder):
