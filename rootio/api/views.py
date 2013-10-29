@@ -10,7 +10,7 @@ from ..extensions import db, rest
 
 from ..user import User
 from ..radio import Station, Program, ScheduledProgram, StationAnalytic
-from ..decorators import returns_json
+from ..decorators import returns_json, api_key_required, restless_api_key_required
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -44,19 +44,21 @@ def logout():
 def restless_routes():
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
-        include_methods=['status','current_program'])
-    rest.create_api(Program, collection_name='program', methods=['GET'])
+        include_methods=['status','current_program'],
+        preprocessors=restless_api_key_required)
+    rest.create_api(Program, collection_name='program', methods=['GET'],
+        preprocessors=restless_api_key_required)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
-        exclude_columns=['station'])
+        exclude_columns=['station'],
+        preprocessors=restless_api_key_required)
 
 #need routes for:
-    #next content
-    #content on date
-    #content between dates
     #phone to post diagnostics
 
 #non CRUD-routes
+#protect with decorator
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
+@api_key_required
 @returns_json
 def current_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -64,6 +66,7 @@ def current_program(station_id):
 
 
 @api.route('/station/<int:station_id>/next_program', methods=['GET'])
+@api_key_required
 @returns_json
 def next_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -71,6 +74,7 @@ def next_program(station_id):
 
 
 @api.route('/station/<int:station_id>/current_block', methods=['GET'])
+@api_key_required
 @returns_json
 def current_block(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -78,6 +82,7 @@ def current_block(station_id):
 
 
 @api.route('/station/<int:station_id>/schedule', methods=['GET'])
+@api_key_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
