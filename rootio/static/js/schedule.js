@@ -16,7 +16,15 @@ $(document).ready(function() {
     $('#recurringinput').on('rrule-update',function(event) {
         var rrule = $('#recurringinput #rrule-output').html();
         $('form input[name=recurrence]').val(rrule);
-    });  
+    });
+
+    //close modal on recurring submit
+    $('button#modal-save').click(function() {
+        $('.modal').hide();
+        $('.modal-backdrop').fadeOut();
+        $('#calendar').fullCalendar('render');
+    });
+
 
     //set up program drag and drop
     $('#addable-programs li.external-event').each(function() {
@@ -76,5 +84,10 @@ $(document).ready(function() {
         events: [], //add these in schedule.html
         annotations: [] //where we have access to the template
     });
-});
 
+    
+    $('button#save-schedule').click(function() {
+        //TODO, serialize added events to json,
+        //post to /radio/scheduleprogram/add/ajax/
+    });
+});
