@@ -272,13 +272,13 @@ class ScheduledBlock(db.Model):
 
     @classmethod
     def between(cls,start,end):
-        return cls.query.filter(ScheduledBlock.start_time > start &
-                                ScheduledBlock.end_time < end)
+        return cls.query.filter(ScheduledBlock.start_time > start) \
+                        .filter(ScheduledBlock.end_time < end)
 
     @classmethod
     def contains(cls,time):
-        return cls.query.filter(ScheduledBlock.start_time <= time &
-                                ScheduledBlock.end_time >= time)
+        return cls.query.filter(ScheduledBlock.start_time <= time) \
+                        .filter(ScheduledBlock.end_time >= time)
 
     def __unicode__(self):
         return self.name
@@ -311,6 +311,9 @@ class ScheduledProgram(db.Model):
     def contains(cls,date):
         return cls.query.filter(ScheduledProgram.start <= date) \
                         .filter(ScheduledProgram.end >= date)
+
+    def __unicode__(self):
+        return "%s at %s" % (self.program.name, self.start)
 
 
 class PaddingContent(db.Model):
