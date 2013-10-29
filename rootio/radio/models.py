@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from sqlalchemy import Column, Table, types
 from .fields import FileField
 from .constants import PROGRAM_TYPES, PRIVACY_TYPE
@@ -103,16 +104,22 @@ class Station(db.Model):
         return "init() stub"
 
     def current_program(self):
-        #TODO
-        return "current_program() stub"
+        now = datetime.now()
+        programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
+        #TODO, how to resolve overlaps?
+        return programs.first()
 
-    def current_episode(self):
-        #TODO, link to memory location of instance of program type pickled object
-        return "current_episode() stub"
+    def next_program(self):
+        now = datetime.now()
+        upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id)
+        #TODO, how to resolve overlaps?
+        return upcoming_programs.first()
 
     def current_block(self):
-        #TODO
-        return "current_block() stub"
+        now = datetime.now()
+        blocks = ScheduledBlock.contains(now).filter_by(station_id=self.id)
+        #TODO, how to resolve overlaps?
+        return blocks.first()
 
     def status(self):
         #TODO
@@ -255,6 +262,24 @@ class ScheduledBlock(db.Model):
     end_time = db.Column(db.Time)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
+    @classmethod
+    def after(cls,time):
+        return cls.query.filter(ScheduledBlock.start_time >= time)
+
+    @classmethod
+    def before(cls,time):
+        return cls.query.filter(ScheduledBlock.end_time <= time)
+
+    @classmethod
+    def between(cls,start,end):
+        return cls.query.filter(ScheduledBlock.start_time > start) \
+                        .filter(ScheduledBlock.end_time < end)
+
+    @classmethod
+    def contains(cls,time):
+        return cls.query.filter(ScheduledBlock.start_time <= time) \
+                        .filter(ScheduledBlock.end_time >= time)
+
     def __unicode__(self):
         return self.name
 
@@ -268,6 +293,27 @@ class ScheduledProgram(db.Model):
     program_id = db.Column(db.ForeignKey('radio_program.id'))
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
+
+    @classmethod
+    def after(cls,date):
+        return cls.query.filter(ScheduledProgram.start >= date)
+
+    @classmethod
+    def before(cls,date):
+        return cls.query.filter(ScheduledProgram.end <= date)
+
+    @classmethod
+    def between(cls,start,end):
+        return cls.query.filter(ScheduledProgram.start >= start) \
+                        .filter(ScheduledProgram.end <= end)
+
+    @classmethod
+    def contains(cls,date):
+        return cls.query.filter(ScheduledProgram.start <= date) \
+                        .filter(ScheduledProgram.end >= date)
+
+    def __unicode__(self):
+        return "%s at %s" % (self.program.name, self.start)
 
 
 class PaddingContent(db.Model):

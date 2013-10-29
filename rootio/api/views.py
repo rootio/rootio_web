@@ -4,10 +4,13 @@ from flask import Blueprint, current_app, request, jsonify
 from flask.ext.login import login_user, current_user, logout_user
 from flask.ext.restless import APIManager
 
+from .utils import parse_datetime
+
 from ..extensions import db, rest
 
 from ..user import User
-from ..radio import Station, Program
+from ..radio import Station, Program, ScheduledProgram, StationAnalytic
+from ..decorators import returns_json, api_key_required, restless_api_key_required
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -40,5 +43,64 @@ def logout():
 #needs to be called after app instantiation
 def restless_routes():
     rest.create_api(Station, collection_name='station', methods=['GET'],
-        exclude_columns=['owner',], include_methods=['status','current_program','current_episode'])
-    rest.create_api(Program, collection_name='program', methods=['GET'])
+        exclude_columns=['owner','api_key','scheduled_programs'],
+        include_methods=['status','current_program'],
+        preprocessors=restless_api_key_required)
+    rest.create_api(Program, collection_name='program', methods=['GET'],
+        preprocessors=restless_api_key_required)
+    rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
+        exclude_columns=['station'],
+        preprocessors=restless_api_key_required)
+
+#need routes for:
+    #phone to post diagnostics
+
+#non CRUD-routes
+#protect with decorator
+@api.route('/station/<int:station_id>/current_program', methods=['GET'])
+@api_key_required
+@returns_json
+def current_program(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.current_program()
+
+
+@api.route('/station/<int:station_id>/next_program', methods=['GET'])
+@api_key_required
+@returns_json
+def next_program(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.next_program()
+
+
+@api.route('/station/<int:station_id>/current_block', methods=['GET'])
+@api_key_required
+@returns_json
+def current_block(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.current_block()
+
+
+@api.route('/station/<int:station_id>/schedule', methods=['GET'])
+@api_key_required
+@returns_json
+def station_schedule(station_id):
+    """API method to get a station's schedule.
+    Parameters:
+        start: ISO datetime
+        end: ISO datetime
+        all: if truthy, then ignores start and end constraints"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    start = parse_datetime(request.args.get('start'))
+    end = parse_datetime(request.args.get('end'))
+    #TODO, investigate the proper ordering of these clauses for query speed
+    if request.args.get('all'):
+        return ScheduledProgram.query.filter_by(station_id=station.id)
+    elif start and end:
+        return ScheduledProgram.between(start,end).filter_by(station_id=station.id)
+    elif start:
+        return ScheduledProgram.after(start).filter_by(station_id=station.id)
+    elif end:
+        return ScheduledProgram.before(end).filter_by(station_id=station.id)
+    else:
+        return {'error':"Need to specify parameters 'start' or 'end' as ISO datetime or all=1"}
