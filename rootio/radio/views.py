@@ -228,10 +228,14 @@ def scheduled_block_add():
     return render_template('radio/scheduled_block.html', block=block, form=form)
 
 
-@radio.route('/scheduleprogram/add/inline/', methods=['POST'])
+@radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
 @returns_json
-def schedule_program_inline():
+def schedule_program_ajax():
+    #TODO, accept individually scheduled programs from json
+    pass
+
+
 @radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
 @login_required
 @returns_json
@@ -271,11 +275,7 @@ def schedule_recurring_program_ajax():
                                                                         minutes=program.duration.minute,
                                                                         seconds=program.duration.second)
             #add start and program.duration, using timedelta
-
-            print "schedule program on",instance.date()
-            print "start",scheduled_program.start
-            print "end",scheduled_program.end
-
+            
             db.session.add(scheduled_program)
 
         db.session.commit()
