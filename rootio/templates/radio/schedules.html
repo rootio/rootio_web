@@ -19,7 +19,7 @@
             <td>{{ station.status() }}</td>
             <td>{{ station.current_block() }}</td>
             <td>{{ station.current_program() }}</td>
-            <td></td>
+            <td>{{ station.next_program() }}</td>
             <td><a href="{{ url_for('radio.schedule_station', station_id=station.id) }}">{{ _('Schedule') }}</a></td>
         </tr>
         {% endfor %}
