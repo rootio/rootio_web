@@ -318,7 +318,10 @@ def scheduled_block_json(station_id):
         for instance in r.between(start,end):
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time)}
+                'end':datetime.combine(instance,block.end_time),
+                'isBackground':True, #the magic flag that tells full calendar to render as block
+                'editable':False #and not display drag handles
+            }
             resp.append(d)
     return resp
 
