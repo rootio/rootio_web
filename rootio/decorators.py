@@ -57,7 +57,7 @@ def api_key_required(f):
 #unfortunate duplication for flask-restless style preprocessor
 #from flask.ext.restless import NO_CHANGE
 from flask.ext.restless import ProcessingException
-def restless_api_key_auth(params):
+def restless_api_key_auth(*args, **kwargs):
     from rootio.radio import Station
     api_key = request.args.get('api_key')
     if api_key:
@@ -69,7 +69,7 @@ def restless_api_key_auth(params):
             #no specific station, check against all valid keys
             if Station.query.filter_by(api_key=api_key).count():
                 return None #no change
-    raise ProcessingException(message='Not authenticated!')
+    abort(403)
 
 #define restless preprocessor dict for all method types
 restless_api_key_required = dict(GET_SINGLE=[restless_api_key_auth],
