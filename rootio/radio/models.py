@@ -269,6 +269,19 @@ class ScheduledProgram(db.Model):
     start = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
 
+    @classmethod
+    def after(cls,date):
+        return cls.query.filter(ScheduledProgram.start >= date)
+
+    @classmethod
+    def before(cls,date):
+        return cls.query.filter(ScheduledProgram.end <= date)
+
+    @classmethod
+    def between(cls,start,end):
+        return cls.query.filter(ScheduledProgram.start >= start &
+            ScheduledProgram.end <= end)
+
 
 class PaddingContent(db.Model):
     """An advertisement or PSA to run on a network in a block.
