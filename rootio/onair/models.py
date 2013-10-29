@@ -14,7 +14,7 @@ class OnAirProgram(db.Model):
     episode_id = db.Column(db.ForeignKey('radio_episode.id'))
 
     #backrefs
-    scheduled_program = db.relationship(u'ScheduledProgram', backref=db.backref('onairprograms'))
+    scheduled_program = db.relationship(u'ScheduledProgram', backref=db.backref('onairprogram',uselist=False))
     # incoming calls and messages
     calls = db.relationship(u'Call', backref=db.backref('onairprogram'))
     messages = db.relationship(u'Message', backref=db.backref('onairprogram'))

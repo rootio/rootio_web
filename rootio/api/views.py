@@ -56,22 +56,46 @@ def restless_routes():
     #phone to post diagnostics
 
 #non CRUD-routes
-#convenience methods for flask-restless wonky filter syntax
+@api.route('/station/<int:station_id>/current_program', methods=['GET'])
+@returns_json
+def current_program(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.current_program()
+
+
+@api.route('/station/<int:station_id>/next_program', methods=['GET'])
+@returns_json
+def next_program(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.next_program()
+
+
+@api.route('/station/<int:station_id>/current_block', methods=['GET'])
+@returns_json
+def current_block(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    return station.current_block()
+
+
 @api.route('/station/<int:station_id>/schedule', methods=['GET'])
 @returns_json
 def station_schedule(station_id):
+    """API method to get a station's schedule.
+    Parameters:
+        start: ISO datetime
+        end: ISO datetime
+        all: if truthy, then ignores start and end constraints"""
     station = Station.query.filter_by(id=station_id).first_or_404()
     start = parse_datetime(request.args.get('start'))
     end = parse_datetime(request.args.get('end'))
-    print start,end
     #TODO, investigate the proper ordering of these clauses for query speed
-    if start and end:
+    if request.args.get('all'):
+        return ScheduledProgram.query.filter_by(station_id=station.id)
+    elif start and end:
         return ScheduledProgram.between(start,end).filter_by(station_id=station.id)
     elif start:
         return ScheduledProgram.after(start).filter_by(station_id=station.id)
     elif end:
         return ScheduledProgram.before(end).filter_by(station_id=station.id)
-    elif request.args.get('all'):
-        return ScheduledProgram.query.filter_by(station_id=station.id)
     else:
         return {'error':"Need to specify parameters 'start' or 'end' as ISO datetime or all=1"}
