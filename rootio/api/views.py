@@ -45,7 +45,8 @@ def restless_routes():
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
         include_methods=['status','current_program'],
-        preprocessors=restless_api_key_required)
+        preprocessors=[]) # do not require station api key for stations
+    #todo, create separate map api endpoint, to limit info exposure?
     rest.create_api(Program, collection_name='program', methods=['GET'],
         preprocessors=restless_api_key_required)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
