@@ -157,10 +157,10 @@ def person_add():
     return render_template('radio/person.html', person=person, form=form)
 
 
-@radio.route('/location/add/inline/', methods=['POST'])
+@radio.route('/location/add/ajax/', methods=['POST'])
 @login_required
 @returns_json
-def location_add_inline():
+def location_add_ajax():
     data = json.loads(request.data)
     #handle floats individually
     float_vals = ['latitude','longitude']
@@ -228,10 +228,19 @@ def scheduled_block_add():
     return render_template('radio/scheduled_block.html', block=block, form=form)
 
 
-@radio.route('/scheduleprogram/add/inline/', methods=['POST'])
+@radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
 @returns_json
-def schedule_program_inline():
+def schedule_program_ajax():
+    #TODO, accept individually scheduled programs from json
+    pass
+
+
+@radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
+@login_required
+@returns_json
+def schedule_recurring_program_ajax():
+    "Schedule a recurring program"
     data = json.loads(request.data)
 
     #lookup fks manually, this seems really hack-ish
@@ -266,11 +275,7 @@ def schedule_program_inline():
                                                                         minutes=program.duration.minute,
                                                                         seconds=program.duration.second)
             #add start and program.duration, using timedelta
-
-            print "schedule program on",instance.date()
-            print "start",scheduled_program.start
-            print "end",scheduled_program.end
-
+            
             db.session.add(scheduled_program)
 
         db.session.commit()
@@ -313,7 +318,10 @@ def scheduled_block_json(station_id):
         for instance in r.between(start,end):
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time)}
+                'end':datetime.combine(instance,block.end_time),
+                'isBackground':True, #the magic flag that tells full calendar to render as block
+                'editable':False #and not display drag handles
+            }
             resp.append(d)
     return resp
 

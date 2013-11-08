@@ -7,6 +7,11 @@
     margin-bottom:0;
 }
 
+.fc-event {
+    background: #3366CC;
+    border: 1px solid #3366CC;
+}
+
 #addable-programs ul {
     margin:20px 0 10px 0;
     padding: 5px;
