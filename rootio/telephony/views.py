@@ -64,7 +64,7 @@ def phonenumber_add():
     return render_template('telephony/phonenumber.html', phonenumber=phonenumber, form=form)
 
 
-@telephony.route('/phonenumber/add/inline/', methods=['POST'])
+@telephony.route('/phonenumber/add/ajax/', methods=['POST'])
 @login_required
 @returns_json
 def phonenumber_add_inline():

@@ -16,7 +16,15 @@ $(document).ready(function() {
     $('#recurringinput').on('rrule-update',function(event) {
         var rrule = $('#recurringinput #rrule-output').html();
         $('form input[name=recurrence]').val(rrule);
-    });  
+    });
+
+    //close modal on recurring submit
+    $('button#modal-save').click(function() {
+        $('.modal').hide();
+        $('.modal-backdrop').fadeOut();
+        $('#calendar').fullCalendar('render');
+    });
+
 
     //set up program drag and drop
     $('#addable-programs li.external-event').each(function() {
@@ -39,6 +47,47 @@ $(document).ready(function() {
             
         });
 
-    //calendar is actually set up in schedule.html, so we have access to template variables
-});
+    //set up calendar
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        allDayDefault: false,
+        defaultView: 'agendaWeek',
+        editable: true,
+        droppable: true,
+        drop: function(date, allDay) { // this function is called when something is dropped
+            //copied from fullcalendar/demos/external-dragging.html
 
+            // retrieve the dropped element's stored Event Object
+            var originalEventObject = $(this).data('eventObject');
+            
+            // we need to copy it, so that multiple events don't have a reference to the same object
+            var copiedEventObject = $.extend({}, originalEventObject);
+            
+            // assign it the date that was reported
+            copiedEventObject.start = date;
+            copiedEventObject.allDay = allDay;
+            
+            // render the event on the calendar
+            // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+            $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+            
+            // is the "remove after drop" checkbox checked?
+            if ($('#drop-remove').is(':checked')) {
+                // if so, remove the element from the "Draggable Events" list
+                $(this).remove();
+            }
+        },
+        events: [], //add these in schedule.html
+        annotations: [] //where we have access to the template
+    });
+
+    
+    $('button#save-schedule').click(function() {
+        //TODO, serialize added events to json,
+        //post to /radio/scheduleprogram/add/ajax/
+    });
+});
