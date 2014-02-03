@@ -17,7 +17,7 @@ from .radio import radio
 from .onair import onair
 from .telephony import telephony
 from .extensions import db, mail, cache, login_manager, oid, rest
-from .utils import INSTANCE_FOLDER_PATH, CustomJSONEncoder
+from .utils import CustomJSONEncoder
 
 
 # For import *
