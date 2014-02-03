@@ -9,11 +9,9 @@ import os
 
 from datetime import datetime, time
 
+from flask import Flask
 from flask import json
 from flask.ext.wtf import Form
-
-# Instance folder path, make it independent.
-INSTANCE_FOLDER_PATH = os.path.join('/tmp', 'instance')
 
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
