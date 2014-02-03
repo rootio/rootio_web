@@ -116,7 +116,7 @@ class Station(db.Model):
         return upcoming_programs.first()
 
     def current_block(self):
-        now = datetime.now()
+        now = datetime.now().time() #blocks not date specific, time only
         blocks = ScheduledBlock.contains(now).filter_by(station_id=self.id)
         #TODO, how to resolve overlaps?
         return blocks.first()
