@@ -1,5 +1,6 @@
 *.py[cod]
 .venv/
+venv/
 instance/
 
 # C extensions
@@ -20,8 +21,10 @@ develop-eggs
 lib
 lib64
 
-# Installer logs
+# logs
 pip-log.txt
+access.log
+error.log
 
 # Unit test / coverage reports
 .coverage
