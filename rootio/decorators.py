@@ -55,28 +55,34 @@ def api_key_required(f):
     return decorated_function
 
 #unfortunate duplication for flask-restless style preprocessor
-#from flask.ext.restless import NO_CHANGE
 from flask.ext.restless import ProcessingException
-def restless_api_key_auth(*args, **kwargs):
+def restless_api_auth(*args, **kwargs):
     from rootio.radio import Station
     api_key = request.args.get('api_key')
     if api_key:
         if 'station_id' in kwargs:
             station = Station.query.get(kwargs['station_id'])
             if station and station.api_key == api_key:
-                return None #no change
+                return None # allow
         else:
             #no specific station, check against all valid keys
             if Station.query.filter_by(api_key=api_key).count():
-                return None #no change
-    abort(403)
+                return None # allow
+    else:
+        #check if user is logged in
+        if current_user.is_authenticated():
+            return None # allow
+
+    raise ProcessingException(message='Not authenticated!')
+
 
 #define restless preprocessor dict for all method types
-restless_api_key_required = dict(GET_SINGLE=[restless_api_key_auth],
-                                GET_MANY=[restless_api_key_auth],
-                                PATCH_SINGLE=[restless_api_key_auth],
-                                PATCH_MANY=[restless_api_key_auth],
-                                PUT_SINGLE=[restless_api_key_auth],
-                                PUT_MANY=[restless_api_key_auth],
-                                POST=[restless_api_key_auth],
-                                DELETE=[restless_api_key_auth])
+restless_api_key_or_auth = { 'GET_SINGLE':   [restless_api_auth],
+                             'GET_MANY':     [restless_api_auth],
+                             'PATCH_SINGLE': [restless_api_auth],
+                             'PATCH_MANY':   [restless_api_auth],
+                             'PUT_SINGLE':   [restless_api_auth],
+                             'PUT_MANY':     [restless_api_auth],
+                             'POST':         [restless_api_auth],
+                             'DELETE':       [restless_api_auth]}
+

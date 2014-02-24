@@ -10,8 +10,7 @@ from ..extensions import db, rest
 
 from ..user import User
 from ..radio import Station, Program, ScheduledProgram, StationAnalytic
-from ..decorators import returns_json, api_key_required, restless_api_key_required
-
+from ..decorators import returns_json, api_key_required, restless_api_key_or_auth
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -41,19 +40,20 @@ def logout():
 
 #the restless api
 #needs to be called after app instantiation
+#preprocessor requires logged in user or api key
 def restless_routes():
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
         include_methods=['status','current_program'],
-        preprocessors=[]) # do not require station api key for stations
-    #todo, create separate map api endpoint, to limit info exposure?
+        preprocessors=restless_api_key_or_auth)
     rest.create_api(Program, collection_name='program', methods=['GET'],
-        preprocessors=restless_api_key_required)
+        preprocessors=restless_api_key_or_auth)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
         exclude_columns=['station'],
-        preprocessors=restless_api_key_required)
+        preprocessors=restless_api_key_or_auth)
 
 #need routes for:
+    #phone to create station?
     #phone to post diagnostics
 
 #non CRUD-routes
