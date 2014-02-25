@@ -34,8 +34,8 @@ def returns_json(f):
         return Response(json.dumps(r), content_type='application/json; charset=utf-8')
     return decorated_function
 
-def api_key_required(f):
-    """Restrict access to a valid station api key """
+def api_key_or_auth_required(f):
+    """Restrict access to a valid station api key, or logged in user """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         from rootio.radio import Station
@@ -51,6 +51,9 @@ def api_key_required(f):
                 if Station.query.filter_by(api_key=api_key).count():
                     #matches, should be only one because of unique constraint
                     return f(*args, **kwargs)
+        else:
+            if current_user.is_authenticated():
+                return f(*args, **kwargs)
         abort(403)
     return decorated_function
 
@@ -74,7 +77,6 @@ def restless_api_auth(*args, **kwargs):
             return None # allow
 
     raise ProcessingException(message='Not authenticated!')
-
 
 #define restless preprocessor dict for all method types
 restless_api_key_or_auth = { 'GET_SINGLE':   [restless_api_auth],

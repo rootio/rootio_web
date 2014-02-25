@@ -11,6 +11,7 @@ from ..extensions import db, rest
 from ..user import User
 from ..radio import Station, Program, ScheduledProgram, StationAnalytic
 from ..decorators import returns_json, api_key_required, restless_api_key_or_auth
+from ..decorators import returns_json, api_key_or_auth_required, restless_api_key_or_auth
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -59,7 +60,7 @@ def restless_routes():
 #non CRUD-routes
 #protect with decorator
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
-@api_key_required
+@api_key_or_auth_required
 @returns_json
 def current_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -67,7 +68,7 @@ def current_program(station_id):
 
 
 @api.route('/station/<int:station_id>/next_program', methods=['GET'])
-@api_key_required
+@api_key_or_auth_required
 @returns_json
 def next_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -75,7 +76,7 @@ def next_program(station_id):
 
 
 @api.route('/station/<int:station_id>/current_block', methods=['GET'])
-@api_key_required
+@api_key_or_auth_required
 @returns_json
 def current_block(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -83,7 +84,7 @@ def current_block(station_id):
 
 
 @api.route('/station/<int:station_id>/schedule', methods=['GET'])
-@api_key_required
+@api_key_or_auth_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
