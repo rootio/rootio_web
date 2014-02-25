@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, current_app, request, jsonify
+from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
 from flask.ext.restless import APIManager
 
@@ -9,9 +9,12 @@ from .utils import parse_datetime
 from ..extensions import db, rest
 
 from ..user import User
-from ..radio import Station, Program, ScheduledProgram, StationAnalytic
-from ..decorators import returns_json, api_key_required, restless_api_key_or_auth
+from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..telephony import PhoneNumber, Call, Message
+from ..onair import OnAirProgram
+
 from ..decorators import returns_json, api_key_or_auth_required, restless_api_key_or_auth
+
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -28,7 +31,7 @@ def login():
             if login_user(user, remember='y'):
                 return jsonify(flag='success')
 
-    current_app.logger.debug('login(api) failed, username: %s.' % username)
+    current_app.logger.debug('login failed, username: %s.' % username)
     return jsonify(flag='fail', msg='Sorry, try again.')
 
 
@@ -43,6 +46,10 @@ def logout():
 #needs to be called after app instantiation
 #preprocessor requires logged in user or api key
 def restless_routes():
+    rest.create_api(Person, collection_name='person', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
         include_methods=['status','current_program'],
@@ -53,9 +60,29 @@ def restless_routes():
         exclude_columns=['station'],
         preprocessors=restless_api_key_or_auth)
 
+    rest.create_api(Episode, collection_name='episode', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+    rest.create_api(Recording, collection_name='recording', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+
+    rest.create_api(PhoneNumber, collection_name='phonenumber', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+    rest.create_api(Call, collection_name='call', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+    rest.create_api(Message, collection_name='message', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+
+    rest.create_api(StationAnalytic, collection_name='analytic', methods=['GET', 'POST'],
+        exclude_columns=[],
+        preprocessors=restless_api_key_or_auth)
+
 #need routes for:
-    #phone to create station?
-    #phone to post diagnostics
+    #phone to update station schedule?
 
 #non CRUD-routes
 #protect with decorator
@@ -65,6 +92,19 @@ def restless_routes():
 def current_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     return station.current_program()
+
+
+@api.route('/station/<int:station_id>/on_air', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def on_air(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    current_program = station.current_program()
+    if current_program:
+        return current_program.onairprogram
+    else:
+        message = jsonify(flag='error', msg='No OnAirProgram set for station')
+        abort(make_response(message, 500)) 
 
 
 @api.route('/station/<int:station_id>/next_program', methods=['GET'])
@@ -105,4 +145,5 @@ def station_schedule(station_id):
     elif end:
         return ScheduledProgram.before(end).filter_by(station_id=station.id)
     else:
-        return {'error':"Need to specify parameters 'start' or 'end' as ISO datetime or all=1"}
+        message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
+        abort(make_response(message, 400)) 
