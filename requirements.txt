@@ -21,3 +21,4 @@ alembic==0.6.0
 Fabric==1.7.0
 python-dateutil
 Flask-Restless
+Flask-Admin
