@@ -12,7 +12,7 @@ from .user import User, user
 from .settings import settings
 from .frontend import frontend
 from .api import api, restless_routes
-from .admin import admin
+from .rootio import rootio
 from .radio import radio
 from .onair import onair
 from .telephony import telephony
@@ -26,6 +26,7 @@ __all__ = ['create_app']
 DEFAULT_BLUEPRINTS = (
     frontend,
     user,
+    rootio,
     radio,
     onair,
     telephony,
@@ -126,6 +127,10 @@ def configure_extensions(app):
     # flask-restless
     rest.init_app(app, flask_sqlalchemy_db=db)
     restless_routes() #actually setup the routes
+
+    # flask-admin
+    admin = Admin(app, name='RootIO Admin')
+    admin_routes(admin) #add flask-admin classes
 
 
 def configure_blueprints(app, blueprints):

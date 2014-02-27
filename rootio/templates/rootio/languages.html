@@ -1,10 +1,10 @@
-{% extends "admin/layout.html" %}
+{% extends "rootio/layout.html" %}
 
 {% block body %}
 <div class="container">
     <h2 class="pull-left">{{ _('Languages') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('admin.language_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('rootio.language_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
@@ -25,7 +25,7 @@
             {%endif%}
             </td>
             <td>{{ language.locale_code }}</td>
-            <td><a href="{{ url_for('admin.language', language_id=language.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('rootio.language', language_id=language.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
     </table>
