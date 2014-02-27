@@ -1,4 +1,4 @@
-{% extends "admin/layout.html" %}
+{% extends "rootio/layout.html" %}
 
 {% block body %}
 <div class="container">
@@ -19,7 +19,7 @@
             <td>{{ user.status }}</td>
             <td>{{ user.role }}</td>
             <td>{{ user.created_time|format_date }}</td>
-            <td><a href="{{ url_for('admin.user', user_id=user.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('rootio.user', user_id=user.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
     </table>

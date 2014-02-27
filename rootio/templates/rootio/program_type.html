@@ -1,15 +1,15 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "admin/layout.html" %}
+{% extends "rootio/layout.html" %}
 
 {% block body %}
 <div class="container">
     {%if program_type%}
         <h2>{{ _('Edit') }} {{ _('Program Type') }}</h2>
-        {{ render_form(url_for('admin.program_type', program_type_id=program_type.id), form) }}
+        {{ render_form(url_for('rootio.program_type', program_type_id=program_type.id), form) }}
     {%else%}
         <h2>{{ _('Add') }} {{ _('Program Type') }}</h2>
-        {{ render_form(url_for('admin.program_type_add'), form) }}
+        {{ render_form(url_for('rootio.program_type_add'), form) }}
     {%endif%}
 </div>
 {% endblock %}

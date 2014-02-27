@@ -1,10 +1,10 @@
-{% extends "admin/layout.html" %}
+{% extends "rootio/layout.html" %}
 
 {% block body %}
 <div class="container">
     <h2 class="pull-left">{{ _('Program Types') }}</h2>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('admin.program_type_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('rootio.program_type_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
@@ -20,7 +20,7 @@
             <td>{{ program_type.name }}</td>
             <td>{{ program_type.description }}</td>
             <td>{{ program_type.definition }}</td>
-            <td><a href="{{ url_for('admin.program_type', program_type_id=program_type.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('rootio.program_type', program_type_id=program_type.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
     </table>

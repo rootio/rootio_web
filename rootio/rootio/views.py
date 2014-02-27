@@ -12,26 +12,25 @@ from ..user.forms import UserForm
 from ..radio import Language, ProgramType
 from ..radio.forms import LanguageForm, ProgramTypeForm
 
-admin = Blueprint('rootio', __name__, url_prefix='/rootio')
-#need to change name to rootio_admin here, to avoid collision with flask-admin
+rootio = Blueprint('rootio', __name__, url_prefix='/rootio')
 
-@admin.route('/')
+@rootio.route('/')
 @login_required
 @admin_required
 def index():
     users = User.query.all()
-    return render_template('admin/index.html', users=users, active='index')
+    return render_template('rootio/index.html', users=users, active='index')
 
 
-@admin.route('/user/')
+@rootio.route('/user/')
 @login_required
 @admin_required
 def users():
     users = User.query.all()
-    return render_template('admin/users.html', users=users, active='users')
+    return render_template('rootio/users.html', users=users, active='users')
 
 
-@admin.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@rootio.route('/user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def user(user_id):
@@ -46,18 +45,18 @@ def user(user_id):
 
         flash('User updated.', 'success')
 
-    return render_template('admin/user.html', user=user, form=form)
+    return render_template('rootio/user.html', user=user, form=form)
 
 
-@admin.route('/language/')
+@rootio.route('/language/')
 @login_required
 @admin_required
 def languages():
     languages = Language.query.all()
-    return render_template('admin/languages.html', languages=languages, active='languages')
+    return render_template('rootio/languages.html', languages=languages, active='languages')
 
 
-@admin.route('/language/<int:language_id>', methods=['GET', 'POST'])
+@rootio.route('/language/<int:language_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def language(language_id):
@@ -72,10 +71,10 @@ def language(language_id):
 
         flash('Language updated.', 'success')
 
-    return render_template('admin/language.html', language=language, form=form)
+    return render_template('rootio/language.html', language=language, form=form)
 
 
-@admin.route('/language/add/', methods=['GET', 'POST'])
+@rootio.route('/language/add/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def language_add():
@@ -93,17 +92,17 @@ def language_add():
     elif request.method == "POST":
         flash('Validation error','error')
 
-    return render_template('admin/language.html', language=language, form=form)
+    return render_template('rootio/language.html', language=language, form=form)
 
 
-@admin.route('/program_type/')
+@rootio.route('/program_type/')
 @login_required
 @admin_required
 def program_types():
     program_types = ProgramType.query.all()
-    return render_template('admin/program_types.html', program_types=program_types, active='program_types')
+    return render_template('rootio/program_types.html', program_types=program_types, active='program_types')
 
-@admin.route('/program_type/<int:program_type_id>', methods=['GET', 'POST'])
+@rootio.route('/program_type/<int:program_type_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def program_type(program_type_id):
@@ -118,10 +117,10 @@ def program_type(program_type_id):
 
         flash('Program Type updated.', 'success')
 
-    return render_template('admin/program_type.html', program_type=program_type, form=form)
+    return render_template('rootio/program_type.html', program_type=program_type, form=form)
 
 
-@admin.route('/program_type/add/', methods=['GET', 'POST'])
+@rootio.route('/program_type/add/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def program_type_add():
@@ -139,6 +138,6 @@ def program_type_add():
     elif request.method == "POST":
         flash('Validation error','error')
 
-    return render_template('admin/program_type.html', program_type=program_type, form=form)
+    return render_template('rootio/program_type.html', program_type=program_type, form=form)
 
 #TODO: program_type_add, with custom widget for picklefield
