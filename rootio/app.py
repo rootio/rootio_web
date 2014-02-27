@@ -5,9 +5,10 @@ import os
 from flask import Flask, g, request, render_template, current_app, session
 from flask.ext.babel import Babel
 from flask_wtf.csrf import CsrfProtect
-
+from flask.ext.admin import Admin
 
 from .config import DefaultConfig
+from .admin import admin_routes
 from .user import User, user
 from .settings import settings
 from .frontend import frontend
@@ -32,7 +33,6 @@ DEFAULT_BLUEPRINTS = (
     telephony,
     settings,
     api,
-    admin,
 )
 
 
@@ -129,7 +129,7 @@ def configure_extensions(app):
     restless_routes() #actually setup the routes
 
     # flask-admin
-    admin = Admin(app, name='RootIO Admin')
+    admin = Admin(app, name='RootIO Backend') #, base_template="admin/layout.html")
     admin_routes(admin) #add flask-admin classes
 
 
