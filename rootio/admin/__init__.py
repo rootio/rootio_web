@@ -1,2 +1,2 @@
 
-from .views import admin_routes
+from .views import admin_routes, AdminHomeView

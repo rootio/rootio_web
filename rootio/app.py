@@ -8,7 +8,7 @@ from flask_wtf.csrf import CsrfProtect
 from flask.ext.admin import Admin
 
 from .config import DefaultConfig
-from .admin import admin_routes
+from .admin import admin_routes, AdminHomeView
 from .user import User, user
 from .settings import settings
 from .frontend import frontend
@@ -129,7 +129,7 @@ def configure_extensions(app):
     restless_routes() #actually setup the routes
 
     # flask-admin
-    admin = Admin(app, name='RootIO Backend') #, base_template="admin/layout.html")
+    admin = Admin(app, name='RootIO Backend', index_view=AdminHomeView())
     admin_routes(admin) #add flask-admin classes
 
 
