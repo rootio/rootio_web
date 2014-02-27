@@ -1,7 +1,8 @@
 #flask-admin views
-
+from flask import render_template
 from flask.ext.login import current_user
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.admin.base import AdminIndexView, expose
 
 from ..extensions import db
 
@@ -14,6 +15,10 @@ class AdminView(ModelView):
             return current_user.role_code == 0
         else:
             return False
+
+class AdminHomeView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated()
 
 def admin_routes(admin):
     admin.add_view(AdminView(PhoneNumber, db.session))
