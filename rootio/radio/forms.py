@@ -4,7 +4,7 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, HiddenField, RadioField, IntegerField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 
@@ -58,7 +58,8 @@ def all_program_types():
 class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
-    duration = DurationField(description=_("Duration of the program, in H:MM:SS"))
+    description = TextAreaField()
+    duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     submit = SubmitField(_('Save'))
@@ -69,7 +70,7 @@ ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=
         'definition':{"description":_("This field accepts arbitrary Python-dictionaries")},
     })
 class ProgramTypeForm(ProgramTypeFormBase):
-    definition = TextField()
+    definition = TextAreaField()
     submit = SubmitField(_('Save'))
 
 
