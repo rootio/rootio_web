@@ -49,7 +49,8 @@ class DefaultConfig(BaseConfig):
                         'lug':'Luganda',
                         'luo':'Luo',}
     BABEL_DEFAULT_LOCALE = 'lg_UG' #see http://cldr.unicode.org/index/cldr-spec/picking-the-right-language-code
-                                #abd http://unicode.org/cldr/utility/languageid.jsp
+                                #and http://unicode.org/cldr/utility/languageid.jsp
+
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'
     CACHE_DEFAULT_TIMEOUT = 60

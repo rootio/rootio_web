@@ -22,6 +22,6 @@ def upgrade():
 
 def downgrade():
     op.add_column('radio_scheduledprogram',
-        sa.Column('episode_id', sa.INTEGER, sa.ForeignKey('radio_epside.id'))
+        sa.Column('episode_id', sa.INTEGER, sa.ForeignKey('radio_episode.id'))
     )
     op.drop_column('radio_scheduledprogram','program_id')

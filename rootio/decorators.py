@@ -38,7 +38,7 @@ def api_key_or_auth_required(f):
     """Restrict access to a valid station api key, or logged in user """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from rootio.radio import Station
+        from .radio import Station
         api_key = request.args.get('api_key')
         if api_key:
             if 'station_id' in kwargs:
@@ -60,7 +60,7 @@ def api_key_or_auth_required(f):
 #unfortunate duplication for flask-restless style preprocessor
 from flask.ext.restless import ProcessingException
 def restless_api_auth(*args, **kwargs):
-    from rootio.radio import Station
+    from .radio import Station
     api_key = request.args.get('api_key')
     if api_key:
         if 'station_id' in kwargs:
