@@ -41,7 +41,7 @@ $(document).ready(function() {
     $('button#modal-save').click(function() {
         $('.modal').hide();
         $('.modal-backdrop').fadeOut();
-        $('#calendar').fullCalendar('render');
+        $('#calendar').fullCalendar('refetchEvents');
     });
 
 
@@ -75,7 +75,7 @@ $(document).ready(function() {
         },
         allDayDefault: false,
         defaultView: 'agendaWeek',
-        editable: true,
+
         droppable: true,
         drop: function(date, allDay) { // this function is called when something is dropped
             //copied from fullcalendar/demos/external-dragging.html
@@ -101,7 +101,40 @@ $(document).ready(function() {
             }
         },
         events: [], //add these in schedule.html
-        annotations: [] //where we have access to the template
+        annotations: [], //where we have access to the template
+
+        editable: true,
+        eventDurationEditable: false,
+        eventStartEditable: true,
+
+        eventClick: function(event) {
+            $(this).popover({trigger:'manual',
+                            placement:'right',
+                            title:event.title,
+                            content:event.start+" - "+event.end})
+            .popover('toggle');
+
+            //z-index?
+
+            //hide any tooltips
+            $(this).tooltip('hide');
+            
+        },
+        eventMouseover: function(event) {
+            eventDuration = (event.end - event.start) / (1000*60); // in minutes
+            if (eventDuration < 30) {
+                //title probably not visible, show in tooltip
+                $(this).tooltip({
+                    trigger: 'manual',
+                    placement:'right',
+                    title:event.title
+                }).tooltip('show');
+            }
+        },
+        eventMouseout: function(event) {
+            $(this).tooltip('hide');
+        }
+
     });
 
     
