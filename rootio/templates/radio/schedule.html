@@ -54,9 +54,15 @@
                     <button type="button" class="btn" data-toggle="modal" data-target="#addRecurring-modal"><strong>{{ _('Recurring') }}</strong></button>
                 </li>
             </ul>
+            <br />
+
             <div class="pull-right">
                 <button type="button" class="btn btn-success" id="save-schedule"><strong>{{ _('Save') }}</strong></button>
             </div>
+            <div class="alert alert-warning" id="unsaved-changes" style="display:none;">{{ _('Unsaved Changes') }}</div>
+
+            <h4>{{ _('Edit Log') }}</h4>
+            <ul id="schedule-edit-log"></ul>
         </div>
 
         <div id='calendar' class="span10"></div>
@@ -64,7 +70,7 @@
 </div>
 
 <!-- Add Schedule Modal -->
-  <div class="modal fade" id="addRecurring_modal" tabindex="-1" role="dialog" aria-labelledby="addRecurring" aria-hidden="true" style="display:none;">
+  <div class="modal fade" id="addRecurring-modal" tabindex="-1" role="dialog" aria-labelledby="addRecurring" aria-hidden="true" style="display:none;">
     <div class="modal-dialog inline-form" data-url="/radio/scheduleprogram/add/recurring_ajax/" data-prefix="">
       <div class="modal-content">
         <div class="modal-header">
