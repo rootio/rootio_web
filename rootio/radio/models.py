@@ -224,6 +224,7 @@ class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
+    description = db.Column(db.Text,nullable=False)
     duration = db.Column(db.Time)
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
