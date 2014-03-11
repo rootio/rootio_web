@@ -18,9 +18,7 @@ class FileField(types.TypeDecorator):
     def process_result_value(self, value, dialect):
         return FileNameString(self.upload_set, value)
 
-
 class FileNameString(object):
-
     def __init__(self, upload_set, filename):
         self.upload_set = upload_set
         self.filename = filename

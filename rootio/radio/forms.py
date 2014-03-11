@@ -12,7 +12,6 @@ from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
 from .models import Station, Program, ProgramType, ScheduledBlock, Person, Language, Location
 from .widgets import ChoicesSelect
-from .constants import PROGRAM_TYPES, LANGUAGE_CODES
 
 from ..user.models import User
 from ..telephony.forms import PhoneNumberForm
