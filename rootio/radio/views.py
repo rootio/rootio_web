@@ -299,7 +299,8 @@ def scheduled_programs_json(station_id):
     for s in scheduled_programs:
         d = {'title':s.program.name,
             'start':s.start.isoformat(),
-            'end':s.end.isoformat()}
+            'end':s.end.isoformat(),
+            'id':s.id}
         resp.append(d)
     return resp
 
@@ -319,6 +320,7 @@ def scheduled_block_json(station_id):
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
                 'end':datetime.combine(instance,block.end_time),
+                'id':block.id,
                 'isBackground':True, #the magic flag that tells full calendar to render as block
                 'editable':False #and not display drag handles
             }
