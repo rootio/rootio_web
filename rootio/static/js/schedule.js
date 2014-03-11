@@ -23,7 +23,7 @@ $(document).ready(function() {
         val = this.value;
         program_extra = $('.modal-body ul#program_extra');
         if (val !== '__None') {
-            new_program = $.get('/api/program/'+val,function(data) {
+            new_program = $.getJSON('/api/program/'+val,function(data) {
                 program_extra.find('span#description').html(data['description']);
                 program_extra.find('span#program_type').html(data['program_type']['name']);
                 program_extra.find('span#duration').html(data['duration']);
@@ -108,15 +108,30 @@ $(document).ready(function() {
         eventStartEditable: true,
 
         eventClick: function(event, jsEvent, view) {
-            $(this).popover({trigger:'manual',
-                            placement: view.name === "agendaDay" ? "bottom": "right",
-                            title:event.title,
-                            content:event.start+" - "+event.end})
-            .popover('toggle');
+            $.ajax({
+                url:'/api/scheduledprogram/'+event.id,
+                context: this, //so that the success callback gets a reference
+                success: function(data) {
+                    program = data['program'];
+                    popover_content = "<ul>";
+                    if (program['description'] !== null) {
+                        popover_content += "<li>"+program['description']+"</li>";
+                    }
+                    popover_content += "<li>"+event.start+" - "+event.end+"</li>";
+                    popover_content += "</ul>";
+                    $(this).popover({
+                                trigger:'manual',
+                                placement: view.name === "agendaDay" ? "bottom": "right",
+                                title:event.title,
+                                content:popover_content,
+                                html:true
+                            })
+                    .popover('toggle');
 
-            //hide any tooltips
-            $(this).tooltip('hide');
-            
+                    //hide any tooltips
+                    $(this).tooltip('hide');
+                }
+            });
         },
         eventMouseover: function(event, jsEvent, view) {
             eventDuration = (event.end - event.start) / (1000*60); // in minutes
