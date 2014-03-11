@@ -1,4 +1,4 @@
-$(document).ready(function() { 
+$(document).ready(function() {
     //set up recurrence presets
     $('input[name=preset-recurrence]').change(function(event) {
         var value = $(event.target).val();
@@ -66,6 +66,15 @@ $(document).ready(function() {
             
         });
 
+
+    //alert edit log
+    alertEditLog = function(event, text) {
+        alert = $('<li class="alert alert-info" style="display:none;">'+text+'</li>');
+        $('#addable-programs #schedule-edit-log').prepend(alert);
+        alert.fadeIn();
+        $('#addable-programs #unsaved-changes').show();
+    };
+
     //set up calendar
     $('#calendar').fullCalendar({
         header: {
@@ -81,24 +90,22 @@ $(document).ready(function() {
             //copied from fullcalendar/demos/external-dragging.html
 
             // retrieve the dropped element's stored Event Object
-            var originalEventObject = $(this).data('eventObject');
+            var originalEvent = $(this).data('eventObject');
             
             // we need to copy it, so that multiple events don't have a reference to the same object
-            var copiedEventObject = $.extend({}, originalEventObject);
+            var copiedEvent = $.extend({}, originalEvent);
             
             // assign it the date that was reported
-            copiedEventObject.start = date;
-            copiedEventObject.allDay = allDay;
+            copiedEvent.start = date;
+            copiedEvent.allDay = allDay;
             
             // render the event on the calendar
             // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-            $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+            $('#calendar').fullCalendar('renderEvent', copiedEvent, true);
             
-            // is the "remove after drop" checkbox checked?
-            if ($('#drop-remove').is(':checked')) {
-                // if so, remove the element from the "Draggable Events" list
-                $(this).remove();
-            }
+            // alert schedule edited
+            alertEditLog(copiedEvent, copiedEvent.title+' added on '+copiedEvent.start);
+            
         },
         events: [], //add these in schedule.html
         annotations: [], //where we have access to the template
@@ -146,6 +153,10 @@ $(document).ready(function() {
         },
         eventMouseout: function(event, jsEvent, view) {
             $(this).tooltip('hide');
+        },
+        eventDrop: function(event) {
+            // alert schedule edited
+            alertEditLog(event, event.title+' moved to '+event.start);
         }
 
     });
