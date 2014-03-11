@@ -78,7 +78,7 @@
     <div class="controls form-inline">
         {{ field }}
         {# show add button to open modal #}
-        <a class="btn btn-success" data-toggle="modal" data-target="#{{field.name}}_modal">+</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#{{field.name}}-modal">+</a>
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
@@ -90,7 +90,7 @@
 
 {# render bootstrap modal to submit inline form via ajax #}
   <!-- Modal -->
-  <div class="modal fade" id="{{field.name}}_modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+  <div class="modal fade" id="{{field.name}}-modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
     <div class="modal-dialog inline-form" data-url="{{inline_form.description}}" data-prefix="{{inline_form.name}}{{inline_form.separator}}">
         {# POST url is in the overloaded description attribute #}
         {# strip the prefix off each input before posting #}
