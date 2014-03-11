@@ -54,6 +54,10 @@ def deploy():
     update()
 
 
+def server_logs():
+    with cd(env.project_root):
+        run("tail -f error.log")
+
 def initdb():
     local("python manage.py initdb")    
 
@@ -72,7 +76,5 @@ def runserver():
     Need to move up one directory, from deploy to see manage.py
     """
     with lcd('..'):
-        reset()
-        initdb()
         with virtualenv():
-            local("python manage.py run")
+            local("python manage.py runserver")
