@@ -3,7 +3,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Table, types
 from .fields import FileField
-from .constants import PROGRAM_TYPES, PRIVACY_TYPE
+from .constants import PRIVACY_TYPE
 
 from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator, object_list_to_named_dict
 from ..extensions import db
