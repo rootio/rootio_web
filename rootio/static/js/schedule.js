@@ -107,31 +107,29 @@ $(document).ready(function() {
         eventDurationEditable: false,
         eventStartEditable: true,
 
-        eventClick: function(event) {
+        eventClick: function(event, jsEvent, view) {
             $(this).popover({trigger:'manual',
-                            placement:'right',
+                            placement: view.name === "agendaDay" ? "bottom": "right",
                             title:event.title,
                             content:event.start+" - "+event.end})
             .popover('toggle');
-
-            //z-index?
 
             //hide any tooltips
             $(this).tooltip('hide');
             
         },
-        eventMouseover: function(event) {
+        eventMouseover: function(event, jsEvent, view) {
             eventDuration = (event.end - event.start) / (1000*60); // in minutes
-            if (eventDuration < 30) {
+            if (eventDuration < 30 && view.name !== 'month') {
                 //title probably not visible, show in tooltip
                 $(this).tooltip({
                     trigger: 'manual',
-                    placement:'right',
+                    placement: view.name === "agendaDay" ? "bottom": "right",
                     title:event.title
                 }).tooltip('show');
             }
         },
-        eventMouseout: function(event) {
+        eventMouseout: function(event, jsEvent, view) {
             $(this).tooltip('hide');
         }
 
@@ -141,5 +139,7 @@ $(document).ready(function() {
     $('button#save-schedule').click(function() {
         //TODO, serialize added events to json,
         //post to /radio/scheduleprogram/add/ajax/
+
+        // $('#calendar').fullCalendar('refetchEvents');
     });
 });
