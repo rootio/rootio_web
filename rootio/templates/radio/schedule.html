@@ -79,10 +79,11 @@
 
                 {{ render_input(form.program) }}
 
-                <ul id="program_extra">
-                    <li>{{ _('Description') }}: </li>
-                    <li>{{ _('Duration') }}: </li>
-                    <li>{{ _('Update Frequency') }}: </li>
+                <ul id="program_extra" style="display:none;">
+                    <li>{{ _('Description') }}: <span id="description"></span></li>
+                    <li>{{ _('Duration') }}: <span id="duration"></span></li>
+                    <li>{{ _('Program Type') }}: <span id="program_type"></span></li>
+                    <li>{{ _('Update Frequency') }}: <span id="update_frequency"></span></li>
                 </ul>
 
                 {{ render_input(form.air_time) }}

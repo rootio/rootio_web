@@ -105,7 +105,7 @@ def all_blocks():
     return ScheduledBlock.query.all()
 class ScheduleProgramForm(Form):
     station = QuerySelectField(query_factory=all_stations,allow_blank=False)
-    program = QuerySelectField(query_factory=all_programs,allow_blank=True)
+    program = QuerySelectField(query_factory=all_programs,allow_blank=True,blank_text='choose program')
     #block = QuerySelectField(query_factory=all_blocks,allow_blank=False) #let user select block?
     air_time = TimeField(description=_("Time to begin airing"))
     recurrence = HiddenField()

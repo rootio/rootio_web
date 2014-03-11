@@ -18,6 +18,25 @@ $(document).ready(function() {
         $('form input[name=recurrence]').val(rrule);
     });
 
+    //bind program selector to display information from API
+    $('.modal-body select#program').on('change',function(event) {
+        val = this.value;
+        program_extra = $('.modal-body ul#program_extra');
+        if (val !== '__None') {
+            new_program = $.get('/api/program/'+val,function(data) {
+                program_extra.find('span#description').html(data['description']);
+                program_extra.find('span#program_type').html(data['program_type']['name']);
+                program_extra.find('span#duration').html(data['duration']);
+                program_extra.find('span#update_frequency').html(data['update_recurrence']);
+                //TODO, parse this to be human readable with rrule.js?
+                program_extra.slideDown();
+            });
+        } else {
+            program_extra.slideUp();
+            program_extra.find('span').html('');
+        }
+    });
+
     //close modal on recurring submit
     $('button#modal-save').click(function() {
         $('.modal').hide();
