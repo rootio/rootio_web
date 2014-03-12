@@ -1,4 +1,5 @@
 Flask==0.10.1
+Coaster
 Werkzeug==0.9.3
 Jinja2==2.7.1
 Mako==0.8.1

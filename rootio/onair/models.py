@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import Column, Table, types
+from coaster.sqlalchemy import BaseMixin
 from ..extensions import db
 
-
-class OnAirProgram(db.Model):
+class OnAirProgram(BaseMixin, db.Model):
     """Repository for actions that occur while the program is on the air.
     Defined here for easy readability by the web server, but should not be written to in this process."""
     __tablename__ = "onair_program"
-    id = db.Column(db.Integer, primary_key=True)
-    created_time = db.Column(db.DateTime)
+
     scheduledprogram_id = db.Column(db.ForeignKey('radio_scheduledprogram.id'))
     episode_id = db.Column(db.ForeignKey('radio_episode.id'))
 
