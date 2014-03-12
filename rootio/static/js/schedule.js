@@ -66,7 +66,6 @@ $(document).ready(function() {
             
         });
 
-
     //alert edit log
     alertEditLog = function(event, text) {
         alert = $('<li class="alert alert-info" style="display:none;">'+text+'</li>');
@@ -86,25 +85,32 @@ $(document).ready(function() {
         defaultView: 'agendaWeek',
 
         droppable: true,
-        drop: function(date, allDay) { // this function is called when something is dropped
+        drop: function(date, allDay) {
             //copied from fullcalendar/demos/external-dragging.html
 
             // retrieve the dropped element's stored Event Object
             var originalEvent = $(this).data('eventObject');
             
             // we need to copy it, so that multiple events don't have a reference to the same object
-            var copiedEvent = $.extend({}, originalEvent);
+            var newEvent = $.extend({}, originalEvent);
             
             // assign it the date that was reported
-            copiedEvent.start = date;
-            copiedEvent.allDay = allDay;
-            
+            newEvent.start = date;
+            newEvent.allDay = allDay;
+
+            //pull data from DOM
+            newEvent.program = $(this).data('program-id');
+            newEvent.station = $(this).data('station-id');
+            duration = $(this).data('duration-sec'); //in seconds
+            newEvent.end = new Date(date.getTime() + duration*1000); //create new js Date
+
             // render the event on the calendar
             // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-            $('#calendar').fullCalendar('renderEvent', copiedEvent, true);
+            $('#calendar').fullCalendar('renderEvent', newEvent, true);
             
             // alert schedule edited
-            alertEditLog(copiedEvent, copiedEvent.title+' added on '+copiedEvent.start);
+            alertEditLog(newEvent, newEvent.title+' added on '+newEvent.start);
+            newEvent.edited = 'added'; //set edited flag
             
         },
         events: [], //add these in schedule.html
@@ -157,15 +163,46 @@ $(document).ready(function() {
         eventDrop: function(event) {
             // alert schedule edited
             alertEditLog(event, event.title+' moved to '+event.start);
+            event.edited = 'edited'; //set edited flag
         }
 
     });
 
     
     $('button#save-schedule').click(function() {
-        //TODO, serialize added events to json,
-        //post to /radio/scheduleprogram/add/ajax/
+        //query clientside events by edited flag
+        editedEvents = $('#calendar').fullCalendar('clientEvents',function(event) {
+            if (event.edited !== undefined && event.saved !== true ) { return true; }
+        });
 
-        // $('#calendar').fullCalendar('refetchEvents');
+        for (var key in editedEvents) {
+            var event = editedEvents[key];
+
+            //serialize edited event to json
+            //manually, because we only need a subset of fields
+            cleaned_data = {program:event.program,
+                        station:event.station,
+                        start:event.start};
+
+            //post to /radio/scheduleprogram/ajax/
+            $.ajax('/radio/scheduleprogram/add/ajax/',
+                  { type: 'POST',
+                    data: JSON.stringify(cleaned_data, null, '\t'),
+                    dataType: 'json',
+                    contentType: 'application/json;charset=UTF-8',
+                    context: this
+                }).success(function(data) {
+                    //console.log('ScheduledProgram '+data['result']['id']);
+                    this.saved = true;
+                });
+
+        }
+
+        //clear editlog
+        $('#addable-programs #schedule-edit-log').empty();
+        $('#addable-programs #unsaved-changes').hide();
+
+        //rerender the calendar
+        $('#calendar').fullCalendar('refresh');
     });
 });
