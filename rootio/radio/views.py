@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timedelta
 import time
-from dateutil import rrule
+import dateutil.rrule, dateutil.parser
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
@@ -13,7 +13,7 @@ from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json
-from ..utils import error_dict
+from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -231,7 +231,36 @@ def scheduled_block_add():
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
 @returns_json
-def schedule_program_ajax():
+def schedule_program_add_ajax():
+    data = json.loads(request.data)
+
+    #ensure specified foreign key ids are valid, c
+    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    if fk_errors:
+        return fk_errors
+
+    program = data['program']
+    scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
+    scheduled_program.start = dateutil.parser.parse(data['start'])
+
+    scheduled_program.end = scheduled_program.start + timedelta(hours=program.duration.hour,
+                                                                minutes=program.duration.minute,
+                                                                seconds=program.duration.second)
+
+    # do simple form validation
+    # if error:
+        # return {'status':'error','errors':msg,'status_code':400}
+
+    db.session.add(scheduled_program)
+    db.session.commit()
+
+    return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
+
+
+@radio.route('/scheduleprogram/edit/ajax/', methods=['POST'])
+@login_required
+@returns_json
+def schedule_program_edit_ajax():
     #TODO, accept individually scheduled programs from json
     pass
 
@@ -243,15 +272,10 @@ def schedule_recurring_program_ajax():
     "Schedule a recurring program"
     data = json.loads(request.data)
 
-    #lookup fks manually, this seems really hack-ish
-    #TODO: cleanup
-    fk_lookup = {'program':Program,'station':Station}
-    for (field,cls) in fk_lookup.items():
-        try:
-            data[field] = cls.query.get(int(data[field]))
-        except ValueError:
-            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
-            return response
+    #ensure specified foreign key ids are valid
+    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    if fk_errors:
+        return fk_errors
 
     form = ScheduleProgramForm(None, **data)
 
@@ -267,7 +291,7 @@ def schedule_recurring_program_ajax():
         station = form.data['station']
 
         #parse recurrence rule
-        r = rrule.rrulestr(form.data['recurrence'])
+        r = dateutil.rrule.rrulestr(form.data['recurrence'])
         for instance in r[:10]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
@@ -315,7 +339,7 @@ def scheduled_block_json(station_id):
 
     resp = []
     for block in scheduled_blocks:
-        r = rrule.rrulestr(block.recurrence)
+        r = dateutil.rrule.rrulestr(block.recurrence)
         for instance in r.between(start,end):
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
@@ -343,7 +367,7 @@ def schedule_station(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
     for block in scheduled_blocks:
-        r = rrule.rrulestr(block.recurrence)
+        r = dateutil.rrule.rrulestr(block.recurrence)
         for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),

@@ -124,6 +124,22 @@ def object_list_to_named_dict(object_list):
                 named_dict[k] = [v]
     return named_dict
 
+def fk_lookup_form_data(model_dict,data):
+    """Checks to ensure all named models have an object with the specified id
+    Takes a dict of model names and classes
+    and form dict with fields and values
+
+    Modifies form dict, replacing id int with object reference
+
+    Returns JSON error dict if lookup error, False otherwise """
+    for (field,cls) in model_dict.items():
+        try:
+            data[field] = cls.query.get(int(data[field]))
+        except ValueError:
+            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
+            return response
+    return False
+
 
 def simple_serialize_sqlalchemy(model):
     """really naive way of serializing a sqlalchemy model to a dictionary
@@ -135,7 +151,7 @@ def simple_serialize_sqlalchemy(model):
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-    """custom json encoder class that can handle python times"""
+    """custom json encoder class that can handle python datetimes"""
     def default(self, obj):
         if isinstance(obj,datetime):
             return datetime.isoformat(obj)

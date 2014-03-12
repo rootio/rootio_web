@@ -1,6 +1,6 @@
 {% extends "radio/layout.html" %}
 {% from "macros/_form.html" import render_input %}
-{% from "macros/_calendar.js" import render_datetime_tojs %}
+{% from "macros/_calendar.js" import render_duration_to_seconds %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
@@ -48,7 +48,10 @@
             <h4>{{ _('Add Programs') }}</h4>
             <ul>
             {% for p in addable_programs %}
-                <li class='external-event'>{{p.name}}</li>
+                <li class='external-event'
+                    data-program-id="{{p.id}}"
+                    data-station-id="{{station.id}}"
+                    data-duration-sec="{{render_duration_to_seconds(p.duration)}}">{{p.name}}</li>
             {%endfor%}
                 <li class="recurring-button">
                     <button type="button" class="btn" data-toggle="modal" data-target="#addRecurring-modal"><strong>{{ _('Recurring') }}</strong></button>
