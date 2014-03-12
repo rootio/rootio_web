@@ -2,6 +2,8 @@
 
 from datetime import datetime
 from sqlalchemy import Column, Table, types
+from coaster.sqlalchemy import BaseMixin
+
 from .fields import FileField
 from .constants import PRIVACY_TYPE
 
@@ -10,15 +12,14 @@ from ..extensions import db
 
 from ..telephony import PhoneNumber
 
-class Location(db.Model):
+class Location(BaseMixin, db.Model):
     "A geographic location"
     __tablename__ = u'radio_location'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN))
     municipality = db.Column(db.String(STRING_LEN))
     district = db.Column(db.String(STRING_LEN))
-    modifieddate = db.Column(db.Date)
+
     country = db.Column(db.String(STRING_LEN))
     addressline1 = db.Column(db.String(STRING_LEN))
     addressline2 = db.Column(db.String(STRING_LEN))
@@ -29,10 +30,9 @@ class Location(db.Model):
         return self.name
 
 
-class Language(db.Model):
+class Language(BaseMixin, db.Model):
     __tablename__ = u'radio_language'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN)) # human readable language name
     iso639_1 = db.Column(db.String(2)) # 2 digit code (eg, 'en')
     iso639_2 = db.Column(db.String(3))# 3 digit code (eg, 'eng')
@@ -45,11 +45,10 @@ class Language(db.Model):
         return self.name
 
 
-class Network(db.Model):
+class Network(BaseMixin, db.Model):
     "A network of radio stations"
     __tablename__ = "radio_network"
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
 
@@ -68,11 +67,10 @@ t_networkadmins = db.Table(
 )
 
 
-class Station(db.Model):
+class Station(BaseMixin, db.Model):
     "A single radio station"
     __tablename__ = 'radio_station'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
@@ -203,11 +201,10 @@ t_stationlanguage = db.Table(
 )
 
 
-class ProgramType(db.Model):
+class ProgramType(BaseMixin, db.Model):
     "A flexible definition of program dynamics"
     __tablename__ = u'radio_programtype'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),nullable=False)
     description = db.Column(db.Text,nullable=False)
     definition = db.Column(db.PickleType,nullable=False)
@@ -217,15 +214,14 @@ class ProgramType(db.Model):
         return self.name
 
 
-class Program(db.Model):
+class Program(BaseMixin, db.Model):
     "A single or recurring radio program"
     __tablename__ = 'radio_program'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
     description = db.Column(db.Text,nullable=False)
-    duration = db.Column(db.Time)
+    duration = db.Column(db.Time) #TODO, change to Interval
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
@@ -239,28 +235,26 @@ class Program(db.Model):
         return self.name
 
 
-class Episode(db.Model):
+class Episode(BaseMixin, db.Model):
     "A particular episode of a program, or other broadcast audio"
     __tablename__ = 'radio_episode'
 
-    id = db.Column(db.Integer, primary_key=True)
     program_id = db.Column(db.ForeignKey('radio_program.id'), nullable=False)
     recording_id = db.Column(db.ForeignKey('radio_recording.id'))
-    created_time = db.Column(db.DateTime, default=get_current_time)
 
     recording = db.relationship(u'Recording')
 
 
-class ScheduledBlock(db.Model):
+class ScheduledBlock(BaseMixin, db.Model):
     """A block of similar programs, with a recurrence rule and duration.
     Similar to advertising 'dayparts'
     """
     __tablename__ = "radio_scheduledblock"
-    id = db.Column(db.Integer, primary_key=True)
+
     name = db.Column(db.String(STRING_LEN), nullable=False)
     recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
-    start_time = db.Column(db.Time)
-    end_time = db.Column(db.Time)
+    start_time = db.Column(db.Time(timezone=True))
+    end_time = db.Column(db.Time(timezone=True))
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     @classmethod
@@ -285,15 +279,15 @@ class ScheduledBlock(db.Model):
         return self.name
 
 
-class ScheduledProgram(db.Model):
+class ScheduledProgram(BaseMixin, db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
     __tablename__ = "radio_scheduledprogram"
-    id = db.Column(db.Integer, primary_key=True)
+
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
-    start = db.Column(db.DateTime)
-    end = db.Column(db.DateTime)
+    start = db.Column(db.DateTime(timezone=True))
+    end = db.Column(db.DateTime(timezone=True))
 
     @classmethod
     def after(cls,date):
@@ -317,11 +311,11 @@ class ScheduledProgram(db.Model):
         return "%s at %s" % (self.program.name, self.start)
 
 
-class PaddingContent(db.Model):
+class PaddingContent(BaseMixin, db.Model):
     """An advertisement or PSA to run on a network in a block.
     Actual air schedule to be determined by the scheduler."""
     __tablename__ = "radio_paddingcontent"
-    id = db.Column(db.Integer, primary_key=True)
+
     recording_id = db.Column(db.ForeignKey('radio_recording.id'))
     block_id = db.Column(db.ForeignKey('radio_scheduledblock.id'))
     #sponsoring org?
@@ -336,21 +330,18 @@ t_networkpadding = db.Table(
     db.Column(u'paddingcontent_id', db.ForeignKey('radio_paddingcontent.id'))
 )
 
-class Recording(db.Model):
+class Recording(BaseMixin, db.Model):
     "A recorded sound file"
     __tablename__ = 'radio_recording'
 
-    id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(160))
     local_file = db.Column(FileField([]))
-    created_time = db.Column(db.DateTime, default=get_current_time)
 
 
-class Person(db.Model):
+class Person(BaseMixin, db.Model):
     "A person associated with a station or program, but not necessarily a user of Rootio system"
     __tablename__ = 'radio_person'
 
-    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(8))
     firstname = db.Column(db.String(STRING_LEN))
     middlename = db.Column(db.String(STRING_LEN))
@@ -387,24 +378,20 @@ t_personlanguage = db.Table(
 )
 
 
-class Role(db.Model):
+class Role(BaseMixin, db.Model):
     "A role for a person at a particular station"
     __tablename__ = u'radio_role'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-
     person_id = db.Column(db.ForeignKey('radio_person.id'))
     #TODO: add program_id
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
 
-class StationAnalytic(db.Model):
+class StationAnalytic(BaseMixin, db.Model):
     "A store for analytics from the client"
     __tablename__ = 'radio_stationanalytic'
 
-    id = db.Column(db.Integer, primary_key=True)
-    created_time = db.Column(db.DateTime, default=get_current_time)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     #TODO, decide on range with Jude
