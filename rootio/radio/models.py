@@ -220,8 +220,8 @@ class Program(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
-    description = db.Column(db.Text,nullable=False)
-    duration = db.Column(db.Time) #TODO, change to Interval
+    description = db.Column(db.Text,nullable=True)
+    duration = db.Column(db.Interval)
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
@@ -246,15 +246,15 @@ class Episode(BaseMixin, db.Model):
 
 
 class ScheduledBlock(BaseMixin, db.Model):
-    """A block of similar programs, with a recurrence rule and duration.
+    """A block of similar programs, with a recurrence rule, start_time, and end_time.
     Similar to advertising 'dayparts'
     """
     __tablename__ = "radio_scheduledblock"
 
     name = db.Column(db.String(STRING_LEN), nullable=False)
     recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
-    start_time = db.Column(db.Time(timezone=True))
-    end_time = db.Column(db.Time(timezone=True))
+    start_time = db.Column(db.Time(timezone=True), nullable=False)
+    end_time = db.Column(db.Time(timezone=True), nullable=False)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     @classmethod
@@ -286,8 +286,8 @@ class ScheduledProgram(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
-    start = db.Column(db.DateTime(timezone=True))
-    end = db.Column(db.DateTime(timezone=True))
+    start = db.Column(db.DateTime(timezone=True), nullable=False)
+    end = db.Column(db.DateTime(timezone=True), nullable=False)
 
     @classmethod
     def after(cls,date):
