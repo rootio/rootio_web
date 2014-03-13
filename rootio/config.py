@@ -16,6 +16,8 @@ class BaseConfig(object):
     TESTING = False
 
     ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
     SECRET_KEY = os.environ.get("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
@@ -48,8 +50,6 @@ class DefaultConfig(BaseConfig):
                         'nyn':'Nyankore',
                         'lug':'Luganda',
                         'luo':'Luo',}
-    BABEL_DEFAULT_LOCALE = 'lg_UG' #see http://cldr.unicode.org/index/cldr-spec/picking-the-right-language-code
-                                #and http://unicode.org/cldr/utility/languageid.jsp
 
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'
