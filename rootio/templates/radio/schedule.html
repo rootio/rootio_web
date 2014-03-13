@@ -24,10 +24,10 @@
         //push in events after initial calendar render
 
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledprograms.json' }
+            {url: '/radio/station/{{station.id}}/scheduledprograms.json', ignoreTimezone: false}
         );
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledblocks.json' }
+            {url: '/radio/station/{{station.id}}/scheduledblocks.json', ignoreTimezone: false}
         ); 
 
         //re-render calendar

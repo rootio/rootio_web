@@ -234,7 +234,12 @@ def scheduled_block_add():
 def schedule_program_add_ajax():
     data = json.loads(request.data)
 
-    #ensure specified foreign key ids are valid, c
+    if not 'program' in data:
+        return {'status':'error','errors':'program required','status_code':400}
+    if not 'station' in data:
+        return {'status':'error','errors':'station required','status_code':400}
+
+    #lookup objects from ids
     fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
     if fk_errors:
         return fk_errors
@@ -242,12 +247,7 @@ def schedule_program_add_ajax():
     program = data['program']
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
-
     scheduled_program.end = scheduled_program.start + program.duration
-
-    # do simple form validation
-    # if error:
-        # return {'status':'error','errors':msg,'status_code':400}
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -259,8 +259,25 @@ def schedule_program_add_ajax():
 @login_required
 @returns_json
 def schedule_program_edit_ajax():
-    #TODO, accept individually scheduled programs from json
-    pass
+    data = json.loads(request.data)
+
+    if not 'scheduledprogram' in data:
+        return {'status':'error','errors':'scheduledprogram required','status_code':400}
+
+    #lookup objects from ids
+    fk_errors = fk_lookup_form_data({'scheduledprogram':ScheduledProgram}, data)
+    if fk_errors:
+        return fk_errors
+
+    scheduled_program = data['scheduledprogram']
+    scheduled_program.start = dateutil.parser.parse(data['start'])
+    program = scheduled_program.program
+    scheduled_program.end = scheduled_program.start + program.duration
+
+    db.session.add(scheduled_program)
+    db.session.commit()
+
+    return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
 @radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
@@ -341,7 +358,8 @@ def scheduled_block_json(station_id):
                 'end':datetime.combine(instance,block.end_time),
                 'id':block.id,
                 'isBackground':True, #the magic flag that tells full calendar to render as block
-                'editable':False #and not display drag handles
+                'startEditable':False, #and not display drag handles
+                'eventDurationEditable':False
             }
             resp.append(d)
     return resp

@@ -121,6 +121,10 @@ $(document).ready(function() {
         eventStartEditable: true,
 
         eventClick: function(event, jsEvent, view) {
+            if (event.isBackground) {
+                return false;
+            }
+
             $.ajax({
                 url:'/api/scheduledprogram/'+event.id,
                 context: this, //so that the success callback gets a reference
@@ -183,16 +187,23 @@ $(document).ready(function() {
             cleaned_data = {program:event.program,
                         station:event.station,
                         start:event.start};
+            action_url = '/radio/scheduleprogram/add/ajax/';
 
-            //post to /radio/scheduleprogram/ajax/
-            $.ajax('/radio/scheduleprogram/add/ajax/',
+            if (event.edited === 'edited') {
+                //there's already an existing ScheduledProgram in the db
+                cleaned_data.scheduledprogram = event.id;
+                action_url = '/radio/scheduleprogram/edit/ajax/';
+            }
+
+            //post to flask
+            $.ajax(action_url,
                   { type: 'POST',
                     data: JSON.stringify(cleaned_data, null, '\t'),
                     dataType: 'json',
                     contentType: 'application/json;charset=UTF-8',
                     context: this
                 }).success(function(data) {
-                    //console.log('ScheduledProgram '+data['result']['id']);
+                    //console.log('saved ScheduledProgram '+data['result']['id']);
                     this.saved = true;
                 });
 
