@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
 
@@ -243,9 +243,7 @@ def schedule_program_add_ajax():
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
 
-    scheduled_program.end = scheduled_program.start + timedelta(hours=program.duration.hour,
-                                                                minutes=program.duration.minute,
-                                                                seconds=program.duration.second)
+    scheduled_program.end = scheduled_program.start + program.duration
 
     # do simple form validation
     # if error:
@@ -295,10 +293,7 @@ def schedule_recurring_program_ajax():
         for instance in r[:10]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
-            scheduled_program.end = scheduled_program.start + timedelta(hours=program.duration.hour,
-                                                                        minutes=program.duration.minute,
-                                                                        seconds=program.duration.second)
-            #add start and program.duration, using timedelta
+            scheduled_program.end = scheduled_program.start + program.duration
             
             db.session.add(scheduled_program)
 
