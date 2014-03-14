@@ -253,8 +253,8 @@ class ScheduledBlock(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN), nullable=False)
     recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
-    start_time = db.Column(db.Time(timezone=True), nullable=False)
-    end_time = db.Column(db.Time(timezone=True), nullable=False)
+    start_time = db.Column(db.Time(timezone=False), nullable=False)
+    end_time = db.Column(db.Time(timezone=False), nullable=False)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     @classmethod
