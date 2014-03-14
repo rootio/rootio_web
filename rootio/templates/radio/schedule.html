@@ -24,7 +24,7 @@
         //push in events after initial calendar render
 
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledprograms.json', ignoreTimezone: false}
+            {url: '/radio/station/{{station.id}}/scheduledprograms.json', ignoreTimezone: true}
         );
         $('#calendar').fullCalendar('addEventSource',
             {url: '/radio/station/{{station.id}}/scheduledblocks.json', ignoreTimezone: true}
