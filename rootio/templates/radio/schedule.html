@@ -27,7 +27,7 @@
             {url: '/radio/station/{{station.id}}/scheduledprograms.json', ignoreTimezone: false}
         );
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledblocks.json', ignoreTimezone: false}
+            {url: '/radio/station/{{station.id}}/scheduledblocks.json', ignoreTimezone: true}
         ); 
 
         //re-render calendar
