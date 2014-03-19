@@ -35,7 +35,7 @@ def emergency():
 
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -366,7 +366,8 @@ def scheduled_block_json(station_id):
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
 
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
+
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
 
