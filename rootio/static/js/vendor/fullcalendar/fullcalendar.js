@@ -5360,7 +5360,8 @@ function computeSlotSegCollisions(seg, otherSegs, results) {
 
 // Do these segments occupy the same vertical space?
 function isSlotSegCollision(seg1, seg2) {
-	return seg1.end > seg2.start && seg1.start < seg2.end;
+	//fix for background events
+	return !seg1.event.isBackground && !seg2.event.isBackground && seg1.end > seg2.start && seg1.start < seg2.end;
 }
 
 
