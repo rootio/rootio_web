@@ -74,6 +74,19 @@ $(document).ready(function() {
         $('#addable-programs #unsaved-changes').show();
     };
 
+    popoverPlacement = function(eventDate, calendarView) {
+        if (calendarView.name === "agendaDay") {
+            return "bottom";
+        }
+        if (calendarView.name === "agendaWeek") {
+            //check if date is toward the end of the week
+            if (eventDate.isoWeekday() > 5) {
+                return "left";
+            }
+        }
+        return "right";
+    };
+
     //set up calendar
     $('#calendar').fullCalendar({
         header: {
@@ -96,21 +109,21 @@ $(document).ready(function() {
             
             // assign it the date that was reported
             newEvent.start = date;
-            newEvent.allDay = allDay;
+            newEvent.allDay = false;
 
             //pull data from DOM
             newEvent.program = $(this).data('program-id');
             newEvent.station = $(this).data('station-id');
             duration = $(this).data('duration-sec'); //in seconds
-            newEvent.end = new Date(date.getTime() + duration*1000); //create new js Date
+            newEvent.end = moment(date).add('seconds', duration); //create new js moment
+            newEvent.edited = 'added'; //set edited flag
 
             // render the event on the calendar
             // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
             $('#calendar').fullCalendar('renderEvent', newEvent, true);
             
             // alert schedule edited
-            alertEditLog(newEvent, newEvent.title+' added on '+newEvent.start);
-            newEvent.edited = 'added'; //set edited flag
+            alertEditLog(newEvent, newEvent.title+' added on '+newEvent.start.format("L LT"));
             
         },
         events: [], //add these in schedule.html
@@ -125,6 +138,11 @@ $(document).ready(function() {
                 return false;
             }
 
+            if (event.id === undefined) {
+                //don't allow click popover until saved
+                return false;
+            }
+
             $.ajax({
                 url:'/api/scheduledprogram/'+event.id,
                 context: this, //so that the success callback gets a reference
@@ -134,11 +152,11 @@ $(document).ready(function() {
                     if (program['description'] !== null) {
                         popover_content += "<li>"+program['description']+"</li>";
                     }
-                    popover_content += "<li>"+event.start+" - "+event.end+"</li>";
+                    popover_content += "<li>"+event.start.format("L LT")+" - "+event.end.format("L LT")+"</li>";
                     popover_content += "</ul>";
                     $(this).popover({
                                 trigger:'manual',
-                                placement: view.name === "agendaDay" ? "bottom": "right",
+                                placement: popoverPlacement(event.start, view),
                                 title:event.title,
                                 content:popover_content,
                                 html:true
@@ -156,7 +174,7 @@ $(document).ready(function() {
                 //title probably not visible, show in tooltip
                 $(this).tooltip({
                     trigger: 'manual',
-                    placement: view.name === "agendaDay" ? "bottom": "right",
+                    placement: popoverPlacement(event.start, view),
                     title:event.title
                 }).tooltip('show');
             }
@@ -166,7 +184,7 @@ $(document).ready(function() {
         },
         eventDrop: function(event) {
             // alert schedule edited
-            alertEditLog(event, event.title+' moved to '+event.start);
+            alertEditLog(event, event.title+' moved to '+event.start.format("L LT"));
             event.edited = 'edited'; //set edited flag
         }
 
@@ -186,7 +204,7 @@ $(document).ready(function() {
             //manually, because we only need a subset of fields
             cleaned_data = {program:event.program,
                         station:event.station,
-                        start:event.start};
+                        start:event.start.format()};
             action_url = '/radio/scheduleprogram/add/ajax/';
 
             if (event.edited === 'edited') {

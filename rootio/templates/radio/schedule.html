@@ -9,7 +9,8 @@
 
 {% block js_btm %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
@@ -24,10 +25,16 @@
         //push in events after initial calendar render
 
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledprograms.json', ignoreTimezone: true}
+            {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
         );
         $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledblocks.json', ignoreTimezone: true}
+            {url: '/radio/station/{{station.id}}/scheduledblocks.json',
+            backgroundColor: '#edb',
+            borderColor: '#edb',
+            textColor: '#777',
+            startEditable: false,
+            durationEditable: false
+            }
         ); 
 
         //re-render calendar
