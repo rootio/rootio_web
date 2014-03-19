@@ -22,8 +22,14 @@
 
     <script type="text/javascript">
     $(document).ready(function() {
-        //push in events after initial calendar render
+        //after initial calendar render
 
+        //set timezone
+        $('#calendar').fullCalendar({
+            timezone: '{{station.timezone}}'
+        });
+
+        //add event sources
         $('#calendar').fullCalendar('addEventSource',
             {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
         );
