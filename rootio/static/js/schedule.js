@@ -96,6 +96,7 @@ $(document).ready(function() {
         },
         allDayDefault: false,
         defaultView: 'agendaWeek',
+        timezone: $('#calendar').data('timezone'),
 
         droppable: true,
         drop: function(date, allDay) {
