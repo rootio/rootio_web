@@ -13,7 +13,7 @@ from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recordi
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
-from ..decorators import returns_json, api_key_or_auth_required, restless_api_key_or_auth
+from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -48,38 +48,38 @@ def logout():
 def restless_routes():
     rest.create_api(Person, collection_name='person', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
         include_methods=['status','current_program'],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
         exclude_columns=['station'],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(Episode, collection_name='episode', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Recording, collection_name='recording', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(PhoneNumber, collection_name='phonenumber', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Call, collection_name='call', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Message, collection_name='message', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(StationAnalytic, collection_name='analytic', methods=['GET', 'POST'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
 #need routes for:
     #phone to update station schedule?
