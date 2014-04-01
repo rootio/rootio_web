@@ -269,6 +269,8 @@ def schedule_program_edit_ajax():
     if fk_errors:
         return fk_errors
 
+    print "start",dateutil.parser.parse(data['start'])
+
     scheduled_program = data['scheduledprogram']
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program

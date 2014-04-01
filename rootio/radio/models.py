@@ -75,9 +75,9 @@ class Station(BaseMixin, db.Model):
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
     api_key = db.Column(db.String(STRING_LEN),nullable=False,default=id_generator(),unique=True)
-    timezone = db.Column(db.String(32),default="UTC")
     #todo, make sure this default function fires each time a new object is created
-
+    timezone = db.Column(db.String(32),default="UTC")
+    
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'))
