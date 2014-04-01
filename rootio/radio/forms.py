@@ -22,7 +22,7 @@ from ..extensions import db
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
     field_args = {'latitude':{'description': '+N / -S'},
                  'longitude':{'description': '+E / -W'}},
-    exclude=['modifieddate'])
+    exclude=['created_at','updated_at'])
 class LocationForm(LocationFormBase):
     submit = SubmitField(_('Save'))
 
@@ -40,7 +40,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'owner':{'description': _('User who is the owner of the station')},
         'languages':{'description':_("Primary languages the station will broadcast in")},
     },
-    exclude=['scheduled_content','blocks'])
+    exclude=['scheduled_content','blocks','created_at','updated_at'])
 class StationForm(StationFormBase):
     owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
@@ -68,7 +68,7 @@ class ProgramForm(Form):
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
         'definition':{"description":_("This field accepts arbitrary Python-dictionaries")},
-    })
+    }, exclude=['created_at','updated_at'])
 class ProgramTypeForm(ProgramTypeFormBase):
     definition = TextAreaField()
     submit = SubmitField(_('Save'))
@@ -95,7 +95,6 @@ class BlockForm(Form):
     start_time = TimeField()
     end_time = TimeField()
     recurrence = HiddenField()
-
     submit = SubmitField(_('Save'))
 
 
