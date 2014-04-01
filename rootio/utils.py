@@ -7,7 +7,7 @@ import string
 import random
 import os
 
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from flask import Flask
 from flask import json
@@ -157,6 +157,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             return datetime.isoformat(obj)
         if isinstance(obj, time):
             return time.isoformat(obj)
+        if isinstance(obj, timedelta):
+            return str(obj)
         #add support for other serialization formats here...
         return super(CustomJSONEncoder, self).default(obj)
 
