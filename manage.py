@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import os, sys
 import subprocess
 import errno
 
@@ -53,8 +53,14 @@ def stamp(revision):
     command.stamp(alembic_cfg, revision)
 
 @manager.command
-def initdb():
-    """Init/reset database with default data."""
+def reset_db():
+    """Reset database"""
+
+    print "WARNING: This will reset the database and may cause data loss."
+    response = raw_input("Are you sure you want to continue? (Yes/No) ")
+    if not response == "Yes":
+        print "Aborted."
+        sys.exit()
 
     db.drop_all()
     db.create_all()
@@ -88,8 +94,15 @@ manager.add_option('-c', '--config',
                    help="config file")
 
 @manager.command
-def dropdb():
+def drop_db_hard():
     #for when db.drop_all won't cut it, particularly with postgres on server
+
+    print "WARNING: This will drop all database tables."
+    response = raw_input("Are you sure you want to continue? (Yes/No) ")
+    if not response == "Yes":
+        print "Aborted."
+        sys.exit()
+
     import sqlalchemy
     engine = sqlalchemy.create_engine('postgresql://postgres:NLPog1986@localhost')
     meta = sqlalchemy.MetaData(engine)

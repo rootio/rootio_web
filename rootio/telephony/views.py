@@ -1,6 +1,6 @@
 from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required
-from flask.ext.babel import ngettext as _
+from flask.ext.babel import gettext as _
 
 from .models import PhoneNumber, Message, Call
 from .forms import PhoneNumberForm

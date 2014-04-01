@@ -1,8 +1,17 @@
 Flask==0.10.1
-Coaster
+coaster==0.4.1
 Werkzeug==0.9.3
 Jinja2==2.7.1
 Mako==0.8.1
+
+Flask-SQLAlchemy==1.0
+SQLAlchemy==0.8.2
+alembic==0.6.0
+
+Flask-WTF==0.9.1
+WTForms==1.0.4
+WTForms-Alchemy==0.7.12
+
 Flask-Babel==0.9
 Babel==1.3
 Flask-Cache==0.12
@@ -10,16 +19,9 @@ Flask-Login==0.2.6
 Flask-Mail==0.9.0
 Flask-OpenID==1.1.1
 python-openid==2.2.5
-Flask-SQLAlchemy==1.0
-SQLAlchemy==0.8.2
 Flask-Script==0.6.2
-Flask-Testing==0.4
-nose==1.3.0
-Flask-WTF==0.9.1
-WTForms==1.0.4
-WTForms-Alchemy==0.7.12
-alembic==0.6.0
+
 Fabric==1.7.0
-python-dateutil
-Flask-Restless
--e git://github.com/mrjoes/flask-admin.git#egg=flask-admin-master
+python-dateutil==2.2
+Flask-Restless==0.12.1
+-e git://github.com/mrjoes/flask-admin.git@d615e70a1332e65ff8a2e4024acec9598f34fc49#egg=Flask_Admin-master
