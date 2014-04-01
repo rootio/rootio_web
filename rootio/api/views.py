@@ -147,3 +147,43 @@ def station_schedule(station_id):
     else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
+
+@api.route('/station/<int:station_id>/programs', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_programs(station_id):
+    """API method to get all programs currently scheduled on the station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    try:
+        updated_since = parse_datetime(request.args.get('since'))
+    except (ValueError, TypeError):
+        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
+        abort(make_response(message, 400)) 
+
+    programs = station.scheduled_programs
+    if request.args.get('since'):
+        return programs.filter(Program.updated_at>=updated_since)
+    else:
+        return programs.all()
+
+
+@api.route('/program/<int:program_id>/episodes', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def program_episodes(program_id):
+    """API method to get all episodes currently available for a program"""
+    program = Program.query.filter_by(id=program_id).first_or_404()
+    try:
+        updated_since = parse_datetime(request.args.get('since'))
+    except (ValueError, TypeError):
+        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
+        abort(make_response(message, 400)) 
+
+    episodes = program.episodes
+    if request.args.get('since'):
+        return episodes.filter(Episode.updated_at>=updated_since)
+    else:
+        return episodes.all()
+
+
+

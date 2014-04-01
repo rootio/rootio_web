@@ -92,9 +92,9 @@ class Station(BaseMixin, db.Model):
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
 
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
-    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False))
+    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False), lazy='dynamic')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
-    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
+    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
 
     def init(self):
         #load dummy program

@@ -31,6 +31,11 @@ def returns_json(f):
             for o in r.all():
                 obj_list.append(simple_serialize_sqlalchemy(o))
             return Response(json.dumps(obj_list), content_type=ct)
+        if isinstance(r,list):
+            obj_list = []
+            for o in r:
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
         if isinstance(r,Model):
             return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
         if isinstance(r,dict) and 'status_code' in r:
