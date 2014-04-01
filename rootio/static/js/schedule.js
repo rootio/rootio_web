@@ -87,6 +87,9 @@ $(document).ready(function() {
         return "right";
     };
 
+    console.log("#calendar tz "+$('#calendar').data('timezone'));
+    console.log("#calendar offset "+moment().tz($('#calendar').data('timezone')).zone());
+
     //set up calendar
     $('#calendar').fullCalendar({
         header: {
@@ -200,6 +203,9 @@ $(document).ready(function() {
 
         for (var key in editedEvents) {
             var event = editedEvents[key];
+            
+            console.log("native "+event.start.toISOString());
+            console.log("in cal tz "+event.start.tz($('#calendar').data('timezone')).toISOString());
 
             //serialize edited event to json
             //manually, because we only need a subset of fields
