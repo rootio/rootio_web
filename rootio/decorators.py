@@ -87,6 +87,15 @@ def restless_api_auth(*args, **kwargs):
 
     raise ProcessingException(message='Not authenticated!')
 
+def id_is_integer(*args, **kwargs):
+    for (arg,val) in kwargs.items():
+        if arg.endswith('_id'):
+            try:
+                int_id = int(arg)
+            except ValueError:
+                raise ProcessingException(message='Cannot parse %s as integer. Check your url, you may need to replace <ID>' % arg)
+    return
+
 def since_filter(search_params=None, **kwargs):
     if 'since' in request.args:
         #parse iso datetime
@@ -103,12 +112,12 @@ def since_filter(search_params=None, **kwargs):
 
 
 #define restless preprocessor dict for all method types
-restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, since_filter],
-                           'GET_MANY':     [restless_api_auth, since_filter],
-                           'PATCH_SINGLE': [restless_api_auth, since_filter],
-                           'PATCH_MANY':   [restless_api_auth, since_filter],
-                           'PUT_SINGLE':   [restless_api_auth, since_filter],
-                           'PUT_MANY':     [restless_api_auth, since_filter],
-                           'POST':         [restless_api_auth, since_filter],
-                           'DELETE':       [restless_api_auth, since_filter]}
+restless_preprocessors = { 'GET_SINGLE':   [id_is_integer, restless_api_auth, since_filter],
+                           'GET_MANY':     [id_is_integer, restless_api_auth, since_filter],
+                           'PATCH_SINGLE': [id_is_integer, restless_api_auth, since_filter],
+                           'PATCH_MANY':   [id_is_integer, restless_api_auth, since_filter],
+                           'PUT_SINGLE':   [id_is_integer, restless_api_auth, since_filter],
+                           'PUT_MANY':     [id_is_integer, restless_api_auth, since_filter],
+                           'POST':         [id_is_integer, restless_api_auth, since_filter],
+                           'DELETE':       [id_is_integer, restless_api_auth, since_filter]}
 
