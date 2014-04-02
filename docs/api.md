@@ -10,34 +10,34 @@ Each API call must be identified either with a 10-digit station api_key paramete
 
 ## Routes
 ### CRUD
-http://demo.rootio.org/api/login
-http://demo.rootio.org/api/logout
-http://demo.rootio.org/api/person
-http://demo.rootio.org/api/station
-http://demo.rootio.org/api/program
-http://demo.rootio.org/api/scheduledprogram
-http://demo.rootio.org/api/episode
-http://demo.rootio.org/api/recording
-http://demo.rootio.org/api/phonenumber
-http://demo.rootio.org/api/call
-http://demo.rootio.org/api/message
-http://demo.rootio.org/api/analytic
+* http://demo.rootio.org/api/login
+* http://demo.rootio.org/api/logout
+* http://demo.rootio.org/api/person
+* http://demo.rootio.org/api/station
+* http://demo.rootio.org/api/program
+* http://demo.rootio.org/api/scheduledprogram
+* http://demo.rootio.org/api/episode
+* http://demo.rootio.org/api/recording
+* http://demo.rootio.org/api/phonenumber
+* http://demo.rootio.org/api/call
+* http://demo.rootio.org/api/message
+* http://demo.rootio.org/api/analytic
 
 ### Non-CRUD
-__these do not respond to the ?since parameter__
-http://demo.rootio.org/api/station/ID/current_program
-http://demo.rootio.org/api/station/ID/on_air
-http://demo.rootio.org/api/station/ID/next_program
-http://demo.rootio.org/api/station/ID/current_block
-http://demo.rootio.org/api/station/ID/phone_numbers
+* __these do not respond to the ?since parameter__
+* http://demo.rootio.org/api/station/ID/current_program
+* http://demo.rootio.org/api/station/ID/on_air
+* http://demo.rootio.org/api/station/ID/next_program
+* http://demo.rootio.org/api/station/ID/current_block
+* http://demo.rootio.org/api/station/ID/phone_numbers
 
-__these have specific datetime parameters__
-http://demo.rootio.org/api/station/ID/schedule?all
-http://demo.rootio.org/api/station/ID/schedule?start=2014-03-01&end=2014-04-01
-
-__these do respond to the ?since parameter__
-http://demo.rootio.org/api/station/ID/programs
-http://demo.rootio.org/api/program/ID/episodes
+* __these have specific datetime parameters__
+* http://demo.rootio.org/api/station/ID/schedule?all
+* http://demo.rootio.org/api/station/ID/schedule?start=2014* -03-01&end=2014-04-01
+ 
+* __these do respond to the ?since parameter__
+* http://demo.rootio.org/api/station/ID/programs
+* http://demo.rootio.org/api/program/ID/episodes
 
 
 
