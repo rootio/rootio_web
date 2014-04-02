@@ -166,6 +166,18 @@ def station_programs(station_id):
     else:
         return programs.all()
 
+@api.route('/station/<int:station_id>/phone_numbers', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_phone_numbers(station_id):
+    """API method to get all phone numbers currently linked to a station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    #TODO, query the whitelisted_phones m2m
+    #until then,
+    r = {'cloud':station.cloud_phone,'transmitter':station.transmitter_phone}
+    return r
+
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
 @api_key_or_auth_required
