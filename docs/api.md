@@ -33,7 +33,7 @@ __these do not respond to the ?since parameter__
 
 __these have specific datetime parameters__
 * http://demo.rootio.org/api/station/ID/schedule?all
-* http://demo.rootio.org/api/station/ID/schedule?start=2014* -03-01&end=2014-04-01
+* http://demo.rootio.org/api/station/ID/schedule?start=2014-03-01&end=2014-04-01
 
 __these do respond to the ?since parameter__
 * http://demo.rootio.org/api/station/ID/programs
