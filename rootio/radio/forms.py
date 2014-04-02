@@ -39,8 +39,10 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'phone':{'description': _('Station contact telephone number'),'validators':[HasInlineForm,]},
         'owner':{'description': _('User who is the owner of the station')},
         'languages':{'description':_("Primary languages the station will broadcast in")},
+        'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
+        'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_content','blocks','created_at','updated_at'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics'])
 class StationForm(StationFormBase):
     owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
