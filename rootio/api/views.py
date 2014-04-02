@@ -174,8 +174,8 @@ def station_phone_numbers(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
 
     #TODO, query the whitelisted_phones m2m
-    #until then,
-    r = {'cloud':station.cloud_phone,'transmitter':station.transmitter_phone}
+    #until then, just the two predefined
+    r = {'cloud':station.cloud_phone.raw_number,'transmitter':station.transmitter_phone.raw_number}
     return r
 
 
