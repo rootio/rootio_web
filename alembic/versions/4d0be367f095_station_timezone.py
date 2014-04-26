@@ -1,14 +1,14 @@
 """add timezone to each station
 
 Revision ID: 4d0be367f095
-Revises: 276473e97ac
+Revises: 6722b0ef4e1
 Create Date: 2014-03-19 16:43:00.326820
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '4d0be367f095'
-down_revision = '276473e97ac'
+down_revision = '6722b0ef4e1'
 
 from alembic import op
 import sqlalchemy as sa
