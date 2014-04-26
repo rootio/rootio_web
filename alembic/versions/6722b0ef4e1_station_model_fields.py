@@ -1,14 +1,14 @@
 """ new fields for station model
 
 Revision ID: 6722b0ef4e1
-Revises: 276473e97ac
+Revises: 114f20c16421
 Create Date: 2014-04-01 17:11:58.922037
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '6722b0ef4e1'
-down_revision = '276473e97ac'
+down_revision = '114f20c16421'
 
 from alembic import op
 import sqlalchemy as sa
