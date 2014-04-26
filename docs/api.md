@@ -42,7 +42,7 @@ __these do respond to the ?since parameter__
 
 
 ## Search Parameters
-Flask-Restless provides a powerful search format using (JSON syntax)[http://flask-restless.readthedocs.org/en/latest/searchformat.html]
+Flask-Restless provides a powerful search format using [JSON syntax](http://flask-restless.readthedocs.org/en/latest/searchformat.html)
 
 eg: `http://demo.rootio.org/api/scheduledprogram?q={"filters":[{"name":"id","op":"gt","val":25}]}`
 
