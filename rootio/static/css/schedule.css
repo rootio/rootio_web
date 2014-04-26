@@ -3,6 +3,11 @@
     margin: 0 auto;*/
 }
 
+#timezone {
+    font-style: italic;
+    font-size: 0.8em;
+}
+
 .modal-content form {
     margin-bottom:0;
 }
