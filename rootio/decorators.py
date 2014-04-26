@@ -97,7 +97,7 @@ def since_filter(search_params=None, **kwargs):
             raise ProcessingException(message='Unable to parse since parameter. Must be ISO datetime format')
 
         #filter on update time
-        filt = dict(name='updated_at', op='gte', val=date)
+        filt = dict(name='updated_at', op='gt', val=date)
         if 'filters' not in search_params:
             search_params['filters'] = []
         search_params['filters'].append(filt)
