@@ -70,6 +70,7 @@ class Gateway(db.Model):
     __tablename__ = u'telephony_gateway'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
     number_top = db.Column(db.Integer)
     number_bottom = db.Column(db.Integer)
     sofia_string = db.Column(db.String(160))
