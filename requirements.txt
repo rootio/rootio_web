@@ -6,6 +6,7 @@ Mako==0.8.1
 
 Flask-SQLAlchemy==1.0
 SQLAlchemy==0.8.2
+psycopg2==2.5.2
 alembic==0.6.0
 
 Flask-WTF==0.9.1
@@ -25,4 +26,4 @@ Flask-Script==0.6.2
 Fabric==1.7.0
 python-dateutil==2.2
 Flask-Restless==0.12.1
--e git://github.com/mrjoes/flask-admin.git@d615e70a1332e65ff8a2e4024acec9598f34fc49#egg=Flask_Admin-master
+Flask-Admin==1.0.7
