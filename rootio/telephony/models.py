@@ -64,3 +64,15 @@ class Message(db.Model):
 
     from_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Message.from_phonenumber_id == PhoneNumber.id')
     to_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Message.to_phonenumber_id == PhoneNumber.id')
+
+class Gateway(db.Model):
+    """A sip gateway specification, one (current) or more (TODO) per station"""
+    __tablename__ = u'telephony_gateway'
+
+    id = db.Column(db.Integer, primary_key=True)
+    number_top = db.Column(db.Integer)
+    number_bottom = db.Column(db.Integer)
+    sofia_string = db.Column(db.String(160))
+    extra_string = db.Column(db.String(300))
+
+
