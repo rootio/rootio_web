@@ -35,7 +35,7 @@ def emergency():
 
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -269,6 +269,8 @@ def schedule_program_edit_ajax():
     if fk_errors:
         return fk_errors
 
+    print "start",dateutil.parser.parse(data['start'])
+
     scheduled_program = data['scheduledprogram']
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
@@ -325,8 +327,8 @@ def schedule_recurring_program_ajax():
 @returns_json
 def scheduled_programs_json(station_id):
     if request.args.get('start') and request.args.get('end'):
-        start = datetime.utcfromtimestamp(float(request.args.get('start')))
-        end = datetime.utcfromtimestamp(float(request.args.get('end')))
+        start = dateutil.parser.parse(request.args.get('start'))
+        end = dateutil.parser.parse(request.args.get('end'))
         scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
         #TODO: filter by start > start, end < end
     else:
@@ -345,8 +347,8 @@ def scheduled_programs_json(station_id):
 @returns_json
 def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
-    start = datetime.utcfromtimestamp(float(request.args.get('start')))
-    end = datetime.utcfromtimestamp(float(request.args.get('end')))
+    start = dateutil.parser.parse(request.args.get('start'))
+    end = dateutil.parser.parse(request.args.get('end'))
     #TODO: hook fullcalendar updates into these params
 
     resp = []
@@ -358,8 +360,6 @@ def scheduled_block_json(station_id):
                 'end':datetime.combine(instance,block.end_time),
                 'id':block.id,
                 'isBackground':True, #the magic flag that tells full calendar to render as block
-                'startEditable':False, #and not display drag handles
-                'eventDurationEditable':False
             }
             resp.append(d)
     return resp
@@ -368,7 +368,8 @@ def scheduled_block_json(station_id):
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
 
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
+
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
 

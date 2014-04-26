@@ -7,6 +7,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
+import pytz
 
 from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
@@ -49,8 +50,9 @@ class StationForm(StationFormBase):
         #inline form and POST url for phone creation modal
         #ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
+    timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
     submit = SubmitField(_('Save'))
-    field_order = ('owner','name','*')
+    field_order = ('owner','name','location','timezone','*')
 
 
 def all_languages():
