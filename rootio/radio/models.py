@@ -81,12 +81,14 @@ class Station(BaseMixin, db.Model):
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
+    gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
+    gateway = db.relationship(u'Gateway')
 
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
