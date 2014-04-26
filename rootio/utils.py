@@ -158,7 +158,7 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(obj, time):
             return time.isoformat(obj)
         if isinstance(obj, timedelta):
-            return obj.seconds
+            return str(obj)
         #add support for other serialization formats here...
         return super(CustomJSONEncoder, self).default(obj)
 
