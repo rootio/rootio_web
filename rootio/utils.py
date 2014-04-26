@@ -145,9 +145,12 @@ def simple_serialize_sqlalchemy(model):
     """really naive way of serializing a sqlalchemy model to a dictionary
     no joins, model attributes only
     ignores privates"""
-    keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
-    serial_dict = {attr: getattr(model, attr) for attr in keys}
-    return serial_dict
+    if hasattr(model, '__dict__'):
+        keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
+        serial_dict = {attr: getattr(model, attr) for attr in keys}
+        return serial_dict
+    else:
+        return model
 
 
 class CustomJSONEncoder(json.JSONEncoder):
