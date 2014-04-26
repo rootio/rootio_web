@@ -21,7 +21,7 @@ def admin_required(f):
 
 def returns_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code
-    returns a json response"""
+    returns a json response where collections are nested in an objects dict"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         r = f(*args, **kwargs)
@@ -36,6 +36,30 @@ def returns_json(f):
             for o in r:
                 obj_list.append(simple_serialize_sqlalchemy(o))
             return Response(json.dumps({'objects':obj_list}), content_type=ct)
+        if isinstance(r,Model):
+            return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
+        if isinstance(r,dict) and 'status_code' in r:
+            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        return Response(json.dumps(r), content_type=ct)
+    return decorated_function
+
+def returns_flat_json(f):
+    """takes either a sqlalchemy query or a dictionary w/ optional status_code
+    returns a json response where collections are in an array"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        r = f(*args, **kwargs)
+        ct = 'application/json; charset=utf-8'
+        if isinstance(r,BaseQuery):
+            obj_list = []
+            for o in r.all():
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
+        if isinstance(r,list):
+            obj_list = []
+            for o in r:
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
         if isinstance(r,Model):
             return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
         if isinstance(r,dict) and 'status_code' in r:
