@@ -11,6 +11,7 @@ alembic==0.6.0
 Flask-WTF==0.9.1
 WTForms==1.0.4
 WTForms-Alchemy==0.7.12
+WTForms-Components==0.9.1
 
 Flask-Babel==0.9
 Babel==1.3
