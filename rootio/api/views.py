@@ -162,7 +162,7 @@ def station_programs(station_id):
 
     programs = station.scheduled_programs
     if request.args.get('since'):
-        return programs.filter(Program.updated_at>=updated_since)
+        return programs.filter(Program.updated_at>updated_since)
     else:
         return programs.all()
 
@@ -193,7 +193,7 @@ def program_episodes(program_id):
 
     episodes = program.episodes
     if request.args.get('since'):
-        return episodes.filter(Episode.updated_at>=updated_since)
+        return episodes.filter(Episode.updated_at>updated_since)
     else:
         return episodes.all()
 
