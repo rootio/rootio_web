@@ -103,6 +103,14 @@ def since_filter(search_params=None, **kwargs):
         search_params['filters'].append(filt)
 
 
+def hide_private_variables(result=None, **kw):
+    if hasattr(result, 'keys'):
+        for key in result.keys():
+            if key.startswith('_'):
+                del result[key]
+            if key in ["activation_key","openid","api_key"]:
+                del result[key]
+
 #define restless preprocessor dict for all method types
 restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, since_filter],
                            'GET_MANY':     [restless_api_auth, since_filter],
@@ -112,4 +120,7 @@ restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, since_filter],
                            'PUT_MANY':     [restless_api_auth, since_filter],
                            'POST':         [restless_api_auth, since_filter],
                            'DELETE':       [restless_api_auth, since_filter]}
-
+restless_postprocessors = {
+    'GET_SINGLE':   [hide_private_variables],
+    'GET_MANY':     [hide_private_variables]
+}

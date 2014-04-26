@@ -13,7 +13,7 @@ from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recordi
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
-from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors
+from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors, restless_postprocessors
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -47,13 +47,17 @@ def logout():
 #preprocessor requires logged in user or api key
 def restless_routes():
     rest.create_api(Person, collection_name='person', methods=['GET'],
-        exclude_columns=[],
+        preprocessors=restless_preprocessors,
+        postprocessors=restless_postprocessors)
+    rest.create_api(User, collection_name='user', methods=['GET'],
+        exclude_columns=['_password'],
         preprocessors=restless_preprocessors)
 
     rest.create_api(Station, collection_name='station', methods=['GET'],
         exclude_columns=['owner','api_key','scheduled_programs'],
         include_methods=['status','current_program'],
-        preprocessors=restless_preprocessors)
+        preprocessors=restless_preprocessors,
+        postprocessors=restless_postprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
         exclude_columns=['scheduled_programs',],
         preprocessors=restless_preprocessors)
