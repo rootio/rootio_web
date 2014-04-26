@@ -154,12 +154,13 @@ def simple_serialize_sqlalchemy(model):
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-    """custom json encoder class that can handle python datetimes"""
+    """custom json encoder class that can handle python datetimes
+    Drops microseconds, because Android client doesn't like it so precise"""
     def default(self, obj):
         if isinstance(obj,datetime):
-            return datetime.isoformat(obj)
+            return datetime.isoformat(obj.replace(microsecond=0))
         if isinstance(obj, time):
-            return time.isoformat(obj)
+            return time.isoformat(obj.replace(microsecond=0))
         if isinstance(obj, timedelta):
             return str(obj)
         #add support for other serialization formats here...
