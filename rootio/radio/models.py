@@ -95,11 +95,15 @@ class Station(BaseMixin, db.Model):
 
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
+    #TODO, create m2m here for all whitelisted phone numbers?
 
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
-    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False))
+    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False), lazy='dynamic')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
-    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
+    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
+
+    client_update_frequency = db.Column(db.Float)
+    broadcast_ip = db.Column(db.String(16))
 
     def init(self):
         #load dummy program

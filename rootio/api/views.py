@@ -13,7 +13,7 @@ from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recordi
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
-from ..decorators import returns_json, api_key_or_auth_required, restless_api_key_or_auth
+from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors, restless_postprocessors
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -47,39 +47,43 @@ def logout():
 #preprocessor requires logged in user or api key
 def restless_routes():
     rest.create_api(Person, collection_name='person', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors,
+        postprocessors=restless_postprocessors)
+    rest.create_api(User, collection_name='user', methods=['GET'],
+        exclude_columns=['_password'],
+        preprocessors=restless_preprocessors)
 
     rest.create_api(Station, collection_name='station', methods=['GET'],
-        exclude_columns=['owner','api_key','scheduled_programs'],
-        include_methods=['status','current_program'],
-        preprocessors=restless_api_key_or_auth)
+        exclude_columns=['owner','api_key','scheduled_programs','analytics','blocks'],
+        preprocessors=restless_preprocessors,
+        postprocessors=restless_postprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
-        preprocessors=restless_api_key_or_auth)
+        exclude_columns=['scheduled_programs',],
+        preprocessors=restless_preprocessors)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
         exclude_columns=['station'],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(Episode, collection_name='episode', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Recording, collection_name='recording', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(PhoneNumber, collection_name='phonenumber', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Call, collection_name='call', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
     rest.create_api(Message, collection_name='message', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
     rest.create_api(StationAnalytic, collection_name='analytic', methods=['GET', 'POST'],
         exclude_columns=[],
-        preprocessors=restless_api_key_or_auth)
+        preprocessors=restless_preprocessors)
 
 #need routes for:
     #phone to update station schedule?
@@ -147,3 +151,55 @@ def station_schedule(station_id):
     else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
+
+@api.route('/station/<int:station_id>/programs', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_programs(station_id):
+    """API method to get all programs currently scheduled on the station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    try:
+        updated_since = parse_datetime(request.args.get('since'))
+    except (ValueError, TypeError):
+        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
+        abort(make_response(message, 400)) 
+
+    programs = station.scheduled_programs
+    if request.args.get('since'):
+        return programs.filter(Program.updated_at>updated_since)
+    else:
+        return programs.all()
+
+@api.route('/station/<int:station_id>/phone_numbers', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_phone_numbers(station_id):
+    """API method to get all phone numbers currently linked to a station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    #TODO, query the whitelisted_phones m2m
+    #until then, just the two predefined
+    r = {'cloud':station.cloud_phone.raw_number,'transmitter':station.transmitter_phone.raw_number}
+    return r
+
+
+@api.route('/program/<int:program_id>/episodes', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def program_episodes(program_id):
+    """API method to get all episodes currently available for a program"""
+    program = Program.query.filter_by(id=program_id).first_or_404()
+    try:
+        updated_since = parse_datetime(request.args.get('since'))
+    except (ValueError, TypeError):
+        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
+        abort(make_response(message, 400)) 
+
+    episodes = program.episodes
+    if request.args.get('since'):
+        return episodes.filter(Episode.updated_at>updated_since)
+    else:
+        return episodes.all()
+
+
+
