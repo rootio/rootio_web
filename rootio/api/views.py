@@ -55,6 +55,7 @@ def restless_routes():
         include_methods=['status','current_program'],
         preprocessors=restless_preprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
+        exclude_columns=['scheduled_programs',],
         preprocessors=restless_preprocessors)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
         exclude_columns=['station'],
