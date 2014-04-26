@@ -88,7 +88,10 @@ class Station(BaseMixin, db.Model):
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
-    gateway = db.relationship(u'Gateway')
+    incoming_gateway = db.relationship(u'Gateway')
+    outgoing_gateway = db.relationship(u'Gateway')
+
+
 
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
