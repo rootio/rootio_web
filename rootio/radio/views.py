@@ -12,7 +12,7 @@ from flask.ext.babel import gettext as _
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
-from ..decorators import returns_json
+from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
 
@@ -35,7 +35,7 @@ def emergency():
 
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -269,6 +269,8 @@ def schedule_program_edit_ajax():
     if fk_errors:
         return fk_errors
 
+    print "start",dateutil.parser.parse(data['start'])
+
     scheduled_program = data['scheduledprogram']
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
@@ -322,11 +324,11 @@ def schedule_recurring_program_ajax():
 
 
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
-@returns_json
+@returns_flat_json
 def scheduled_programs_json(station_id):
     if request.args.get('start') and request.args.get('end'):
-        start = datetime.utcfromtimestamp(float(request.args.get('start')))
-        end = datetime.utcfromtimestamp(float(request.args.get('end')))
+        start = dateutil.parser.parse(request.args.get('start'))
+        end = dateutil.parser.parse(request.args.get('end'))
         scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
         #TODO: filter by start > start, end < end
     else:
@@ -342,12 +344,16 @@ def scheduled_programs_json(station_id):
 
 
 @radio.route('/station/<int:station_id>/scheduledblocks.json', methods=['GET'])
-@returns_json
+@returns_flat_json
 def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
-    start = datetime.utcfromtimestamp(float(request.args.get('start')))
-    end = datetime.utcfromtimestamp(float(request.args.get('end')))
-    #TODO: hook fullcalendar updates into these params
+
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status':'error','errors':'scheduledblocks.json requires start and end','status_code':400}
+
+    #TODO: fullcalendar updates based on these params
+    start = dateutil.parser.parse(request.args.get('start'))
+    end = dateutil.parser.parse(request.args.get('end'))
 
     resp = []
     for block in scheduled_blocks:
@@ -358,17 +364,17 @@ def scheduled_block_json(station_id):
                 'end':datetime.combine(instance,block.end_time),
                 'id':block.id,
                 'isBackground':True, #the magic flag that tells full calendar to render as block
-                'startEditable':False, #and not display drag handles
-                'eventDurationEditable':False
             }
             resp.append(d)
     return resp
+
 
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
 
-    stations = Station.query.all()
+    stations = Station.query.order_by('name').all()
+
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
 

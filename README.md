@@ -8,7 +8,13 @@
 * SQLAlchemy
 * Alembic
 
-Complete list of packages in [requirements.txt](https://github.com/rootio/rootio-cloud/blob/master/requirements.txt)
+Complete list of packages in [requirements.txt](https://github.com/rootio/rootio_web/blob/master/requirements.txt)
+
+## DOCUMENTATION
+
+* [Architecture](docs/architecture.md)
+* [Database](docs/database.md)
+* [API](docs/api.md)
 
 ## LICENSE
 
@@ -29,7 +35,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 
 ## ACKNOWLEDGEMENTS
 
-* Application layout and structure derived from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
+* Flask application structure derived from [FBone](https://github.com/imwilsonxu/fbone), Copyright (c) 2013 by Wilson Xu @imwilsonxu
 * Web interface includes [FullCalendar](https://github.com/arshaw/fullcalendar), Copyright (c) 2013 by Adam Shaw @arshaw
-* and [RRule.js](http://jkbr.github.io/rrule/), Copyright (c) 2013 by Jakub Roztočil @jkbr
-* and [Leaflet.js](http://leafletjs.com/), Copyright (c) by Vladimir Agafonkin and Cloudmade @Leaflet
+* - and [RRule.js](http://jkbr.github.io/rrule/), Copyright (c) 2013 by Jakub Roztočil @jkbr
+* - and [Leaflet.js](http://leafletjs.com/), Copyright (c) by Vladimir Agafonkin and Cloudmade @Leaflet

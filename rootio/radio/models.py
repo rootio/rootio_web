@@ -76,25 +76,35 @@ class Station(BaseMixin, db.Model):
     frequency = db.Column(db.Float)
     api_key = db.Column(db.String(STRING_LEN),nullable=False,default=id_generator(),unique=True)
     #todo, make sure this default function fires each time a new object is created
-
+    timezone = db.Column(db.String(32),default="UTC")
+    
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
+    gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
+    incoming_gateway = db.relationship(u'Gateway')
+    outgoing_gateway = db.relationship(u'Gateway')
+
 
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
+    #TODO, create m2m here for all whitelisted phone numbers?
 
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
-    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False))
+    scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False), lazy='dynamic')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
-    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False))
+    analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
+
+    client_update_frequency = db.Column(db.Float) #in seconds
+    analytic_update_frequency = db.Column(db.Float) #in seconds
+    broadcast_ip = db.Column(db.String(16))
 
     def init(self):
         #load dummy program
@@ -138,19 +148,21 @@ class Station(BaseMixin, db.Model):
         #fake a week's worth for the demo
         #guess reasonable ranges
         from random import random, randint
+        from ..utils import random_boolean
         analytics_list = []
         for i in xrange(7):
             a = StationAnalytic()
             a.battery_level = randint(50,100)
-            a.cpu_load = random()
+            a.gsm_signal = randint(0,100)
+            a.wifi_connected = random_boolean(0.8)
             a.memory_utilization = randint(60,80)
             a.storage_usage = randint(20,50)
-            a.gsm_connectivity = randint(0,100)
-            a.headphone_plug = randint(0,1)
+            a.cpu_load = randint(0,100)
+            a.headphone_plug = random_boolean(0.9)
             analytics_list.append(a)
 
         #should really do something like
-        # analytics_list = StationAnalytics.query.filter(station_id=self.id,
+        # analytics_list = StationAnalytic.query.filter(station_id=self.id,
         #     created_time>datetime.now()-datetime.timedelta(days=14))
 
         #convert to named dict for sparkline display
@@ -166,14 +178,9 @@ class Station(BaseMixin, db.Model):
         class TelephonyAnalytic():
             pass
 
+        #fake data
         from random import random, randint
-        def random_boolean(threshold):
-            "returns 1 threshold percent of the time, otherwise 0"
-            r = random()
-            if r > threshold:
-                return 0
-            else:
-                return 1
+        from ..utils import random_boolean
 
         telephony_list = []
         for i in xrange(7):
@@ -253,8 +260,8 @@ class ScheduledBlock(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN), nullable=False)
     recurrence = db.Column(db.Text()) #iCal rrule format, RFC2445 4.8.5.4
-    start_time = db.Column(db.Time(timezone=True), nullable=False)
-    end_time = db.Column(db.Time(timezone=True), nullable=False)
+    start_time = db.Column(db.Time(timezone=False), nullable=False)
+    end_time = db.Column(db.Time(timezone=False), nullable=False)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     @classmethod
@@ -394,11 +401,12 @@ class StationAnalytic(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    #TODO, decide on range with Jude
     battery_level = db.Column(db.Float) # percentage 0,100 
-    cpu_load = db.Column(db.Float) # load level 0,inf (should be under 1)
+    gsm_signal = db.Column(db.Float) # signal strength in db
+    wifi_connected = db.Column(db.Boolean) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
     storage_usage = db.Column(db.Float) # percentage 0,100
-    gsm_connectivity = db.Column(db.Float) # signal strength in db?
-    headphone_plug = db.Column(db.Boolean) # boolean 0,1
-
+    cpu_load = db.Column(db.Float) # percentage 0,100
+    headphone_plug = db.Column(db.Boolean) # boolean 0/1
+    gps_lat = db.Column(db.Float) # location of the handset
+    gps_lon = db.Column(db.Float) # 

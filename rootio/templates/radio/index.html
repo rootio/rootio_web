@@ -28,11 +28,12 @@
                 <tr>
                     <th>{{ _('Name') }}</th>
                     <th>{{ _('Battery') }}</th>
-                    <th>{{ _('CPU Load') }}</th>
+                    <th>{{ _('GSM Signal') }}</th>
+                    <th>{{ _('WiFi Network') }}</th>
                     <th>{{ _('Memory') }}</th>
                     <th>{{ _('Storage') }}</th>
-                    <th>{{ _('GSM Connection') }}</th>
-                    <th>{{ _('Headphone Plug') }}</th>
+                    <th>{{ _('CPU ') }}</th>
+                    <th>{{ _('Audio Plug') }}</th>
                 </tr>
             </thead>
             {%for station in stations %}
@@ -40,12 +41,12 @@
             <tr>
                 <td>{{station.name}}</td>
                 <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
+                <td><span class="sparkline" data-type="boolean">{{analytics.wifi_connected}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.gsm_connectivity}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
                 <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
-                <td><a href="#">More</a></td>
             </tr>
             {%endfor%}
             </table>
