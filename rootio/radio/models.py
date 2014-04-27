@@ -103,7 +103,7 @@ class Station(BaseMixin, db.Model):
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
 
-    client_update_frequency = db.Column(db.Float)
+    client_update_frequency = db.Column(db.Float) #in seconds
     broadcast_ip = db.Column(db.String(16))
 
     def init(self):
@@ -404,11 +404,12 @@ class StationAnalytic(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    #TODO, decide on range with Jude
     battery_level = db.Column(db.Float) # percentage 0,100 
-    cpu_load = db.Column(db.Float) # load level 0,inf (should be under 1)
+    gsm_signal = db.Column(db.Float) # signal strength in db
+    wifi_connected = db.Column(db.Boolean) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
     storage_usage = db.Column(db.Float) # percentage 0,100
-    gsm_connectivity = db.Column(db.Float) # signal strength in db?
-    headphone_plug = db.Column(db.Boolean) # boolean 0,1
-
+    cpu_load = db.Column(db.Float) # percentage 0,100
+    headphone_plug = db.Column(db.Boolean) # boolean 0/1
+    gps_lat = db.Column(db.Float) # location of the handset
+    gps_lon = db.Column(db.Float) # 
