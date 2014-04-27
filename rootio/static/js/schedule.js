@@ -87,9 +87,6 @@ $(document).ready(function() {
         return "right";
     };
 
-    console.log("#calendar tz "+$('#calendar').data('timezone'));
-    console.log("#calendar offset "+moment().tz($('#calendar').data('timezone')).zone());
-
     //set up calendar
     $('#calendar').fullCalendar({
         header: {
@@ -203,12 +200,9 @@ $(document).ready(function() {
 
         for (var key in editedEvents) {
             var event = editedEvents[key];
-            
-            console.log("native "+event.start.toISOString());
-            console.log("in cal tz "+event.start.tz($('#calendar').data('timezone')).toISOString());
 
-            //serialize edited event to json
-            //manually, because we only need a subset of fields
+            //serialize edited event to json manually
+            // because we only need a subset of fields
             cleaned_data = {program:event.program,
                         station:event.station,
                         start:event.start}; //moment json-ifies to iso8601 natively
@@ -228,7 +222,6 @@ $(document).ready(function() {
                     contentType: 'application/json;charset=UTF-8',
                     context: this
                 }).success(function(data) {
-                    //console.log('saved ScheduledProgram '+data['result']['id']);
                     this.saved = true;
                 });
 
