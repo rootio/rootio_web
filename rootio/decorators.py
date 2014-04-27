@@ -112,13 +112,13 @@ def restless_api_auth(*args, **kwargs):
     raise ProcessingException(message='Not authenticated!')
     
 
-def since_filter(search_params=None, **kwargs):
-    if 'since' in request.args:
+def updated_since_filter(search_params=None, **kwargs):
+    if 'updated_since' in request.args:
         #parse iso datetime
         try:
-            date = dateutil.parser.parse(request.args.get('since'))
+            date = dateutil.parser.parse(request.args.get('updated_since'))
         except (ValueError, TypeError):
-            raise ProcessingException(message='Unable to parse since parameter. Must be ISO datetime format')
+            raise ProcessingException(message='Unable to parse updated_since parameter. Must be ISO datetime format')
 
         #filter on update time
         filt = dict(name='updated_at', op='gt', val=date)
@@ -136,14 +136,14 @@ def hide_private_variables(result=None, **kw):
                 del result[key]
 
 #define restless preprocessor dict for all method types
-restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, since_filter],
-                           'GET_MANY':     [restless_api_auth, since_filter],
-                           'PATCH_SINGLE': [restless_api_auth, since_filter],
-                           'PATCH_MANY':   [restless_api_auth, since_filter],
-                           'PUT_SINGLE':   [restless_api_auth, since_filter],
-                           'PUT_MANY':     [restless_api_auth, since_filter],
-                           'POST':         [restless_api_auth, since_filter],
-                           'DELETE':       [restless_api_auth, since_filter]}
+restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'GET_MANY':     [restless_api_auth, updated_since_filter],
+                           'PATCH_SINGLE': [restless_api_auth, updated_since_filter],
+                           'PATCH_MANY':   [restless_api_auth, updated_since_filter],
+                           'PUT_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'PUT_MANY':     [restless_api_auth, updated_since_filter],
+                           'POST':         [restless_api_auth, updated_since_filter],
+                           'DELETE':       [restless_api_auth, updated_since_filter]}
 restless_postprocessors = {
     'GET_SINGLE':   [hide_private_variables],
     'GET_MANY':     [hide_private_variables]
