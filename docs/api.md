@@ -24,7 +24,7 @@ Each API call must be identified either with a 10-digit station api_key paramete
 * http://demo.rootio.org/api/analytic
 
 ### Non-CRUD
-__these do not respond to the ?since parameter__
+__these do not respond to the ?updated_since parameter__
 * http://demo.rootio.org/api/station/ID/current_program
 * http://demo.rootio.org/api/station/ID/on_air
 * http://demo.rootio.org/api/station/ID/next_program
@@ -35,7 +35,7 @@ __these have specific datetime parameters__
 * http://demo.rootio.org/api/station/ID/schedule?all
 * http://demo.rootio.org/api/station/ID/schedule?start=2014-03-01&end=2014-04-01
 
-__these do respond to the ?since parameter__
+__these do respond to the ?updated_since parameter__
 * http://demo.rootio.org/api/station/ID/programs
 * http://demo.rootio.org/api/program/ID/episodes
 
@@ -47,6 +47,6 @@ Flask-Restless provides a powerful search format using [JSON syntax](http://flas
 eg: `http://demo.rootio.org/api/scheduledprogram?q={"filters":[{"name":"id","op":"gt","val":25}]}`
 
 ## Updated Since
-A ?since parameter is provided as an alias to the search syntax for the common case. Passing a valid ISO datetime will limit the results to include only objects updated after that time.
+The ?updated_since parameter is provided as an alias to the search syntax for the common case. Passing a valid ISO datetime will limit the results to include only objects updated after that time.
 
-eg: `http://demo.rootio.org:5000/api/scheduledprogram?since=2014-03-20T00:00:00Z-8:00`
+eg: `http://demo.rootio.org:5000/api/scheduledprogram?updated_since=2014-03-20T00:00:00Z-8:00`
