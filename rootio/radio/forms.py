@@ -7,10 +7,11 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
+import pytz
 
 from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
-from .models import Station, Program, ProgramType, ScheduledBlock, Person, Language, Location
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -22,7 +23,7 @@ from ..extensions import db
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
     field_args = {'latitude':{'description': '+N / -S'},
                  'longitude':{'description': '+E / -W'}},
-    exclude=['modifieddate'])
+    exclude=['created_at','updated_at'])
 class LocationForm(LocationFormBase):
     submit = SubmitField(_('Save'))
 
@@ -39,16 +40,22 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'phone':{'description': _('Station contact telephone number'),'validators':[HasInlineForm,]},
         'owner':{'description': _('User who is the owner of the station')},
         'languages':{'description':_("Primary languages the station will broadcast in")},
+        'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
+        'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_content','blocks'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics'])
 class StationForm(StationFormBase):
     owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
         #inline form and POST url for phone creation modal
         #ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
+    timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
     submit = SubmitField(_('Save'))
-    field_order = ('owner','name','*')
+    field_order = ('owner','name','location','timezone','*')
+
+
+StationAnalyticForm = model_form(StationAnalytic, db_session=db.session, base_class=Form)
 
 
 def all_languages():
@@ -68,7 +75,7 @@ class ProgramForm(Form):
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
         'definition':{"description":_("This field accepts arbitrary Python-dictionaries")},
-    })
+    }, exclude=['created_at','updated_at'])
 class ProgramTypeForm(ProgramTypeFormBase):
     definition = TextAreaField()
     submit = SubmitField(_('Save'))
@@ -95,7 +102,6 @@ class BlockForm(Form):
     start_time = TimeField()
     end_time = TimeField()
     recurrence = HiddenField()
-
     submit = SubmitField(_('Save'))
 
 

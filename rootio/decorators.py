@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from functools import wraps
+import dateutil.parser
+
 from flask import json, abort, request, Response
 from flask.ext.login import current_user
-from flask_sqlalchemy import BaseQuery, Model
+from flask.ext.restless import ProcessingException
 
+from flask_sqlalchemy import BaseQuery, Model
 from .utils import simple_serialize_sqlalchemy
 
 def admin_required(f):
@@ -18,20 +21,50 @@ def admin_required(f):
 
 def returns_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code
-    returns a json response"""
+    returns a json response where collections are nested in an objects dict"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         r = f(*args, **kwargs)
+        ct = 'application/json; charset=utf-8'
         if isinstance(r,BaseQuery):
             obj_list = []
             for o in r.all():
                 obj_list.append(simple_serialize_sqlalchemy(o))
-            return Response(json.dumps(obj_list), content_type='application/json; charset=utf-8')
+            return Response(json.dumps({'objects':obj_list}), content_type=ct)
+        if isinstance(r,list):
+            obj_list = []
+            for o in r:
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps({'objects':obj_list}), content_type=ct)
         if isinstance(r,Model):
-            return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type='application/json; charset=utf-8')
+            return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
         if isinstance(r,dict) and 'status_code' in r:
-            return Response(json.dumps(r), content_type='application/json; charset=utf-8',status=r['status_code'])
-        return Response(json.dumps(r), content_type='application/json; charset=utf-8')
+            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        return Response(json.dumps(r), content_type=ct)
+    return decorated_function
+
+def returns_flat_json(f):
+    """takes either a sqlalchemy query or a dictionary w/ optional status_code
+    returns a json response where collections are in an array"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        r = f(*args, **kwargs)
+        ct = 'application/json; charset=utf-8'
+        if isinstance(r,BaseQuery):
+            obj_list = []
+            for o in r.all():
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
+        if isinstance(r,list):
+            obj_list = []
+            for o in r:
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
+        if isinstance(r,Model):
+            return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
+        if isinstance(r,dict) and 'status_code' in r:
+            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        return Response(json.dumps(r), content_type=ct)
     return decorated_function
 
 def api_key_or_auth_required(f):
@@ -58,7 +91,7 @@ def api_key_or_auth_required(f):
     return decorated_function
 
 #unfortunate duplication for flask-restless style preprocessor
-from flask.ext.restless import ProcessingException
+
 def restless_api_auth(*args, **kwargs):
     from .radio import Station
     api_key = request.args.get('api_key')
@@ -77,14 +110,41 @@ def restless_api_auth(*args, **kwargs):
             return None # allow
 
     raise ProcessingException(message='Not authenticated!')
+    
+
+def updated_since_filter(search_params=None, **kwargs):
+    if 'updated_since' in request.args:
+        #parse iso datetime
+        try:
+            date = dateutil.parser.parse(request.args.get('updated_since'))
+        except (ValueError, TypeError):
+            raise ProcessingException(message='Unable to parse updated_since parameter. Must be ISO datetime format')
+
+        #filter on update time
+        filt = dict(name='updated_at', op='gt', val=date)
+        if 'filters' not in search_params:
+            search_params['filters'] = []
+        search_params['filters'].append(filt)
+
+
+def hide_private_variables(result=None, **kw):
+    if hasattr(result, 'keys'):
+        for key in result.keys():
+            if key.startswith('_'):
+                del result[key]
+            if key in ["activation_key","openid","api_key"]:
+                del result[key]
 
 #define restless preprocessor dict for all method types
-restless_api_key_or_auth = { 'GET_SINGLE':   [restless_api_auth],
-                             'GET_MANY':     [restless_api_auth],
-                             'PATCH_SINGLE': [restless_api_auth],
-                             'PATCH_MANY':   [restless_api_auth],
-                             'PUT_SINGLE':   [restless_api_auth],
-                             'PUT_MANY':     [restless_api_auth],
-                             'POST':         [restless_api_auth],
-                             'DELETE':       [restless_api_auth]}
-
+restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'GET_MANY':     [restless_api_auth, updated_since_filter],
+                           'PATCH_SINGLE': [restless_api_auth, updated_since_filter],
+                           'PATCH_MANY':   [restless_api_auth, updated_since_filter],
+                           'PUT_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'PUT_MANY':     [restless_api_auth, updated_since_filter],
+                           'POST':         [restless_api_auth, updated_since_filter],
+                           'DELETE':       [restless_api_auth, updated_since_filter]}
+restless_postprocessors = {
+    'GET_SINGLE':   [hide_private_variables],
+    'GET_MANY':     [hide_private_variables]
+}

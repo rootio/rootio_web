@@ -7,7 +7,7 @@ import string
 import random
 import os
 
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from flask import Flask
 from flask import json
@@ -81,6 +81,13 @@ def pretty_date(dt, default=None):
 
     return default
 
+def random_boolean(threshold):
+    "returns 1 threshold percent of the time, otherwise 0"
+    r = random.random()
+    if r > threshold:
+        return 0
+    else:
+        return 1
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AVATAR_EXTENSIONS
@@ -145,18 +152,24 @@ def simple_serialize_sqlalchemy(model):
     """really naive way of serializing a sqlalchemy model to a dictionary
     no joins, model attributes only
     ignores privates"""
-    keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
-    serial_dict = {attr: getattr(model, attr) for attr in keys}
-    return serial_dict
+    if hasattr(model, '__dict__'):
+        keys = [key for key in model.__dict__.keys() if not key.startswith('_')]
+        serial_dict = {attr: getattr(model, attr) for attr in keys}
+        return serial_dict
+    else:
+        return model
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-    """custom json encoder class that can handle python datetimes"""
+    """custom json encoder class that can handle python datetimes
+    Drops microseconds, because Android client doesn't like it so precise"""
     def default(self, obj):
         if isinstance(obj,datetime):
-            return datetime.isoformat(obj)
+            return datetime.isoformat(obj.replace(microsecond=0))
         if isinstance(obj, time):
-            return time.isoformat(obj)
+            return time.isoformat(obj.replace(microsecond=0))
+        if isinstance(obj, timedelta):
+            return str(obj)
         #add support for other serialization formats here...
         return super(CustomJSONEncoder, self).default(obj)
 
