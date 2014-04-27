@@ -2,11 +2,10 @@
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
-from flask.ext.restless import APIManager
 
 from .utils import parse_datetime
 
-from ..extensions import db, rest
+from ..extensions import db, rest, csrf
 
 from ..user import User
 from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
@@ -183,14 +182,15 @@ def station_phone_numbers(station_id):
     return r
 
 
+@csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
 @api_key_or_auth_required
 @returns_json
 def station_analytics(station_id):
     """API method to get or post analytics for a station"""
+
     station = Station.query.filter_by(id=station_id).first_or_404()
-    
-    form = StationAnalyticForm(request.form)
+    form = StationAnalyticForm(request.form, csrf_enabled=False)
 
     if form.validate_on_submit():
         analytic = StationAnalytic(**form.data) #create new object from data
@@ -200,14 +200,14 @@ def station_analytics(station_id):
         db.session.commit()
         return {'message':'success'}
     elif request.method == "POST":
-        message = jsonify(flag='error', msg="Unable to parse station analytic form")
-        abort(make_response(message, 400))
-    
+        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
+        abort(make_response(message, 400))    
     else:
-        #return most recent analytic
-        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).latest()
+        #return just most recent analytic?
+        # or allow filtering by datetime?
+        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
         return analytics_list
-    
+
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
 @api_key_or_auth_required
