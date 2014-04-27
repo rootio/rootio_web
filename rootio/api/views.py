@@ -158,15 +158,16 @@ def station_schedule(station_id):
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
     station = Station.query.filter_by(id=station_id).first_or_404()
-    try:
-        updated_since = parse_datetime(request.args.get('updated_since'))
-    except (ValueError, TypeError):
-        message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-        abort(make_response(message, 400)) 
-
     programs = station.scheduled_programs
+    
     if request.args.get('updated_since'):
-        return programs.filter(Program.updated_at>updated_since)
+        try:
+            updated_since = parse_datetime(request.args.get('updated_since'))
+            return programs.filter(ScheduledProgram.updated_at>updated_since)
+
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400))
     else:
         return programs.all()
 
@@ -189,15 +190,15 @@ def station_phone_numbers(station_id):
 def program_episodes(program_id):
     """API method to get all episodes currently available for a program"""
     program = Program.query.filter_by(id=program_id).first_or_404()
-    try:
-        updated_since = parse_datetime(request.args.get('updated_since'))
-    except (ValueError, TypeError):
-        message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-        abort(make_response(message, 400)) 
-
     episodes = program.episodes
+
     if request.args.get('updated_since'):
-        return episodes.filter(Episode.updated_at>updated_since)
+        try:
+            updated_since = parse_datetime(request.args.get('updated_since'))
+            return episodes.filter(Episode.updated_at>updated_since)
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400)) 
     else:
         return episodes.all()
 
