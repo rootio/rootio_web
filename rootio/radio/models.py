@@ -103,6 +103,7 @@ class Station(BaseMixin, db.Model):
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
 
     client_update_frequency = db.Column(db.Float) #in seconds
+    analytic_update_frequency = db.Column(db.Float) #in seconds
     broadcast_ip = db.Column(db.String(16))
 
     def init(self):
@@ -161,7 +162,7 @@ class Station(BaseMixin, db.Model):
             analytics_list.append(a)
 
         #should really do something like
-        # analytics_list = StationAnalytics.query.filter(station_id=self.id,
+        # analytics_list = StationAnalytic.query.filter(station_id=self.id,
         #     created_time>datetime.now()-datetime.timedelta(days=14))
 
         #convert to named dict for sparkline display

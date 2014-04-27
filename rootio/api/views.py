@@ -10,6 +10,7 @@ from ..extensions import db, rest
 
 from ..user import User
 from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..radio.forms import StationAnalyticForm
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
@@ -81,10 +82,6 @@ def restless_routes():
         exclude_columns=[],
         preprocessors=restless_preprocessors)
 
-    rest.create_api(StationAnalytic, collection_name='analytic', methods=['GET', 'POST'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
-
 #need routes for:
     #phone to update station schedule?
 
@@ -152,6 +149,7 @@ def station_schedule(station_id):
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
 
+
 @api.route('/station/<int:station_id>/programs', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -171,6 +169,7 @@ def station_programs(station_id):
     else:
         return programs.all()
 
+
 @api.route('/station/<int:station_id>/phone_numbers', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -183,6 +182,32 @@ def station_phone_numbers(station_id):
     r = {'cloud':station.cloud_phone.raw_number,'transmitter':station.transmitter_phone.raw_number}
     return r
 
+
+@api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics(station_id):
+    """API method to get or post analytics for a station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    
+    form = StationAnalyticForm(request.form)
+
+    if form.validate_on_submit():
+        analytic = StationAnalytic(**form.data) #create new object from data
+        analytic.station = station
+
+        db.session.add(analytic)
+        db.session.commit()
+        return {'message':'success'}
+    elif request.method == "POST":
+        message = jsonify(flag='error', msg="Unable to parse station analytic form")
+        abort(make_response(message, 400))
+    
+    else:
+        #return most recent analytic
+        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).latest()
+        return analytics_list
+    
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
 @api_key_or_auth_required
@@ -201,6 +226,4 @@ def program_episodes(program_id):
             abort(make_response(message, 400)) 
     else:
         return episodes.all()
-
-
 
