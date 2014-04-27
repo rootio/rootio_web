@@ -93,7 +93,6 @@ class Station(BaseMixin, db.Model):
     outgoing_gateway = db.relationship(u'Gateway')
 
 
-
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     #TODO, create m2m here for all whitelisted phone numbers?
@@ -148,15 +147,17 @@ class Station(BaseMixin, db.Model):
         #fake a week's worth for the demo
         #guess reasonable ranges
         from random import random, randint
+        from ..utils import random_boolean
         analytics_list = []
         for i in xrange(7):
             a = StationAnalytic()
             a.battery_level = randint(50,100)
-            a.cpu_load = random()
+            a.gsm_signal = randint(0,100)
+            a.wifi_connected = random_boolean(0.8)
             a.memory_utilization = randint(60,80)
             a.storage_usage = randint(20,50)
-            a.gsm_connectivity = randint(0,100)
-            a.headphone_plug = randint(0,1)
+            a.cpu_load = randint(0,100)
+            a.headphone_plug = random_boolean(0.9)
             analytics_list.append(a)
 
         #should really do something like
@@ -176,14 +177,9 @@ class Station(BaseMixin, db.Model):
         class TelephonyAnalytic():
             pass
 
+        #fake data
         from random import random, randint
-        def random_boolean(threshold):
-            "returns 1 threshold percent of the time, otherwise 0"
-            r = random()
-            if r > threshold:
-                return 0
-            else:
-                return 1
+        from ..utils import random_boolean
 
         telephony_list = []
         for i in xrange(7):
