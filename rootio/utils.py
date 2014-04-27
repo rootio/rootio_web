@@ -81,6 +81,13 @@ def pretty_date(dt, default=None):
 
     return default
 
+def random_boolean(threshold):
+    "returns 1 threshold percent of the time, otherwise 0"
+    r = random.random()
+    if r > threshold:
+        return 0
+    else:
+        return 1
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AVATAR_EXTENSIONS
