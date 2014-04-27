@@ -11,7 +11,7 @@ import pytz
 
 from .fields import DurationField, InlineFormField
 from .validators import HasInlineForm
-from .models import Station, Program, ProgramType, ScheduledBlock, Person, Language, Location
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -53,6 +53,9 @@ class StationForm(StationFormBase):
     timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
     submit = SubmitField(_('Save'))
     field_order = ('owner','name','location','timezone','*')
+
+
+StationAnalyticForm = model_form(StationAnalytic, db_session=db.session, base_class=Form)
 
 
 def all_languages():
