@@ -40,7 +40,6 @@ __these do respond to the ?updated_since parameter__
 * http://demo.rootio.org/api/program/ID/episodes
 
 
-
 ## Search Parameters
 Flask-Restless provides a powerful search format using [JSON syntax](http://flask-restless.readthedocs.org/en/latest/searchformat.html)
 
@@ -49,4 +48,4 @@ eg: `http://demo.rootio.org/api/scheduledprogram?q={"filters":[{"name":"id","op"
 ## Updated Since
 The ?updated_since parameter is provided as an alias to the search syntax for the common case. Passing a valid ISO datetime will limit the results to include only objects updated after that time.
 
-eg: `http://demo.rootio.org:5000/api/scheduledprogram?updated_since=2014-03-20T00:00:00Z-8:00`
+eg: `http://demo.rootio.org/api/scheduledprogram?updated_since=2014-03-20T00:00:00Z-8:00`
