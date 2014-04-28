@@ -21,7 +21,7 @@ def admin_required(f):
 
 def returns_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code
-    returns a json response"""
+    returns a json response where collections are nested in an objects dict"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         r = f(*args, **kwargs)
@@ -36,6 +36,30 @@ def returns_json(f):
             for o in r:
                 obj_list.append(simple_serialize_sqlalchemy(o))
             return Response(json.dumps({'objects':obj_list}), content_type=ct)
+        if isinstance(r,Model):
+            return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
+        if isinstance(r,dict) and 'status_code' in r:
+            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        return Response(json.dumps(r), content_type=ct)
+    return decorated_function
+
+def returns_flat_json(f):
+    """takes either a sqlalchemy query or a dictionary w/ optional status_code
+    returns a json response where collections are in an array"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        r = f(*args, **kwargs)
+        ct = 'application/json; charset=utf-8'
+        if isinstance(r,BaseQuery):
+            obj_list = []
+            for o in r.all():
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
+        if isinstance(r,list):
+            obj_list = []
+            for o in r:
+                obj_list.append(simple_serialize_sqlalchemy(o))
+            return Response(json.dumps(obj_list), content_type=ct)
         if isinstance(r,Model):
             return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
         if isinstance(r,dict) and 'status_code' in r:
@@ -88,13 +112,13 @@ def restless_api_auth(*args, **kwargs):
     raise ProcessingException(message='Not authenticated!')
     
 
-def since_filter(search_params=None, **kwargs):
-    if 'since' in request.args:
+def updated_since_filter(search_params=None, **kwargs):
+    if 'updated_since' in request.args:
         #parse iso datetime
         try:
-            date = dateutil.parser.parse(request.args.get('since'))
+            date = dateutil.parser.parse(request.args.get('updated_since'))
         except (ValueError, TypeError):
-            raise ProcessingException(message='Unable to parse since parameter. Must be ISO datetime format')
+            raise ProcessingException(message='Unable to parse updated_since parameter. Must be ISO datetime format')
 
         #filter on update time
         filt = dict(name='updated_at', op='gt', val=date)
@@ -112,14 +136,14 @@ def hide_private_variables(result=None, **kw):
                 del result[key]
 
 #define restless preprocessor dict for all method types
-restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, since_filter],
-                           'GET_MANY':     [restless_api_auth, since_filter],
-                           'PATCH_SINGLE': [restless_api_auth, since_filter],
-                           'PATCH_MANY':   [restless_api_auth, since_filter],
-                           'PUT_SINGLE':   [restless_api_auth, since_filter],
-                           'PUT_MANY':     [restless_api_auth, since_filter],
-                           'POST':         [restless_api_auth, since_filter],
-                           'DELETE':       [restless_api_auth, since_filter]}
+restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'GET_MANY':     [restless_api_auth, updated_since_filter],
+                           'PATCH_SINGLE': [restless_api_auth, updated_since_filter],
+                           'PATCH_MANY':   [restless_api_auth, updated_since_filter],
+                           'PUT_SINGLE':   [restless_api_auth, updated_since_filter],
+                           'PUT_MANY':     [restless_api_auth, updated_since_filter],
+                           'POST':         [restless_api_auth, updated_since_filter],
+                           'DELETE':       [restless_api_auth, updated_since_filter]}
 restless_postprocessors = {
     'GET_SINGLE':   [hide_private_variables],
     'GET_MANY':     [hide_private_variables]

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import Column, Table, types
 from coaster.sqlalchemy import BaseMixin
 
@@ -93,7 +93,6 @@ class Station(BaseMixin, db.Model):
     outgoing_gateway = db.relationship(u'Gateway')
 
 
-
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     #TODO, create m2m here for all whitelisted phone numbers?
@@ -103,7 +102,8 @@ class Station(BaseMixin, db.Model):
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
 
-    client_update_frequency = db.Column(db.Float)
+    client_update_frequency = db.Column(db.Float) #in seconds
+    analytic_update_frequency = db.Column(db.Float) #in seconds
     broadcast_ip = db.Column(db.String(16))
 
     def init(self):
@@ -142,26 +142,29 @@ class Station(BaseMixin, db.Model):
         else:
             return "on"
 
-    def recent_analytics(self):
-        #TODO, load from db
+    def recent_analytics(self, days_ago=7):
+        since_date = datetime.now() - timedelta(days=days_ago)
 
-        #fake a week's worth for the demo
-        #guess reasonable ranges
-        from random import random, randint
-        analytics_list = []
-        for i in xrange(7):
-            a = StationAnalytic()
-            a.battery_level = randint(50,100)
-            a.cpu_load = random()
-            a.memory_utilization = randint(60,80)
-            a.storage_usage = randint(20,50)
-            a.gsm_connectivity = randint(0,100)
-            a.headphone_plug = randint(0,1)
-            analytics_list.append(a)
+        analytics_list = StationAnalytic.query \
+            .filter_by(station_id=self.id) \
+            .filter(StationAnalytic.created_at>since_date)
 
-        #should really do something like
-        # analytics_list = StationAnalytics.query.filter(station_id=self.id,
-        #     created_time>datetime.now()-datetime.timedelta(days=14))
+        if len(analytics_list.all()) == 0:
+            #fake a week's worth for the demo
+            #guess reasonable ranges
+            from random import random, randint
+            from ..utils import random_boolean
+            analytics_list = []
+            for i in xrange(7):
+                a = StationAnalytic()
+                a.battery_level = randint(50,100)
+                a.gsm_signal = randint(0,100)
+                a.wifi_connected = random_boolean(0.8)
+                a.memory_utilization = randint(60,80)
+                a.storage_usage = randint(20,50)
+                a.cpu_load = randint(0,100)
+                a.headphone_plug = random_boolean(0.9)
+                analytics_list.append(a)
 
         #convert to named dict for sparkline display
         analytics_dict = object_list_to_named_dict(analytics_list)
@@ -169,21 +172,15 @@ class Station(BaseMixin, db.Model):
 
     def recent_telephony(self):
         #TODO, load from GOIP
-
         #fake a week's worth for the demo
 
         #do we need a db object for this?
         class TelephonyAnalytic():
             pass
 
+        #fake data
         from random import random, randint
-        def random_boolean(threshold):
-            "returns 1 threshold percent of the time, otherwise 0"
-            r = random()
-            if r > threshold:
-                return 0
-            else:
-                return 1
+        from ..utils import random_boolean
 
         telephony_list = []
         for i in xrange(7):
@@ -404,11 +401,12 @@ class StationAnalytic(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    #TODO, decide on range with Jude
     battery_level = db.Column(db.Float) # percentage 0,100 
-    cpu_load = db.Column(db.Float) # load level 0,inf (should be under 1)
+    gsm_signal = db.Column(db.Float) # signal strength in db
+    wifi_connected = db.Column(db.Boolean) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
     storage_usage = db.Column(db.Float) # percentage 0,100
-    gsm_connectivity = db.Column(db.Float) # signal strength in db?
-    headphone_plug = db.Column(db.Boolean) # boolean 0,1
-
+    cpu_load = db.Column(db.Float) # percentage 0,100
+    headphone_plug = db.Column(db.Boolean) # boolean 0/1
+    gps_lat = db.Column(db.Float) # location of the handset
+    gps_lon = db.Column(db.Float) # 
