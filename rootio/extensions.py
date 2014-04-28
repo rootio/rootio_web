@@ -20,3 +20,9 @@ rest = APIManager()
 
 from flask_wtf.csrf import CsrfProtect
 csrf = CsrfProtect()
+
+from apscheduler.scheduler import Scheduler
+ap_scheduler = Scheduler()
+
+import zmq
+zmq_context = zmq.Context()

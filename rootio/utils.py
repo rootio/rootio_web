@@ -6,6 +6,7 @@
 import string
 import random
 import os
+import re
 
 from datetime import datetime, time, timedelta
 
@@ -158,6 +159,28 @@ def simple_serialize_sqlalchemy(model):
         return serial_dict
     else:
         return model
+
+
+def read_config(from_filename):
+    """Reads config options from a file.
+    Used for scheduler.cfg in app.py
+    modified from https://gist.github.com/bennylope/2999704"""
+    with open(from_filename) as f:
+        content = f.read()
+
+    config = {}
+    for line in content.splitlines():
+        m1 = re.match(r'\A([A-Za-z_0-9.]+)=(.*)\Z', line)
+        if m1:
+            key, val = m1.group(1), m1.group(2)
+            m2 = re.match(r"\A'(.*)'\Z", val)
+            if m2:
+                val = m2.group(1)
+            m3 = re.match(r'\A"(.*)"\Z', val)
+            if m3:
+                val = re.sub(r'\\(.)', r'\1', m3.group(1))
+            config[key]=val
+    return config
 
 
 class CustomJSONEncoder(json.JSONEncoder):

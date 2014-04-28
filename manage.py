@@ -24,9 +24,13 @@ alembic_config = Config(os.path.realpath(os.path.dirname(__name__)) + "/alembic.
 
 @manager.command
 def run():
-    """Run in local machine."""
+    """Run webserver for local development."""
+    app.run(debug=True, use_reloader=False)
 
-    app.run(debug=True)
+@manager.command
+def print_jobs():
+    """Print pending jobs in scheduler"""
+    app.scheduler.print_jobs()
 
 @manager.command
 def alembic():
