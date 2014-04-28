@@ -21,7 +21,6 @@ Each API call must be identified either with a 10-digit station api_key paramete
 * http://demo.rootio.org/api/phonenumber
 * http://demo.rootio.org/api/call
 * http://demo.rootio.org/api/message
-* http://demo.rootio.org/api/analytic
 
 ### Non-CRUD
 __these do not respond to the ?updated_since parameter__
@@ -38,6 +37,9 @@ __these have specific datetime parameters__
 __these do respond to the ?updated_since parameter__
 * http://demo.rootio.org/api/station/ID/programs
 * http://demo.rootio.org/api/program/ID/episodes
+
+### Allow form-data POST
+* http://demo.rootio.org/api/station/ID/analytic
 
 
 ## Search Parameters

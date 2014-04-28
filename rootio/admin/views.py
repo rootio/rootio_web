@@ -2,7 +2,6 @@
 from flask.ext.login import current_user
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.base import AdminIndexView
-import flask_wtf
 
 from ..extensions import db
 
@@ -11,8 +10,6 @@ from ..onair.models import *
 from ..telephony.models import *
 
 class AdminView(ModelView):
-    form_base_class = flask_wtf.Form
-
     def is_accessible(self):
         if current_user.is_authenticated():
             return current_user.role_code == 0
@@ -33,6 +30,7 @@ def admin_routes(admin):
     admin.add_view(AdminView(PhoneNumber, db.session, category='Telephony', name="PhoneNumber"))
     admin.add_view(AdminView(Message, db.session, category='Telephony'))
     admin.add_view(AdminView(Call, db.session, category='Telephony'))
+    admin.add_view(AdminView(Gateway, db.session, category='Telephony'))
 
     admin.add_view(AdminView(Station, db.session, category='Radio'))
     admin.add_view(AdminView(Program, db.session, category='Radio'))
