@@ -12,7 +12,7 @@ from flask.ext.babel import gettext as _
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
-from ..decorators import returns_json
+from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
 
@@ -324,7 +324,7 @@ def schedule_recurring_program_ajax():
 
 
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
-@returns_json
+@returns_flat_json
 def scheduled_programs_json(station_id):
     if request.args.get('start') and request.args.get('end'):
         start = dateutil.parser.parse(request.args.get('start'))
@@ -344,12 +344,16 @@ def scheduled_programs_json(station_id):
 
 
 @radio.route('/station/<int:station_id>/scheduledblocks.json', methods=['GET'])
-@returns_json
+@returns_flat_json
 def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
+
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status':'error','errors':'scheduledblocks.json requires start and end','status_code':400}
+
+    #TODO: fullcalendar updates based on these params
     start = dateutil.parser.parse(request.args.get('start'))
     end = dateutil.parser.parse(request.args.get('end'))
-    #TODO: hook fullcalendar updates into these params
 
     resp = []
     for block in scheduled_blocks:
@@ -363,6 +367,7 @@ def scheduled_block_json(station_id):
             }
             resp.append(d)
     return resp
+
 
 @radio.route('/schedule/', methods=['GET'])
 def schedule():

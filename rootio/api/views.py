@@ -2,14 +2,14 @@
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
-from flask.ext.restless import APIManager
 
 from .utils import parse_datetime
 
-from ..extensions import db, rest
+from ..extensions import db, rest, csrf
 
 from ..user import User
 from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..radio.forms import StationAnalyticForm
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
@@ -81,10 +81,6 @@ def restless_routes():
         exclude_columns=[],
         preprocessors=restless_preprocessors)
 
-    rest.create_api(StationAnalytic, collection_name='analytic', methods=['GET', 'POST'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
-
 #need routes for:
     #phone to update station schedule?
 
@@ -152,23 +148,26 @@ def station_schedule(station_id):
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
 
+
 @api.route('/station/<int:station_id>/programs', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
     station = Station.query.filter_by(id=station_id).first_or_404()
-    try:
-        updated_since = parse_datetime(request.args.get('since'))
-    except (ValueError, TypeError):
-        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
-        abort(make_response(message, 400)) 
-
     programs = station.scheduled_programs
-    if request.args.get('since'):
-        return programs.filter(Program.updated_at>updated_since)
+    
+    if request.args.get('updated_since'):
+        try:
+            updated_since = parse_datetime(request.args.get('updated_since'))
+            return programs.filter(ScheduledProgram.updated_at>updated_since)
+
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400))
     else:
         return programs.all()
+
 
 @api.route('/station/<int:station_id>/phone_numbers', methods=['GET'])
 @api_key_or_auth_required
@@ -183,23 +182,48 @@ def station_phone_numbers(station_id):
     return r
 
 
+@csrf.exempt
+@api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationAnalyticForm(request.form, csrf_enabled=False)
+
+    if form.validate_on_submit():
+        analytic = StationAnalytic(**form.data) #create new object from data
+        analytic.station = station
+
+        db.session.add(analytic)
+        db.session.commit()
+        return {'message':'success'}
+    elif request.method == "POST":
+        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
+        abort(make_response(message, 400))    
+    else:
+        #return just most recent analytic?
+        # or allow filtering by datetime?
+        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
+        return analytics_list
+
+
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
 def program_episodes(program_id):
     """API method to get all episodes currently available for a program"""
     program = Program.query.filter_by(id=program_id).first_or_404()
-    try:
-        updated_since = parse_datetime(request.args.get('since'))
-    except (ValueError, TypeError):
-        message = jsonify(flag='error', msg="Unable to parse since parameter. Must be ISO datetime format")
-        abort(make_response(message, 400)) 
-
     episodes = program.episodes
-    if request.args.get('since'):
-        return episodes.filter(Episode.updated_at>updated_since)
+
+    if request.args.get('updated_since'):
+        try:
+            updated_since = parse_datetime(request.args.get('updated_since'))
+            return episodes.filter(Episode.updated_at>updated_since)
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400)) 
     else:
         return episodes.all()
-
-
 

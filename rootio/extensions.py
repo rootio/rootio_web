@@ -17,3 +17,6 @@ oid = OpenID()
 
 from flask.ext.restless import APIManager
 rest = APIManager()
+
+from flask_wtf.csrf import CsrfProtect
+csrf = CsrfProtect()

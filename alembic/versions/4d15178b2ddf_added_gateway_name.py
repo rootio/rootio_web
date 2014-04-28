@@ -1,14 +1,14 @@
 """added gateway name
 
 Revision ID: 4d15178b2ddf
-Revises: 17b858dd8d3d
+Revises: 4d0be367f095
 Create Date: 2014-04-26 14:34:01.574475
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '4d15178b2ddf'
-down_revision = '17b858dd8d3d'
+down_revision = '4d0be367f095'
 
 from alembic import op
 import sqlalchemy as sa

@@ -4,7 +4,7 @@ import os
 
 from flask import Flask, g, request, render_template, current_app, session
 from flask.ext.babel import Babel
-from flask_wtf.csrf import CsrfProtect
+
 from flask.ext.admin import Admin
 
 from .config import DefaultConfig
@@ -17,7 +17,7 @@ from .rootio import rootio
 from .radio import radio
 from .onair import onair
 from .telephony import telephony
-from .extensions import db, mail, cache, login_manager, oid, rest
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf
 from .utils import CustomJSONEncoder
 
 
@@ -122,7 +122,7 @@ def configure_extensions(app):
     oid.init_app(app)
 
     # csrf for wtforms
-    CsrfProtect(app)
+    csrf.init_app(app)
 
     # flask-restless
     rest.init_app(app, flask_sqlalchemy_db=db)
