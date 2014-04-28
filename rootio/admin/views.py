@@ -11,8 +11,6 @@ from ..onair.models import *
 from ..telephony.models import *
 
 class AdminView(ModelView):
-    form_base_class = flask_wtf.Form
-
     def is_accessible(self):
         if current_user.is_authenticated():
             return current_user.role_code == 0
