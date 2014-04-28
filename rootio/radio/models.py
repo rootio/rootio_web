@@ -85,13 +85,10 @@ class Station(BaseMixin, db.Model):
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
+
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
-    #incoming_gateway = db.relationship(u'Gateway')
-    #outgoing_gateway = db.relationship(u'Gateway')
-
-
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     #TODO, create m2m here for all whitelisted phone numbers?
@@ -100,8 +97,8 @@ class Station(BaseMixin, db.Model):
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False), lazy='dynamic')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
-    outgoing_gateways = db.relationship(u'Gateway', secondary=u'radio_outgoinggateway', backref=db.backref('outgoing_gateways'))
-    incoming_gateways = db.relationship(u'Gateway', secondary=u'radio_incominggateway', backref=db.backref('incoming_gateways'))
+    outgoing_gateways = db.relationship(u'Gateway', secondary=u'radio_outgoinggateway', backref=db.backref('stations_using_for_outgoing'))
+    incoming_gateways = db.relationship(u'Gateway', secondary=u'radio_incominggateway', backref=db.backref('stations_using_for_incoming'))
    
 
     client_update_frequency = db.Column(db.Float) #in seconds
@@ -211,13 +208,13 @@ t_stationlanguage = db.Table(
 
 t_station_outgoinggateway = db.Table(
     u'radio_outgoinggateway',
-    db.Column(u'gateway_id', db.ForeignKey('telephony_gateway.id')),
+    db.Column(u'outgoinggateway_id', db.ForeignKey('telephony_gateway.id')),
     db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
 
 t_station_incominggateway = db.Table(
     u'radio_incominggateway',
-    db.Column(u'gateway_id', db.ForeignKey('telephony_gateway.id')),
+    db.Column(u'incominggateway_id', db.ForeignKey('telephony_gateway.id')),
     db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
 
