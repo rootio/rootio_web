@@ -3,6 +3,8 @@ from flask.ext.login import current_user
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.base import AdminIndexView
 
+from widgets import DateDisplayOnlyField
+
 from ..extensions import db
 
 from ..radio.models import *
@@ -12,15 +14,20 @@ from ..telephony.models import *
 def datetime_formatter(view, context, model, name):
     return getattr(model, name).strftime("%Y-%m-%d %H:%M:%S")
 
+
 class AdminView(ModelView):
     column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
-    form_widget_args = {'created_at': {'readonly':True}, 'updated_at': {'readonly':True}}
+    form_excluded_columns = ('created_at', 'updated_at')
+    # form_extra_fields = {
+    #      'last_updated': DateDisplayOnlyField('Last Updated', default="TBD")
+    # }
 
     def is_accessible(self):
         if current_user.is_authenticated():
             return current_user.role_code == 0
         else:
             return False
+
 
 class AdminHomeView(AdminIndexView):
     def is_accessible(self):
