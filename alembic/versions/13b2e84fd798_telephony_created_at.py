@@ -12,7 +12,6 @@ down_revision = '1cb4253a8bc6'
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 import datetime
 
@@ -28,12 +27,14 @@ def upgrade():
         op.add_column(table_name, sa.Column('updated_at', type_=sa.DateTime(timezone=True), nullable=True))
 
     #then set times to now
+    now = datetime.datetime.utcnow()
+    print "we're looking at now now", now
     for table_name in table_names:
         created_at = sa.sql.table(table_name, sa.sql.column('created_at'))
-        op.execute(created_at.update().values(created_at=datetime.datetime.now()))
+        op.execute(created_at.update().values(created_at=now))
 
         updated_at = sa.sql.table(table_name, sa.sql.column('updated_at'))
-        op.execute(updated_at.update().values(updated_at=datetime.datetime.now()))
+        op.execute(updated_at.update().values(updated_at=now))
 
     #then set back to nullable=False
     for table_name in table_names:
