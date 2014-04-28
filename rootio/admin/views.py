@@ -38,4 +38,5 @@ def admin_routes(admin):
     admin.add_view(AdminView(ScheduledBlock, db.session, category='Radio', name="ScheduledBlock"))
     admin.add_view(AdminView(Episode, db.session, category='Radio'))
     admin.add_view(AdminView(OnAirProgram, db.session, category='Radio', name="OnAirProgram"))
+    admin.add_view(AdminView(StationAnalytic, db.session, category='Radio'))
 
