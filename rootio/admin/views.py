@@ -9,7 +9,13 @@ from ..radio.models import *
 from ..onair.models import *
 from ..telephony.models import *
 
+def datetime_formatter(view, context, model, name):
+    return getattr(model, name).strftime("%Y-%m-%d %H:%M:%S")
+
 class AdminView(ModelView):
+    column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
+    form_widget_args = {'created_at': {'readonly':True}, 'updated_at': {'readonly':True}}
+
     def is_accessible(self):
         if current_user.is_authenticated():
             return current_user.role_code == 0
