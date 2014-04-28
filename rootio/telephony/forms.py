@@ -10,7 +10,7 @@ from .models import PhoneNumber, Gateway
 from ..extensions import db
 
 PhoneNumberFormBase = model_form(PhoneNumber, db_session=db.session, base_class=Form,
-    exclude=['areacode',])
+    exclude=['areacode','created_at','updated_at']) 
 class PhoneNumberForm(PhoneNumberFormBase):
     number_type = RadioField(u"Type", [AnyOf([str(val) for val in PHONE_NUMBER_TYPE.keys()])],
             choices=[(str(val), label) for val, label in PHONE_NUMBER_TYPE.items()])
