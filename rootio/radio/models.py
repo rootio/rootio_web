@@ -410,3 +410,6 @@ class StationAnalytic(BaseMixin, db.Model):
     headphone_plug = db.Column(db.Boolean) # boolean 0/1
     gps_lat = db.Column(db.Float) # location of the handset
     gps_lon = db.Column(db.Float) # 
+
+    def __unicode__(self):
+        return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
