@@ -2,7 +2,7 @@ from flask import g, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required
 from flask.ext.babel import gettext as _
 
-from .models import PhoneNumber, Message, Call
+from .models import PhoneNumber, Message, Call, Gateway
 from .forms import PhoneNumberForm
 
 from ..utils import error_dict
@@ -97,3 +97,9 @@ def messages():
     #todo, paginate?
 
     return render_template('telephony/messages.html', active='messages', messages=recent_messages)
+
+@telephony.route('/gateways/', methods=['GET'])
+def gateways():
+    gateways = Gateway.query.all()
+
+    return render_template('telephony/gateways.html', active='gateways', gateways=gateways)
