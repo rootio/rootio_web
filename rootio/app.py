@@ -149,7 +149,6 @@ def configure_extensions(app):
     app.logger.debug("binding messenger")
     app.messenger = zmq_context.socket(getattr(zmq,schedule_config['zmq_pattern']))
     app.messenger.bind("tcp://*:%s" % schedule_config['zmq_port'])
-    import time; time.sleep(1) #necessary?
     app.logger.debug("messenger bound")
     
     app.logger.debug("sending startup message")

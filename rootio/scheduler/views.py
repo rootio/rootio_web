@@ -30,4 +30,3 @@ def message_test_ajax():
 def jobs():
     jobs = current_app.scheduler.get_jobs()
     return render_template('scheduler/jobs.html', jobs=jobs)
-
