@@ -141,15 +141,24 @@ def configure_extensions(app):
     schedule_config = read_config('instance/scheduler.cfg')
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
-        app.logger.debug("starting scheduler...")
+        app.logger.debug("starting scheduler")
         app.scheduler.start()
-        app.logger.debug("scheduler started")
 
     # configure zero mq
-    app.messenger = zmq_context.socket(getattr(zmq,schedule_config['zmq_pattern']))
-    app.messenger.bind("tcp://*:%s" % schedule_config['zmq_port'])
+    if hasattr(app,'messenger'):
+        # zmq already configured, skip to avoid socket double-bind
+        # because when running locally, code executes twice
+        app.logger.debug('zmq configured')
+    else:
+        app.logger.debug('configuring zmq')
+        app.messenger = zmq_context.socket(getattr(zmq,schedule_config['zmq_pattern']))
+        app.messenger.bind("tcp://*:%s" % schedule_config['zmq_port'])
+
     # send startup message
-    app.messenger.send_multipart([b"zmq", b"startup"])
+    if app.debug:
+        import time;
+        time.sleep(1)
+        app.messenger.send_multipart([b"zmq", b"server startup (debug=True)"])
     
     # scheduler signals
     app.signals = signals
