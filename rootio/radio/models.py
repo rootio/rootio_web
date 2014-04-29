@@ -385,7 +385,7 @@ class Person(BaseMixin, db.Model):
         return PRIVACY_TYPE.get(self.privacy_code)
 
     def __unicode__(self):
-        return " ".join([self.title,self.firstname,self.middlename,self.lastname])
+        return " ".join(filter(None, (self.title,self.firstname,self.middlename,self.lastname)))
     
     #TODO: fk to user_id?
 
