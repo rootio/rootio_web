@@ -5,6 +5,6 @@
 
 {% set tab_title = "Scheduler" %}
 {% set tabs = [
-    (_("Scheduled Jobs"), '#'), 
+    (_("Jobs"), url_for('scheduler.jobs')), 
     (_("Message Test"), url_for('scheduler.message_test')), 
 ]%}

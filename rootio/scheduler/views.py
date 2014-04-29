@@ -25,3 +25,8 @@ def message_test_ajax():
         return {'status_code':200,'topic':topic,'message':msg}
     except Exception,e:
         return {'status_code':400, 'errors':str(e)}
+
+@scheduler.route('/jobs/', methods=['GET'])
+def jobs():
+    jobs = current_app.scheduler.get_jobs()
+    return render_template('scheduler/jobs.html', jobs=jobs)
