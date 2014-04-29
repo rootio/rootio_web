@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active|capitalize) %}
+{% set page_title = page_header %}
+
+{% set tab_title = "Scheduler" %}
+{% set tabs = [
+    (_("Scheduled Jobs"), '#'), 
+    (_("Message Test"), url_for('scheduler.message_test')), 
+]%}
