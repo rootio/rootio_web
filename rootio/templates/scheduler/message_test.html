@@ -1,0 +1,51 @@
+{% extends "scheduler/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2>Message Test</h2>
+
+    <div class="span-4">
+        <form id="message_test" name="message_test">
+            <label>Topic: </label><input name="topic" type="text"/>
+            <label>Message: </label><input name="message" type="text" />
+            <div class="pull-right">
+                <button type="submit" value="Send" style="margin-left:10px;">Send</button>
+                <span id="status"></span>
+            </div>
+        </form>
+
+        <div id="errors" style="display:none;">Error: <span class="err_msg" style="color:red;"></span></div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block js_btm %}
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $('form#message_test').submit(function(event) {
+        event.preventDefault();
+        form_data = $('form#message_test').serializeArray();
+        
+        $.ajax('/scheduler/message_test_ajax/', {
+            type: 'POST',
+            data: JSON.stringify(form_data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(data, status, xhr) {
+                //clear fields
+                //show checkmark
+            },
+            error: function(xhr, status, err) {
+                var errors = xhr.responseJSON.errors;
+                $('#errors span.err_msg').html(errors);
+                $('#errors').show();
+            },
+        });
+    });
+});
+
+</script>
+
+{% endblock %}
