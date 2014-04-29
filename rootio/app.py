@@ -19,7 +19,7 @@ from .onair import onair
 from .telephony import telephony
 from .scheduler import scheduler
 
-from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context, signals
 from .utils import CustomJSONEncoder, read_config
 
 import zmq
@@ -154,6 +154,8 @@ def configure_extensions(app):
     app.logger.debug("sending startup message")
     app.messenger.send_multipart([b"zmq", b"startup"])
     app.logger.debug("startup message sent")
+
+    app.signals = signals
 
 
 def configure_blueprints(app, blueprints):
