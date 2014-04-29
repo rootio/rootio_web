@@ -23,6 +23,7 @@ def index():
     stations = Station.query.all()
     return render_template('radio/index.html',stations=stations)
 
+
 @radio.route('/emergency/', methods=['GET'])
 def emergency():
     stations = Station.query.all()
@@ -32,6 +33,7 @@ def emergency():
 
     #end demo
     return render_template('radio/emergency.html',stations=stations)
+
 
 @radio.route('/station/', methods=['GET'])
 def stations():
@@ -269,8 +271,6 @@ def schedule_program_edit_ajax():
     if fk_errors:
         return fk_errors
 
-    print "start",dateutil.parser.parse(data['start'])
-
     scheduled_program = data['scheduledprogram']
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
@@ -317,6 +317,7 @@ def schedule_recurring_program_ajax():
             db.session.add(scheduled_program)
 
         db.session.commit()
+        
         response = {'status':'success','result':{},'status_code':200}
     elif request.method == "POST":
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}

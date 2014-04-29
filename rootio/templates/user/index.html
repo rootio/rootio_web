@@ -8,9 +8,11 @@
 <ul>
     <li><a href="{{ url_for('radio.index') }}">{{ _('Radio Dashboard') }}</a></li>
     <li><a href="{{ url_for('telephony.index') }}">{{ _('Telephony Dashboard') }}</a></li>
+
+    {% if current_user.is_admin() %}
     <li><a href="{{ url_for('radio.emergency') }}">{{ _('Emergency Broadcast') }}</a></li>
-    <li><a href="{{ '#' }}">{{ _('Find a program') }}</a></li>    
-    <li><a href="{{ '#' }}">{{ _('Start a poll') }}</a></li>
+    <li><a href="{{ url_for('scheduler.message_test') }}">{{ _('Schedule Message Tester') }}</a></li>
+    {%endif%}
 </ul>
 
 

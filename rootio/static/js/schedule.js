@@ -153,7 +153,8 @@ $(document).ready(function() {
                     if (program['description'] !== null) {
                         popover_content += "<li>"+program['description']+"</li>";
                     }
-                    popover_content += "<li>"+event.start.format("L LT")+" - "+event.end.format("L LT")+"</li>";
+                    popover_content += "<li>Start: "+event.start.format("L LT")+"</li>";
+                    popover_content += "<li>End: "+event.end.format("L LT")+"</li>";
                     popover_content += "</ul>";
                     $(this).popover({
                                 trigger:'manual',
