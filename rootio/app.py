@@ -138,7 +138,10 @@ def configure_extensions(app):
 
     # APScheduler
     app.scheduler = ap_scheduler
-    schedule_config = read_config('instance/scheduler.cfg')
+    try:
+        schedule_config = read_config('instance/scheduler.cfg')
+    except IOError: #use defaults
+        schedule_config = {'zmq_port':5556, 'zmq_pattern':'PUB'}
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
         app.logger.debug("starting scheduler")
