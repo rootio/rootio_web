@@ -142,7 +142,7 @@ class Station(BaseMixin, db.Model):
             return "on"
 
     def recent_analytics(self, days_ago=7):
-        since_date = datetime.utc(tzlocal()) - timedelta(days=days_ago)
+        since_date = datetime.utcnow() - timedelta(days=days_ago)
 
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
