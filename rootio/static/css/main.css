@@ -95,6 +95,10 @@ body {
 
 /* bootstrap + tablesorter */
 
+table {
+    overflow-x: scroll;;
+}
+
 table .header {
     cursor: pointer;
 }

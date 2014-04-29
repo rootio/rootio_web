@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from sqlalchemy import Column, Table, types
+from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
 
-from ..utils import STRING_LEN, GENDER_TYPE, get_current_time, id_generator, object_list_to_named_dict
+from ..utils import STRING_LEN, GENDER_TYPE, id_generator, object_list_to_named_dict
 from ..extensions import db
 
 from ..telephony import PhoneNumber
@@ -82,17 +81,14 @@ class Station(BaseMixin, db.Model):
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'))
     location_id = db.Column(db.ForeignKey('radio_location.id'))
-    gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
+    #gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+
 
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
-    incoming_gateway = db.relationship(u'Gateway')
-    outgoing_gateway = db.relationship(u'Gateway')
-
-
     cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
     transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
     #TODO, create m2m here for all whitelisted phone numbers?
@@ -101,6 +97,9 @@ class Station(BaseMixin, db.Model):
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station',uselist=False), lazy='dynamic')
     languages = db.relationship(u'Language', secondary=u'radio_stationlanguage', backref=db.backref('stations'))
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
+    outgoing_gateways = db.relationship(u'Gateway', secondary=u'radio_outgoinggateway', backref=db.backref('stations_using_for_outgoing'))
+    incoming_gateways = db.relationship(u'Gateway', secondary=u'radio_incominggateway', backref=db.backref('stations_using_for_incoming'))
+   
 
     client_update_frequency = db.Column(db.Float) #in seconds
     analytic_update_frequency = db.Column(db.Float) #in seconds
@@ -112,19 +111,19 @@ class Station(BaseMixin, db.Model):
         return "init() stub"
 
     def current_program(self):
-        now = datetime.now()
+        now = datetime.utcnow()
         programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
         #TODO, how to resolve overlaps?
         return programs.first()
 
     def next_program(self):
-        now = datetime.now()
+        now = datetime.utcnow()
         upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id)
         #TODO, how to resolve overlaps?
         return upcoming_programs.first()
 
     def current_block(self):
-        now = datetime.now().time() #blocks not date specific, time only
+        now = datetime.utcnow().time() #blocks not date specific, time only
         blocks = ScheduledBlock.contains(now).filter_by(station_id=self.id)
         #TODO, how to resolve overlaps?
         return blocks.first()
@@ -142,28 +141,29 @@ class Station(BaseMixin, db.Model):
         else:
             return "on"
 
-    def recent_analytics(self):
-        #TODO, load from db
+    def recent_analytics(self, days_ago=7):
+        since_date = datetime.utc(tzlocal()) - timedelta(days=days_ago)
 
-        #fake a week's worth for the demo
-        #guess reasonable ranges
-        from random import random, randint
-        from ..utils import random_boolean
-        analytics_list = []
-        for i in xrange(7):
-            a = StationAnalytic()
-            a.battery_level = randint(50,100)
-            a.gsm_signal = randint(0,100)
-            a.wifi_connected = random_boolean(0.8)
-            a.memory_utilization = randint(60,80)
-            a.storage_usage = randint(20,50)
-            a.cpu_load = randint(0,100)
-            a.headphone_plug = random_boolean(0.9)
-            analytics_list.append(a)
+        analytics_list = StationAnalytic.query \
+            .filter_by(station_id=self.id) \
+            .filter(StationAnalytic.created_at>since_date)
 
-        #should really do something like
-        # analytics_list = StationAnalytic.query.filter(station_id=self.id,
-        #     created_time>datetime.now()-datetime.timedelta(days=14))
+        if len(analytics_list.all()) == 0:
+            #fake a week's worth for the demo
+            #guess reasonable ranges
+            from random import random, randint
+            from ..utils import random_boolean
+            analytics_list = []
+            for i in xrange(7):
+                a = StationAnalytic()
+                a.battery_level = randint(50,100)
+                a.gsm_signal = randint(0,100)
+                a.wifi_connected = random_boolean(0.8)
+                a.memory_utilization = randint(60,80)
+                a.storage_usage = randint(20,50)
+                a.cpu_load = randint(0,100)
+                a.headphone_plug = random_boolean(0.9)
+                analytics_list.append(a)
 
         #convert to named dict for sparkline display
         analytics_dict = object_list_to_named_dict(analytics_list)
@@ -171,7 +171,6 @@ class Station(BaseMixin, db.Model):
 
     def recent_telephony(self):
         #TODO, load from GOIP
-
         #fake a week's worth for the demo
 
         #do we need a db object for this?
@@ -206,6 +205,19 @@ t_stationlanguage = db.Table(
     db.Column(u'language_id', db.ForeignKey('radio_language.id')),
     db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
+
+t_station_outgoinggateway = db.Table(
+    u'radio_outgoinggateway',
+    db.Column(u'outgoinggateway_id', db.ForeignKey('telephony_gateway.id')),
+    db.Column(u'station_id', db.ForeignKey('radio_station.id'))
+)
+
+t_station_incominggateway = db.Table(
+    u'radio_incominggateway',
+    db.Column(u'incominggateway_id', db.ForeignKey('telephony_gateway.id')),
+    db.Column(u'station_id', db.ForeignKey('radio_station.id'))
+)
+
 
 
 class ProgramType(BaseMixin, db.Model):
@@ -410,3 +422,6 @@ class StationAnalytic(BaseMixin, db.Model):
     headphone_plug = db.Column(db.Boolean) # boolean 0/1
     gps_lat = db.Column(db.Float) # location of the handset
     gps_lon = db.Column(db.Float) # 
+
+    def __unicode__(self):
+        return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
