@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from .messages import *
+from .signals import *
 from .views import scheduler

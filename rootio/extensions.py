@@ -26,3 +26,6 @@ ap_scheduler = Scheduler()
 
 import zmq
 zmq_context = zmq.Context()
+
+from blinker import Namespace
+signals = Namespace()
