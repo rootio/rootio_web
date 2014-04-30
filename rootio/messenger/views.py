@@ -26,5 +26,4 @@ def message_test_ajax():
         test_message(topic, msg)
         return {'status_code':200,'topic':topic,'message':msg}
     except Exception,e:
-        import traceback; traceback.print_exc()
         return {'status_code':400, 'errors':str(e)}
