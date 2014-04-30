@@ -2,13 +2,13 @@ import zmq
 import time
 import random
 
-port = "5556"
-pattern = "PUB"
+ADDRESS = "ipc:///tmp/zmq.sock"
+PATTERN = "PUB"
 
 context = zmq.Context()
-socket = context.socket(getattr(zmq,pattern))
-socket.bind("tcp://*:%s" % port)
-print "publish on %s as %s" % (port, pattern)
+socket = context.socket(getattr(zmq,PATTERN))
+socket.connect(ADDRESS)
+print "publish on %s as %s" % (ADDRESS, PATTERN)
 
 # Ensure subscriber connection has time to complete
 time.sleep(1)
