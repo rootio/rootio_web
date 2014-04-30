@@ -74,10 +74,12 @@ class ProgramForm(Form):
 
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
-        'definition':{"description":_("This field accepts arbitrary Python-dictionaries")},
+        'definition':{"description":_("This field expects JSON")},
+        'phone_functions':{"description":_("This field expects JSON")},
     }, exclude=['created_at','updated_at'])
 class ProgramTypeForm(ProgramTypeFormBase):
     definition = TextAreaField()
+    phone_functions = TextAreaField()
     submit = SubmitField(_('Save'))
 
 

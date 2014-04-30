@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
+from sqlalchemy_utils import JSONType
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
@@ -227,9 +228,8 @@ class ProgramType(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN),nullable=False)
     description = db.Column(db.Text,nullable=False)
-    definition = db.Column(db.PickleType,nullable=False)
-    phone_functions = db.Column(db.PickleType,nullable=False)
-    #TODO: more complex program definition?
+    definition = db.Column(JSONType,nullable=False)
+    phone_functions = db.Column(JSONType,nullable=False)
 
     def __unicode__(self):
         return self.name
