@@ -12,6 +12,7 @@
                 <th>{{ _('Name') }}</th>
                 <th>{{ _('Description') }}</th>
                 <th>{{ _('Definition') }}</th>
+                <th>{{ _('Phone Functions') }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
             <td>{{ program_type.name }}</td>
             <td>{{ program_type.description }}</td>
             <td>{{ program_type.definition }}</td>
+            <td>{{ program_type.phone_functions }}</td>
             <td><a href="{{ url_for('rootio.program_type', program_type_id=program_type.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
