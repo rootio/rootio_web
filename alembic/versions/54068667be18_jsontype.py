@@ -14,13 +14,23 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    # op.add_column(u'radio_programtype', sa.Column('definition', sa.Text(), nullable=True))
-    op.add_column(u'radio_programtype', sa.Column('phone_functions', sa.Text(), nullable=True))
+    # op.add_column('radio_programtype', sa.Column('definition', sa.PickleType(), nullable=True))
+    # op.add_column('radio_programtype', sa.Column('phone_functions', sa.PickleType(), nullable=True))
 
-    #fill with empty string
+    #clear existing values
     for col in ['definition','phone_functions']:
         field = sa.sql.table('radio_programtype', sa.sql.column(col))
         op.execute(field.update(values={col:''}))
+
+    #convert to text
+    op.alter_column(u'radio_programtype', 'definition',
+               type_=sa.Text(),
+               existing_type=sa.PickleType(),
+               nullable=False)
+    op.alter_column(u'radio_programtype', 'phone_functions',
+               type_=sa.Text(),
+               existing_type=sa.PickleType(),
+               nullable=False)
 
 def downgrade():
     op.drop_column('radio_programtype', 'definition')
