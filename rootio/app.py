@@ -142,7 +142,7 @@ def configure_extensions(app):
     try:
         schedule_config = read_config('instance/scheduler.cfg')
     except IOError: #use defaults
-        schedule_config = {'standalone':False, 'start_now':True}
+        schedule_config = {'standalone':False, 'start_now':False}
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
         app.logger.debug("starting scheduler")
