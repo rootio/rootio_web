@@ -9,7 +9,7 @@ from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 import pytz
 
-from .fields import DurationField, InlineFormField
+from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
 from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
 from .widgets import ChoicesSelect
@@ -78,8 +78,8 @@ ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=
         'phone_functions':{"description":_("This field expects JSON")},
     }, exclude=['created_at','updated_at'])
 class ProgramTypeForm(ProgramTypeFormBase):
-    definition = TextAreaField()
-    phone_functions = TextAreaField()
+    definition = JSONField()
+    phone_functions = JSONField()
     submit = SubmitField(_('Save'))
 
 

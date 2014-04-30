@@ -7,8 +7,8 @@ from flask.ext.admin.base import AdminIndexView
 
 from ..extensions import db
 from widgets import DateDisplayOnlyField
-from fields import JSONField
 
+from ..radio.fields import JSONField
 from ..radio.models import *
 from ..onair.models import *
 from ..telephony.models import *
