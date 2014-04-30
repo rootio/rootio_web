@@ -7,6 +7,7 @@ from flask.ext.admin.base import AdminIndexView
 
 from ..extensions import db
 from widgets import DateDisplayOnlyField
+from fields import JSONField
 
 from ..radio.models import *
 from ..onair.models import *
@@ -19,9 +20,13 @@ def datetime_formatter(view, context, model, name):
 class AdminView(ModelView):
     column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
     form_excluded_columns = ('created_at', 'updated_at')
-    # form_extra_fields = {
-    #      'last_updated': DateDisplayOnlyField('Last Updated', default="TBD")
-    # }
+    
+    def scaffold_form(self):
+        form_class = super(AdminView, self).scaffold_form()
+        #haven't figured out how to actually get instance 
+        # form_class.last_updated = DateDisplayOnlyField('Last Updated',
+        #                 default=self._get_field_value(self.model,'updated_at'))
+        return form_class
 
     def is_accessible(self):
         if current_user.is_authenticated():
@@ -43,6 +48,14 @@ class AdminHomeView(AdminIndexView):
     def is_accessible(self):
         return current_user.is_authenticated()
 
+class ProgramTypeView(AdminView):
+    #force these fields in, because flask-admin model convertor isn't finding them
+    def scaffold_form(self):
+        form_class = super(ProgramTypeView, self).scaffold_form()
+        form_class.definition = JSONField('Definition')
+        form_class.phone_functions = JSONField('Phone Functions')
+        return form_class
+
 def admin_routes(admin):
     admin.add_view(AdminView(Person, db.session, category='RootIO'))
     admin.add_view(AdminView(Language, db.session, category='RootIO'))
@@ -56,7 +69,7 @@ def admin_routes(admin):
 
     admin.add_view(AdminView(Station, db.session, category='Radio'))
     admin.add_view(AdminView(Program, db.session, category='Radio'))
-    admin.add_view(AdminView(ProgramType, db.session, category='Radio', name="ProgramType"))
+    admin.add_view(ProgramTypeView(ProgramType, db.session, category='Radio', name="ProgramType"))
     admin.add_view(AdminView(ScheduledProgram, db.session, category='Radio', name="ScheduledProgram"))
     admin.add_view(AdminView(ScheduledBlock, db.session, category='Radio', name="ScheduledBlock"))
     admin.add_view(AdminView(Episode, db.session, category='Radio'))
