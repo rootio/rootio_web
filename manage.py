@@ -28,19 +28,6 @@ def run():
     app.run(debug=True, use_reloader=False)
 
 @manager.command
-def print_jobs():
-    """Print pending jobs in scheduler"""
-    app.scheduler.print_jobs()
-
-@manager.command
-def scheduler_standalone():
-    """Start the scheduler in blocking mode"""
-    app.scheduler.start() #starts in a new thread
-    while not app.scheduler._stopped:
-        print app.scheduler.get_jobs()
-        time.sleep(1)
-
-@manager.command
 def alembic():
     """Run in local machine."""
     subprocess.call(["venv/bin/alembic", "init", "alembic"])

@@ -19,7 +19,7 @@ from .onair import onair
 from .telephony import telephony
 from .messenger import messenger
 
-from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
 from .utils import CustomJSONEncoder, read_config
 
 import zmq
