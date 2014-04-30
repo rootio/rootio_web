@@ -76,6 +76,8 @@ class Gateway(BaseMixin, db.Model):
     number_bottom = db.Column(db.Integer)
     sofia_string = db.Column(db.String(160))
     extra_string = db.Column(db.String(300))
+    gateway_prefix = db.Column(db.String(20))
+    is_goip = db.Column(db.Boolean)
 
     def __unicode__(self):
         return self.name
