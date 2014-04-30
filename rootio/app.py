@@ -19,7 +19,7 @@ from .onair import onair
 from .telephony import telephony
 from .scheduler import scheduler
 
-from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context, signals
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context
 from .utils import CustomJSONEncoder, read_config
 
 import zmq
@@ -58,6 +58,7 @@ def create_app(config=None, app_name=None, blueprints=None):
     configure_extensions(app)
     configure_template_filters(app)
     configure_error_handlers(app)
+    app.logger.info('application started')
 
     return app
 
@@ -141,7 +142,7 @@ def configure_extensions(app):
     try:
         schedule_config = read_config('instance/scheduler.cfg')
     except IOError: #use defaults
-        schedule_config = {'zmq_port':5556, 'zmq_pattern':'PUB'}
+        schedule_config = {'standalone':False, 'start_now':True}
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
         app.logger.debug("starting scheduler")
@@ -151,8 +152,8 @@ def configure_extensions(app):
     app.logger.debug('configuring zmq')
     try:
         # wrap zmq config in try/except, because it can fail easily
-        app.messenger = zmq_context.socket(getattr(zmq,schedule_config['zmq_pattern']))
-        app.messenger.bind("tcp://*:%s" % schedule_config['zmq_port'])
+        app.messenger = zmq_context.socket(getattr(zmq,app.config['ZMQ_SOCKET_TYPE']))
+        app.messenger.connect(app.config['ZMQ_BIND_ADDR'])
 
         # send startup message
         if app.debug:
@@ -162,9 +163,6 @@ def configure_extensions(app):
     except zmq.error.ZMQError:
         app.logger.error('unable to start zmq')
         app.messenger = None
-
-    # scheduler signals
-    app.signals = signals
 
 
 def configure_blueprints(app, blueprints):

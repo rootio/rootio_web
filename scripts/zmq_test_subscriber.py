@@ -2,6 +2,7 @@ import zmq
 import datetime
 
 ADDRESS = "ipc:///tmp/zmq.sock"
+#ADDRESS = "tcp://127.0.0.1:5556"
 PATTERN = "SUB"
 
 context = zmq.Context()
@@ -9,7 +10,7 @@ subscriber = context.socket(getattr(zmq,PATTERN))
 subscriber.bind(ADDRESS)
 print "listening to %s as %s" % (ADDRESS, PATTERN)
 
-subscriber.setsockopt(zmq.SUBSCRIBE, '1') #subscribe to all
+subscriber.setsockopt(zmq.SUBSCRIBE, '') #subscribe to all
 while True:
     try:
         topic, data = subscriber.recv_multipart()
