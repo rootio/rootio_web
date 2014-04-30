@@ -1,16 +1,15 @@
 import zmq
 import datetime
-import random
 
-port = "5556"
-pattern = "SUB"
+ADDRESS = "ipc:///tmp/zmq.sock"
+PATTERN = "SUB"
 
 context = zmq.Context()
-subscriber = context.socket(getattr(zmq,pattern))
-subscriber.connect("tcp://localhost:%s" % port)
-print "subscribe on %s as %s" % (port, pattern)
+subscriber = context.socket(getattr(zmq,PATTERN))
+subscriber.bind(ADDRESS)
+print "listening to %s as %s" % (ADDRESS, PATTERN)
 
-subscriber.setsockopt(zmq.SUBSCRIBE, "") #subscribe to all
+subscriber.setsockopt(zmq.SUBSCRIBE, '1') #subscribe to all
 while True:
     try:
         topic, data = subscriber.recv_multipart()
