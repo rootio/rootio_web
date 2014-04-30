@@ -20,7 +20,7 @@ while True:
         topic = random.randint(0,3)
         msg = random.choice(messages)
         print "%s: %s" % (topic, msg)
-        socket.send_multipart([b"%d" % topic, b"%s" % msg])
+        socket.send_json((topic, msg))
         time.sleep(1)
 
     except KeyboardInterrupt:

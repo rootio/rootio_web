@@ -2,7 +2,7 @@
 
 import os, sys
 import subprocess
-import errno
+import time
 
 from flask.ext.script import Manager
 
@@ -26,11 +26,6 @@ alembic_config = Config(os.path.realpath(os.path.dirname(__name__)) + "/alembic.
 def run():
     """Run webserver for local development."""
     app.run(debug=True, use_reloader=False)
-
-@manager.command
-def print_jobs():
-    """Print pending jobs in scheduler"""
-    app.scheduler.print_jobs()
 
 @manager.command
 def alembic():
