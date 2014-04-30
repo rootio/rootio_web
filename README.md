@@ -1,6 +1,6 @@
 # ABOUT
 
-This is the web application for Rootio Radio. Logged in users can manage stations, programs, schedules and people. A a read-only view of the [telephony server](https://github.com/rootio/rootio_telephony), shows incoming and outgoing calls, messages, and gateways. A web API is provided for the [handset client](https://github.com/rootio/rootio_handset), and is protected by key or user login.
+This is the web application for RootIO Radio. Logged in users can manage stations, programs, schedules and people. A a read-only view of the [telephony server](https://github.com/rootio/rootio_telephony), shows incoming and outgoing calls, messages, and gateways. A web API is provided for the [handset client](https://github.com/rootio/rootio_handset), and is protected by key or user login.
 
 ## REQUIREMENTS
 
@@ -20,7 +20,7 @@ Complete list of packages in [requirements.txt](https://github.com/rootio/rootio
 
 ## LICENSE
 
-Copyright (c) 2013 Rootio.org
+Copyright (c) 2013 RootIO.org
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
