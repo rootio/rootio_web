@@ -29,5 +29,4 @@ Fabric==1.7.0
 Flask-Restless==0.12.1
 Flask-Admin==1.0.7
 
-APScheduler==2.1.2
 pyzmq==14.2.0

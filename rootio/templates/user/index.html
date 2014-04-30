@@ -11,7 +11,7 @@
 
     {% if current_user.is_admin() %}
     <li><a href="{{ url_for('radio.emergency') }}">{{ _('Emergency Broadcast') }}</a></li>
-    <li><a href="{{ url_for('scheduler.message_test') }}">{{ _('Schedule Message Tester') }}</a></li>
+    <li><a href="{{ url_for('messenger.message_test') }}">{{ _('Schedule Message Tester') }}</a></li>
     {%endif%}
 </ul>
 
