@@ -48,7 +48,6 @@ def admin_routes(admin):
     admin.add_view(AdminView(Language, db.session, category='RootIO'))
     admin.add_view(AdminView(Network, db.session, category='RootIO'))
     admin.add_view(AdminView(Location, db.session, category='RootIO'))
-    admin.add_view(AdminView(ProgramType, db.session, category='RootIO', name="ProgramType"))
 
     admin.add_view(AdminView(PhoneNumber, db.session, category='Telephony', name="PhoneNumber"))
     admin.add_view(AdminView(Message, db.session, category='Telephony'))
@@ -57,6 +56,7 @@ def admin_routes(admin):
 
     admin.add_view(AdminView(Station, db.session, category='Radio'))
     admin.add_view(AdminView(Program, db.session, category='Radio'))
+    admin.add_view(AdminView(ProgramType, db.session, category='Radio', name="ProgramType"))
     admin.add_view(AdminView(ScheduledProgram, db.session, category='Radio', name="ScheduledProgram"))
     admin.add_view(AdminView(ScheduledBlock, db.session, category='Radio', name="ScheduledBlock"))
     admin.add_view(AdminView(Episode, db.session, category='Radio'))
