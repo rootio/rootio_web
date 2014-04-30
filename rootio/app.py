@@ -138,28 +138,31 @@ def configure_extensions(app):
 
     # APScheduler
     app.scheduler = ap_scheduler
-    schedule_config = read_config('instance/scheduler.cfg')
+    try:
+        schedule_config = read_config('instance/scheduler.cfg')
+    except IOError: #use defaults
+        schedule_config = {'zmq_port':5556, 'zmq_pattern':'PUB'}
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
         app.logger.debug("starting scheduler")
         app.scheduler.start()
 
     # configure zero mq
-    if hasattr(app,'messenger'):
-        # zmq already configured, skip to avoid socket double-bind
-        # because when running locally, code executes twice
-        app.logger.debug('zmq configured')
-    else:
-        app.logger.debug('configuring zmq')
+    app.logger.debug('configuring zmq')
+    try:
+        # wrap zmq config in try/except, because it can fail easily
         app.messenger = zmq_context.socket(getattr(zmq,schedule_config['zmq_pattern']))
         app.messenger.bind("tcp://*:%s" % schedule_config['zmq_port'])
 
-    # send startup message
-    if app.debug:
-        import time;
-        time.sleep(1)
-        app.messenger.send_multipart([b"zmq", b"server startup (debug=True)"])
-    
+        # send startup message
+        if app.debug:
+            import time;
+            time.sleep(1)
+            app.messenger.send_multipart([b"zmq", b"server startup (debug=True)"])
+    except zmq.error.ZMQError:
+        app.logger.error('unable to start zmq')
+        app.messenger = None
+
     # scheduler signals
     app.signals = signals
 
