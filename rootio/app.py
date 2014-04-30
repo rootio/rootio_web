@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, g, request, render_template, current_app, session
+from flask import Flask, g, request, render_template, session
 from flask.ext.babel import Babel
 
 from flask.ext.admin import Admin
@@ -17,9 +17,12 @@ from .rootio import rootio
 from .radio import radio
 from .onair import onair
 from .telephony import telephony
-from .extensions import db, mail, cache, login_manager, oid, rest, csrf
-from .utils import CustomJSONEncoder
+from .scheduler import scheduler
 
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf, ap_scheduler, zmq_context
+from .utils import CustomJSONEncoder, read_config
+
+import zmq
 
 # For import *
 __all__ = ['create_app']
@@ -33,6 +36,7 @@ DEFAULT_BLUEPRINTS = (
     telephony,
     settings,
     api,
+    scheduler,
 )
 
 
@@ -49,11 +53,12 @@ def create_app(config=None, app_name=None, blueprints=None):
 
     configure_app(app, config)
     configure_hook(app)
+    configure_logging(app)
     configure_blueprints(app, blueprints)
     configure_extensions(app)
-    configure_logging(app)
     configure_template_filters(app)
     configure_error_handlers(app)
+    app.logger.info('application started')
 
     return app
 
@@ -131,6 +136,34 @@ def configure_extensions(app):
     # flask-admin
     admin = Admin(app, name='RootIO Backend', index_view=AdminHomeView())
     admin_routes(admin) #add flask-admin classes
+
+    # APScheduler
+    app.scheduler = ap_scheduler
+    try:
+        schedule_config = read_config('instance/scheduler.cfg')
+    except IOError: #use defaults
+        schedule_config = {'standalone':False, 'start_now':False}
+    app.scheduler.configure(schedule_config)
+    if 'start_now' in schedule_config and schedule_config['start_now']:
+        app.logger.info("starting scheduler")
+        app.scheduler.start()
+
+    # configure zero mq
+    app.logger.info('configuring zmq')
+    try:
+        # wrap zmq config in try/except, because it can fail easily
+        app.messenger = zmq_context.socket(getattr(zmq,app.config['ZMQ_SOCKET_TYPE']))
+        app.messenger.connect(app.config['ZMQ_BIND_ADDR'])
+        app.logger.info('zmq connected %s' % app.config['ZMQ_BIND_ADDR'])
+
+        # send startup message
+        if app.debug:
+            import time;
+            time.sleep(1)
+            app.messenger.send_multipart([b"zmq", b"server startup (debug=True)"])
+    except zmq.error.ZMQError:
+        app.logger.error('unable to start zmq')
+        app.messenger = None
 
 
 def configure_blueprints(app, blueprints):

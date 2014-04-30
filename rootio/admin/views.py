@@ -1,11 +1,12 @@
 #flask-admin views
+import pytz
+
 from flask.ext.login import current_user
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.base import AdminIndexView
 
-from widgets import DateDisplayOnlyField
-
 from ..extensions import db
+from widgets import DateDisplayOnlyField
 
 from ..radio.models import *
 from ..onair.models import *
@@ -27,6 +28,15 @@ class AdminView(ModelView):
             return current_user.role_code == 0
         else:
             return False
+
+    def on_model_change(self, form, model, is_created=False):
+        #check to ensure all datetime fields have valid timezone
+        datetimefields = ['start','end']
+        for f in datetimefields:
+            if hasattr(model,f):
+                field = getattr(model,f)
+                if field.tzinfo == None:
+                    setattr(model,f,pytz.utc.localize(field))
 
 
 class AdminHomeView(AdminIndexView):
