@@ -1,0 +1,9 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active|capitalize) %}
+{% set page_title = page_header %}
+
+{% set tab_title = "Messenger" %}
+{% set tabs = [
+    (_("Message Test"), url_for('messenger.message_test')), 
+]%}
