@@ -221,12 +221,14 @@ t_station_incominggateway = db.Table(
 
 
 class ProgramType(BaseMixin, db.Model):
-    "A flexible definition of program dynamics"
+    """A flexible definition of program dynamics, with python script (definition) for the definition
+       and json description (phone_functions) of necessary functions, media, &etc the phone will have to run."""
     __tablename__ = u'radio_programtype'
 
     name = db.Column(db.String(STRING_LEN),nullable=False)
     description = db.Column(db.Text,nullable=False)
     definition = db.Column(db.PickleType,nullable=False)
+    phone_functions = db.Column(db.PickleType,nullable=False)
     #TODO: more complex program definition?
 
     def __unicode__(self):
