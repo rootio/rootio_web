@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    op.add_column(u'radio_programtype', sa.Column('definition', sa.Text(), nullable=True))
+    # op.add_column(u'radio_programtype', sa.Column('definition', sa.Text(), nullable=True))
     op.add_column(u'radio_programtype', sa.Column('phone_functions', sa.Text(), nullable=True))
 
     #fill with empty string
