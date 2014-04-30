@@ -1,12 +1,14 @@
 # ABOUT
 
-## CONTEXT
+This is the web application for Rootio Radio. Logged in users can manage stations, programs, schedules and people. A a read-only view of the [telephony server](https://github.com/rootio/rootio_telephony), shows incoming and outgoing calls, messages, and gateways. A web API is provided for the [handset client](https://github.com/rootio/rootio_handset), and is protected by key or user login.
 
 ## REQUIREMENTS
 
 * Flask
 * SQLAlchemy
 * Alembic
+* APScheduler
+* ZeroMQ
 
 Complete list of packages in [requirements.txt](https://github.com/rootio/rootio_web/blob/master/requirements.txt)
 
