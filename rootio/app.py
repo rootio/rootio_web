@@ -145,15 +145,16 @@ def configure_extensions(app):
         schedule_config = {'standalone':False, 'start_now':False}
     app.scheduler.configure(schedule_config)
     if 'start_now' in schedule_config and schedule_config['start_now']:
-        app.logger.debug("starting scheduler")
+        app.logger.info("starting scheduler")
         app.scheduler.start()
 
     # configure zero mq
-    app.logger.debug('configuring zmq')
+    app.logger.info('configuring zmq')
     try:
         # wrap zmq config in try/except, because it can fail easily
         app.messenger = zmq_context.socket(getattr(zmq,app.config['ZMQ_SOCKET_TYPE']))
         app.messenger.connect(app.config['ZMQ_BIND_ADDR'])
+        app.logger.info('zmq connected %s' % app.config['ZMQ_BIND_ADDR'])
 
         # send startup message
         if app.debug:

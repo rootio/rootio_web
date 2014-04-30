@@ -2,7 +2,6 @@ from messages import start_program
 from flask import current_app
 
 from datetime import datetime, timedelta
-import logging; logging.basicConfig()
 
 def schedule_program_start(program_id, station_id, start_time, window=None):
     """Takes a radio.ScheduledProgram and adds it to APScheduler to send message
