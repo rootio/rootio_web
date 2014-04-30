@@ -1,0 +1,23 @@
+{% extends "scheduler/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Scheduled Jobs') }}</h2>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Function') }}</th>
+                <th>{{ _('Message') }}</th>
+            </tr>
+        </thead>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.name }}</td>
+            <td>{{ job.function }}({{job.args}})</td>
+            <td>TBD</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
