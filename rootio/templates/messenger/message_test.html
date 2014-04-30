@@ -1,4 +1,4 @@
-{% extends "scheduler/layout.html" %}
+{% extends "messenger/layout.html" %}
 
 {% block body %}
 <div class="container">
@@ -40,7 +40,7 @@ $(document).ready(function() {
         event.preventDefault();
         form_data = $('form#message_test').serializeArray();
         
-        $.ajax('/scheduler/message_test_ajax/', {
+        $.ajax('/messenger/test_ajax/', {
             type: 'POST',
             data: JSON.stringify(form_data, null, '\t'),
             contentType: 'application/json;charset=UTF-8',
