@@ -1,4 +1,5 @@
 from apscheduler.scheduler import Scheduler
+from apscheduler.events import EVENT_SCHEDULER_SHUTDOWN
 import logging
 
 class MessageScheduler(object):
@@ -8,14 +9,25 @@ class MessageScheduler(object):
         config = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
                    'apscheduler.jobstores.file.url':  url}      
         self._scheduler.configure(config)
+        self.is_running = False
+
+    def shutdown_listener(self, event):
+        if not self.is_running:
+            logging.error('unexpected shutdown, restarting')
+            self.start()
+        else:
+            logging.info('expected shutdown')
 
     def start(self):
         logging.info("scheduler start")
         self._scheduler.start()
+        self._scheduler.add_listener(self.shutdown_listener, EVENT_SCHEDULER_SHUTDOWN)
+        self.is_running = True
 
     def shutdown(self):
         logging.info("scheduler shutdown")
         self._scheduler.shutdown()
+        self.is_running = False
 
     def schedule_message(self, topic, message, send_at):
         logging.info("schedule message %s:%s at %s" % (topic, message, send_at))
