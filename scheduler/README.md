@@ -4,4 +4,9 @@ This is the scheduler daemon that collects messages from rootio_web and sends th
 
 ## Start
 
-`python run.py`
+`python run.py --log=[error, warn, info, debug]`
+
+## To Do
+- log to files, create web view for remote troubleshooting
+- send msg_id back to rootio_web, for schedule update / delete
+- wrap in python-daemon and monitor with upstart

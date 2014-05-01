@@ -33,6 +33,7 @@ if __name__ == "__main__":
     numeric_level = getattr(logging, args.log.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % args.log)
+    
     logging.basicConfig(name='rootio_scheduler',level=numeric_level)
 
     try:

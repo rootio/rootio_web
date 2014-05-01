@@ -12,6 +12,7 @@ class MessageScheduler(object):
     def start(self):
         logging.info("scheduler start")
         self._scheduler.start()
+
     def shutdown(self):
         logging.info("scheduler shutdown")
         self._scheduler.shutdown()
@@ -22,8 +23,11 @@ class MessageScheduler(object):
         #create lambda for scheduler to call at execution time
 
         #and add it
-        job = self._scheduler.add_date_job(self._broker.forward, send_at, args=(topic, message))
-        logging.debug("scheduled job_id", job.id)
+        try:
+            job = self._scheduler.add_date_job(self._broker.forward, send_at, args=(topic, message))
+            logging.debug("scheduled job_id", job.id)
+        except ValueError,e:
+            logging.error(e)
 
     def cancel_message(self, message_id):
         logging.info("cancel message_id %s" % message_id)
