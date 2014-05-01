@@ -1,13 +1,11 @@
 from apscheduler.scheduler import Scheduler
 
 class MessageScheduler(object):
-    def __init__(self):
+    def __init__(self, jobstore, url):
         self._scheduler = Scheduler(daemonic=True)
 
-        # use redis job store for durability
-        #config = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores.shelve_store:RedisJobStore'}
-
-        config = {} #start with default RAMStore for testing
+        config = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
+                   'apscheduler.jobstores.file.url':  url}      
         self._scheduler.configure(config)
 
     def start(self):
@@ -24,7 +22,7 @@ class MessageScheduler(object):
 
         #and add it
         job = self._scheduler.add_date_job(self._broker.forward, send_at, args=(topic, message))
-        print "scheduled job", job
+        print "scheduled job_id", job.id
 
     def cancel_message(self, message_id):
         print "cancel message_id %s" % message_id

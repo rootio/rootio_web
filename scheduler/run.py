@@ -1,11 +1,12 @@
 import atexit
-
+from env import read_env
 from broker import MessageBroker
 from scheduler import MessageScheduler
 
 if __name__ == "__main__":
+    config = read_env('config.cfg')
     
-    scheduler = MessageScheduler()
+    scheduler = MessageScheduler(config['jobstore'],config['url'])
     broker = MessageBroker(scheduler)
     
     # start scheduler in own thread
