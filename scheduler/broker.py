@@ -1,6 +1,8 @@
 import zmq
 from switch import switch
 from datetime import datetime, timedelta
+import json
+import logging
 
 # from zmq.eventloop import ioloop, zmqstream
 # ioloop.install()
@@ -26,11 +28,13 @@ class MessageBroker(object):
 
     def forward(self, topic, msg):
         " Send a message on to rootio_telephony "
-        print "fwd %s: %s" % (topic, msg)
+        logging.debug("fwd %s: %s" % (topic, msg))
         self._telephony_pub.send_json([topic, msg])
 
 
     def schedule(self, topic, msg):
+        logging.debug("schedule",topic,msg)
+
         if 'msg_id' in msg:
             msg_id = msg.pop('msg_id')
 
@@ -58,8 +62,14 @@ class MessageBroker(object):
         else:
             self._msg_scheduler.schedule_message(topic, msg, msg_time)
 
-    def parse(self, topic, msg):
-        print "parse %s: %s" % (topic, msg)
+    def parse(self, topic, msg_string):
+        logging.debug("parse %s: %s" % (topic, msg_string))
+
+        try:
+            msg = json.loads(msg_string)
+            logging.debug('got json msg %s' % msg)
+        except ValueError:
+            msg = msg_string
 
         for case in switch(topic):
             if case("scheduler"):
@@ -74,7 +84,7 @@ class MessageBroker(object):
 
     def start(self):
         " Run forever. Launch in separate process. "
-        print "broker start"
+        logging.debug("broker start")
 
         # ioloop method
         # self._web_pair.on_recv(self.parse)
@@ -82,11 +92,11 @@ class MessageBroker(object):
         # single threaded method
         while self.running:
             topic, message = self._web_pair.recv_json()
-            print "recv %s: %s" % (topic, message)
+            logging.info("recv %s: %s" % (topic, message))
             self.parse(topic, message)
 
 
     def shutdown(self):
-        print "broker shutdown"
+        logging.info("broker shutdown")
         self.running = False
         # ioloop.IOLoop.instance().stop()
