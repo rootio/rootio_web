@@ -69,6 +69,10 @@ class MessageBroker(object):
             msg = json.loads(msg_string)
             logging.debug('got json msg %s' % msg)
         except ValueError:
+            logging.debug('got string msg %s' % msg_string)
+            msg = msg_string
+        except TypeError:
+            logging.error('could not parse json %s' % msg_string)
             msg = msg_string
 
         for case in switch(topic):
