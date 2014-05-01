@@ -32,7 +32,7 @@ class BaseConfig(object):
     UPLOAD_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'uploads')
     make_dir(UPLOAD_FOLDER)
 
-    ZMQ_SOCKET_TYPE = "PUB"
+    ZMQ_SOCKET_TYPE = "PAIR"
     ZMQ_BIND_ADDR = "ipc:///tmp/zmq.sock"
 
 class DefaultConfig(BaseConfig):
