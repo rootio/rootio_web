@@ -2,7 +2,6 @@ import zmq
 import datetime
 
 ADDRESS = "ipc:///tmp/zmq.sock"
-#ADDRESS = "tcp://127.0.0.1:5556"
 PATTERN = "SUB"
 
 context = zmq.Context()
