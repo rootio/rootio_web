@@ -12,5 +12,5 @@ telephony, or delays them until a specified time. This decoupled communication
 provides flexibility, at the expense of slightly higher intial setup.
 
 The RootIO application should be run by Apache or other WSGI web server. The
-Scheduler flask application must be run by the same user, so that IPC sockets
+Scheduler application must be run by the same user, so that IPC sockets
 are readable by both parties.
