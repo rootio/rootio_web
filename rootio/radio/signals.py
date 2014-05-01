@@ -17,7 +17,9 @@ def on_models_committed(sender, changes):
             messages.schedule_program(operation, obj.program_id, obj.station_id, obj.start)
             
         if isinstance(obj, Station) and operation is "update":
-            messages.station_update_fields(obj.id, )
+            #TODO, determine which fields changed on the model
+            #messages.station_update_fields(obj.id, changed_fields)
+            pass
 
         #other models we need to send messages about?
             # station db fields update (gateway, client_update_frequency, etc)
