@@ -19,15 +19,15 @@ def run():
 
     # shut scheduler threads cleanly at exit
     atexit.register(lambda: scheduler.shutdown())
-
+    atexit.register(lambda: broker.shutdown())
     # start message broker ioloop
     try:
-        Process(target=broker.listener, args=('55666',)).start()
-	    Process(target=broker.listener2, args=('55665',)).start()
+        print Process(target=broker.listener, args=('55666',)).start()
+	print Process(target=broker.listener2, args=('55665',)).start()
     except KeyboardInterrupt:
         broker.shutdown()
     except Exception, e:
-	    logging.debug(print "exception in run():{}".format(e))
+	logging.debug("exception in run():{}".format(e))
     try:
         while(1):
 	       pass
