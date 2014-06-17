@@ -4,22 +4,31 @@ from datetime import datetime, timedelta
 import json
 import logging
 
-# from zmq.eventloop import ioloop, zmqstream
-# ioloop.install()
+MESSAGE_QUEUE_PORT_TELEPHONY = "55666"
+
+from multiprocessing import Process
+from zmq.eventloop import ioloop, zmqstream
+ioloop.install()
 
 class MessageBroker(object):
     def __init__(self, msg_scheduler):
         " Set up and bind sockets "
         
         # IPC pair socket to rootio_web
-        self._web_pair = zmq.Context().socket(zmq.PAIR)
-        self._web_pair.bind("ipc:///tmp/zmq.sock")
-        #self._web_pair = zmqstream.ZMQStream(self._web_pair)
+        self._web_pair_sock = zmq.Context().socket(zmq.PAIR)
+        self._web_pair_sock.bind("ipc:///tmp/zmq.sock")
+        self._web_pair_stream = zmqstream.ZMQStream(self._web_pair_sock)
 
-        # TCP publisher socket to rootio_telephony
-        self._telephony_pub = zmq.Context().socket(zmq.PUB)
-        self._telephony_pub.bind("tcp://127.0.0.1:5556")
-        #self._telephony_pub = zmqstream.ZMQStream(self._telephony_pub)
+        # TCP publisher socket to station daemons
+        self._station_daemon_pub = zmq.Context().socket(zmq.PUB)
+        self._station_daemon_pub.bind("tcp://127.0.0.1:5556")
+        self._station_daemon_stream = zmqstream.ZMQStream(self._station_daemon_pub)
+
+        # Subscribe to stream from rootio_telephony -- calls, messages, etc. 
+        # then relay them to station daemons
+        self._telephony_sock = zmq.Context().socket(zmq.SUB)
+        self._telephony_sock.connect ("tcp://localhost:%s" % MESSAGE_QUEUE_PORT_TELEPHONY)
+        self._telephony_stream = zmqstream.ZMQStream(self._telephony_sock)
 
         #set bidirectional links
         self._msg_scheduler = msg_scheduler
@@ -29,7 +38,7 @@ class MessageBroker(object):
     def forward(self, topic, msg):
         " Send a message on to rootio_telephony "
         logging.debug("fwd %s: %s" % (topic, msg))
-        self._telephony_pub.send_json([topic, msg])
+        self._station_daemon_stream.send_json([topic, msg])
 
 
     def schedule(self, topic, msg):
@@ -90,17 +99,22 @@ class MessageBroker(object):
         " Run forever. Launch in separate process. "
         logging.debug("broker start")
 
-        # ioloop method
-        # self._web_pair.on_recv(self.parse)
+        #ioloop method
+        self._web_pair_stream.on_recv(self.parse)
+        self._telephony_stream.on_recv(self.forward)
+
         self.running = True
-        # single threaded method
         while self.running:
-            topic, message = self._web_pair.recv_json()
-            logging.info("recv %s: %s" % (topic, message))
-            self.parse(topic, message)
+            pass
+        ioloop.IOLoop.instance().stop()
+        # single threaded method
+        #while self.running:
+        #    topic, message = self._web_pair.recv_json()
+        #    logging.info("recv %s: %s" % (topic, message))
+        #    self.parse(topic, message)
 
 
     def shutdown(self):
         logging.info("broker shutdown")
         self.running = False
-        # ioloop.IOLoop.instance().stop()
+        ioloop.IOLoop.instance().stop()
