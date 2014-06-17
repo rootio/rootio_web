@@ -97,7 +97,8 @@ class MessageBroker(object):
     def listener2(self, port_sub="55665"):
         context = zmq.Context()
         socket_sub = context.socket(zmq.PAIR)
-        socket_sub.connect("ipc:///tmp/zmq.sock")
+        #socket_sub.connect("ipc:///tmp/zmq.sock")
+        socket_sub.connect("tcp://localhost:%s" % port_sub)
         stream_sub = zmqstream.ZMQStream(socket_sub)
         stream_sub.on_recv(self.process_message)
         print "Connected to publisher with port %s" % port_sub
