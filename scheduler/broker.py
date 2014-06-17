@@ -27,7 +27,6 @@ class MessageBroker(object):
         # Subscribe to stream from rootio_telephony -- calls, messages, etc. 
         # then relay them to station daemons
         self._telephony_sock = zmq.Context().socket(zmq.SUB)
-        self._telephony_sock.setsockopt(zmq.SUBSCRIBE, '')
         self._telephony_sock.connect ("tcp://127.0.0.1:%s" % MESSAGE_QUEUE_PORT_TELEPHONY)
         self._telephony_stream = zmqstream.ZMQStream(self._telephony_sock)
 
@@ -95,7 +94,11 @@ class MessageBroker(object):
             if case(): # default
                 self.forward(topic, msg)
                 break
-
+    def listener(self, stream, function):
+        logging.debug("Listener attempting to launch stream {} with callback function {}".format(str(stream), str(function)))
+        self.stream.on_recv(self.function)
+        ioloop.IOLoop.instance().start()
+        logging.debug("Listener has stopped processing messages.")
 
     def start(self):
         " Run forever. Launch in separate process. "
