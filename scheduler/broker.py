@@ -12,26 +12,8 @@ ioloop.install()
 
 class MessageBroker(object):
     def __init__(self, msg_scheduler):
-        " Set up and bind sockets "
+        " Set up and bind sockets now happens in the listeners "
         
-        # IPC pair socket to rootio_web
-#        context_web = zmq.Context()
-#	self._web_pair_sock = context_web.socket(zmq.PAIR)
-#        self._web_pair_sock.bind("tcp://127.0.0.1:55665")
-#        self._web_pair_stream = zmqstream.ZMQStream(self._web_pair_sock)
-
-        # TCP publisher socket to station daemons
-        #self._station_daemon_pub = zmq.Context().socket(zmq.PUB)
-        #self._station_daemon_pub.bind("tcp://127.0.0.1:5556")
-        #self._station_daemon_stream = zmqstream.ZMQStream(self._station_daemon_pub)
-
-        # Subscribe to stream from rootio_telephony -- calls, messages, etc. 
-        # then relay them to station daemons
-	#self._telephony_sock = zmq.Context().socket(zmq.SUB)
-        #self._telephony_sock.bind("tcp://*:%s" % MESSAGE_QUEUE_PORT_TELEPHONY)
-        #self._telephony_sock.setsockopt(zmq.SUBSCRIBE, "")
-	#self._telephony_stream = zmqstream.ZMQStream(self._telephony_sock)
-
         #set bidirectional links
         self._msg_scheduler = msg_scheduler
         self._msg_scheduler._broker = self
@@ -97,32 +79,30 @@ class MessageBroker(object):
                 self.forward(topic, msg)
                 break
     def process_message(self, msg):
-	print "Processing ... %s" % msg
+       print "Processing ... %s" % msg
 
     def listener(self, port_sub):
-	# Subscribe to stream from rootio_telephony -- calls, messages, etc. 
+        # Subscribe to stream from rootio_telephony -- calls, messages, etc. 
         # then relay them to station daemons
-	context = zmq.Context()
-	socket_sub = context.socket(zmq.SUB)
-	socket_sub.connect ("tcp://localhost:%s" % port_sub)
-	socket_sub.setsockopt(zmq.SUBSCRIBE, "")
-	stream_sub = zmqstream.ZMQStream(socket_sub)
-	stream_sub.on_recv(self.process_message)
-	print "Connected to publisher with port %s" % port_sub
-	ioloop.IOLoop.instance().start()
-	print "Worker has stopped processing messages."
+       context = zmq.Context()
+       socket_sub = context.socket(zmq.SUB)
+       socket_sub.connect ("tcp://localhost:%s" % port_sub)
+       socket_sub.setsockopt(zmq.SUBSCRIBE, "")
+       stream_sub = zmqstream.ZMQStream(socket_sub)
+       stream_sub.on_recv(self.process_message)
+       print "Connected to publisher with port %s" % port_sub
+       ioloop.IOLoop.instance().start()
+       print "Worker has stopped processing messages."
 
     def listener2(self, port_sub="55665"):
         context = zmq.Context()
         socket_sub = context.socket(zmq.PAIR)
         socket_sub.connect("ipc:///tmp/zmq.sock")
-	stream_sub = zmqstream.ZMQStream(socket_sub)
-	stream_sub.on_recv(self.process_message)
-	print "Connected to publisher with port %s" % port_sub
+        stream_sub = zmqstream.ZMQStream(socket_sub)
+        stream_sub.on_recv(self.process_message)
+        print "Connected to publisher with port %s" % port_sub
         ioloop.IOLoop.instance().start()
         print "Worker has stopped processing messages."
-
-
 
     def shutdown(self):
         logging.info("broker shutdown")
