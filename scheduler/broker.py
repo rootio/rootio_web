@@ -27,7 +27,8 @@ class MessageBroker(object):
         # Subscribe to stream from rootio_telephony -- calls, messages, etc. 
         # then relay them to station daemons
         self._telephony_sock = zmq.Context().socket(zmq.SUB)
-        self._telephony_sock.connect ("tcp://localhost:%s" % MESSAGE_QUEUE_PORT_TELEPHONY)
+        self._telephony_sock.setsockopt(zmq.SUBSCRIBE, '')
+        self._telephony_sock.connect ("tcp://127.0.0.1:%s" % MESSAGE_QUEUE_PORT_TELEPHONY)
         self._telephony_stream = zmqstream.ZMQStream(self._telephony_sock)
 
         #set bidirectional links
@@ -95,6 +96,7 @@ class MessageBroker(object):
                 self.forward(topic, msg)
                 break
 
+
     def start(self):
         " Run forever. Launch in separate process. "
         logging.debug("broker start")
@@ -102,6 +104,7 @@ class MessageBroker(object):
         #ioloop method
         self._web_pair_stream.on_recv(self.parse)
         self._telephony_stream.on_recv(self.forward)
+        ioloop.IOLoop.instance().start()
 
         self.running = True
         while self.running:
