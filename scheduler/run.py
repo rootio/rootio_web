@@ -22,15 +22,17 @@ def run():
 
     # start message broker ioloop
     try:
-        server_pub_port = "55666"
-        Process(target=broker.listener, args=(server_pub_port,)).start()
-	Process(target=broker.listener2, args=('55665',)).start()
+        Process(target=broker.listener, args=('55666',)).start()
+	    Process(target=broker.listener2, args=('55665',)).start()
     except KeyboardInterrupt:
         broker.shutdown()
-    except Exception:
-	print "exception in run()"
-    while(1):
-	continue
+    except Exception, e:
+	    logging.debug(print "exception in run():{}".format(e))
+    try:
+        while(1):
+	       pass
+    except:
+        broker.shutdown()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='RootIO Scheduled Message Broker')
 
