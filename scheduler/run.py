@@ -22,13 +22,15 @@ def run():
 
     # start message broker ioloop
     try:
-        web_pair_listener = Process(target=self.listener, args=(broker._web_pair_stream, broker.parse))
-        web_pair_listener.start()
-        telephony_listener = Process(target=self.listener, args=(broker._telephony_stream, broker.forward))
-        telephony_listener.start()
+        server_pub_port = "55666"
+        Process(target=broker.listener, args=(server_pub_port,)).start()
+	Process(target=broker.listener2, args=('55665',)).start()
     except KeyboardInterrupt:
         broker.shutdown()
-
+    except Exception:
+	print "exception in run()"
+    while(1):
+	continue
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='RootIO Scheduled Message Broker')
 
