@@ -6,6 +6,8 @@ from env import read_env
 from broker import MessageBroker
 from scheduler import MessageScheduler
 
+from  multiprocessing import Process
+
 def run():
     config = read_env('config.cfg')
     
@@ -20,7 +22,10 @@ def run():
 
     # start message broker ioloop
     try:
-        broker.start()
+        web_pair_listener = Process(target=self.listener, args=(broker._web_pair_stream, broker.parse))
+        web_pair_listener.start()
+        telephony_listener = Process(target=self.listener, args=(broker._telephony_stream, broker.forward))
+        telephony_listener.start()
     except KeyboardInterrupt:
         broker.shutdown()
 
