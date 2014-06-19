@@ -3,7 +3,6 @@ import logging
 import argparse
 
 from env import read_env
-from broker import MessageBroker
 from scheduler import MessageScheduler
 
 from  multiprocessing import Process
@@ -19,6 +18,7 @@ def run():
     # shut scheduler threads cleanly at exit
     atexit.register(lambda: scheduler.shutdown())
 
+    logging.info("About to launch scheduler listener")
     # start listener for new schedule events from anywhere
     try:
         scheduler.start_listener()
