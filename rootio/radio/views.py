@@ -16,6 +16,8 @@ from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
 
+from ..messenger import messages
+
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
@@ -253,7 +255,10 @@ def schedule_program_add_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
-
+    
+    #tell scheduler program has been added 
+    messages.schedule_program('insert', scheduled_program.id, scheduled_program.program_id, scheduled_program.station_id, scheduled_program.start)
+ 
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
@@ -278,6 +283,9 @@ def schedule_program_edit_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
+
+    #tell scheduler that this scheduled program has changed
+    messages.schedule_program('update', scheduled_program.id, scheduled_program.program_id, scheduled_program.station_id, scheduled_program.start)
 
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 

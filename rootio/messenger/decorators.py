@@ -10,5 +10,5 @@ def sends_json(f):
     def decorated_function(*args, **kwargs):
         (topic, msg) = f(*args, **kwargs)
         m = "%s %s" % (topic, msg)
-	current_app.messenger.send(topic, msg)
+	current_app.messenger.send(m)
     return decorated_function
