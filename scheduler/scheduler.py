@@ -2,7 +2,15 @@
 import sys
 from apscheduler.scheduler import Scheduler
 import zmq
+import json
+from switch import switch
 import logging
+
+# necessary to understand schedule messages
+import datetime
+from dateutil.tz import tzlocal
+from datetime import tzinfo
+import psycopg2
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
@@ -11,6 +19,10 @@ class MessageScheduler(object):
         config = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
                    'apscheduler.jobstores.file.url':  url}      
         self._scheduler.configure(config)
+
+	self.broadcast_socket = zmq.Context().socket(zmq.PUB)
+	BROADCAST_PORT = "55777"
+	self.broadcast_socket.connect("tcp://localhost:%s" % BROADCAST_PORT)
 
     def start_ap_daemon(self):
         logging.info("scheduler start")
@@ -21,7 +33,7 @@ class MessageScheduler(object):
         self._scheduler.shutdown()
 
     def schedule(self, topic, msg):
-        logging.debug("schedule",topic,msg)
+        logging.debug("schedule received {}: {}".format(topic,msg))
 
         if 'msg_id' in msg:
             msg_id = msg.pop('msg_id')
@@ -50,6 +62,11 @@ class MessageScheduler(object):
         else:
             self.schedule_message(topic, msg, msg_time)
 
+    def send_to_station(self, topic, msg):
+        " Send a message on to rootio_telephony "
+        logging.debug("fwd %s: %s" % (topic, msg))
+        self._station_daemon_stream.send_json([topic, msg])
+
     def schedule_message(self, topic, message, send_at):
         logging.info("schedule message %s:%s at %s" % (topic, message, send_at))
 
@@ -57,7 +74,7 @@ class MessageScheduler(object):
 
         #and add it
         try:
-            job = self._scheduler.add_date_job(self._broker.forward, send_at, args=(topic, message))
+            job = self._scheduler.add_date_job(self.send_to_station, send_at, args=(topic, message))
             logging.debug("scheduled job_id", job.id)
         except ValueError,e:
             logging.error(e)
@@ -104,11 +121,15 @@ class MessageScheduler(object):
             try:
                 msg = self.socket.recv()
                 logging.info("Scheduler received %s" % (msg ))
-		#self.schedule(topic, message)
+		topic = msg.split()[0]
+		message = "".join(["%s" % i for i in msg.split()[1:]])
+		message = eval(message)
+		logging.info("topic = {}, message = {}".format(topic, message))
+		self.schedule(topic, message)
             except Exception, e:
-                logging.debug("Stopping scheduler listener")
+                logging.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
         self.socket.close()
-	logging.debug("Stopping scheduler listener")
+	logging.debug("Stopping scheduler listener -- this should only print once at termination")
 
     def shutdown(self):
         logging.info("broker shutdown")

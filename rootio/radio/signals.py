@@ -14,8 +14,8 @@ def on_models_committed(sender, changes):
         # can't do any foreignkey lookups here b/c db is in commit, just id fields
         # have to load anything else necessary when it hits telephony_server
         if isinstance(obj, ScheduledProgram):
-            messages.schedule_program(operation, obj.program_id, obj.station_id, obj.start)
-            
+            #messages.schedule_program(operation, obj.id, obj.program_id, obj.station_id, obj.start)
+            pass 
         if isinstance(obj, Station) and operation is "update":
             #TODO, determine which fields changed on the model
             #messages.station_update_fields(obj.id, changed_fields)

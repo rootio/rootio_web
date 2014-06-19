@@ -6,13 +6,14 @@ def test_message(topic, msg):
     return (topic, msg)
 
 @sends_json
-def schedule_program(operation, program_id, station_id, start_time, updated=False):
+def schedule_program(operation,obj_id, program_id, station_id, start_time, updated=False):
     """ Tells the scheduler to start program_id on station_id at start_time
      If operation is 'delete', scheduler will remove existing job
      If operation is 'update', scheduler will remove and re-add job
     """
     topic = "scheduler"
-    msg = {'operation': operation,
+    msg = {'msg_id':obj_id,
+	   'operation': operation,
            'program_id': program_id,
            'station_id': station_id,
            'start_time': start_time}
