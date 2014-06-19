@@ -12,27 +12,22 @@ def run():
     config = read_env('config.cfg')
     
     scheduler = MessageScheduler(config['jobstore'],config['url'])
-    broker = MessageBroker(scheduler)
     
-    # start scheduler in own thread
-    scheduler.start()
+    # start APscheduler daemon in own thread
+    scheduler.start_ap_daemon()
 
     # shut scheduler threads cleanly at exit
     atexit.register(lambda: scheduler.shutdown())
-    atexit.register(lambda: broker.shutdown())
-    # start message broker ioloop
+
+    # start listener for new schedule events from anywhere
     try:
-        print Process(target=broker.listener, args=('55666',)).start()
-	print Process(target=broker.listener2, args=('55665',)).start()
+        scheduler.start_listener()
     except KeyboardInterrupt:
-        broker.shutdown()
+        scheduler.shutdown()
     except Exception, e:
-	logging.debug("exception in run():{}".format(e))
-    try:
-        while(1):
-	       pass
-    except:
-        broker.shutdown()
+	   logging.debug("exception in scheculer start_listener():{}".format(e))
+    
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='RootIO Scheduled Message Broker')
 

@@ -1,4 +1,7 @@
+
+import sys
 from apscheduler.scheduler import Scheduler
+import zmq
 import logging
 
 class MessageScheduler(object):
@@ -9,13 +12,43 @@ class MessageScheduler(object):
                    'apscheduler.jobstores.file.url':  url}      
         self._scheduler.configure(config)
 
-    def start(self):
+    def start_ap_daemon(self):
         logging.info("scheduler start")
         self._scheduler.start()
 
     def shutdown(self):
         logging.info("scheduler shutdown")
         self._scheduler.shutdown()
+
+    def schedule(self, topic, msg):
+        logging.debug("schedule",topic,msg)
+
+        if 'msg_id' in msg:
+            msg_id = msg.pop('msg_id')
+
+        if 'start_time' in msg:
+            if 'window' in msg:
+                msg_time = msg['start_time'] - timedelta(seconds=msg['window'])
+            else:
+                msg_time = msg['start_time']
+        else:
+            offset = timedelta(seconds=10)
+            #needs to be a little bit in the future, so scheduler can run it
+            msg_time = datetime.now() + offset
+
+        if 'operation' in msg:
+            for case in switch(msg['operation']):
+                if case('insert'):
+                    self.schedule_message(topic, msg, msg_time)
+                    break
+                if case('update'):
+                    self.reschedule_message(msg_id, topic, msg, msg_time)
+                    break
+                if case('delete'):
+                    self.cancel_message(msg_id)
+                    break
+        else:
+            self.schedule_message(topic, msg, msg_time)
 
     def schedule_message(self, topic, message, send_at):
         logging.info("schedule message %s:%s at %s" % (topic, message, send_at))
@@ -51,3 +84,33 @@ class MessageScheduler(object):
         logging.info("reschedule message_id %s" % message_id)
         self.cancel_message(message_id)
         self.schedule_message(topic, message, send_at)
+
+    def start_listener(self, port = "55778"):
+        " Connects to forwarder_device, runs forever. Launch in separate process. "
+
+        logging.debug("Scheduler listener start")
+        try:
+            self.socket = zmq.Context().socket(zmq.SUB)
+            self.socket.connect ("tcp://localhost:%s" % port)
+            self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
+        except Exception, e:
+            print e
+            print "bringing down port {} device".format(port)
+            self.socket.close()
+
+        self.running = True
+        while self.running:
+            try:
+                topic, message = self.socket.recv_json()
+                logging.info("Scheduler received %s: %s" % (topic, message))
+                #self.schedule(topic, message)
+            except Exception, e:
+                print "Stopping scheduler listener"
+        self.socket.close()
+
+    def shutdown(self):
+        logging.info("broker shutdown")
+        self.running = False
+
+
+
