@@ -9,5 +9,6 @@ def sends_json(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         (topic, msg) = f(*args, **kwargs)
-        current_app.messenger.send((topic, msg), cls=CustomJSONEncoder)
+        m = "%s %s" % (topic, msg)
+	current_app.messenger.send(topic, msg)
     return decorated_function
