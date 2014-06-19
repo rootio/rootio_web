@@ -91,22 +91,24 @@ class MessageScheduler(object):
         logging.debug("Scheduler listener start")
         try:
             self.socket = zmq.Context().socket(zmq.SUB)
-            self.socket.connect ("tcp://localhost:%s" % port)
             self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
+            self.socket.connect ("tcp://localhost:%s" % port)
         except Exception, e:
             print e
             print "bringing down port {} device".format(port)
             self.socket.close()
 
         self.running = True
+	logging.debug("About to enter listener loop")
         while self.running:
             try:
-                topic, message = self.socket.recv_json()
-                logging.info("Scheduler received %s: %s" % (topic, message))
-                #self.schedule(topic, message)
+                msg = self.socket.recv()
+                logging.info("Scheduler received %s" % (msg ))
+		#self.schedule(topic, message)
             except Exception, e:
-                print "Stopping scheduler listener"
+                logging.debug("Stopping scheduler listener")
         self.socket.close()
+	logging.debug("Stopping scheduler listener")
 
     def shutdown(self):
         logging.info("broker shutdown")
