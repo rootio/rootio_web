@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from datetime import datetime
+import datetime
 import time
 import dateutil.rrule, dateutil.parser
 
@@ -248,7 +248,7 @@ def schedule_program_add_ajax():
 
     program = data['program']
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
-    scheduled_program.start = dateutil.parser.parse(data['start'])
+    scheduled_program.start = dateutil.parser.parse(data['start']) -datetime.timedelta(hours=3)
     scheduled_program.end = scheduled_program.start + program.duration
 
     db.session.add(scheduled_program)
@@ -272,7 +272,7 @@ def schedule_program_edit_ajax():
         return fk_errors
 
     scheduled_program = data['scheduledprogram']
-    scheduled_program.start = dateutil.parser.parse(data['start'])
+    scheduled_program.start = dateutil.parser.parse(data['start']) - datetime.timedelta(hours=3)#Todo Fix timezone issue to display standard time
     program = scheduled_program.program
     scheduled_program.end = scheduled_program.start + program.duration
 
@@ -297,7 +297,7 @@ def schedule_recurring_program_ajax():
     form = ScheduleProgramForm(None, **data)
 
     try:
-        air_time = datetime.strptime(form.data['air_time'],'%H:%M').time()
+        air_time = datetime.datetime.strptime(form.data['air_time'],'%H:%M').time()
     except ValueError:
         response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
         return response
@@ -311,7 +311,7 @@ def schedule_recurring_program_ajax():
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
         for instance in r[:10]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
-            scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
+            scheduled_program.start = datetime.datetime.combine(instance,air_time) #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
             
             db.session.add(scheduled_program)
@@ -361,8 +361,8 @@ def scheduled_block_json(station_id):
         r = dateutil.rrule.rrulestr(block.recurrence)
         for instance in r.between(start,end):
             d = {'title':block.name,
-                'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time),
+                'start':datetime.datetime.combine(instance,block.start_time),
+                'end':datetime.datetime.combine(instance,block.end_time),
                 'id':block.id,
                 'isBackground':True, #the magic flag that tells full calendar to render as block
             }
@@ -390,8 +390,8 @@ def schedule_station(station_id):
         r = dateutil.rrule.rrulestr(block.recurrence)
         for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
             d = {'title':block.name,
-                'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time)}
+                'start':datetime.datetime.combine(instance,block.start_time),
+                'end':datetime.datetime.combine(instance,block.end_time)}
             block_list.append(d)
 
     form = ScheduleProgramForm()

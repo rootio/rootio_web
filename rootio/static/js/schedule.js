@@ -206,7 +206,8 @@ $(document).ready(function() {
             // because we only need a subset of fields
             cleaned_data = {program:event.program,
                         station:event.station,
-                        start:event.start}; //moment json-ifies to iso8601 natively
+                        start:event.start,
+                        scheduledprogram:null}; //moment json-ifies to iso8601 natively
             action_url = '/radio/scheduleprogram/add/ajax/';
 
             if (event.edited === 'edited') {
