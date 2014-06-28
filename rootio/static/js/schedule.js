@@ -207,7 +207,8 @@ $(document).ready(function() {
             cleaned_data = {program:event.program,
                         station:event.station,
                         start:event.start,
-                        scheduledprogram:null}; //moment json-ifies to iso8601 natively
+                        scheduledprogram:null,
+                        tzoffset: new Date().getTimezoneOffset()}; //moment json-ifies to iso8601 natively
             action_url = '/radio/scheduleprogram/add/ajax/';
 
             if (event.edited === 'edited') {

@@ -13,6 +13,7 @@ from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json, returns_flat_json
+from rootio.radio.utils import update_tz
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
 
@@ -248,7 +249,7 @@ def schedule_program_add_ajax():
 
     program = data['program']
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
-    scheduled_program.start = dateutil.parser.parse(data['start']) -datetime.timedelta(hours=3)
+    scheduled_program.start = update_tz(data['start'], data['tzoffset'])
     scheduled_program.end = scheduled_program.start + program.duration
 
     db.session.add(scheduled_program)
@@ -272,7 +273,7 @@ def schedule_program_edit_ajax():
         return fk_errors
 
     scheduled_program = data['scheduledprogram']
-    scheduled_program.start = dateutil.parser.parse(data['start']) - datetime.timedelta(hours=3)#Todo Fix timezone issue to display standard time
+    scheduled_program.start = update_tz(data['start'], data['tzoffset'])
     program = scheduled_program.program
     scheduled_program.end = scheduled_program.start + program.duration
 
