@@ -4,16 +4,17 @@ from apscheduler.scheduler import Scheduler
 import zmq
 import json
 from switch import switch
-import logging
+from logme import setup
 
 # necessary to understand schedule messages
 import datetime
-from dateutil.tz import tzlocal
-from datetime import tzinfo
-import psycopg2
+#from dateutil.tz import tzlocal
+#from datetime import tzinfo
+#import psycopg2
 
 import isodate
 from env import read_env
+logging = setup()
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
