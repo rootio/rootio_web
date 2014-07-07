@@ -256,9 +256,6 @@ def schedule_program_add_ajax():
     db.session.add(scheduled_program)
     db.session.commit()
     
-    #tell scheduler program has been added 
-    messages.schedule_program('insert', scheduled_program.id, scheduled_program.program_id, scheduled_program.station_id, scheduled_program.start)
- 
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
@@ -283,9 +280,6 @@ def schedule_program_edit_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
-
-    #tell scheduler that this scheduled program has changed
-    messages.schedule_program('update', scheduled_program.id, scheduled_program.program_id, scheduled_program.station_id, scheduled_program.start)
 
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 

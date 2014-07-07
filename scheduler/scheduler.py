@@ -12,17 +12,22 @@ from dateutil.tz import tzlocal
 from datetime import tzinfo
 import psycopg2
 
+import isodate
+
+
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
+        config = read_env('config.cfg')
         self._scheduler = Scheduler(daemonic=True)
+        config_scheduler = {
+                    'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore, 
+                    'apscheduler.jobstores.file.url':  url
+                 }
+        self._scheduler.configure(config_scheduler)
 
-        config = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
-                   'apscheduler.jobstores.file.url':  url}      
-        self._scheduler.configure(config)
-
-	self.broadcast_socket = zmq.Context().socket(zmq.PUB)
-	BROADCAST_PORT = "55777"
-	self.broadcast_socket.connect("tcp://localhost:%s" % BROADCAST_PORT)
+        #Open a publishing socket to the forwarder to pass messages out
+        self.broadcast_socket = zmq.Context().socket(zmq.PUB)
+        self.broadcast_socket.connect(config['ZMQ_FORWARDER_SUCKS_IN'])
 
     def start_ap_daemon(self):
         logging.info("scheduler start")
@@ -33,6 +38,7 @@ class MessageScheduler(object):
         self._scheduler.shutdown()
 
     def schedule(self, topic, msg):
+        """ Takes incoming message, massages it, and dispatches to appropriate function.  """
         logging.debug("schedule received {}: {}".format(topic,msg))
 
         if 'msg_id' in msg:
@@ -63,15 +69,13 @@ class MessageScheduler(object):
             self.schedule_message(topic, msg, msg_time)
 
     def send_to_station(self, topic, msg):
-        " Send a message on to rootio_telephony "
+        """ Send a message on to rootio_telephony """
         logging.debug("fwd %s: %s" % (topic, msg))
         self._station_daemon_stream.send_json([topic, msg])
 
     def schedule_message(self, topic, message, send_at):
         logging.info("schedule message %s:%s at %s" % (topic, message, send_at))
-
         #create lambda for scheduler to call at execution time
-
         #and add it
         try:
             job = self._scheduler.add_date_job(self.send_to_station, send_at, args=(topic, message))
@@ -102,34 +106,62 @@ class MessageScheduler(object):
         self.cancel_message(message_id)
         self.schedule_message(topic, message, send_at)
 
-    def start_listener(self, port = "55778"):
+    def start_listener(self):
         " Connects to forwarder_device, runs forever. Launch in separate process. "
+        config = read_env('config.cfg')
 
         logging.debug("Scheduler listener start")
         try:
             self.socket = zmq.Context().socket(zmq.SUB)
             self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
-            self.socket.connect ("tcp://localhost:%s" % port)
+            self.socket.connect(config['ZMQ_FORWARDER_SPITS_OUT'])
         except Exception, e:
             print e
             print "bringing down port {} device".format(port)
             self.socket.close()
 
         self.running = True
-	logging.debug("About to enter listener loop")
+	    logging.debug("About to enter listener loop")
         while self.running:
             try:
-                msg = self.socket.recv()
-                logging.info("Scheduler received %s" % (msg ))
-		topic = msg.split()[0]
-		message = "".join(["%s" % i for i in msg.split()[1:]])
-		message = eval(message)
-		logging.info("topic = {}, message = {}".format(topic, message))
-		self.schedule(topic, message)
+                message = self.socket.recv_multipart()
+                logging.info("Scheduler received %s" % (msg))
+		        topic = message[0]
+                # Is this the right place to load json?  Should always be jsondat
+		        msg_string = message[1]
+                try:
+                    msg = json.loads(msg_string)
+                    msg = tidy_message(msg)
+                    logging.debug('got json msg %s' % msg)
+                except ValueError:
+                    logging.debug('got string msg %s' % msg_string)
+                    msg = msg_string
+                except TypeError:
+                    logging.error('could not parse json %s' % msg_string)
+                    msg = msg_string
+
+                # Topic should only ever be "scheduler"
+		        logging.info("topic = {}, message = {}".format(topic, msg))
+		        self.schedule(topic, msg)
             except Exception, e:
                 logging.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
-        self.socket.close()
-	logging.debug("Stopping scheduler listener -- this should only print once at termination")
+                self.socket.close()
+	            logging.debug("Stopping scheduler listener -- this should only print once at termination")
+    
+    def tidy_message(self, msg)
+        """ 
+        Tidy message by turning all isoformat date times back into datetimes.
+        Could also use somethng like regex here:
+        http://my.safaribooksonline.com/book/programming/regular-expressions/9780596802837/4dot-validation-and-formatting/id2983571
+        """
+
+        for key, value in msg.items():
+            for key, value in j.items():
+                try:
+                    j[key] = isodate.parse_datetime(value)
+                except:
+                    pass
+        return msg
 
     def shutdown(self):
         logging.info("broker shutdown")

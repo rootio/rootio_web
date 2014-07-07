@@ -30,7 +30,6 @@ def run():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='RootIO Scheduled Message Broker')
-
     parser.add_argument('--log', action='store', help='log level', default='debug')
     args = parser.parse_args()
 
