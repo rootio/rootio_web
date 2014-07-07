@@ -1,11 +1,13 @@
 import atexit
-import logging
 import argparse
 
 from env import read_env
 from scheduler import MessageScheduler
 
 from  multiprocessing import Process
+
+from logme import setup
+logging = setup()
 
 def run():
     config = read_env('config.cfg')
