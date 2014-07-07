@@ -13,7 +13,7 @@ from datetime import tzinfo
 import psycopg2
 
 import isodate
-
+from env import read_env
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):

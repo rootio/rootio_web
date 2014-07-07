@@ -1,4 +1,6 @@
 import zmq
+from env import read_env
+
 
 def main():
     config = read_env('config.cfg')
