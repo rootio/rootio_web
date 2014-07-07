@@ -9,6 +9,7 @@ def sends_multipart(f):
     which will pass it at the appointed time to telephony_server"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        m = (topic, msg) = f(*args, **kwargs)
-        current_app.messenger.send_multipart(m)
+        topic, msg = f(*args, **kwargs)
+		msg = json.dumps(d, cls=CustomJSONEncoder)
+        current_app.messenger.send_multipart((topic, msg))
     return decorated_function
