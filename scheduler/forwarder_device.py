@@ -3,7 +3,12 @@ from env import read_env
 
 
 def main():
-    config = read_env('config.cfg')
+    try:
+	import os
+	dr = os.path.dirname(os.path.realpath(__file__))
+    	config = read_env('{}/config.cfg'.format(dr))
+    except:
+	config = read_env('config.cfg')
 
     #Create the sucking socket
     try:
