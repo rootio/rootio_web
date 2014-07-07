@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import current_app
 from ..utils import CustomJSONEncoder
-
+import json
 
 def sends_multipart(f):
     """Takes a tuple (topic, message) and sends it to the scheduler,
@@ -10,6 +10,6 @@ def sends_multipart(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         topic, msg = f(*args, **kwargs)
-		msg = json.dumps(d, cls=CustomJSONEncoder)
+	msg = json.dumps(msg, cls=CustomJSONEncoder)
         current_app.messenger.send_multipart((topic, msg))
     return decorated_function
