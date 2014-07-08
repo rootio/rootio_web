@@ -10,9 +10,8 @@ socket.connect ("tcp://localhost:%s" % port)
 topicfilter = ""
 socket.setsockopt(zmq.SUBSCRIBE, topicfilter)
 for update_nbr in range(1000):
-    s = socket.recv()
+    s = socket.recv_multipart()
     print s
-    print type(s)
 #    topic, message = s[0]
 #    print topic
 #    print message
