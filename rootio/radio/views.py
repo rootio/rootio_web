@@ -383,7 +383,7 @@ def schedule():
 
 @radio.route('/schedule/<int:station_id>/', methods=['GET'])
 def schedule_station(station_id):
-    station = Station.query.get(station_id)
+    station = Station.query.filter_by(id=station_id).first_or_404()
 
     #TODO: move this logic to an ajax call, like scheduled_block_json
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
