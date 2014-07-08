@@ -3,23 +3,18 @@ import sys
 from apscheduler.scheduler import Scheduler
 import zmq
 import json
-from switch import switch
 from logme import setup
 
-# necessary to understand schedule messages
-#from dateutil.tz import tzlocal
 from datetime import datetime, tzinfo, timedelta
-#import psycopg2
-
 import isodate
 from env import read_env
-logger = setup()
-
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
-        logger.debug("Creating MessageScheduler")
-        config = read_env('config.cfg')
+        self.logger = setup(__name__)
+	self.logger.debug("Creating MessageScheduler")
+        self.logger.debug("id = {}".format(id(self)))
+	config = read_env('config.cfg')
         self._scheduler = Scheduler(daemonic=True)
         config_scheduler = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
                             'apscheduler.jobstores.file.url':  url}
@@ -29,19 +24,19 @@ class MessageScheduler(object):
         self.broadcast_socket = zmq.Context().socket(zmq.PUB)
         self.broadcast_socket.connect(config['ZMQ_FORWARDER_SUCKS_IN'])
 
-    def start_ap_daemon(self):
-        logger.info("scheduler start")
-        self._scheduler.start()
+#    def start_ap_daemon(self):
+#        logger.info("scheduler start")
+#        self._scheduler.start()
 
     def shutdown(self):
-        logger.info("scheduler shutdown")
+        self.logger.info("scheduler shutdown")
         self._scheduler.shutdown()
 
     def schedule(self, topic, msg):
         """ Takes incoming message, massages it, and dispatches
             to appropriate function.
         """
-        logger.debug("schedule received {}: {}".format(topic, msg))
+        self.logger.debug("schedule received {}: {}".format(topic, msg))
 
         if 'obj_id' in msg:
             obj_id = msg.pop('obj_id')
@@ -57,26 +52,24 @@ class MessageScheduler(object):
             msg_time = datetime.now() + offset
 
         if 'operation' in msg:
-            for case in switch(msg['operation']):
-                if case('insert'):
+                if msg['operation'] == 'insert':
                     self.schedule_message(topic, msg, msg_time, obj_id)
-                    break
-                if case('update'):
+                elif msg['operation'] == 'update':
                     self.reschedule_message(obj_id, topic, msg, msg_time)
-                    break
-                if case('delete'):
+                elif msg['operation'] == 'delete':
                     self.cancel_message(obj_id)
-                    break
+		else:
+		    self.logger.debug("Scheduler has been sent unknown database signal operation.")
         else:
             self.schedule_message(topic, msg, msg_time)
 
     def send_to_station(self, topic, msg):
         """ Send a message on to rootio_telephony """
-        logger.debug("fwd %s: %s" % (topic, msg))
-        self._station_daemon_stream.send_json([topic, msg])
+        self.logger.debug("fwd %s: %s" % (topic, msg))
+        self.broadcast_socket.send_multipart([topic, msg])
 
     def schedule_message(self, topic, message, send_at, obj_id):
-        logger.info("schedule message %s:%s at %s" % (topic, message, send_at))
+        self.logger.info("schedule message %s:%s at %s" % (topic, message, send_at))
         #create lambda for scheduler to call at execution time
         #and add it
         try:
@@ -84,13 +77,13 @@ class MessageScheduler(object):
                                                send_at,
                                                args=(topic, message),
                                                name=obj_id)
-            logger.debug("scheduled job: {}".format(job))
-            logger.debug("scheduled job_name: {}".format(job.name))
+            self.logger.debug("scheduled job: {}".format(job))
+            self.logger.debug("scheduled job_name: {}".format(job.name))
         except ValueError, e:
-            logger.error(e)
+            self.logger.error(e)
 
     def cancel_message(self, obj_id):
-        logger.info("cancel job for scheduled program id %s" % obj_id)
+        self.logger.info("cancel job for scheduled program id %s" % obj_id)
         # apscheduler.unschedule_job works by comparing apscheduler.job objects
         # we don't have a whole job, just the id, obj_id == job.name
         # NOTE: will cancel all messages, may have implications for stations
@@ -102,11 +95,11 @@ class MessageScheduler(object):
                         self._remove_job(job)
                     return
         except Exception, e:
-            logger.debug("Scheduler cancel_message error {} - {}".format(Exception, e))
+            self.logger.debug("Scheduler cancel_message error {} - {}".format(Exception, e))
             raise KeyError('Message id "%s" is not scheduled in any job store' % obj_id)
 
     def reschedule_message(self, obj_id, topic, message, send_at):
-        logger.info("reschedule message_id %s" % obj_id)
+        self.logger.info("reschedule message_id %s" % obj_id)
         self.cancel_message(obj_id)
         self.schedule_message(topic, message, send_at, obj_id)
 
@@ -117,7 +110,7 @@ class MessageScheduler(object):
 
         config = read_env('config.cfg')
 
-        logger.debug("Scheduler listener start")
+        self.logger.debug("Scheduler listener start")
         try:
             self.socket = zmq.Context().socket(zmq.SUB)
             self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
@@ -128,33 +121,33 @@ class MessageScheduler(object):
             self.socket.close()
 
         self.running = True
-        logger.debug("About to enter listener loop")
+        self.logger.debug("About to enter listener loop")
         while self.running:
             try:
                 message = self.socket.recv_multipart()
-                logger.info("Scheduler received %s" % (message))
+                self.logger.info("Scheduler received %s" % (message))
                 topic = message[0]
                 # Is this the right place to load json?  Should always be json
                 msg_string = message[1]
                 try:
                     msg = json.loads(msg_string)
                     msg = self.tidy_message(msg)
-                    logger.debug('got json msg %s' % msg)
+                    self.logger.debug('got json msg %s' % msg)
                 except ValueError:
-                    logger.debug('got string msg %s' % msg_string)
+                    self.logger.debug('got string msg %s' % msg_string)
                     msg = msg_string
                 except TypeError:
-                    logger.error('could not parse json %s' % msg_string)
+                    self.logger.error('could not parse json %s' % msg_string)
                     msg = msg_string
 
                 # Topic should only ever be "scheduler"
-                logger.info("topic = {}, message = {}".format(topic, msg))
+                self.logger.info("topic = {}, message = {}".format(topic, msg))
                 self.schedule(topic, msg)
             except Exception, e:
                 self.running = False
-                logger.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
+                self.logger.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
                 self.socket.close()
-                logger.debug("Stopping scheduler listener -- this should only print once at termination")
+                self.logger.debug("Stopping scheduler listener -- this should only print once at termination")
 
     def tidy_message(self, msg):
         """
@@ -171,5 +164,5 @@ class MessageScheduler(object):
         return msg
 
     def shutdown(self):
-        logger.info("broker shutdown")
+        self.logger.info("broker shutdown")
         self.running = False
