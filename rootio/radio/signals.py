@@ -3,10 +3,11 @@ from models import ScheduledProgram, Station
 
 from ..messenger import messages
 
+
 @models_committed.connect
 def on_models_committed(sender, changes):
     """ Check for commits to the database, filtering for models we are interested in
-    and send messages to the scheduler or telephony to tell them to deal with it.
+        and send messages to the scheduler or telephony to tell them to deal with it.
     """
     for obj, operation in changes:
         # action will be one of insert, update, delete
