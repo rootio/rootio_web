@@ -7,18 +7,18 @@ from switch import switch
 from logme import setup
 
 # necessary to understand schedule messages
-import datetime
 #from dateutil.tz import tzlocal
-#from datetime import tzinfo
+from datetime import datetime, tzinfo, timedelta
 #import psycopg2
 
 import isodate
 from env import read_env
-logging = setup()
+logger = setup()
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
-        config = read_env('config.cfg')
+        logger.debug("Creating MessageScheduler")
+	config = read_env('config.cfg')
         self._scheduler = Scheduler(daemonic=True)
         config_scheduler = {
                     'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore, 
@@ -31,16 +31,16 @@ class MessageScheduler(object):
         self.broadcast_socket.connect(config['ZMQ_FORWARDER_SUCKS_IN'])
 
     def start_ap_daemon(self):
-        logging.info("scheduler start")
+        logger.info("scheduler start")
         self._scheduler.start()
 
     def shutdown(self):
-        logging.info("scheduler shutdown")
+        logger.info("scheduler shutdown")
         self._scheduler.shutdown()
 
     def schedule(self, topic, msg):
         """ Takes incoming message, massages it, and dispatches to appropriate function.  """
-        logging.debug("schedule received {}: {}".format(topic,msg))
+        logger.debug("schedule received {}: {}".format(topic,msg))
 
         if 'msg_id' in msg:
             msg_id = msg.pop('msg_id')
@@ -71,21 +71,22 @@ class MessageScheduler(object):
 
     def send_to_station(self, topic, msg):
         """ Send a message on to rootio_telephony """
-        logging.debug("fwd %s: %s" % (topic, msg))
+        logger.debug("fwd %s: %s" % (topic, msg))
         self._station_daemon_stream.send_json([topic, msg])
 
     def schedule_message(self, topic, message, send_at):
-        logging.info("schedule message %s:%s at %s" % (topic, message, send_at))
+        logger.info("schedule message %s:%s at %s" % (topic, message, send_at))
         #create lambda for scheduler to call at execution time
         #and add it
         try:
             job = self._scheduler.add_date_job(self.send_to_station, send_at, args=(topic, message))
-            logging.debug("scheduled job_id", job.id)
+            logger.debug("scheduled job: {}".format(job))
+	    logger.debug("scheduled job_id: {}".format(job.id))
         except ValueError,e:
-            logging.error(e)
+            logger.error(e)
 
     def cancel_message(self, message_id):
-        logging.info("cancel message_id %s" % message_id)
+        logger.info("cancel message_id %s" % message_id)
         # apscheduler.unschedule_job works by comparing apscheduler.job objects
         # we don't have a whole job, just the id, message_id == job.id
         # so do it manually
@@ -103,7 +104,7 @@ class MessageScheduler(object):
         raise KeyError('Message id "%s" is not scheduled in any job store' % message_id)
 
     def reschedule_message(self, message_id, topic, message, send_at):
-        logging.info("reschedule message_id %s" % message_id)
+        logger.info("reschedule message_id %s" % message_id)
         self.cancel_message(message_id)
         self.schedule_message(topic, message, send_at)
 
@@ -111,7 +112,7 @@ class MessageScheduler(object):
         " Connects to forwarder_device, runs forever. Launch in separate process. "
         config = read_env('config.cfg')
 
-        logging.debug("Scheduler listener start")
+        logger.debug("Scheduler listener start")
         try:
             self.socket = zmq.Context().socket(zmq.SUB)
             self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
@@ -122,34 +123,35 @@ class MessageScheduler(object):
             self.socket.close()
 
         self.running = True
-	    logging.debug("About to enter listener loop")
+	logger.debug("About to enter listener loop")
         while self.running:
             try:
                 message = self.socket.recv_multipart()
-                logging.info("Scheduler received %s" % (msg))
-		        topic = message[0]
+                logger.info("Scheduler received %s" % (message))
+		topic = message[0]
                 # Is this the right place to load json?  Should always be jsondat
-		        msg_string = message[1]
+		msg_string = message[1]
                 try:
                     msg = json.loads(msg_string)
-                    msg = tidy_message(msg)
-                    logging.debug('got json msg %s' % msg)
+                    msg =self.tidy_message(msg)
+                    logger.debug('got json msg %s' % msg)
                 except ValueError:
-                    logging.debug('got string msg %s' % msg_string)
+                    logger.debug('got string msg %s' % msg_string)
                     msg = msg_string
                 except TypeError:
-                    logging.error('could not parse json %s' % msg_string)
+                    logger.error('could not parse json %s' % msg_string)
                     msg = msg_string
 
                 # Topic should only ever be "scheduler"
-		        logging.info("topic = {}, message = {}".format(topic, msg))
-		        self.schedule(topic, msg)
+		logger.info("topic = {}, message = {}".format(topic, msg))
+		self.schedule(topic, msg)
             except Exception, e:
-                logging.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
+                self.running = False
+		logger.debug("Stopping scheduler listener: {} - {}".format(Exception, e))
                 self.socket.close()
-	            logging.debug("Stopping scheduler listener -- this should only print once at termination")
+	        logger.debug("Stopping scheduler listener -- this should only print once at termination")
     
-    def tidy_message(self, msg)
+    def tidy_message(self, msg):
         """ 
         Tidy message by turning all isoformat date times back into datetimes.
         Could also use somethng like regex here:
@@ -157,15 +159,14 @@ class MessageScheduler(object):
         """
 
         for key, value in msg.items():
-            for key, value in j.items():
-                try:
-                    j[key] = isodate.parse_datetime(value)
-                except:
-                    pass
+            try:
+                msg[key] = isodate.parse_datetime(value).replace(tzinfo=None)
+            except:
+                pass
         return msg
 
     def shutdown(self):
-        logging.info("broker shutdown")
+        logger.info("broker shutdown")
         self.running = False
 
 
