@@ -1,6 +1,5 @@
-{% set page_title = user.name %}
-
 {% extends "layouts/base.html" %}
+{% set page_title = user.name %}
 
 {% block body %}
 <h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
@@ -12,6 +11,7 @@
     {% if current_user.is_admin() %}
     <li><a href="{{ url_for('radio.emergency') }}">{{ _('Emergency Broadcast') }}</a></li>
     <li><a href="{{ url_for('messenger.message_test') }}">{{ _('Schedule Message Tester') }}</a></li>
+    <li><a href="{{ url_for('user.user_dashboard') }}">{{ _('Manage Users') }}</a></li>
     {%endif%}
 </ul>
 

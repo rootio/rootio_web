@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, current_app, request, flash
 from flask.ext.login import login_required, current_user
 
 from ..extensions import db
-from ..user import User
+from ..user import User, UserDetail
 from ..utils import allowed_file, make_dir
 from .forms import ProfileForm, PasswordForm
 
@@ -17,15 +17,23 @@ from .forms import ProfileForm, PasswordForm
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 
-@settings.route('/profile', methods=['GET', 'POST'])
+@settings.route('/profile', methods=['GET', 'POST'], defaults={'user_id': None})
+@settings.route('/profile/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
-def profile():
-    user = User.query.filter_by(name=current_user.name).first_or_404()
+def profile(user_id):
+    if user_id:
+        edit = True
+        user = User.query.get(user_id)
+    else:
+        edit = False
+        user = User.query.filter_by(name=current_user.name).first_or_404()
+    if not user.user_detail:
+        user.user_detail = UserDetail()
     form = ProfileForm(obj=user.user_detail,
-            email=current_user.email,
-            role_code=current_user.role_code,
-            status_code=current_user.status_code,
-            next=request.args.get('next'))
+                       email=user.email,
+                       role_code=user.role_code,
+                       status_code=user.status_code,
+                       next=request.args.get('next'))
 
     if form.validate_on_submit():
 
@@ -60,7 +68,7 @@ def profile():
         flash('Public profile updated.', 'success')
 
     return render_template('settings/profile.html', user=user,
-            active="profile", form=form)
+                           active="profile", form=form, edit=edit)
 
 
 @settings.route('/password', methods=['GET', 'POST'])
@@ -79,4 +87,4 @@ def password():
         flash('Password updated.', 'success')
 
     return render_template('settings/password.html', user=user,
-            active="password", form=form)
+                           active="password", form=form)
