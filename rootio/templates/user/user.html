@@ -1,0 +1,9 @@
+{% extends "layouts/base.html" %}
+{% from "macros/_form.html" import render_form %}
+
+{% block body %}
+<div class="container">
+        <h2>{{ _('Add') }} {{ _('User') }}</h2>
+        {{ render_form(url_for('user.add_user'), form) }}
+</div>
+{% endblock %}
