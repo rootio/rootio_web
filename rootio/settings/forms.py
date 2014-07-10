@@ -39,6 +39,32 @@ class ProfileForm(Form):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
 
 
+class ProfileCreateForm(Form):
+    multipart = True
+    next = HiddenField()
+    email = EmailField(u'Email', [Required(), Email()])
+    name = TextField(u'Name', [Required(), Length(max=100)])
+    password = PasswordField(u'Password', [Required(), Length(max=100)])
+    password1 = PasswordField(u'Retype-password', [Required(), Length(max=100)])
+    # Don't use the same name as model because we are going to use populate_obj().
+    avatar_file = FileField(u"Avatar", [Optional()])
+    gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
+    age = IntegerField(u'Age', [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
+    phone = TelField(u'Phone', [Length(max=64)])
+    url = URLField(u'URL', [Optional(), URL()])
+    location = TextField(u'Location', [Length(max=64)])
+    bio = TextAreaField(u'Bio', [Length(max=1024)])
+    submit = SubmitField(u'Save')
+
+    def validate_avatar_file(form, field):
+        if field.data and not allowed_file(field.data.filename):
+            raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
+
+    def validate_password(self, field):
+        if field.data != self.password1.data:
+            raise ValidationError("The Passwords Don't Match")
+
+
 class PasswordForm(Form):
     next = HiddenField()
     password = PasswordField('Current password', [Required()])

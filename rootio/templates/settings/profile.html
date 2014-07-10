@@ -1,10 +1,13 @@
-{% from "macros/_form.html" import render_form %}
-
 {% extends 'settings/layout.html' %}
+{% from "macros/_form.html" import render_form %}
 
 {% block body %}
 <div class="settings_wrapper">
     <h3>{{ _('Public Profile') }}</h3>
+    {% if not edit %}
     {{ render_form(url_for('settings.profile'), form) }}
+    {% else %}
+    {{ render_form(url_for('settings.profile', user_id=user.id), form) }}
+    {% endif %}
 </div>
 {% endblock %}
