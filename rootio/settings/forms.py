@@ -3,13 +3,14 @@
 from flask.ext.wtf import Form
 from wtforms import (HiddenField, TextField,
         PasswordField, SubmitField, TextAreaField, IntegerField, RadioField,
-        FileField, DecimalField)
+        FileField, DecimalField, SelectField)
 from wtforms.validators import (ValidationError, AnyOf, Optional,
         Required, Length, EqualTo, Email, NumberRange, URL)
 from flask_wtf.html5 import URLField, EmailField, TelField
 from flask.ext.login import current_user
 
 from ..user import User
+from ..user.constants import USER_ROLE, USER_STATUS
 from ..utils import PASSWORD_LEN_MIN, PASSWORD_LEN_MAX, AGE_MIN, AGE_MAX
 from ..utils import allowed_file, ALLOWED_AVATAR_EXTENSIONS
 from ..utils import GENDER_TYPE
@@ -19,6 +20,8 @@ class ProfileForm(Form):
     multipart = True
     next = HiddenField()
     email = EmailField(u'Email', [Required(), Email()])
+    role_code = SelectField(u'Role', choices=USER_ROLE.items(), coerce=int)
+    status_code = SelectField(u'Status', choices=USER_STATUS.items(), coerce=int)
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
@@ -44,6 +47,8 @@ class ProfileCreateForm(Form):
     next = HiddenField()
     email = EmailField(u'Email', [Required(), Email()])
     name = TextField(u'Name', [Required(), Length(max=100)])
+    role_code = SelectField(u'Role', choices=USER_ROLE.items(), coerce=int)
+    status_code = SelectField(u'Status', choices=USER_STATUS.items(), coerce=int)
     password = PasswordField(u'Password', [Required(), Length(max=100)])
     password1 = PasswordField(u'Retype-password', [Required(), Length(max=100)])
     # Don't use the same name as model because we are going to use populate_obj().

@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Blueprint, render_template, send_from_directory, abort
+from flask import Blueprint, render_template, send_from_directory, abort, flash, url_for, redirect
 from flask import current_app as APP
 from flask.ext.login import login_required, current_user
 
@@ -56,4 +56,6 @@ def add_user():
         form.populate_obj(_user.user_detail)
         db.session.add(_user)
         db.session.commit()
+        flash('New User Created, You can create another', 'success')
+        return redirect(url_for('user.add_user'))
     return render_template('user/user.html', active="profile", form=form)

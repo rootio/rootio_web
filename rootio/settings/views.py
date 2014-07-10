@@ -5,7 +5,7 @@ import hashlib
 
 from datetime import datetime
 
-from flask import Blueprint, render_template, current_app, request, flash
+from flask import Blueprint, render_template, current_app, request, flash, url_for, redirect
 from flask.ext.login import login_required, current_user
 
 from ..extensions import db
@@ -66,6 +66,7 @@ def profile(user_id):
         db.session.commit()
 
         flash('Public profile updated.', 'success')
+        return redirect(url_for('settings.profile'))
 
     return render_template('settings/profile.html', user=user,
                            active="profile", form=form, edit=edit)
