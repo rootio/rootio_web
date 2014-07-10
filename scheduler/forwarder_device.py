@@ -2,7 +2,7 @@ import zmq
 from env import read_env
 
 from logme import setup
-logger = setup()
+logger = setup(__name__)
 
 def main():
     try:

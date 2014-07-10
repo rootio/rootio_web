@@ -7,7 +7,7 @@ from scheduler import MessageScheduler
 from  multiprocessing import Process
 
 from logme import setup
-logger = setup()
+logger = setup(__name__)
 
 def run():
     config = read_env('config.cfg')
@@ -31,10 +31,6 @@ def run():
     
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='RootIO Scheduled Message Broker')
-    parser.add_argument('--log', action='store', help='log level', default='debug')
-    args = parser.parse_args()
-
     try:
         run()
     finally:
