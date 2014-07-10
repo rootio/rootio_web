@@ -1,0 +1,38 @@
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Manage Users') }}</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('user.add_user') }}"><strong>{{ _('Add') }} +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Email') }}</th>
+                <th>{{ _('Age') }}</th>
+                <th>{{ _('Phone') }}</th>
+                <th>{{ _('Location') }}</th>
+                <th>{{ _('Role') }}</th>
+                <th>{{ _('Last Accessed') }}</th>
+                <th>{{ _('Status') }}</th>
+                <th>{{ _('Edit') }}</th>
+            </tr>
+        </thead>
+        {% for u in users %}
+        <tr>
+            <td>{{ u }} </td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.user_detail.age }}</td>
+            <td>{{ u.user_detail.phone }}</td>
+            <td>{{ u.user_detail.location }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.last_accessed }}</td>
+            <td>{{ u.status }}</td>
+            <td><a href="{{ url_for('settings.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
