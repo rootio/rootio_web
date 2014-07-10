@@ -15,7 +15,7 @@ def run():
     scheduler = MessageScheduler(config['jobstore'],config['url'])
     
     # start APscheduler daemon in own thread
-#    scheduler.start_ap_daemon()
+    scheduler.start_ap_daemon()
 
     # shut scheduler threads cleanly at exit
     atexit.register(lambda: scheduler.shutdown())

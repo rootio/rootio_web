@@ -24,9 +24,10 @@ class MessageScheduler(object):
         self.broadcast_socket = zmq.Context().socket(zmq.PUB)
         self.broadcast_socket.connect(config['ZMQ_FORWARDER_SUCKS_IN'])
 
-#    def start_ap_daemon(self):
-#        logger.info("scheduler start")
-#        self._scheduler.start()
+    def start_ap_daemon(self):
+        self.logger.info("scheduler start")
+	setup("apscheduler.scheduler")
+        self._scheduler.start()
 
     def shutdown(self):
         self.logger.info("scheduler shutdown")
@@ -65,13 +66,20 @@ class MessageScheduler(object):
 
     def send_to_station(self, topic, msg):
         """ Send a message on to rootio_telephony """
-        self.logger.debug("fwd %s: %s" % (topic, msg))
-        self.broadcast_socket.send_multipart([topic, msg])
+	topic = "station.{}".format(msg['station_id'])
+	# reserialize any datetime elements for zmq -- unpack again at ts
+	for key, value in msg.items():
+	    if isinstance(value, datetime):
+	        msg[key] = isodate.datetime_isoformat(value)	
+        msg = json.dumps(msg)
+	self.logger.debug("fwd %s: %s" % (topic, msg))
+        self.broadcast_socket.send_multipart((topic, msg))
 
     def schedule_message(self, topic, message, send_at, obj_id):
         self.logger.info("schedule message %s:%s at %s" % (topic, message, send_at))
         #create lambda for scheduler to call at execution time
         #and add it
+	message['obj_id'] = obj_id
         try:
             job = self._scheduler.add_date_job(self.send_to_station,
                                                send_at,
