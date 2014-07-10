@@ -38,7 +38,7 @@ class BaseConfig(object):
 
 
 class DefaultConfig(BaseConfig):
-    DEBUG = True
+    DEBUG = False
     CSRF_ENABLED = False
 
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
