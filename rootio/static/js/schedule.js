@@ -156,6 +156,7 @@ $(document).ready(function() {
                     popover_content += "<li>Start: "+event.start.format("L LT")+"</li>";
                     popover_content += "<li>End: "+event.end.format("L LT")+"</li>";
                     popover_content += "</ul>";
+                    popover_content += "<button id='delete_event' onclick='delete_event("+event.id+")'>Delete</button>";
                     $(this).popover({
                                 trigger:'manual',
                                 placement: popoverPlacement(event.start, view),
@@ -236,3 +237,14 @@ $(document).ready(function() {
         $('#calendar').fullCalendar('refresh');
     });
 });
+
+function delete_event(id){
+    if(confirm("Are you sure, you want to delete this program?")) {
+        ask_to_delete(id);
+        $('#calendar').fullCalendar('removeEvents', id);
+    }
+}
+
+function ask_to_delete(id){
+    $.post('/radio/scheduleprogram/delete/'+id+'/')
+}
