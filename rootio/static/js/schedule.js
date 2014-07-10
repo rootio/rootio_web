@@ -47,28 +47,28 @@ $(document).ready(function() {
 
     //set up program drag and drop
     $('#addable-programs li.external-event').each(function() {
-        
-            // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-            // it doesn't need to have a start or end
-            var eventObject = {
-                title: $.trim($(this).text()) // use the element's text as the event title
-            };
-            
-            // store the Event Object in the DOM element so we can get to it later
-            $(this).data('eventObject', eventObject);
-            
-            // make the event draggable using jQuery UI
-            $(this).draggable({
-                zIndex: 999,
-                revert: true,      // will cause the event to go back to its
-                revertDuration: 0  //  original position after the drag
-            });
-            
+
+        // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
+        // it doesn't need to have a start or end
+        var eventObject = {
+            title: $.trim($(this).text()) // use the element's text as the event title
+        };
+
+        // store the Event Object in the DOM element so we can get to it later
+        $(this).data('eventObject', eventObject);
+
+        // make the event draggable using jQuery UI
+        $(this).draggable({
+            zIndex: 999,
+            revert: true,      // will cause the event to go back to its
+            revertDuration: 0  //  original position after the drag
         });
+
+    });
 
     //alert edit log
     alertEditLog = function(event, text) {
-        alert = $('<li class="alert alert-info" style="display:none;">'+text+'</li>');
+        alert = $('<li class="alert alert-info" style="display:none;">'+text+'<br/><a href="#" onclick="event.preventDefault(); remove_from_log(this)" title="Remove" style="color: red">remove</a></li>');
         $('#addable-programs #schedule-edit-log').prepend(alert);
         alert.fadeIn();
         $('#addable-programs #unsaved-changes').show();
@@ -104,10 +104,10 @@ $(document).ready(function() {
 
             // retrieve the dropped element's stored Event Object
             var originalEvent = $(this).data('eventObject');
-            
+
             // we need to copy it, so that multiple events don't have a reference to the same object
             var newEvent = $.extend({}, originalEvent);
-            
+
             // assign it the date that was reported
             newEvent.start = date;
             newEvent.allDay = false;
@@ -122,10 +122,10 @@ $(document).ready(function() {
             // render the event on the calendar
             // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
             $('#calendar').fullCalendar('renderEvent', newEvent, true);
-            
+
             // alert schedule edited
             alertEditLog(newEvent, newEvent.title+' added on '+newEvent.start.format("L LT"));
-            
+
         },
         events: [], //add these in schedule.html
         annotations: [], //where we have access to the template
@@ -158,13 +158,13 @@ $(document).ready(function() {
                     popover_content += "</ul>";
                     popover_content += "<button id='delete_event' onclick='delete_event("+event.id+")'>Delete</button>";
                     $(this).popover({
-                                trigger:'manual',
-                                placement: popoverPlacement(event.start, view),
-                                title:event.title,
-                                content:popover_content,
-                                html:true
-                            })
-                    .popover('toggle');
+                        trigger:'manual',
+                        placement: popoverPlacement(event.start, view),
+                        title:event.title,
+                        content:popover_content,
+                        html:true
+                    })
+                        .popover('toggle');
 
                     //hide any tooltips
                     $(this).tooltip('hide');
@@ -193,7 +193,7 @@ $(document).ready(function() {
 
     });
 
-    
+
     $('button#save-schedule').click(function() {
         //query clientside events by edited flag
         editedEvents = $('#calendar').fullCalendar('clientEvents',function(event) {
@@ -206,8 +206,8 @@ $(document).ready(function() {
             //serialize edited event to json manually
             // because we only need a subset of fields
             cleaned_data = {program:event.program,
-                        station:event.station,
-                        start:event.start}; //moment json-ifies to iso8601 natively
+                station:event.station,
+                start:event.start}; //moment json-ifies to iso8601 natively
             action_url = '/radio/scheduleprogram/add/ajax/';
 
             if (event.edited === 'edited') {
@@ -218,7 +218,7 @@ $(document).ready(function() {
 
             //post to flask
             $.ajax(action_url,
-                  { type: 'POST',
+                { type: 'POST',
                     data: JSON.stringify(cleaned_data, null, '\t'),
                     dataType: 'json',
                     contentType: 'application/json;charset=UTF-8',
@@ -237,6 +237,10 @@ $(document).ready(function() {
         $('#calendar').fullCalendar('refresh');
     });
 });
+function remove_from_log(elem){
+    $(elem).closest('li').remove();
+    return false;
+}
 
 function delete_event(id){
     if(confirm("Are you sure, you want to delete this program?")) {
