@@ -259,6 +259,15 @@ def schedule_program_add_ajax():
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
+@radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
+@login_required
+def delete_program(_id):
+    _program = ScheduledProgram.query.get(_id)
+    db.session.delete(_program)
+    db.session.commit()
+    return ""
+
+
 @radio.route('/scheduleprogram/edit/ajax/', methods=['POST'])
 @login_required
 @returns_json
