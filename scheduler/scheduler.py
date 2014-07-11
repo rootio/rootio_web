@@ -98,10 +98,8 @@ class MessageScheduler(object):
 
         try:
             for job in self._scheduler.get_jobs():
-                for job in self.get_jobs:
                     if job.name == obj_id:
-                        self._remove_job(job)
-                    return
+                        self._scheduler.unschedule_job(job)
         except Exception, e:
             self.logger.debug("Scheduler cancel_message error {} - {}".format(Exception, e))
             raise KeyError('Message id "%s" is not scheduled in any job store' % obj_id)

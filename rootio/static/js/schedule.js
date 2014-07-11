@@ -224,7 +224,7 @@ $(document).ready(function() {
                     contentType: 'application/json;charset=UTF-8',
                     context: this
                 }).success(function(data) {
-                    this.saved = true;
+                    event.saved = true;
                 });
 
         }
