@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
 
-from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, session
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
@@ -21,12 +21,14 @@ from ..messenger import messages
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
+@login_required
 def index():
-    stations = Station.query.all()
-    return render_template('radio/index.html',stations=stations)
+    stations = db.session.query(Station).filter(Station.owner_id == current_user.id)
+    return render_template('radio/index.html', stations=stations.all())
 
 
 @radio.route('/emergency/', methods=['GET'])
+@login_required
 def emergency():
     stations = Station.query.all()
     #demo, override station statuses
@@ -38,14 +40,16 @@ def emergency():
 
 
 @radio.route('/station/', methods=['GET'])
+@login_required
 def stations():
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
+@login_required
 def station(station_id):
-    station = Station.query.filter_by(id=station_id).first_or_404()
+    station = Station.query.filter_by(id=station_id, owner_id=current_user.id).first_or_404()
     form = StationForm(obj=station, next=request.args.get('next'))
 
     if form.validate_on_submit():
@@ -81,12 +85,14 @@ def station_add():
 
 
 @radio.route('/program/', methods=['GET'])
+@login_required
 def programs():
     programs = Program.query.all()
     return render_template('radio/programs.html', programs=programs, active='programs')
 
 
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
+@login_required
 def program(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
     form = ProgramForm(obj=program, next=request.args.get('next'))
@@ -121,12 +127,14 @@ def program_add():
     return render_template('radio/program.html', program=program, form=form)
 
 @radio.route('/people/', methods=['GET'])
+@login_required
 def people():
     people = Person.query.all()
     return render_template('radio/people.html', people=people, active='people')
 
 
 @radio.route('/people/<int:person_id>', methods=['GET', 'POST'])
+@login_required
 def person(person_id):
     person = Person.query.filter_by(id=person_id).first_or_404()
     form = PersonForm(obj=person, next=request.args.get('next'))
@@ -191,6 +199,7 @@ def location_add_ajax():
 
 
 @radio.route('/block/', methods=['GET'])
+@login_required
 def scheduled_blocks():
     scheduled_blocks = ScheduledBlock.query.all()
     #TODO, display only those that are scheduled on stations the user can view
@@ -199,6 +208,7 @@ def scheduled_blocks():
 
 
 @radio.route('/block/<int:block_id>', methods=['GET', 'POST'])
+@login_required
 def scheduled_block(block_id):
     block = ScheduledBlock.query.filter_by(id=block_id).first_or_404()
     form = BlockForm(obj=block, next=request.args.get('next'))
@@ -337,6 +347,7 @@ def schedule_recurring_program_ajax():
 
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
 @returns_flat_json
+@login_required
 def scheduled_programs_json(station_id):
     if request.args.get('start') and request.args.get('end'):
         start = dateutil.parser.parse(request.args.get('start'))
@@ -357,6 +368,7 @@ def scheduled_programs_json(station_id):
 
 @radio.route('/station/<int:station_id>/scheduledblocks.json', methods=['GET'])
 @returns_flat_json
+@login_required
 def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
 
@@ -382,6 +394,7 @@ def scheduled_block_json(station_id):
 
 
 @radio.route('/schedule/', methods=['GET'])
+@login_required
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
 
@@ -391,6 +404,7 @@ def schedule():
         stations=stations, active='schedule')
 
 @radio.route('/schedule/<int:station_id>/', methods=['GET'])
+@login_required
 def schedule_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
 

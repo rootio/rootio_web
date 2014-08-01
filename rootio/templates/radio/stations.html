@@ -16,6 +16,7 @@
                 <th>{{ _('Languages') }}</th>
             </tr>
         </thead>
+        {% if stations %}
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
@@ -26,6 +27,9 @@
             <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+        {% else %}
+            <tr><td colspan="5">You Don't Currently run any stations <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a> a station</td></tr>
+        {% endif %}
     </table>
 </div>
 {% endblock %}

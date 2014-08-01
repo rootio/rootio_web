@@ -36,6 +36,7 @@
                     <th>{{ _('Audio Plug') }}</th>
                 </tr>
             </thead>
+            {% if stations %}
             {%for station in stations %}
             {% set analytics = station.recent_analytics() %}
             <tr>
@@ -49,6 +50,9 @@
                 <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
             </tr>
             {%endfor%}
+            {% else %}
+               <tr><td colspan="8">You do not currently run any stations <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a> a station?.</td> </tr>
+            {% endif %}
             </table>
         </div>
         
