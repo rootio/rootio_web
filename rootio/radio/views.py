@@ -9,7 +9,7 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json, returns_flat_json
@@ -398,7 +398,7 @@ def scheduled_block_json(station_id):
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
 
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
 
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
