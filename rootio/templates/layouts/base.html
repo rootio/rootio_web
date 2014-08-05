@@ -102,7 +102,7 @@
                         {%endif%}
                         {% for tab, link in tabs %}
                         <li class="{% if active == tab %}active{% endif %}">
-                            <a href="{{ link }}">{{ tab|capitalize }}</a>
+                            {% trans tab %}<a href="{{ link }}">{{ tab }}</a>{% endtrans %}
                         </li>
                         {% endfor %}
                     </ul>
