@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
 
-from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, session
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, session, redirect, url_for
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
@@ -42,7 +42,10 @@ def emergency():
 @radio.route('/station/', methods=['GET'])
 @login_required
 def stations():
+    #Todo Filter Station under networks this user administers **Query Confusion**
     stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
+    if len(stations) == 1:
+        return redirect(url_for('station', station_id=stations[0].id))
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -396,10 +399,10 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 @login_required
 def schedule():
-    #TODO, if user is authorized to view only one station, redirect them there
-
+    #Todo Filter Station under networks this user administers **Query Confusion**
     stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
-
+    if len(stations) == 1:
+        return redirect(url_for('schedule_station', station_id=stations[0].id))
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
 
