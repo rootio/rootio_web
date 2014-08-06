@@ -23,8 +23,12 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 @radio.route('/', methods=['GET'])
 @login_required
 def index():
-    stations = db.session.query(Station).filter(Station.owner_id == current_user.id)
-    return render_template('radio/index.html', stations=stations.all())
+    #Todo Optimise this(stations) into just one query **Query Confusion**
+    stations = db.session.query(Station).filter(Station.owner_id == current_user.id).all()
+    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
+    for s in network_stations:
+        stations.extend(s.stations)
+    return render_template('radio/index.html', stations=stations)
 
 
 @radio.route('/emergency/', methods=['GET'])
@@ -42,8 +46,11 @@ def emergency():
 @radio.route('/station/', methods=['GET'])
 @login_required
 def stations():
-    #Todo Filter Station under networks this user administers **Query Confusion**
+    #Todo Optimise this(stations) into just one query **Query Confusion**
     stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
+    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
+    for s in network_stations:
+        stations.extend(s.stations)
     if len(stations) == 1:
         return redirect(url_for('station', station_id=stations[0].id))
     return render_template('radio/stations.html', stations=stations, active='stations')
@@ -399,8 +406,11 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 @login_required
 def schedule():
-    #Todo Filter Station under networks this user administers **Query Confusion**
+    #Todo Optimise this(stations) into just one query **Query Confusion**
     stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
+    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
+    for s in network_stations:
+        stations.extend(s.stations)
     if len(stations) == 1:
         return redirect(url_for('schedule_station', station_id=stations[0].id))
     return render_template('radio/schedules.html',
