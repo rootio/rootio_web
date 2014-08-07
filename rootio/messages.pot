@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2013 ORGANIZATION
+# Copyright (C) 2014 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-10-17 16:03+0300\n"
+"POT-Creation-Date: 2014-08-05 15:16+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
+
+#: utils.py:147 radio/views.py:175
+msgid "Invalid "
+msgstr ""
 
 #: frontend/forms.py:19
 msgid "Username or email"
@@ -29,12 +33,15 @@ msgstr ""
 msgid "Remember me"
 msgstr ""
 
-#: frontend/forms.py:22 templates/layouts/base.html:59
+#: frontend/forms.py:22 templates/frontend/login.html:3
+#: templates/frontend/login.html:8 templates/frontend/signup.html:8
+#: templates/layouts/base.html:56
 msgid "Sign in"
 msgstr ""
 
 #: frontend/forms.py:27 templates/frontend/login_openid.html:8
 #: templates/macros/_misc.html:7 templates/radio/people.html:13
+#: templates/user/manager.html:13
 msgid "Email"
 msgstr ""
 
@@ -55,7 +62,9 @@ msgstr ""
 msgid "Don't worry. you can change it later."
 msgstr ""
 
-#: frontend/forms.py:35 templates/layouts/base.html:58
+#: frontend/forms.py:35 templates/frontend/login.html:8
+#: templates/frontend/signup.html:3 templates/frontend/signup.html:8
+#: templates/layouts/base.html:55
 msgid "Sign up"
 msgstr ""
 
@@ -75,129 +84,137 @@ msgstr ""
 msgid "Send instructions"
 msgstr ""
 
-#: frontend/views.py:37 frontend/views.py:104
+#: frontend/views.py:35 frontend/views.py:100
 msgid "Logged in"
 msgstr ""
 
-#: frontend/views.py:85
+#: frontend/views.py:81
 msgid "Please input keyword(s)"
 msgstr ""
 
-#: frontend/views.py:107
+#: frontend/views.py:103
 msgid "Sorry, invalid login"
 msgstr ""
 
-#: frontend/views.py:123
+#: frontend/views.py:118
 msgid "Reauthenticated."
 msgstr ""
 
-#: frontend/views.py:126
+#: frontend/views.py:121
 msgid "Password is wrong."
 msgstr ""
 
-#: frontend/views.py:134
+#: frontend/views.py:129
 msgid "Logged out"
 msgstr ""
 
-#: frontend/views.py:183
+#: frontend/views.py:178
 msgid "Your password has been changed, please log in again"
 msgstr ""
 
-#: frontend/views.py:198
+#: frontend/views.py:193
 msgid "Please see your email for instructions on how to access your account"
 msgstr ""
 
-#: frontend/views.py:211
+#: frontend/views.py:206
 msgid "Sorry, no user found for that email address"
 msgstr ""
 
-#: radio/forms.py:26 radio/forms.py:49 radio/forms.py:63 radio/forms.py:72
-#: radio/forms.py:79 radio/forms.py:85 radio/forms.py:97 radio/forms.py:111
-#: user/forms.py:19
+#: frontend/views.py:220
+msgid "Language changed to "
+msgstr ""
+
+#: radio/fields.py:65
+msgid "Invalid JSON data."
+msgstr ""
+
+#: radio/forms.py:28 radio/forms.py:54 radio/forms.py:72 radio/forms.py:83
+#: radio/forms.py:90 radio/forms.py:96 radio/forms.py:107 radio/forms.py:122
+#: templates/radio/schedule.html:79 user/forms.py:19
 msgid "Save"
 msgstr ""
 
-#: radio/forms.py:35
+#: radio/forms.py:37
 msgid "Name or callsign of station"
 msgstr ""
 
-#: radio/forms.py:36
+#: radio/forms.py:38
 msgid "Station broadcast frequency"
 msgstr ""
 
-#: radio/forms.py:38
+#: radio/forms.py:40
 msgid "Station contact telephone number"
 msgstr ""
 
-#: radio/forms.py:39
+#: radio/forms.py:41
 msgid "User who is the owner of the station"
 msgstr ""
 
-#: radio/forms.py:40
+#: radio/forms.py:42
 msgid "Primary languages the station will broadcast in"
 msgstr ""
 
-#: radio/forms.py:60
-msgid "Duration of the program, in H:MM:SS"
+#: radio/forms.py:43
+msgid "How frequently the transmitter should check for updates, in seconds"
 msgstr ""
 
-#: radio/forms.py:68
-msgid "This field accepts arbitrary Python-dictionaries"
+#: radio/forms.py:44
+msgid "IP address of the transmitter on the local network. Should start with 230."
 msgstr ""
 
-#: radio/forms.py:107
-msgid "Time to air since beginning of block, in H:MM:SS"
+#: radio/forms.py:69
+msgid "Duration of the program, in HH:MM(:SS)"
 msgstr ""
 
-#: radio/forms.py:109
-msgid "Ascending values"
+#: radio/forms.py:77 radio/forms.py:78
+msgid "This field expects JSON"
 msgstr ""
 
-#: radio/views.py:41
+#: radio/forms.py:118
+msgid "Time to begin airing"
+msgstr ""
+
+#: radio/views.py:56
 msgid "Station updated."
 msgstr ""
 
-#: radio/views.py:62
+#: radio/views.py:76
 msgid "Station added."
 msgstr ""
 
-#: radio/views.py:64 radio/views.py:105 radio/views.py:145 radio/views.py:214
+#: radio/views.py:78 radio/views.py:119 radio/views.py:159 radio/views.py:230
 msgid "Validation error"
 msgstr ""
 
-#: radio/views.py:85
+#: radio/views.py:99
 msgid "Program updated."
 msgstr ""
 
-#: radio/views.py:103
+#: radio/views.py:117
 msgid "Program added."
 msgstr ""
 
-#: radio/views.py:125
+#: radio/views.py:139
 msgid "Person updated."
 msgstr ""
 
-#: radio/views.py:143
+#: radio/views.py:157
 msgid "Person added."
 msgstr ""
 
-#: radio/views.py:161
-msgid "Invalid "
-msgstr ""
-
-#: radio/views.py:194
+#: radio/views.py:210
 msgid "Block updated."
 msgstr ""
 
-#: radio/views.py:211
+#: radio/views.py:228
 msgid "Block added."
 msgstr ""
 
-#: telephony/views.py:36
+#: telephony/views.py:42
 msgid "Phone Number updated."
 msgstr ""
 
-#: telephony/views.py:54
+#: telephony/views.py:60
 msgid "Phone Number added."
 msgstr ""
 
@@ -209,105 +226,6 @@ msgstr ""
 
 #: templates/index.html:10
 msgid "Demo"
-msgstr ""
-
-#: templates/admin/index.html:5
-msgid "Admin Dashboard"
-msgstr ""
-
-#: templates/admin/index.html:7
-msgid "System status"
-msgstr ""
-
-#: templates/admin/language.html:8 templates/admin/program_type.html:8
-#: templates/admin/user.html:7 templates/radio/people.html:24
-#: templates/radio/person.html:8 templates/radio/program.html:18
-#: templates/radio/scheduled_block.html:26
-#: templates/radio/scheduled_blocks.html:22 templates/radio/station.html:8
-#: templates/radio/stations.html:24 templates/telephony/phonenumbers.html:25
-msgid "Edit"
-msgstr ""
-
-#: templates/admin/language.html:8 templates/admin/language.html:11
-#: templates/radio/programs.html:14
-msgid "Language"
-msgstr ""
-
-#: templates/admin/language.html:11 templates/admin/program_type.html:11
-#: templates/radio/person.html:11 templates/radio/program.html:21
-#: templates/radio/programs.html:7 templates/radio/scheduled_block.html:28
-#: templates/radio/scheduled_blocks.html:7 templates/radio/station.html:11
-#: templates/radio/stations.html:7 templates/telephony/phonenumbers.html:7
-msgid "Add"
-msgstr ""
-
-#: templates/admin/languages.html:5 templates/admin/layout.html:10
-msgid "Languages"
-msgstr ""
-
-#: templates/admin/languages.html:12 templates/admin/program_types.html:12
-#: templates/radio/people.html:12 templates/radio/programs.html:12
-#: templates/radio/scheduled_blocks.html:12 templates/radio/stations.html:12
-msgid "Name"
-msgstr ""
-
-#: templates/admin/languages.html:13
-msgid "ISO Codes"
-msgstr ""
-
-#: templates/admin/languages.html:14
-msgid "Locale"
-msgstr ""
-
-#: templates/admin/layout.html:8
-msgid "System"
-msgstr ""
-
-#: templates/admin/layout.html:9
-msgid "Users"
-msgstr ""
-
-#: templates/admin/layout.html:11
-msgid "Networks"
-msgstr ""
-
-#: templates/admin/layout.html:12 templates/admin/program_types.html:5
-msgid "Program Types"
-msgstr ""
-
-#: templates/admin/program_type.html:8 templates/admin/program_type.html:11
-msgid "Program Type"
-msgstr ""
-
-#: templates/admin/program_types.html:13 templates/radio/schedule.html:80
-msgid "Description"
-msgstr ""
-
-#: templates/admin/program_types.html:14
-msgid "Definition"
-msgstr ""
-
-#: templates/admin/user.html:7
-msgid "User"
-msgstr ""
-
-#: templates/admin/users.html:9 templates/macros/_misc.html:6
-msgid "Username"
-msgstr ""
-
-#: templates/admin/users.html:10 templates/radio/layout.html:8
-#: templates/radio/stations.html:13 templates/telephony/layout.html:8
-#: user/forms.py:15
-msgid "Status"
-msgstr ""
-
-#: templates/admin/users.html:11 templates/radio/people.html:15
-#: user/forms.py:13
-msgid "Role"
-msgstr ""
-
-#: templates/admin/users.html:12
-msgid "Created Time"
 msgstr ""
 
 #: templates/errors/forbidden_page.html:2
@@ -322,7 +240,7 @@ msgstr ""
 msgid ""
 "\n"
 "<p>You do not have permission to access this page.</p>\n"
-"<p>Log in and try again?</p>\n"
+"<p><a href=\"/login\">Log in</a> and try again?</p>\n"
 msgstr ""
 
 #: templates/errors/layout.html:9 templates/layouts/base.html:9
@@ -354,6 +272,14 @@ msgstr ""
 
 #: templates/errors/server_error.html:5
 msgid "Sorry for the inconvenience"
+msgstr ""
+
+#: templates/frontend/login.html:8
+msgid "Don't have an account? "
+msgstr ""
+
+#: templates/frontend/login.html:8 templates/frontend/signup.html:8
+msgid "please"
 msgstr ""
 
 #: templates/frontend/login_openid.html:9
@@ -401,15 +327,24 @@ msgid ""
 "    "
 msgstr ""
 
-#: templates/layouts/base.html:116
+#: templates/frontend/signup.html:8
+msgid "Already have an account?"
+msgstr ""
+
+#: templates/layouts/base.html:105
+#, python-format
+msgid "<a href=\"%(link)s\">%(tab)s</a>"
+msgstr ""
+
+#: templates/layouts/base.html:124
 msgid "About"
 msgstr ""
 
-#: templates/layouts/base.html:118
+#: templates/layouts/base.html:126
 msgid "Help"
 msgstr ""
 
-#: templates/layouts/base.html:120
+#: templates/layouts/base.html:128
 msgid "Terms"
 msgstr ""
 
@@ -419,6 +354,10 @@ msgid ""
 "href=\"http://browsehappy.com/\">upgrade your browser</a> or <a "
 "href=\"http://www.google.com/chromeframe/?redirect=true\">activate Google"
 " Chrome Frame</a> to improve your experience."
+msgstr ""
+
+#: templates/macros/_misc.html:6 templates/rootio/users.html:9
+msgid "Username"
 msgstr ""
 
 #: templates/macros/_misc.html:26
@@ -454,17 +393,80 @@ msgid ""
 "<p>The %(project)s Team</p>\n"
 msgstr ""
 
-#: templates/radio/index.html:5 templates/user/index.html:9
-msgid "Radio Dashboard"
+#: templates/messenger/layout.html:8
+msgid "Message Test"
 msgstr ""
 
-#: templates/radio/index.html:7 templates/radio/layout.html:9
-#: templates/radio/stations.html:5
+#: templates/onair/index.html:5
+msgid "On Air Dashboard"
+msgstr ""
+
+#: templates/radio/emergency.html:26
+msgid "Emergency Broadcast"
+msgstr ""
+
+#: templates/radio/emergency.html:28 templates/radio/layout.html:9
+#: templates/radio/scheduled_blocks.html:13 templates/radio/stations.html:5
 msgid "Stations"
 msgstr ""
 
-#: templates/radio/index.html:9
-msgid "Flash Message"
+#: templates/radio/emergency.html:32
+msgid "Send Message"
+msgstr ""
+
+#: templates/radio/emergency.html:44
+msgid "Send"
+msgstr ""
+
+#: templates/radio/index.html:20
+msgid "Radio Dashboard "
+msgstr ""
+
+#: templates/radio/index.html:22
+msgid " Stations "
+msgstr ""
+
+#: templates/radio/index.html:29 templates/radio/people.html:12
+#: templates/radio/programs.html:12 templates/radio/scheduled_blocks.html:12
+#: templates/radio/schedules.html:9 templates/radio/stations.html:12
+#: templates/rootio/languages.html:12 templates/rootio/program_types.html:12
+#: templates/telephony/gateways.html:10 templates/telephony/index.html:12
+#: templates/user/manager.html:12
+msgid "Name"
+msgstr ""
+
+#: templates/radio/index.html:30
+msgid "Battery"
+msgstr ""
+
+#: templates/radio/index.html:31
+msgid "GSM Signal"
+msgstr ""
+
+#: templates/radio/index.html:32
+msgid "WiFi Network"
+msgstr ""
+
+#: templates/radio/index.html:33
+msgid "Memory"
+msgstr ""
+
+#: templates/radio/index.html:34
+msgid "Storage"
+msgstr ""
+
+#: templates/radio/index.html:35
+msgid "CPU "
+msgstr ""
+
+#: templates/radio/index.html:36
+msgid "Audio Plug"
+msgstr ""
+
+#: templates/radio/layout.html:8 templates/radio/schedules.html:10
+#: templates/rootio/users.html:10 templates/telephony/layout.html:8
+#: templates/user/manager.html:19 user/forms.py:15
+msgid "Status"
 msgstr ""
 
 #: templates/radio/layout.html:10 templates/radio/people.html:5
@@ -479,16 +481,45 @@ msgstr ""
 msgid "Blocks"
 msgstr ""
 
-#: templates/radio/layout.html:13 templates/radio/programs.html:24
-#: templates/radio/schedule.html:57
+#: templates/radio/layout.html:13 templates/radio/schedule.html:58
+#: templates/radio/schedules.html:23
 msgid "Schedule"
 msgstr ""
 
-#: templates/radio/people.html:14
+#: templates/radio/people.html:7 templates/radio/person.html:10
+#: templates/radio/program.html:21 templates/radio/programs.html:7
+#: templates/radio/scheduled_block.html:28
+#: templates/radio/scheduled_blocks.html:7 templates/radio/station.html:11
+#: templates/radio/stations.html:7 templates/rootio/language.html:11
+#: templates/rootio/program_type.html:11
+#: templates/telephony/phonenumber.html:11
+#: templates/telephony/phonenumbers.html:7 templates/user/manager.html:7
+#: templates/user/user.html:6
+msgid "Add"
+msgstr ""
+
+#: templates/radio/people.html:14 templates/user/manager.html:15
 msgid "Phone"
 msgstr ""
 
-#: templates/radio/person.html:8 templates/radio/person.html:11
+#: templates/radio/people.html:15 templates/rootio/users.html:11
+#: templates/user/manager.html:17 user/forms.py:13
+msgid "Role"
+msgstr ""
+
+#: templates/radio/people.html:24 templates/radio/person.html:7
+#: templates/radio/program.html:18 templates/radio/programs.html:24
+#: templates/radio/scheduled_block.html:26
+#: templates/radio/scheduled_blocks.html:24 templates/radio/station.html:8
+#: templates/radio/stations.html:26 templates/rootio/language.html:8
+#: templates/rootio/program_type.html:8 templates/rootio/user.html:7
+#: templates/telephony/phonenumber.html:8
+#: templates/telephony/phonenumbers.html:25 templates/user/manager.html:20
+#: templates/user/manager.html:33
+msgid "Edit"
+msgstr ""
+
+#: templates/radio/person.html:7 templates/radio/person.html:10
 #: templates/telephony/phonenumbers.html:15
 msgid "Person"
 msgstr ""
@@ -497,20 +528,66 @@ msgstr ""
 msgid "Program"
 msgstr ""
 
-#: templates/radio/programs.html:13 templates/radio/schedule.html:81
+#: templates/radio/programs.html:13 templates/radio/schedule.html:109
 msgid "Duration"
+msgstr ""
+
+#: templates/radio/programs.html:14 templates/rootio/language.html:8
+#: templates/rootio/language.html:11
+msgid "Language"
 msgstr ""
 
 #: templates/radio/programs.html:15
 msgid "Last Episode"
 msgstr ""
 
-#: templates/radio/schedule.html:71
-msgid "Add to Schedule"
+#: templates/radio/schedule.html:64
+msgid "Add Programs"
 msgstr ""
 
-#: templates/radio/schedule.html:82
+#: templates/radio/schedule.html:73
+msgid "Recurring"
+msgstr ""
+
+#: templates/radio/schedule.html:81
+msgid "Unsaved Changes"
+msgstr ""
+
+#: templates/radio/schedule.html:83
+msgid "Edit Log"
+msgstr ""
+
+#: templates/radio/schedule.html:97
+msgid "Add Recurring Program to Schedule"
+msgstr ""
+
+#: templates/radio/schedule.html:108 templates/rootio/program_types.html:13
+msgid "Description"
+msgstr ""
+
+#: templates/radio/schedule.html:110 templates/rootio/program_type.html:8
+#: templates/rootio/program_type.html:11
+msgid "Program Type"
+msgstr ""
+
+#: templates/radio/schedule.html:111
 msgid "Update Frequency"
+msgstr ""
+
+#: templates/radio/schedule.html:121 templates/radio/scheduled_block.html:45
+msgid "Daily"
+msgstr ""
+
+#: templates/radio/schedule.html:122 templates/radio/scheduled_block.html:46
+msgid "Weekdays"
+msgstr ""
+
+#: templates/radio/schedule.html:123 templates/radio/scheduled_block.html:47
+msgid "Weekends"
+msgstr ""
+
+#: templates/radio/schedule.html:124 templates/radio/scheduled_block.html:48
+msgid "Custom"
 msgstr ""
 
 #: templates/radio/scheduled_block.html:26
@@ -518,47 +595,105 @@ msgstr ""
 msgid "Block"
 msgstr ""
 
-#: templates/radio/scheduled_block.html:45
-msgid "Daily"
-msgstr ""
-
-#: templates/radio/scheduled_block.html:46
-msgid "Weekdays"
-msgstr ""
-
-#: templates/radio/scheduled_block.html:47
-msgid "Weekends"
-msgstr ""
-
-#: templates/radio/scheduled_block.html:48
-msgid "Custom"
-msgstr ""
-
-#: templates/radio/scheduled_blocks.html:13
+#: templates/radio/scheduled_blocks.html:14
 msgid "Start-End"
 msgstr ""
 
-#: templates/radio/scheduled_blocks.html:14
+#: templates/radio/scheduled_blocks.html:15
 msgid "Recurrence"
+msgstr ""
+
+#: templates/radio/schedules.html:5
+msgid "Station Schedules"
+msgstr ""
+
+#: templates/radio/schedules.html:9 templates/radio/stations.html:12
+msgid "(frequency)"
+msgstr ""
+
+#: templates/radio/schedules.html:11
+msgid "Current Block"
+msgstr ""
+
+#: templates/radio/schedules.html:12
+msgid "Current Program"
+msgstr ""
+
+#: templates/radio/schedules.html:13
+msgid "Next Program"
 msgstr ""
 
 #: templates/radio/station.html:8 templates/radio/station.html:11
 msgid "Station"
 msgstr ""
 
-#: templates/radio/stations.html:12
-msgid "(frequency)"
+#: templates/radio/stations.html:13 templates/user/manager.html:16
+msgid "Location"
 msgstr ""
 
 #: templates/radio/stations.html:14
-msgid "Current Program"
+msgid "Owner"
 msgstr ""
 
-#: templates/radio/stations.html:15
-msgid "Next Program"
+#: templates/radio/stations.html:15 templates/telephony/layout.html:9
+#: templates/telephony/phonenumbers.html:5
+msgid "Phone Numbers"
 msgstr ""
 
-#: templates/settings/layout.html:7 templates/user/profile.html:6
+#: templates/radio/stations.html:16 templates/rootio/languages.html:5
+#: templates/rootio/layout.html:10
+msgid "Languages"
+msgstr ""
+
+#: templates/rootio/index.html:5
+msgid "Admin Dashboard"
+msgstr ""
+
+#: templates/rootio/index.html:7
+msgid "System status"
+msgstr ""
+
+#: templates/rootio/languages.html:13
+msgid "ISO Code"
+msgstr ""
+
+#: templates/rootio/languages.html:14
+msgid "Locale"
+msgstr ""
+
+#: templates/rootio/layout.html:8
+msgid "System"
+msgstr ""
+
+#: templates/rootio/layout.html:9
+msgid "Users"
+msgstr ""
+
+#: templates/rootio/layout.html:11
+msgid "Networks"
+msgstr ""
+
+#: templates/rootio/layout.html:12 templates/rootio/program_types.html:5
+msgid "Program Types"
+msgstr ""
+
+#: templates/rootio/program_types.html:14
+msgid "Definition"
+msgstr ""
+
+#: templates/rootio/program_types.html:15
+msgid "Phone Functions"
+msgstr ""
+
+#: templates/rootio/user.html:7 templates/user/user.html:6
+msgid "User"
+msgstr ""
+
+#: templates/rootio/users.html:12
+msgid "Created Time"
+msgstr ""
+
+#: templates/settings/layout.html:7 templates/user/profile.html:4
 msgid "Profile"
 msgstr ""
 
@@ -566,11 +701,12 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: templates/settings/profile.html:7
+#: templates/settings/profile.html:6
 msgid "Public Profile"
 msgstr ""
 
-#: templates/telephony/calls.html:5 templates/telephony/layout.html:10
+#: templates/telephony/calls.html:5 templates/telephony/index.html:18
+#: templates/telephony/layout.html:10
 msgid "Calls"
 msgstr ""
 
@@ -594,15 +730,41 @@ msgstr ""
 msgid "To"
 msgstr ""
 
-#: templates/telephony/index.html:5 templates/user/index.html:10
+#: templates/telephony/gateways.html:5 templates/telephony/layout.html:12
+msgid "Gateways"
+msgstr ""
+
+#: templates/telephony/gateways.html:11
+#: templates/telephony/phonenumbers.html:14
+msgid "Number"
+msgstr ""
+
+#: templates/telephony/gateways.html:12
+msgid "String"
+msgstr ""
+
+#: templates/telephony/index.html:6
 msgid "Telephony Dashboard"
 msgstr ""
 
-#: templates/telephony/layout.html:9 templates/telephony/phonenumbers.html:5
-msgid "Phone Numbers"
+#: templates/telephony/index.html:13
+msgid "SIM"
 msgstr ""
 
-#: templates/telephony/layout.html:11 templates/telephony/messages.html:5
+#: templates/telephony/index.html:14
+msgid "GSM"
+msgstr ""
+
+#: templates/telephony/index.html:15
+msgid "VOIP "
+msgstr ""
+
+#: templates/telephony/index.html:16
+msgid "Credits"
+msgstr ""
+
+#: templates/telephony/index.html:17 templates/telephony/layout.html:11
+#: templates/telephony/messages.html:5
 msgid "Messages"
 msgstr ""
 
@@ -614,6 +776,11 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+#: templates/telephony/phonenumber.html:8
+#: templates/telephony/phonenumber.html:11
+msgid "Phone Number"
+msgstr ""
+
 #: templates/telephony/phonenumbers.html:12
 msgid "Type"
 msgstr ""
@@ -622,20 +789,40 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-#: templates/telephony/phonenumbers.html:14
-msgid "Number"
-msgstr ""
-
-#: templates/user/index.html:6
+#: templates/user/index.html:5
 msgid "Hello"
 msgstr ""
 
-#: templates/user/index.html:11
-msgid "Find a program"
+#: templates/user/index.html:8
+msgid " Radio Dashboard "
+msgstr ""
+
+#: templates/user/index.html:9
+msgid " Telephony Dashboard "
 msgstr ""
 
 #: templates/user/index.html:12
-msgid "Start a poll"
+msgid " Emergency Broadcast "
+msgstr ""
+
+#: templates/user/index.html:13
+msgid " Schedule Message Tester "
+msgstr ""
+
+#: templates/user/index.html:14
+msgid " Manage Users "
+msgstr ""
+
+#: templates/user/manager.html:5
+msgid "Manage Users"
+msgstr ""
+
+#: templates/user/manager.html:14
+msgid "Age"
+msgstr ""
+
+#: templates/user/manager.html:18
+msgid "Last Accessed"
 msgstr ""
 
 #: user/forms.py:18
