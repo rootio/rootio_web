@@ -53,7 +53,8 @@ class DefaultConfig(BaseConfig):
                         #'mhd':"Ma'di",
                         'nyn':'Nyankore',
                         'lug':'Luganda',
-                        'luo':'Luo',}
+                        'luo':'Luo',
+			'es':'Espanol'}
 
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'
