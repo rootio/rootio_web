@@ -66,7 +66,7 @@ class MessageScheduler(object):
 
     def send_to_station(self, topic, msg):
         """ Send a message on to rootio_telephony """
-	topic = "station.{}".format(msg['station_id'])
+	topic = "station.{}.db".format(msg['station_id'])
 	# reserialize any datetime elements for zmq -- unpack again at ts
 	for key, value in msg.items():
 	    if isinstance(value, datetime):
