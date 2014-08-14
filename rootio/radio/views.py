@@ -130,7 +130,8 @@ def program_add():
         
         db.session.add(program)
         db.session.commit()
-        flash(_('Program added.'), 'success') 
+        flash(_('Program added.'), 'success')
+        return redirect(url_for('.programs'))
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
