@@ -87,7 +87,8 @@ def station_add():
 
         db.session.add(station)
         db.session.commit()
-        flash(_('Station added.'), 'success') 
+        flash(_('Station added.'), 'success')
+        return redirect(url_for('.stations'))
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
@@ -173,7 +174,8 @@ def person_add():
         
         db.session.add(person)
         db.session.commit()
-        flash(_('Person added.'), 'success') 
+        flash(_('Person added.'), 'success')
+        return redirect(url_for('.people'))
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
@@ -246,7 +248,8 @@ def scheduled_block_add():
 
         db.session.add(block)
         db.session.commit()
-        flash(_('Block added.'), 'success') 
+        flash(_('Block added.'), 'success')
+        return redirect(url_for('.scheduled_blocks'))
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
