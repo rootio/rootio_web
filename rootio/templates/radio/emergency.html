@@ -1,69 +1,77 @@
 {% extends "radio/layout.html" %}
 
 {% block css_style %}
-<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
-<!--[if lte IE 8]>
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recorder/style.css') }}" />
+    <!--[if lte IE 8]>
     <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
 <![endif]-->
-<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/locationfilter/locationfilter.css') }}">
-<style>#map { min-height: 400px; border:1px solid #ddd; margin-bottom:20px; }
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/locationfilter/locationfilter.css') }}">
+    <style>#map { min-height: 400px; border:1px solid #ddd; margin-bottom:20px; }
 
-/*hide select within zoom for demo*/
-.leaflet-container div.location-filter.button-container a.adjust-button {display:none;}
-</style>
+    /*hide select within zoom for demo*/
+    .leaflet-container div.location-filter.button-container a.adjust-button {display:none;}
+    </style>
 {% endblock %}
 
 {% block js_top %}
-<script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/leaflet/locationfilter/locationfilter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/leaflet/locationfilter/locationfilter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/recorder/audiodisplay.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/recorder/recorderjs/recorder.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/recorder/main.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <h2>{{ _('Emergency Broadcast') }}</h2>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <h2>{{ _('Emergency Broadcast') }}</h2>
 
-        <h3>{{ _('Stations') }}</h3>
-        <div id="map" class="span8"></div>
+            <h3>{{ _('Stations') }}</h3>
+            <div id="map" class="span8"></div>
 
-        <div class="span3">
-            <h4>{{ _('Send Message') }}</h4>
-            <form id="flash-message" action="post">
-                <ul id="station-list">
-                {%for s in stations%}
-                <li><label><input name="{{s.id}}" type="checkbox"/> {{s.name}}</label></li>
-                {%endfor%}
-                <li><a href="#" id="all">All / None</a></li>
-                </ul>
-                <input type="text" placeholder="type message here"/>
+            <div class="span3">
+                <h4>{{ _('Send Message') }}</h4>
+                <form id="flash-message" action="post">
+                    <ul id="station-list">
+                        {%for s in stations%}
+                            <li><label><input name="{{s.id}}" type="checkbox"/> {{s.name}}</label></li>
+                        {%endfor%}
+                        <li><a href="#" id="all">All / None</a></li>
+                    </ul>
+                    <input type="text" placeholder="type message here"/>
 
-                <a class="btn btn-primary" href="#"><i class="icon-play-circle icon-white"></i> Record</a>
+                    <button class="btn btn-primary" onclick="toggleRecording(this);" type="button" id="record_button"><i class="icon-play-circle icon-white"></i> Record</button>
 
-                <input type="button" class="btn btn-warning" value="{{ _('Send') }} &rarr;"/>
-            </form>
+                    <input type="button" class="btn btn-warning" value="{% trans %} Send {% endtrans %}&rarr;"/>
+                </form>
+                <div id="viz">
+                    <canvas id="analyser" width="102" height="50"></canvas>
+                    <canvas id="wavedisplay" width="102" height="50"></canvas>
+                </div>
+            </div>
+
         </div>
-        
     </div>
-</div>
 {% endblock %}
 
 {% block js_btm %}
-<script src="{{ url_for('static', filename='js/map.js') }}"></script>
-<script>
-//overrides for demo
-function stationsToLayer(feature, latlng) {
-    return L.marker(latlng, {
-            icon: L.AwesomeMarkers.icon({
-                icon: "exclamation-sign",
-                color: 'red'
-            })
-        });
-}
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script>
+        //overrides for demo
+        function stationsToLayer(feature, latlng) {
+            return L.marker(latlng, {
+                icon: L.AwesomeMarkers.icon({
+                    icon: "exclamation-sign",
+                    color: 'red'
+                })
+            });
+        }
 
-function stationPopup(feature, layer) {
-    if (feature.properties) {
+        function stationPopup(feature, layer) {
+            if (feature.properties) {
                 var popupContent = '<h4>'+feature.properties.name+'</h4><ul class="status">';
                 if (feature.properties.languages) {
                     var language_names = [];
@@ -81,7 +89,7 @@ function stationPopup(feature, layer) {
                 popupContent += "</ul>";
                 layer.bindPopup(popupContent);
             }
-}
-var locationFilter = new L.LocationFilter().addTo(map);
-</script>
+        }
+        var locationFilter = new L.LocationFilter().addTo(map);
+    </script>
 {% endblock %}
