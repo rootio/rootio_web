@@ -52,7 +52,7 @@ def stations():
     for s in network_stations:
         stations.extend(s.stations)
     if len(stations) == 1:
-        return redirect(url_for('station', station_id=stations[0].id))
+        return redirect(url_for('.station', station_id=stations[0].id))
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -413,7 +413,7 @@ def schedule():
     for s in network_stations:
         stations.extend(s.stations)
     if len(stations) == 1:
-        return redirect(url_for('schedule_station', station_id=stations[0].id))
+        return redirect(url_for('.schedule_station', station_id=stations[0].id))
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
 
