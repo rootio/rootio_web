@@ -1,13 +1,13 @@
 {% extends "radio/layout.html" %}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Stations') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
+    <div class="container">
+        <h2 class="pull-left">{{ _('Stations') }}</h2>
+        <div class="pull-right">
+            <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        </div>
+        <table class='table table-bordered table-hover'>
+            <thead>
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
                 <th>{{ _('Location') }}</th>
@@ -15,17 +15,27 @@
                 <th>{{ _('Phone Numbers') }}</th>
                 <th>{{ _('Languages') }}</th>
             </tr>
-        </thead>
-        {% for station in stations %}
-        <tr>
-            <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.location }}</td>
-            <td>{{ station.owner }}</td>
-            <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
-            <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
-            <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            </thead>
+            {% for station in stations %}
+                <tr id="row_{{ station.id }}">
+                    <td>{{ station.name }} ({{station.frequency}})</td>
+                    <td>{{ station.location }}</td>
+                    <td>{{ station.owner }}</td>
+                    <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
+                    <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
+                    <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a> | <a href="#" onclick="delete_station('{{ station.id }}')">{{ _('Delete') }}</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+        function delete_station(id){
+            if (confirm("Are you sure you want to delete this station")){
+                $.post("/radio/station/delete/"+id, function(data){
+                    $("#row_"+id).remove();
+                });
+            }
+            return false
+        }
+    </script>
 {% endblock %}

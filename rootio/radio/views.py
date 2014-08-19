@@ -79,6 +79,14 @@ def station_add():
 
     return render_template('radio/station.html', station=station, form=form)
 
+@radio.route('/station/delete/<int:station_id>', methods=['POST'])
+@login_required
+def station_delete(station_id):
+   station = Station.query.filter_by(id=station_id).first_or_404()
+   db.session.delete(station)
+   db.session.commit()
+   return "Deleted"
+
 
 @radio.route('/program/', methods=['GET'])
 def programs():
@@ -120,6 +128,15 @@ def program_add():
 
     return render_template('radio/program.html', program=program, form=form)
 
+
+@radio.route('/program/delete/<int:program_id>', methods=['POST'])
+@login_required
+def program_delete(program_id):
+   program = Program.query.filter_by(id=program_id).first_or_404()
+   db.session.delete(program)
+   db.session.commit()
+   return "Deleted"
+
 @radio.route('/people/', methods=['GET'])
 def people():
     people = Person.query.all()
@@ -159,6 +176,16 @@ def person_add():
         flash(_('Validation error'),'error')
 
     return render_template('radio/person.html', person=person, form=form)
+
+
+@radio.route('/person/delete/<int:person_id>', methods=['POST'])
+@login_required
+def person_delete(person_id):
+   person = Person.query.filter_by(id=person_id).first_or_404()
+   db.session.delete(person)
+   db.session.commit()
+   return "Deleted"
+
 
 
 @radio.route('/location/add/ajax/', methods=['POST'])
@@ -230,6 +257,15 @@ def scheduled_block_add():
         flash(_('Validation error'),'error')
 
     return render_template('radio/scheduled_block.html', block=block, form=form)
+
+
+@radio.route('/block/delete/<int:block_id>', methods=['POST'])
+@login_required
+def block_delete(block_id):
+   block = ScheduledBlock.query.filter_by(id=block_id).first_or_404()
+   db.session.delete(block)
+   db.session.commit()
+   return "Deleted"
 
 
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])

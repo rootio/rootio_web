@@ -1,29 +1,39 @@
 {% extends "radio/layout.html" %}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Blocks') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.scheduled_block_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
+    <div class="container">
+        <h2 class="pull-left">{{ _('Blocks') }}</h2>
+        <div class="pull-right">
+            <a class="btn btn-success" href="{{ url_for('radio.scheduled_block_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        </div>
+        <table class='table table-bordered table-hover'>
+            <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
                 <th>{{ _('Stations') }}</th>
                 <th>{{ _('Start-End') }}</th>
                 <th>{{ _('Recurrence') }}</th>
             </tr>
-        </thead>
-        {% for scheduled_block in scheduled_blocks %}
-        <tr>
-            <td>{{ scheduled_block.name }}</td>
-            <td>{{ scheduled_block.station }}</td>
-            <td>{{ scheduled_block.start_time }} - {{scheduled_block.end_time}} </td>
-            <td>{{ scheduled_block.recurrence }}</td>
-            <td><a href="{{ url_for('radio.scheduled_block', block_id=scheduled_block.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            </thead>
+            {% for scheduled_block in scheduled_blocks %}
+                <tr id="row_{{ scheduled_block.id }}">
+                    <td>{{ scheduled_block.name }}</td>
+                    <td>{{ scheduled_block.station }}</td>
+                    <td>{{ scheduled_block.start_time }} - {{scheduled_block.end_time}} </td>
+                    <td>{{ scheduled_block.recurrence }}</td>
+                    <td><a href="{{ url_for('radio.scheduled_block', block_id=scheduled_block.id) }}">{{ _('Edit') }}</a> | <a href="#" onclick="delete_block('{{ scheduled_block.id }}')">{{ _('Delete') }}</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+        function delete_block(id){
+            if (confirm("Are you sure you want to delete this station")){
+                $.post("/radio/block/delete/"+id, function(data){
+                    $("#row_"+id).remove();
+                });
+            }
+            return false
+        }
+    </script>
 {% endblock %}
