@@ -9,8 +9,8 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, NetworkForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
@@ -20,21 +20,22 @@ from ..messenger import messages
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
+
 @radio.route('/', methods=['GET'])
 def index():
     stations = Station.query.all()
-    return render_template('radio/index.html',stations=stations)
+    return render_template('radio/index.html', stations=stations)
 
 
 @radio.route('/emergency/', methods=['GET'])
 def emergency():
     stations = Station.query.all()
-    #demo, override station statuses
+    # demo, override station statuses
     for s in stations:
         s.status = "on"
 
     #end demo
-    return render_template('radio/emergency.html',stations=stations)
+    return render_template('radio/emergency.html', stations=stations)
 
 
 @radio.route('/station/', methods=['GET'])
@@ -57,7 +58,6 @@ def station(station_id):
 
     return render_template('radio/station.html', station=station, form=form)
 
-
 @radio.route('/station/add/', methods=['GET', 'POST'])
 @login_required
 def station_add():
@@ -65,19 +65,59 @@ def station_add():
     station = None
 
     if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        cleaned_data.pop('phone_inline',None) #and also inline forms
-        cleaned_data.pop('location_inline',None)
-        station = Station(**cleaned_data) #create new object from data
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        cleaned_data.pop('phone_inline', None)  # and also inline forms
+        cleaned_data.pop('location_inline', None)
+        cleaned_data['owner_id'] = current_user.id
+        station = Station(**cleaned_data)  # create new object from data
 
         db.session.add(station)
         db.session.commit()
-        flash(_('Station added.'), 'success') 
+        flash(_('Station added.'), 'success')
     elif request.method == "POST":
-        flash(_('Validation error'),'error')
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/station.html', station=station, form=form)
+
+@radio.route('/networks/', methods=['GET'])
+def networks():
+    networks = Network.query.order_by('name').all()
+    return render_template('radio/networks.html', networks=networks, active='networks')
+
+@radio.route('/network/<int:network_id>', methods=['GET', 'POST'])
+def network(network_id):
+    network = Network.query.filter_by(id=network_id).first_or_404()
+    form = NetworkForm(obj=network, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station updated.'), 'success')
+
+    return render_template('radio/network.html', station=network, form=form)
+
+@radio.route('/network/add/', methods=['GET', 'POST'])
+@login_required
+def network_add():
+    form = NetworkForm(request.form)
+    network = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        network = Network(**cleaned_data)  # create new object from data
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Network added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/network.html', station=network, form=form)
+
+
 
 
 @radio.route('/program/', methods=['GET'])
@@ -108,17 +148,18 @@ def program_add():
     program = None
 
     if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        program = Program(**cleaned_data) #create new object from data
-        
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        program = Program(**cleaned_data)  # create new object from data
+
         db.session.add(program)
         db.session.commit()
-        flash(_('Program added.'), 'success') 
+        flash(_('Program added.'), 'success')
     elif request.method == "POST":
-        flash(_('Validation error'),'error')
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/program.html', program=program, form=form)
+
 
 @radio.route('/people/', methods=['GET'])
 def people():
@@ -148,15 +189,15 @@ def person_add():
     person = None
 
     if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        person = Person(**cleaned_data) #create new object from data
-        
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        person = Person(**cleaned_data)  # create new object from data
+
         db.session.add(person)
         db.session.commit()
-        flash(_('Person added.'), 'success') 
+        flash(_('Person added.'), 'success')
     elif request.method == "POST":
-        flash(_('Validation error'),'error')
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/person.html', person=person, form=form)
 
@@ -166,34 +207,51 @@ def person_add():
 @returns_json
 def location_add_ajax():
     data = json.loads(request.data)
-    #handle floats individually
-    float_vals = ['latitude','longitude']
+    # handle floats individually
+    float_vals = ['latitude', 'longitude']
     for field in float_vals:
         try:
             data[field] = float(data[field])
         except ValueError:
-            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
+            response = {'status': 'error', 'errors': {field: _('Invalid ') + field}, 'status_code': 400}
             return response
 
-    form = LocationForm(None, **data) #use this format to avoid multidict-type issue
+    form = LocationForm(None, **data)  #use this format to avoid multidict-type issue
     location = None
     if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        location = Location(**cleaned_data) #create new object from data
+        cleaned_data = form.data  #make a copy
+        cleaned_data.pop('submit', None)  #remove submit field from list
+        location = Location(**cleaned_data)  #create new object from data
         db.session.add(location)
         db.session.commit()
-        response = {'status':'success','result':{'id':location.id,'string':unicode(location)},'status_code':200}
+        response = {'status': 'success', 'result': {'id': location.id, 'string': unicode(location)}, 'status_code': 200}
     elif request.method == "POST":
         #convert the error dictionary to something serializable
-        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+        response = {'status': 'error', 'errors': error_dict(form.errors), 'status_code': 400}
+    return response
+
+
+@radio.route('/network/add/ajax/', methods=['POST'])
+@login_required
+@returns_json
+def network_add_ajax():
+    data = json.loads(request.data)
+    form = NetworkForm(None, **data)
+    response = {'status': 'error', 'errors': error_dict(form.errors), 'status_code': 400}
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        network = Network(**cleaned_data)  # create new object from data
+        db.session.add(network)
+        db.session.commit()
+        response = {'status': 'success', 'result': {'id': network.id, 'string': unicode(network)}, 'status_code': 200}
     return response
 
 
 @radio.route('/block/', methods=['GET'])
 def scheduled_blocks():
     scheduled_blocks = ScheduledBlock.query.all()
-    #TODO, display only those that are scheduled on stations the user can view
+    # TODO, display only those that are scheduled on stations the user can view
 
     return render_template('radio/scheduled_blocks.html', scheduled_blocks=scheduled_blocks, active='blocks')
 
@@ -219,15 +277,15 @@ def scheduled_block_add():
     block = None
 
     if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        block = ScheduledBlock(**cleaned_data) #create new object from data
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        block = ScheduledBlock(**cleaned_data)  # create new object from data
 
         db.session.add(block)
         db.session.commit()
-        flash(_('Block added.'), 'success') 
+        flash(_('Block added.'), 'success')
     elif request.method == "POST":
-        flash(_('Validation error'),'error')
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/scheduled_block.html', block=block, form=form)
 
@@ -239,12 +297,12 @@ def schedule_program_add_ajax():
     data = json.loads(request.data)
 
     if not 'program' in data:
-        return {'status':'error','errors':'program required','status_code':400}
+        return {'status': 'error', 'errors': 'program required', 'status_code': 400}
     if not 'station' in data:
-        return {'status':'error','errors':'station required','status_code':400}
+        return {'status': 'error', 'errors': 'station required', 'status_code': 400}
 
-    #lookup objects from ids
-    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    # lookup objects from ids
+    fk_errors = fk_lookup_form_data({'program': Program, 'station': Station}, data)
     if fk_errors:
         return fk_errors
 
@@ -255,8 +313,8 @@ def schedule_program_add_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
-    
-    return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
+
+    return {'status': 'success', 'result': {'id': scheduled_program.id}, 'status_code': 200}
 
 
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
@@ -275,10 +333,10 @@ def schedule_program_edit_ajax():
     data = json.loads(request.data)
 
     if not 'scheduledprogram' in data:
-        return {'status':'error','errors':'scheduledprogram required','status_code':400}
+        return {'status': 'error', 'errors': 'scheduledprogram required', 'status_code': 400}
 
-    #lookup objects from ids
-    fk_errors = fk_lookup_form_data({'scheduledprogram':ScheduledProgram}, data)
+    # lookup objects from ids
+    fk_errors = fk_lookup_form_data({'scheduledprogram': ScheduledProgram}, data)
     if fk_errors:
         return fk_errors
 
@@ -290,7 +348,7 @@ def schedule_program_edit_ajax():
     db.session.add(scheduled_program)
     db.session.commit()
 
-    return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
+    return {'status': 'success', 'result': {'id': scheduled_program.id}, 'status_code': 200}
 
 
 @radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
@@ -300,17 +358,17 @@ def schedule_recurring_program_ajax():
     "Schedule a recurring program"
     data = json.loads(request.data)
 
-    #ensure specified foreign key ids are valid
-    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    # ensure specified foreign key ids are valid
+    fk_errors = fk_lookup_form_data({'program': Program, 'station': Station}, data)
     if fk_errors:
         return fk_errors
 
     form = ScheduleProgramForm(None, **data)
 
     try:
-        air_time = datetime.strptime(form.data['air_time'],'%H:%M').time()
+        air_time = datetime.strptime(form.data['air_time'], '%H:%M').time()
     except ValueError:
-        response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
+        response = {'status': 'error', 'errors': {'air_time': 'Invalid time'}, 'status_code': 400}
         return response
 
     if form.validate_on_submit():
@@ -320,18 +378,18 @@ def schedule_recurring_program_ajax():
 
         #parse recurrence rule
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:10]: #TODO: dynamically determine instance limit
+        for instance in r[:10]:  #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
-            scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
+            scheduled_program.start = datetime.combine(instance, air_time)  #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
-            
+
             db.session.add(scheduled_program)
 
         db.session.commit()
-        
-        response = {'status':'success','result':{},'status_code':200}
+
+        response = {'status': 'success', 'result': {}, 'status_code': 200}
     elif request.method == "POST":
-        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+        response = {'status': 'error', 'errors': error_dict(form.errors), 'status_code': 400}
     return response
 
 
@@ -342,15 +400,15 @@ def scheduled_programs_json(station_id):
         start = dateutil.parser.parse(request.args.get('start'))
         end = dateutil.parser.parse(request.args.get('end'))
         scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
-        #TODO: filter by start > start, end < end
+        # TODO: filter by start > start, end < end
     else:
         scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
     resp = []
     for s in scheduled_programs:
-        d = {'title':s.program.name,
-            'start':s.start.isoformat(),
-            'end':s.end.isoformat(),
-            'id':s.id}
+        d = {'title': s.program.name,
+             'start': s.start.isoformat(),
+             'end': s.end.isoformat(),
+             'id': s.id}
         resp.append(d)
     return resp
 
@@ -361,21 +419,21 @@ def scheduled_block_json(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
 
     if not ('start' in request.args and 'end' in request.args):
-        return {'status':'error','errors':'scheduledblocks.json requires start and end','status_code':400}
+        return {'status': 'error', 'errors': 'scheduledblocks.json requires start and end', 'status_code': 400}
 
-    #TODO: fullcalendar updates based on these params
+    # TODO: fullcalendar updates based on these params
     start = dateutil.parser.parse(request.args.get('start'))
     end = dateutil.parser.parse(request.args.get('end'))
 
     resp = []
     for block in scheduled_blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
-        for instance in r.between(start,end):
-            d = {'title':block.name,
-                'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time),
-                'id':block.id,
-                'isBackground':True, #the magic flag that tells full calendar to render as block
+        for instance in r.between(start, end):
+            d = {'title': block.name,
+                 'start': datetime.combine(instance, block.start_time),
+                 'end': datetime.combine(instance, block.end_time),
+                 'id': block.id,
+                 'isBackground': True,  #the magic flag that tells full calendar to render as block
             }
             resp.append(d)
     return resp
@@ -383,26 +441,27 @@ def scheduled_block_json(station_id):
 
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
-    #TODO, if user is authorized to view only one station, redirect them there
+    # TODO, if user is authorized to view only one station, redirect them there
 
     stations = Station.query.order_by('name').all()
 
     return render_template('radio/schedules.html',
-        stations=stations, active='schedule')
+                           stations=stations, active='schedule')
+
 
 @radio.route('/schedule/<int:station_id>/', methods=['GET'])
 def schedule_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
 
-    #TODO: move this logic to an ajax call, like scheduled_block_json
+    # TODO: move this logic to an ajax call, like scheduled_block_json
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
     for block in scheduled_blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
-        for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
-            d = {'title':block.name,
-                'start':datetime.combine(instance,block.start_time),
-                'end':datetime.combine(instance,block.end_time)}
+        for instance in r[:10]:  #TODO: dynamically determine instance limit from calendar view
+            d = {'title': block.name,
+                 'start': datetime.combine(instance, block.start_time),
+                 'end': datetime.combine(instance, block.end_time)}
             block_list.append(d)
 
     form = ScheduleProgramForm()
@@ -411,5 +470,5 @@ def schedule_station(station_id):
     #TODO: filter by language?
 
     return render_template('radio/schedule.html',
-        form=form, station=station, block_list=block_list, addable_programs=all_programs,
-        active='schedule')
+                           form=form, station=station, block_list=block_list, addable_programs=all_programs,
+                           active='schedule')

@@ -1,0 +1,27 @@
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Networks') }}</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('radio.network_add') }}"><strong>{{ _('Add') }} +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Admins') }}</th>
+                <th>{{ _('Stations') }}</th>
+            </tr>
+        </thead>
+        {% for station in stations %}
+        <tr>
+            <td>{{ network.name }} ({{station.frequency}})</td>
+            <td>{{ network.admins|join(', ') }}</td>
+            <td>{{ network.stations|join(', ') }}</td>
+            <td><a href="{{ url_for('radio.network', network_id=network.id) }}">{{ _('Edit') }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
