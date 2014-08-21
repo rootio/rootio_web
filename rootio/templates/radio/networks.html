@@ -10,13 +10,15 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
+                <th>{{ _('About') }}</th>
                 <th>{{ _('Admins') }}</th>
                 <th>{{ _('Stations') }}</th>
             </tr>
         </thead>
-        {% for station in stations %}
+        {% for network in networks %}
         <tr>
-            <td>{{ network.name }} ({{station.frequency}})</td>
+            <td>{{ network.name }}</td>
+            <td>{{ network.about }}</td>
             <td>{{ network.admins|join(', ') }}</td>
             <td>{{ network.stations|join(', ') }}</td>
             <td><a href="{{ url_for('radio.network', network_id=network.id) }}">{{ _('Edit') }}</a></td>

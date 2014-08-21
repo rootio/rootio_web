@@ -6,9 +6,9 @@
 <div class="container">
     {%if station%}
         <h2>{{ _('Edit') }} {{ _('Netowrk') }}</h2>
-        {{ render_form(url_for('radio.network', station_id=network.id), form) }}
+        {{ render_form(url_for('radio.network', network_id=network.id), form) }}
     {%else%}
-        <h2>{{ _('Add') }} {{ _('Netowrk') }}</h2>
+        <h2>{{ _('Add') }} {{ _('Network') }}</h2>
         {{ render_form(url_for('radio.network_add'), form) }}
     {%endif%}
 </div>

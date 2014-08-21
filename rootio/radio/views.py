@@ -56,7 +56,7 @@ def station(station_id):
         db.session.commit()
         flash(_('Station updated.'), 'success')
 
-    return render_template('radio/station.html', station=station, form=form)
+    return render_template('radio/station.html', station=ne, form=form)
 
 @radio.route('/station/add/', methods=['GET', 'POST'])
 @login_required
@@ -97,7 +97,7 @@ def network(network_id):
         db.session.commit()
         flash(_('Station updated.'), 'success')
 
-    return render_template('radio/network.html', station=network, form=form)
+    return render_template('radio/network.html', network=network, form=form)
 
 @radio.route('/network/add/', methods=['GET', 'POST'])
 @login_required
