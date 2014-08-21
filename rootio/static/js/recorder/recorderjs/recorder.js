@@ -106,10 +106,8 @@
         this.node.connect(this.context.destination);   // if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
     };
 
-    Recorder.setupDownload = function(blob, filename){
+    Recorder.setupPlayer = function(blob, filename){
         var url = (window.URL || window.webkitURL).createObjectURL(blob);
-        var link = document.getElementById("send_button");
-        link.href = url;
         var player = document.getElementById("audio_player");
         player.innerHTML = '<audio controls><source src="' + url + '" type="audio/wav" > Your browser does not support the audio player.</audio>';
         link.download = filename || 'output.wav';
