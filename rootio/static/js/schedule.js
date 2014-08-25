@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    var we;
     //set up recurrence presets
     $('input[name=preset-recurrence]').change(function(event) {
         var value = $(event.target).val();
@@ -68,7 +69,7 @@ $(document).ready(function() {
 
     //alert edit log
     alertEditLog = function(event, text) {
-        alert = $('<li class="alert alert-info" style="display:none;">'+text+'<br/><a href="#" onclick="event.preventDefault(); remove_from_log(this)" title="Remove" style="color: red">remove</a></li>');
+        alert = $('<li class="alert alert-info" style="display:none;">'+text+'</li>');
         $('#addable-programs #schedule-edit-log').prepend(alert);
         alert.fadeIn();
         $('#addable-programs #unsaved-changes').show();
@@ -237,10 +238,6 @@ $(document).ready(function() {
         $('#calendar').fullCalendar('refresh');
     });
 });
-function remove_from_log(elem){
-    $(elem).closest('li').remove();
-    return false;
-}
 
 function delete_event(id){
     if(confirm("Are you sure, you want to delete this program?")) {
