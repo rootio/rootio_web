@@ -24,11 +24,7 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 @radio.route('/', methods=['GET'])
 @login_required
 def index():
-    #Todo Optimise this(stations) into just one query **Query Confusion**
-    stations = db.session.query(Station).filter(Station.owner_id == current_user.id).all()
-    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
-    for s in network_stations:
-        stations.extend(s.stations)
+    stations = Station.get_authorized_stations(current_user)
     return render_template('radio/index.html', stations=stations)
 
 
@@ -47,13 +43,7 @@ def emergency():
 @radio.route('/station/', methods=['GET'])
 @login_required
 def stations():
-    #Todo Optimise this(stations) into just one query **Query Confusion**
-    stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
-    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
-    for s in network_stations:
-        stations.extend(s.stations)
-    if len(stations) == 1:
-        return redirect(url_for('.station', station_id=stations[0].id))
+    stations = Station.get_authorized_stations(current_user)
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -101,7 +91,7 @@ def station_delete(station_id):
 
 @radio.route('/networks/', methods=['GET'])
 def networks():
-    networks = Network.query.order_by('name').all()
+    networks = Network.get_authorized_networks(current_user)
     return render_template('radio/networks.html', networks=networks, active='networks')
 
 @radio.route('/network/<int:network_id>', methods=['GET', 'POST'])
@@ -494,13 +484,7 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 @login_required
 def schedule():
-    #Todo Optimise this(stations) into just one query **Query Confusion**
-    stations = Station.query.filter_by(owner_id=current_user.id).order_by('name').all()
-    network_stations = Network.query.filter(Network.admins.any(id=current_user.id))
-    for s in network_stations:
-        stations.extend(s.stations)
-    if len(stations) == 1:
-        return redirect(url_for('.schedule_station', station_id=stations[0].id))
+    stations = Station.get_authorized_stations(current_user)
     return render_template('radio/schedules.html',
                            stations=stations, active='schedule')
 

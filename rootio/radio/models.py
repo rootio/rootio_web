@@ -56,6 +56,10 @@ class Network(BaseMixin, db.Model):
     stations = db.relationship(u'Station', backref=db.backref('network'))
     #networks can have multiple admins
 
+    @classmethod
+    def get_authorized_networks(cls, user):
+        return Network.query.filter(Network.admins.any(id=user.id))
+
     def __unicode__(self):
         return self.name
 
@@ -196,6 +200,14 @@ class Station(BaseMixin, db.Model):
         #convert to named dict for sparkline display
         telephony_dict = object_list_to_named_dict(telephony_list)
         return telephony_dict
+
+    @classmethod
+    def get_authorized_stations(cls, user):
+        stations = db.session.query(cls).filter(cls.owner_id == user.id).all()
+        networks = Network.query.filter(Network.admins.any(id=user.id))
+        for network in networks:
+            stations.extend(network.stations)
+        return stations
 
     def __unicode__(self):
         return self.name
