@@ -59,6 +59,7 @@ def station(station_id):
         db.session.add(station)
         db.session.commit()
         flash(_('Station updated.'), 'success')
+        return redirect(url_for('.station'))
 
     return render_template('radio/station.html', station=station, form=form)
 
@@ -66,7 +67,6 @@ def station(station_id):
 @login_required
 def station_add():
     form = StationForm(request.form)
-    station = None
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
@@ -80,6 +80,7 @@ def station_add():
         db.session.commit()
         flash(_('Station added.'), 'success')
         return redirect(url_for('.stations'))
+    return render_template('radio/station.html', form=form)
 
 @radio.route('/station/delete/<int:station_id>', methods=['POST'])
 @login_required
@@ -165,6 +166,7 @@ def program_add():
         db.session.commit()
         flash(_('Program added.'), 'success')
         return redirect(url_for('.programs'))
+    return render_template('radio/program.html', form=form)
 
 @radio.route('/program/delete/<int:program_id>', methods=['POST'])
 @login_required

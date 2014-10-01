@@ -203,6 +203,8 @@ class Station(BaseMixin, db.Model):
 
     @classmethod
     def get_authorized_stations(cls, user):
+        if user.role_code == 0:
+            return cls.query.all()
         stations = db.session.query(cls).filter(cls.owner_id == user.id).all()
         networks = Network.query.filter(Network.admins.any(id=user.id))
         for network in networks:
