@@ -50,7 +50,7 @@ def stations():
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
 @login_required
 def station(station_id):
-    station = Station.query.filter_by(id=station_id, owner_id=current_user.id).first_or_404()
+    station = Station.query.filter_by(id=station_id).first_or_404()
     form = StationForm(obj=station, next=request.args.get('next'))
 
     if form.validate_on_submit():
@@ -59,8 +59,7 @@ def station(station_id):
         db.session.add(station)
         db.session.commit()
         flash(_('Station updated.'), 'success')
-        return redirect(url_for('.station'))
-
+        return redirect(url_for('.stations'))
     return render_template('radio/station.html', station=station, form=form)
 
 @radio.route('/station/add/', methods=['GET', 'POST'])
@@ -72,6 +71,9 @@ def station_add():
         cleaned_data = form.data  # make a copy
         cleaned_data.pop('submit', None)  # remove submit field from list
         cleaned_data.pop('phone_inline', None)  # and also inline forms
+        cleaned_data.pop('cloud_phone_inline', None)  # and also inline forms
+        cleaned_data.pop('transmitter_phone_inline', None)  # and also inline forms
+        cleaned_data.pop('network_inline', None)  # and also inline forms
         cleaned_data.pop('location_inline', None)
         cleaned_data['owner_id'] = current_user.id
         station = Station(**cleaned_data)  # create new object from data
@@ -96,17 +98,18 @@ def networks():
     return render_template('radio/networks.html', networks=networks, active='networks')
 
 @radio.route('/network/<int:network_id>', methods=['GET', 'POST'])
+@login_required
 def network(network_id):
     network = Network.query.filter_by(id=network_id).first_or_404()
     form = NetworkForm(obj=network, next=request.args.get('next'))
 
     if form.validate_on_submit():
-        form.populate_obj(station)
+        form.populate_obj(network)
 
-        db.session.add(station)
+        db.session.add(network)
         db.session.commit()
         flash(_('Station updated.'), 'success')
-
+        return redirect(url_for('.networks'))
     return render_template('radio/network.html', network=network, form=form)
 
 @radio.route('/network/add/', methods=['GET', 'POST'])
@@ -117,15 +120,26 @@ def network_add():
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit')
         network = Network(**cleaned_data)  # create new object from data
 
-        db.session.add(station)
+        db.session.add(network)
         db.session.commit()
         flash(_('Network added.'), 'success')
+        return redirect(url_for('.networks'))
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/network.html', station=network, form=form)
+    return render_template('radio/network.html', network=network, form=form)
+
+
+@radio.route('/network/delete/<int:network_id>', methods=['POST'])
+@login_required
+def network_delete(network_id):
+   network = Network.query.filter_by(id=network_id).first_or_404()
+   db.session.delete(network)
+   db.session.commit()
+   return "Deleted"
 
 
 @radio.route('/program/', methods=['GET'])
@@ -147,7 +161,7 @@ def program(program_id):
         db.session.add(program)
         db.session.commit()
         flash(_('Program updated.'), 'success')
-
+        return redirect(url_for('.programs'))
     return render_template('radio/program.html', program=program, form=form)
 
 
@@ -195,6 +209,7 @@ def person(person_id):
         db.session.add(person)
         db.session.commit()
         flash(_('Person updated.'), 'success')
+        return redirect(url_for('.people'))
 
     return render_template('radio/person.html', person=person, form=form)
 

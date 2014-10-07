@@ -58,6 +58,8 @@ class Network(BaseMixin, db.Model):
 
     @classmethod
     def get_authorized_networks(cls, user):
+        if user.role_code == 0:
+            return cls.query.all()
         return Network.query.filter(Network.admins.any(id=user.id))
 
     def __unicode__(self):

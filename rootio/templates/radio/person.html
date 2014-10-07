@@ -3,12 +3,12 @@
 
 {% block body %}
 <div class="container">
-    {%if station%}
+    {% if person %}
         <h2>{{ _('Edit') }} {{ _('Person') }}</h2>
         {{ render_form(url_for('radio.person', person_id=person.id), form) }}
-    {%else%}
+    {% else %}
         <h2>{{ _('Add') }} {{ _('Person') }}</h2>
         {{ render_form(url_for('radio.person_add'), form) }}
-    {%endif%}
+    {% endif %}
 </div>
 {% endblock %}
