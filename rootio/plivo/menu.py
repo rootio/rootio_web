@@ -4,6 +4,8 @@ from rootio.radio import Program, Station
 
 __author__ = 'kenneth'
 
+#This code does not work yet but it can give an idea of my direction of though 
+
 # dummy_menu = {
 #     'program': 1, 'station': 1,
 #     'actions': {
