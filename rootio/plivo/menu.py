@@ -4,7 +4,8 @@ from rootio.radio import Program, Station
 
 __author__ = 'kenneth'
 
-#This code does not work yet but it can give an idea of my direction of though 
+#This code does not work yet but it can give an idea of my direction of though
+
 
 # dummy_menu = {
 #     'program': 1, 'station': 1,
@@ -54,8 +55,8 @@ class Menu(StateMachine):
     def create_transitions(self):
         self.initial_state = self.states[0]
         end_state = self.states[self.ivr_choice]
-        if not self.current_state:
-            self.add_transition(self.initial_state, 'listen_to_choice', end_state)
+        if not self.current_state == self.initial_state:
+            self.add_transition(self.initial_state, 'listen_to_choice', end_state, action=[])
             self.current_state = end_state
         else:
             self.add_transition(self.current_state, 'listen_to_choice', end_state)
