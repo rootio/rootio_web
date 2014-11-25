@@ -38,13 +38,13 @@ class BaseConfig(object):
 
 
 class DefaultConfig(BaseConfig):
-    DEBUG = False
+    DEBUG = True
     CSRF_ENABLED = False
 
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
     # Postgres for production.
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:NLPog1986@localhost'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:root@localhost'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
     ACCEPT_LANGUAGES = {#'ach':'Acholi',

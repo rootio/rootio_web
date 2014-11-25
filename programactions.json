@@ -1,0 +1,26 @@
+{
+    "Jingle":
+            {
+                "argument": "C:\\Users\\HP Envy\\Music\\jingles\\jingle.mp3",
+                "start_time": "00:00:00",
+                "duration": 6
+            },
+    "Media":
+            {
+                "argument": "C:\\Users\\HP Envy\\Downloads\\bbc_mi6_1.mp3",
+                "start_time": "00:00:06",
+                "duration": 600
+            },
+    "Stream":
+            {
+                "argument": "http://10.10.2.3:5000/rootio",
+                "start_time": "00:10:06",
+                "duration": 600
+            },
+    "Music":
+            {
+                "argument": "C:\\Users\\HP Envy\\Desktop\\rootio-music\\4 Season Of Loneliness.mp3",
+                "start_time": "00:20:06",
+                "duration": 1200
+            }
+}
