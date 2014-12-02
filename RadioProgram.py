@@ -18,14 +18,16 @@ class RadioProgram:
     __db = None
     __program = None
     __scheduler = None
+    __radio_station
     
         
-    def __init__(self, db, program):
+    def __init__(self, db, program, radio_station):
         print "initing program with id " + str(program.id)
         self.__db = db
         self.__program = program
         self.__scheduler = BackgroundScheduler()
         self.__load_program_actions()
+        self.__radio_station = radio_station
         
     def start(self):
         self.__schedule_program_actions()
@@ -42,11 +44,11 @@ class RadioProgram:
         data = json.load(json_file)
         for j in data:
             if j == "Jingle":
-                self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"]))
+                self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"], self.__radio_station))
                 print "This will start at " + str(data["Jingle"]["start_time"])
                 #self.__scheduler.add_job(getattr(program,'start'), 'date', None, None, None, 'scheduled_program', 1, 0, 1, scheduled_program.start))
             if j == "Media":
-                self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"]))
+                self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"], self.__radio_station))
                 print "This would have started at " + str(data["Media"]["start_time"])
             if j == "Stream":
                 #self.__program_actions.add(JingleAction(j['argument']))

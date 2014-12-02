@@ -28,13 +28,14 @@ class RadioStation(Station):
     
     __call_handler = None
     __program_handler = None
+    _station = None
     
 
     def __init__(self, station_id):
         self.__id = station_id
-        self.station = db.session.query(Station).filter(Station.id == station_id).one()
-        print self.station.name
-        #self.__call_handler = new CallHandler(self, self.)
+        self._station = db.session.query(Station).filter(Station.id == station_id).one()
+        print self._station.name
+        self.__call_handler = CallHandler(self)
         self.__program_handler = ProgramHandler(db, self.station)
         return
         
@@ -55,6 +56,13 @@ class RadioStation(Station):
     def handle_incoming_call(self,):
         #if target of the call is station, this handles. else pass it to program handler
         pass;
+    
+    def request_call(self, to_numbers, time_limit):
+        return self.__call_handler.call(to_numbers, time_limit)
+    
+    def play_to_call(self, content_location, callUUID):
+        return self.__call_handler.play(content_location, callUUID)
+        
     
     
     
