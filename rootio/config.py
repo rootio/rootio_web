@@ -9,6 +9,17 @@ from utils import make_dir
 PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 INSTANCE_FOLDER_PATH = os.path.join(PROJECT_ROOT, 'instance')
 
+"""
+REST API
+"""
+# URL of the Plivo REST service
+REST_API_URL = 'http://demo.rootio.org/plivotest'
+API_VERSION = 'v0.1'
+
+# Sid and AuthToken
+SID = 'Csikszentmihalyi'
+AUTH_TOKEN = 'Csikszentmihalyi'
+
 class BaseConfig(object):
     PROJECT = "rootio"
 

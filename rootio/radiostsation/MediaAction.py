@@ -5,25 +5,27 @@
 __author__="HP Envy"
 __date__ ="$Nov 20, 2014 3:29:19 PM$"
 
-from config import *
+from rootio.config import *
 import plivohelper
 
 class MediaAction:
     
     __argument = None
     __media = []
-    _start_time = None
-    _duration = None
+    start_time = None
+    duration = None
     __is_streamed = False
-    __radio_station = False
+    __radio_station = None
     __plivo = None
     
     def __init__(self, argument,start_time, duration, is_streamed, radio_station):
         self.__argument = argument
-        self._start_time = start_time
-        self._duration = duration
+        self.start_time = start_time
+        self.duration = duration
         self.__is_streamed = is_streamed
-        self.__radio_sation = radio_station
+        self.__radio_station = radio_station
+        if radio_station == None:
+            print "station is none 1"
         self.__plivo = plivohelper.REST(REST_API_URL, SID, AUTH_TOKEN, API_VERSION)
         
     def start(self):
@@ -39,8 +41,9 @@ class MediaAction:
         pass
     
     def __play_media(self): #play the media in the array
+        
         if self.__is_streamed == True:
-            result = self.__radio_station.request_call(self.__radio_station._station.transmitter_phone, self._duration)
+            self.__radio_station.request_call('+256794451574',  'play', self.__argument, self.duration)
             if result['Success'] == True:
                 self.__radio_station.play_to_call('12345', self.__argument)
                 print "Media is now playing for " + str(self._duration) + " secs"

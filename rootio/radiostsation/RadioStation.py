@@ -7,6 +7,7 @@ __date__ ="$Nov 19, 2014 1:50:35 PM$"
 
 from rootio.config import *
 from rootio.radio.models import Station
+from CallHandler import CallHandler
 from ProgramHandler import ProgramHandler
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -28,21 +29,13 @@ class RadioStation(Station):
     
     __call_handler = None
     __program_handler = None
-    _station = None
+    id = None
+    station = None
     
-
-    def __init__(self, station_id):
-        self.__id = station_id
-        self._station = db.session.query(Station).filter(Station.id == station_id).one()
-        print self._station.name
-        self.__call_handler = CallHandler(self)
-        self.__program_handler = ProgramHandler(db, self.station)
-        return
-        
-    
-        
     def run(self):
         #self.__call_handler.run()
+        self.__call_handler = CallHandler(self)
+        self.__program_handler = ProgramHandler(db, self)
         self.__program_handler.run()
         while True:
             time.sleep(1)
@@ -53,15 +46,32 @@ class RadioStation(Station):
         self.__program_handler.stop()
         pass
     
-    def handle_incoming_call(self,):
+    def handle_incoming_call(self):
         #if target of the call is station, this handles. else pass it to program handler
-        pass;
+        return
     
-    def request_call(self, to_numbers, time_limit):
-        return self.__call_handler.call(to_numbers, time_limit)
+    def request_call(self, to_numbers, action, argument, duration):
+        print "calling out..."
+        return self.__call_handler.call(to_numbers, action, argument, duration)
     
-    def play_to_call(self, content_location, callUUID):
-        return self.__call_handler.play(content_location, callUUID)
+    def terminate_call(self, call_UUID):
+        return self.__call_handler.terminate_call(call_UUID)
+    
+    def play_to_call(self, content_location, call_UUID):
+        return self.__call_handler.play_to_call(content_location, call_UUID)
+    
+    def speak_to_call(self, phrase, call_UUID):
+        return self.__call_handler.speak_to_call(phrase, call_UUID)
+
+    def __init__(self, station_id):
+        self.id = station_id
+        self.station = db.session.query(Station).filter(Station.id == station_id).one()
+        print self.station.name
+        return
+        
+    
+        
+    
         
     
     

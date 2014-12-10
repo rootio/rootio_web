@@ -1,4 +1,16 @@
 {
+    "is_talkshow" : true,
+    "host_number" : "+256794451574",
+    
+    "OutCall" : 
+            {
+                "number" : "+256794451574",
+                "start_time" : "00:00:00",
+                "duration" : 600,
+                "warning" : 570,
+                "is_streamed" : true
+            },
+    
     "Jingle":
             {
                 "argument": "C:\\Users\\HP Envy\\Music\\jingles\\jingle.mp3",
@@ -8,10 +20,11 @@
             },
     "Media":
             {
-                "argument": "C:\\Users\\HP Envy\\Downloads\\bbc_mi6_1.mp3",
+                "argument": "/home/csik/public_html/sounds/programs/5/current.mp3",
                 "start_time": "00:00:06",
                 "duration": 600,
-                "is_streamed": true
+                "is_streamed": true,
+                "DTMF_key" : "9"
             },
     "Stream":
             {
@@ -25,6 +38,7 @@
                 "argument": "C:\\Users\\HP Envy\\Desktop\\rootio-music\\4 Season Of Loneliness.mp3",
                 "start_time": "00:20:06",
                 "duration": 1200,
-                "is_streamed": true
+                "is_streamed": true,
+                "DTMF_key" : 5
             }
 }

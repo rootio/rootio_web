@@ -7,14 +7,16 @@ __date__ ="$Nov 20, 2014 3:55:14 PM$"
 
 class JingleAction:
     
-    __argument = None
-    _start_time = None
-    _duration = None
+    argument = None
+    start_time = None
+    duration = None
+    __radio_station = None
     
-    def __init__(self, argument, start_time, duration):
+    def __init__(self, argument, start_time, duration, is_streamed, radio_station):
         self.argument = argument
-        self._start_time = start_time
+        self.start_time = start_time
         self.duration = duration
+        self.__radio_station = radio_station
         
     def start(self):
         self.__play_jingle()
@@ -29,7 +31,7 @@ class JingleAction:
         pass
     
     def __play_jingle(self): #Play the Jingle
-        print "Jingle starting for " + str(self._duration) + " secs"
+        print "Jingle starting for " + str(self.duration) + " secs"
         pass
     
     def __pause_jingle(self): #pause the jingle in case of any overriding actions
