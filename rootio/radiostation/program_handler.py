@@ -8,7 +8,7 @@ __date__ ="$Nov 19, 2014 2:17:51 PM$"
 
 from rootio.radio.models import ScheduledProgram, Program
 from datetime import datetime
-from RadioProgram import RadioProgram
+from radio_program import RadioProgram
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 

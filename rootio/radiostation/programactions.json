@@ -26,5 +26,24 @@
                 "start_time": "00:20:06",
                 "duration": 1200,
                 "is_streamed": true
+            },
+    "CommunityIVR":
+            {
+                "prompt": "Welcome to this station. to hear the station name, press 1, to listen to the program definition, press 2. To record an advert, press 3",
+                "1":
+                        {
+                            "action": "speak",
+                            "argument": "This is wanton FM"
+                        },
+                "2": 
+                        {
+                            "action" : "speak",
+                            "argument" : "This is a show about health information."
+                        },
+                "3":
+                        {
+                            "action" : "record",
+                            "prompt" : "Please record your message now"
+                        }
             }
 }
