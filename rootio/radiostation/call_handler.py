@@ -4,70 +4,65 @@
 
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 2:15:22 PM$"
+
+from ESL import *
 from rootio.config import *
 import plivohelper
+import threading
 
 class CallHandler:
     
     __is_in_call = False
     __radio_station = None
     __ongoing_calls = []
-    __plivo = None
+    __ESLConnection = None
     
     def __init__(self, radio_station):
         self.__radio_station = radio_station
-        self.__plivo = plivohelper.REST(REST_API_URL, SID, AUTH_TOKEN, API_VERSION)
-        
-    def call(self, to_number, action, argument, time_limit):
-        call_params = {
-            'From': '1234', #from_number, #get station id
-            'To' : to_number, # User Number to Call
-            'Gateways' : 'sofia/gateway/switch2voip/', #gateway, # Gateway string to try dialing separated by comma. First in list will be tried first. get station gateway
-            'GatewayCodecs' : "", # Codec string as needed by FS for each gateway separated by comma
-            'GatewayTimeouts' : "20,20", # Seconds to timeout in string for each gateway separated by comma
-            'GatewayRetries' : "2,1", # Retry String for Gateways separated by comma, on how many times each gateway should be retried
-            'ExtraDialString' : 'bridge_early_media=true,hangup_after_bridge=true',
-            'AnswerUrl' : REST_API_URL + '/' + API_VERSION + '/' + self.get_answer_url(action) + '?argument=' + argument,
-            #'HangupUrl' : answered+'hangup/',
-            #'RingUrl' : answered+'ringing/',
-            'CallUrl' : 'http://demo.rootio.org/plivotest/v0.1/Call/',
-            'TimeLimit' : time_limit,
-            #'argument' : argument
-            #'HangupOnRing': '0',
-        }
-        #Perform the Call on the Rest API
+        self.__ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
+    
+    def __do_ESL_command(self, ESL_command):
+        result = self.__ESLConnection.api(ESL_command)
         try:
-            result = self.__plivo.call(call_params)
-            if result['Success'] == True:
-                self.__ongoing_calls.insert(result)
-            return result
+            return result.getBody()
         except Exception, e:
             print str(e)
             return None
+
+    def call(self, to_number, action, argument, time_limit):
+        call_command = 'originate sofia/gateway/switch2voip/{0} &conference(%s)'.format(to_number)
+        t = threading.Thread(target=self.__report_answered, args=())
+        t.daemon = True
+        t.start()
+        return self.__do_ESL_command(call_command)
+
+    def schedule_hangup(self, seconds, call_UUID):
+        hangup_command = 'sched_hangup +{} {}'.format(seconds, call_UUID)
+        return self.__do_ESL_command(hangup_command)
         
-    def hangup(self, request_UUID):
-        hangup_params = {'RequestUUID' : request_UUID }
-        result = self.__plivo.hangup_call(hangup_params)
-        if result['Success'] == True:
-            pass  #self.__ongoing_calls.remove() remove the call from the ongoing calls
-        return result
+        
+    def hangup(self, call_UUID):
+        hangup_command = 'uuid_kill {}'.format(call_UUID)
+        return self.__do_ESL_command(hangup_command)
            
     
-    def play(self, content_location, callUUID):
-        play_params = {"CallUUID" : callUUID, "Sounds" : content_location}
-        result = self.__plivo.play(play_params)
-        return result
+    def play(self, file_location, call_UUID):
+        play_command = 'uuid_displace {1} start {0}'.format(call_UUID, file_location)
+        print 'play command is ' + play_command
+        return self.__do_ESL_command(play_command)
     
     def speak(self, phrase, call_UUID):
-        speak_params = {"CallUUID" : call_UUID, "Phrase" : phrase}
-        result = self.__plivo.speak(speak_params)
-        return result
+        speak_command = 'speak stuff'
+        return self.__do_ESL_command(speak_command) 
         
-    def get_answer_url(self, desired_action):
-        actions = {'play' : 'answered_for_play/', 'speak' : 'answered_for_speak/'}
-        action_url = actions[desired_action]
-        if action_url == None :
-            return 'answered/'
-        return action_url
     
-      
+    def __report_answered(self):
+        ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
+        ESLConnection.events("plain", "CHANNEL_ANSWER")
+        e = ESLConnection.recvEvent()
+        if e:
+            self.__radio_station.notify_call_answered(e)
+
+    def request_conference(self, call_UUID, conference_UUID):
+        break_command = 'break {0}'.format(conference_UUID)#currently al calls are added to conf. is there need to have a call not in conf?
+        return self.__do_ESL_command(break_command) 

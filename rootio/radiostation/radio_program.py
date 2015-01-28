@@ -6,10 +6,21 @@ __author__="HP Envy"
 __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
 import json
+import logging
+from outcall_action import OutcallAction
 from jingle_action import JingleAction
 from media_action import MediaAction
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
+
+class PhoneStatus:
+
+    REJECTING=1
+    QUEUING=2
+    AUTOCONFERENCING=3
+    CONFERENCING=4
+    IVR=5
+    RINGING=6
 
 class RadioProgram:
     
@@ -25,6 +36,7 @@ class RadioProgram:
         
     def __init__(self, db, program, radio_station):
         print "initing program with id " + str(program.id)
+        logging.basicConfig(filename='rootioweb.log')
         self.__db = db
         self.__program = program
         self.__radio_station = radio_station
@@ -50,7 +62,6 @@ class RadioProgram:
             if j == "Jingle":
                 self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"], data["Jingle"]["is_streamed"], self.__radio_station))
                 print "This will start at " + str(data["Jingle"]["start_time"])
-                #self.__scheduler.add_job(getattr(program,'start'), 'date', None, None, None, 'scheduled_program', 1, 0, 1, scheduled_program.start))
             if j == "Media":
                 self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"], data["Media"]["is_streamed"], self.__radio_station))
                 print "This would have started at " + str(data["Media"]["start_time"])
@@ -62,11 +73,13 @@ class RadioProgram:
                 print "This would have started at " + str(data["Music"]["start_time"])
             if j == "CommunityIVR":
                 self.__IVR_JSON = data["CommunityIVR"]
-                
+            if j == "Outcall":
+               print "This will start at " + str(data["Outcall"]["start_time"])
+               self.__program_actions.append(OutcallAction(data['Outcall']['argument'],data["Outcall"]["start_time"], data['Outcall']['duration'], data['Outcall']['is_streamed'], data['Outcall']['warning_time'],self.__radio_station) )    
         #pprint(data)
-        if data["IVR"] != None: #if we have an IVR Menu
+        if data["CommunityIVR"] != None: #if we have an IVR Menu
             self.__phone_status = PhoneStatus.IVR 
-        
+            
         json_file.close
         return
     
@@ -75,8 +88,8 @@ class RadioProgram:
     '''
     def __schedule_program_actions(self):
         for program_action in self.__program_actions:
-            program_action.start()
-            #self.__scheduler.add_job(getattr(program_action,'start'), 'date', None, None, None, 'scheduled_program', 1, 0, 1, self.__get_start_datetime(program_action.start_time))
+            #program_action.start()
+            self.__scheduler.add_job(getattr(program_action,'start'), 'date', None, None, None, str(program_action.start_time), 1, 0, 1, self.__get_start_datetime(program_action.start_time))
         
     '''
     Get the time at which to schedule the program action to start
@@ -110,14 +123,3 @@ class RadioProgram:
             return 
         if self.__phone_statue == PhoneStatus.RINGING: #Why would anyone want this?
             return
-        
-        
-class PhoneStatus:
-    
-    REJECTING=1
-    QUEUING=2
-    AUTOCONFERENCING=3
-    CONFERENCING=4
-    IVR=5
-    RINGING=6
-    

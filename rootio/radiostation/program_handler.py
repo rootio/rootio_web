@@ -43,10 +43,10 @@ class ProgramHandler:
         for scheduled_program in self.__scheduled_programs:#throw all the jobs into AP scheduler and have it rain down alerts
             if not self.__is_program_expired(scheduled_program):
                 program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
-                program.start()
-                #self.__scheduler.add_job(getattr(program,'start'), 'date', None, None, None, 'scheduled_program', 1, 0, 1, scheduled_program.start)
+                #program.start()
+                self.__scheduler.add_job(getattr(program,'start'), 'date', None, None, None, 'scheduled_program', 1, 0, 1, scheduled_program.start)
                  #  __scheduler.add_job(scheduled_program.run, scheduled_program.start) 
-       #return 
+        return 
     
     def __stop_program(self):
         __running_program.stop()

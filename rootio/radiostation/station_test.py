@@ -2,7 +2,7 @@
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
 
-from RadioStation import RadioStation
+from radio_station import RadioStation
 
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"

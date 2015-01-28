@@ -7,6 +7,7 @@ __date__ ="$Nov 20, 2014 3:29:19 PM$"
 
 from rootio.config import *
 import plivohelper
+import json
 
 class MediaAction:
     
@@ -29,24 +30,35 @@ class MediaAction:
         self.__plivo = plivohelper.REST(REST_API_URL, SID, AUTH_TOKEN, API_VERSION)
         
     def start(self):
-        self.__play_media()
+        self.__request_call()
+        #self.__play_media()
     
     def pause(self):
         self.__pause_media()
     
     def stop(self):
         self.__stop_media()
-    
+     
+    def notify_call_answered(self, answer_info):
+        result = json.loads(answer_info.serialize('json'))
+        print "I know...." #result
+        self.__play_media(result['Channel-Call-UUID'])
+        
     def __load_media(self): #load the media to be played
         pass
     
-    def __play_media(self): #play the media in the array
+    def __request_call(self):
+        raw_result = self.__radio_station.request_call(self, '+256794451574',  'play', self.__argument, self.duration)
+        result = raw_result.split(" ")
+        print "Result of call is " + str(result)
+
+    
+    def __play_media(self, call_UUID): #play the media in the array
         
         if self.__is_streamed == True:
-            self.__radio_station.request_call('+256794451574',  'play', self.__argument, self.duration)
-            if result['Success'] == True:
-                self.__radio_station.play_to_call('12345', self.__argument)
-                print "Media is now playing for " + str(self._duration) + " secs"
+            result1 = self.__radio_station.play_to_call(call_UUID, self.__argument)
+            print 'result of play is ' + result1
+            print "Media is now playing for " + str(self.duration) + " secs"
     
     def __pause_media(self): #pause the media in the array
         pass

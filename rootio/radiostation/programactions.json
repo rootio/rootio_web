@@ -8,7 +8,7 @@
             },
     "Media":
             {
-                "argument": "/home/csik/public_html/sounds/programs/5/current.mp3",
+                "argument": "/usr/src/freeswitch/libs/lame-3.98.4/testcase.wav",
                 "start_time": "00:00:06",
                 "duration": 600,
                 "is_streamed": true
