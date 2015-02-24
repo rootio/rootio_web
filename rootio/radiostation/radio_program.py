@@ -13,15 +13,6 @@ from media_action import MediaAction
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
-class PhoneStatus:
-
-    REJECTING=1
-    QUEUING=2
-    AUTOCONFERENCING=3
-    CONFERENCING=4
-    IVR=5
-    RINGING=6
-
 class RadioProgram:
     
     __program_actions = []
@@ -29,17 +20,16 @@ class RadioProgram:
     __program = None
     __scheduler = None
     __call_queue = []
-    __radio_station = None
+    radio_station = None
     __IVR_JSON = None
-    __phone_status = PhoneStatus.REJECTING
-    
+    __running_action = None
         
     def __init__(self, db, program, radio_station):
         print "initing program with id " + str(program.id)
         logging.basicConfig(filename='rootioweb.log')
         self.__db = db
         self.__program = program
-        self.__radio_station = radio_station
+        self.radio_station = radio_station
         self.__scheduler = BackgroundScheduler()
         self.__load_program_actions()
         return
@@ -60,26 +50,26 @@ class RadioProgram:
         data = json.load(json_file)
         for j in data:
             if j == "Jingle":
-                self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"], data["Jingle"]["is_streamed"], self.__radio_station))
-                print "This will start at " + str(data["Jingle"]["start_time"])
+                self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"], data["Jingle"]["is_streamed"], self))
+                print "Jingle scheduled to start at " + str(data["Jingle"]["start_time"])
             if j == "Media":
-                self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"], data["Media"]["is_streamed"], self.__radio_station))
-                print "This would have started at " + str(data["Media"]["start_time"])
+                self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"], data["Media"]["is_streamed"], self))
+                print "Media Scheduled to start at " + str(data["Media"]["start_time"])
             if j == "Stream":
                 #self.__program_actions.add(JingleAction(j['argument']))
-                print "This would have started at " + str(data["Stream"]["start_time"])
+                print "Stream would have started at " + str(data["Stream"]["start_time"])
             if j == "Music":
                 #self.__program_actions.add(MediaAction(j['argument']))
                 print "This would have started at " + str(data["Music"]["start_time"])
             if j == "CommunityIVR":
                 self.__IVR_JSON = data["CommunityIVR"]
             if j == "Outcall":
-               print "This will start at " + str(data["Outcall"]["start_time"])
-               self.__program_actions.append(OutcallAction(data['Outcall']['argument'],data["Outcall"]["start_time"], data['Outcall']['duration'], data['Outcall']['is_streamed'], data['Outcall']['warning_time'],self.__radio_station) )    
+               print "Call to host scheduled to start at " + str(data["Outcall"]["start_time"])
+               self.__program_actions.append(OutcallAction(data['Outcall']['argument'],data["Outcall"]["start_time"], data['Outcall']['duration'], data['Outcall']['is_streamed'], data['Outcall']['warning_time'],self) )    
         #pprint(data)
         if data["CommunityIVR"] != None: #if we have an IVR Menu
-            self.__phone_status = PhoneStatus.IVR 
-            
+           pass
+ 
         json_file.close
         return
     
@@ -88,9 +78,13 @@ class RadioProgram:
     '''
     def __schedule_program_actions(self):
         for program_action in self.__program_actions:
-            #program_action.start()
             self.__scheduler.add_job(getattr(program_action,'start'), 'date', None, None, None, str(program_action.start_time), 1, 0, 1, self.__get_start_datetime(program_action.start_time))
-        
+         
+    def set_running_action(self, running_action):
+        if not self.__running_action == None:
+            self.__running_action.stop()#clean up any stuff that is not necessary anymore
+        self.__running_action = running_action   
+
     '''
     Get the time at which to schedule the program action to start
     '''        
@@ -100,26 +94,3 @@ class RadioProgram:
         print self.__program.start + time_delta
         return self.__program.start + time_delta
     
-    '''
-    Process an incoming phone call and decide where to route it given the status of the station
-    '''
-    def handle_call(self, call_info):
-        if self.__phone_status == PhoneStatus.REJECTING:
-            #hangup the call
-            return
-        if self.__phone_status == PhoneStatus.QUEUING:
-            self.__call_queue.add(call_info["from"])
-            self.__call_handler.hangup(call_info["CallUUID"])
-            return
-        if self.__phone_status == PhoneStatus.AUTOANSWERING:
-            #answer the phone call
-            return
-        if self.__phone_status == PhoneStatus.CONFERENCING:
-            #add to the conference call for this show for a defined number of seconds
-            return 
-        if self.__phone_status == PhoneStatus.IVR:
-            ivr_handler = IVR_handler(self.__IVR_JSON,self.__call_handler, call_info['CallUUID'] )
-            ivr_handler.handle_IVR(call_info['CallUUID'])
-            return 
-        if self.__phone_statue == PhoneStatus.RINGING: #Why would anyone want this?
-            return

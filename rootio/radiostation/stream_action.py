@@ -8,8 +8,10 @@ __date__ ="$Nov 20, 2014 3:29:19 PM$"
 from rootio.config import *
 import plivohelper
 import json
+from os import listdir
+from os.path import isfile
 
-class MediaAction:
+class StreamAction:
     
     __argument = None
     __media = []
@@ -26,8 +28,6 @@ class MediaAction:
         self.duration = duration
         self.__is_streamed = is_streamed
         self.__program = program
-        if program == None:
-            print "station is none 1"
         self.__plivo = plivohelper.REST(REST_API_URL, SID, AUTH_TOKEN, API_VERSION)
         
     def start(self):
@@ -48,10 +48,11 @@ class MediaAction:
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
         
     def __load_media(self): #load the media to be played
-        pass
+        files = listdir(STREAM_DIRECTORY)
+        self.__media.append(files[files.__len__() - 1])
     
     def __request_call(self):
-        raw_result = self.__program.radio_station.request_call(self, '+256718451574',  'play', self.__argument, self.duration)
+        raw_result = self.__program.radio_station.request_call(self, '+256774536649',  'play', self.__argument, self.duration)
         result = raw_result.split(" ")
         print "Result of call is " + str(result)
 
@@ -59,7 +60,7 @@ class MediaAction:
     def __play_media(self, call_UUID): #play the media in the array
         
         if self.__is_streamed == True:
-            result1 = self.__program.radio_station.play_to_call(call_UUID, self.__argument)
+            result1 = self.__program.radio_station.play_to_call(call_UUID, self.__media.__len__() - 1)
             print 'result of play is ' + result1
             print "Media is now playing for " + str(self.duration) + " secs"
     
@@ -67,7 +68,7 @@ class MediaAction:
         pass
     
     def __stop_media(self):  #stop the media being played by the player
-        result = self.__program.radio_station.stop_playback(self.__call_answer_info['Channel-Call-UUID'], self.__argument)
+        result = self.__program.radio_station.stop_playback(self.__media.__len__() - 1, self.__call_answer_info['Channel-Call-UUID'])
         print 'result of stop play is ' + result       
      
 

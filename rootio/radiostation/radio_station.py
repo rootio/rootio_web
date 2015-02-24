@@ -13,6 +13,7 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 import time
 import threading
+import json
 
 from rootio.extensions import db
 telephony_server = Flask("ResponseServer")
@@ -34,7 +35,7 @@ class RadioStation(Station):
     station = None
     __call_requester = None
     __available_calls = dict()
-    __call_answer_info = 'nothing'
+    __call_answer_info = dict() 
     
     def run(self):
         #self.__call_handler.run()
@@ -56,7 +57,8 @@ class RadioStation(Station):
 
     def notify_call_answered(self, answer_info):
         self.__in_call = True
-        self.__call_answer_info = answer_info
+        answer_info_json = json.loads(answer_info.serialize('json'))
+        self.__call_answer_info[answer_info_json['Caller-Destination-Number']] = answer_info
         self.__call_requester.notify_call_answered(answer_info)
     
     def request_call(self, program_action, to_numbers, action, argument, duration):
@@ -66,33 +68,38 @@ class RadioStation(Station):
             result = self.__call_handler.call(to_numbers, action, argument, duration)
             self.__available_calls[to_numbers] = result
         else: 
-            t = threading.Thread(target=self.notify_call_answered, args=(self.__call_answer_info,))
+            t = threading.Thread(target=self.notify_call_answered, args=(self.__call_answer_info[to_numbers],))
             t.daemon = True
             t.start()
         return self.__available_calls[to_numbers]
 
-    def terminate_call(self, call_UUID):
+    def hangup_call(self, call_UUID):
         return self.__call_handler.hangup(call_UUID)
     
     def play_to_call(self, content_location, call_UUID):
         return self.__call_handler.play(content_location, call_UUID)
-    
+
+    def stop_playback(self, call_UUID, content_location):
+        return self.__call_handler.stop_play(call_UUID, content_location)    
+
     def speak_to_call(self, phrase, call_UUID):
         return self.__call_handler.speak(phrase, call_UUID)
 
     def request_conference(self, call_UUID, conference_UUID):
         return self.__call_handler.request_conference(call_UUID, conference_UUID)
 
+    def notify_incoming_dtmf(self, dtmf_info):
+        self.__call_requester.handle_dtmf(dtmf_info)
+        print "JSON from DTMF coming in "
+
+    def notify_media_play_stop(self, media_stop_info):
+        self.__call_requester.handle_media_play_stop(media_stop_info)
+
+    def listen_for_media_play_stop(self):
+        self.__call_handler.listen_for_media_play_stop()
+ 
     def __init__(self, station_id):
         self.id = station_id
         self.station = db.session.query(Station).filter(Station.id == station_id).one()
         print self.station.name
         return
-        
-    
-        
-    
-        
-    
-    
-    
