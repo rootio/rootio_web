@@ -58,11 +58,11 @@ class OutcallAction:
         self.hangup_call()
         
     def __request_call(self):
-        raw_result = self.__program.radio_station.request_call(self, '+256718451574',  'play', self.__argument, self.duration)
+        raw_result = self.__program.radio_station.request_call(self, '+256774712133',  'play', self.__argument, self.duration)
         result = raw_result.split(" ")
         print "Result of call is " + str(result)
 
-    def __call_host_number(self): #call the number specified thru plivo
+    def call_host_number(self): #call the number specified thru plivo
         result = self.__call_details = self.__program.radio_station.request_call(self, self.__argument, None, None, self.duration) 
         print "result of host call is " + str(result)
     
@@ -75,7 +75,7 @@ class OutcallAction:
         if self.__station_call_available == False:#This notification is from answering the station call
             self.__station_call_available = True
             self.__station_call_answer_info = json.loads(answer_info.serialize('json'))
-            self.__call_host_number() 
+            self.call_host_number() 
         else:#This notification is from answering the host call
             self.__host_call_answer_info = json.loads(answer_info.serialize('json'))
             result1 = self.__schedule_warning()
@@ -88,17 +88,17 @@ class OutcallAction:
         print "result of warning is " + result;
     
     def __pause_call(self):#hangup and schedule to call later
-        self.hangup_call()
+        #self.hangup_call()
         interlude_action = InterludeAction("greetings", self.__program)
         interlude_action.start()
-        #self.__schedule_host_callback()
+        self.__schedule_host_callback()
        
     
     def __hold_call(self): #put ongoing call on hold
         print "We should be holding now"
     
     def hangup_call(self):  #hangup the ongoing call
-        result = self.__program.radio_station.hangup_call(self.__host_call_answer_info['Channel-Call-UUID'])
+        result = self.__program.radio_station.hangup_call(self.__host_call_answer_info['Caller-Destination-Number'])
         print "result of hangup is " + result
     
     def handle_dtmf(self, dtmf_info):
@@ -134,10 +134,10 @@ class OutcallAction:
             self.__program.radio_station.hangup_call(call_info['Channel-Call-UUID']);
  
     def __schedule_host_callback(self):
-        time_delta = timedelta(seconds=60) #five minutes
+        time_delta = timedelta(seconds=60) #one minutes
         now = datetime.utcnow()
         callback_time = now + time_delta
-        self.__scheduler.add_job(getattr(self,'__call_host_number'), 'date', None, None, None, 'host_callback', 1, 0, 1, callback_time)
+        self.__scheduler.add_job(getattr(self,'call_host_number'), 'date', None, None, None, 'host_callback', 1, 0, 1, callback_time)
     
     def __schedule_warning(self):
         time_delta = timedelta(seconds=self.__warning_time)

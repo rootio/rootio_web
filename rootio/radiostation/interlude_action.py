@@ -9,6 +9,7 @@ from rootio.config import *
 import plivohelper
 import json
 from os import listdir
+from rootio.radiostation.media.community_media import CommunityMedia
 
 class InterludeAction:
     
@@ -31,7 +32,6 @@ class InterludeAction:
     def start(self):
         print "starting interlude action"
         self.__program.set_running_action(self)
-        self.__listen_for_media_play_stop()
         self.__request_call()
         #self.__play_media()
     
@@ -48,13 +48,14 @@ class InterludeAction:
         self.__call_answer_info = json.loads(answer_info.serialize('json'))
         self.__load_media()
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
+        self.__listen_for_media_play_stop()
         
     def __load_media(self): #load the media to be played
-        #self.__media = listdir("{0}/{1}".format(MEDIA_DIRECTORY, self.__argument)
-        self.__media = listdir("{0}/{1}".format("/home/amour/media", "advertisements"))
+        community_media = CommunityMedia("advertisements", self.__program.radio_station.id)
+        self.__media = community_media.get_media_files() #listdir("{0}/{1}".format("/home/amour/media", "advertisements"))
     
     def __request_call(self):
-        raw_result = self.__program.radio_station.request_call(self, '+256718451574',  'play', self.__argument, self.duration)
+        raw_result = self.__program.radio_station.request_call(self, '+256774712133',  'play', self.__argument, self.duration)
         result = raw_result.split(" ")
         print "Result of call is " + str(result)
 
@@ -70,7 +71,7 @@ class InterludeAction:
         result = self.__program.radio_station.stop_playback(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
         print 'result of stop play is ' + result       
      
-    def handle_media_play_stop(self, media_stop_info):
+    def notify_media_play_stop(self, media_stop_info):
         media_stop_json_string = media_stop_info.serialize("json")
         media_stop_json = json.loads(media_stop_json_string)
         print "result of stop is " + media_stop_json_string
@@ -79,6 +80,6 @@ class InterludeAction:
             self.__play_media(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
             
     def __listen_for_media_play_stop(self):
-        self.__program.radio_station.listen_for_media_play_stop()
+        self.__program.radio_station.register_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
          
 

@@ -9,6 +9,7 @@ from ESL import *
 from rootio.config import *
 import plivohelper
 import threading
+import json
 
 class CallHandler:
     
@@ -30,7 +31,8 @@ class CallHandler:
         self.__incoming_dtmf_recipients = dict()
         self.__media_playback_stop_recipients = dict()
         #Create connection for DTMF 
-        
+        self.listen_for_media_play_stop()
+            
     def __do_ESL_command(self, ESL_command):
         result = self.__ESLConnection.api(ESL_command)
         try:
@@ -121,8 +123,7 @@ class CallHandler:
                 try:
                     self.__incoming_call_recipients[event_json['from_number']].notify_incoming_call()
                 except:
-                    #indexing error, to number is unknown
-    return
+                   pass 
 
     def handle_media_play_stop(self):
         ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
@@ -133,8 +134,11 @@ class CallHandler:
                 print "Got Media bug event"
                 event_json_string = e.serialize('json')
                 event_json = json.loads(event_json_string)
+                print event_json_string
+                print self.__media_playback_stop_recipients
                 try:
-                    self.__media_playback_stop_recipients[event_json['from_number']].notify_media_play_stop(e)
-                    #self.__radio_station.notify_media_play_stop(e)
-                except:
-                    #probably indexing error.
+                    if  event_json['Caller-Destination-Number'] in  self.__media_playback_stop_recipients:
+                        self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']].notify_media_play_stop(e)
+                except e:
+                    print str(e)
+                   

@@ -71,10 +71,13 @@ class RadioStation(Station):
             t = threading.Thread(target=self.notify_call_answered, args=(self.__call_answer_info[to_numbers],))
             t.daemon = True
             t.start()
+        print self.__available_calls
         return self.__available_calls[to_numbers]
 
-    def hangup_call(self, call_UUID):
-        return self.__call_handler.hangup(call_UUID)
+    def hangup_call(self, to_number):
+        del self.__available_calls[to_number]
+        call_json = json.loads(self.__call_answer_info[to_number].serialize('json'))
+        return self.__call_handler.hangup(call_json['Channel-Call-UUID'])
     
     def play_to_call(self, content_location, call_UUID):
         return self.__call_handler.play(content_location, call_UUID)
@@ -92,6 +95,9 @@ class RadioStation(Station):
         self.__call_requester.handle_dtmf(dtmf_info)
         print "JSON from DTMF coming in "
 
+    def register_for_media_playback_stop(self, recipient, from_number):
+        self.__call_handler.register_for_media_playback_stop(recipient, from_number)
+    
     def notify_media_play_stop(self, media_stop_info):
         self.__call_requester.handle_media_play_stop(media_stop_info)
 
