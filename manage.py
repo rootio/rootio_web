@@ -4,7 +4,7 @@ import os, sys
 import subprocess
 import time
 
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Shell
 
 from rootio import create_app
 from rootio.extensions import db
@@ -16,16 +16,33 @@ from rootio.utils import MALE
 from alembic import command
 from alembic.config import Config
 
+def _make_context():
+    from rootio.extensions import db
+    import rootio.telephony as t
+    import rootio.user as u
+    import rootio.radio as r
+    return dict(db=db, u=u.models, t=t.models, r=r.models)
+
 
 app = create_app()
 manager = Manager(app)
+manager.add_command("sh", Shell(make_context=_make_context))
+
 
 alembic_config = Config(os.path.realpath(os.path.dirname(__name__)) + "/alembic.ini")
+
+
+def easy():
+    """ pre import some things """
+    from rootio.extensions import db
+    import rootio.telephony as t
+    import rootio.user as u
+    import rootio.radio as r
 
 @manager.command
 def run():
     """Run webserver for local development."""
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8080)
 
 @manager.command
 def alembic():

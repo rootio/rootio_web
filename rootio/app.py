@@ -128,8 +128,9 @@ def configure_extensions(app):
     oid.init_app(app)
 
     # csrf for wtforms
+    #from flask.ext.wtf import csrf
     csrf.init_app(app)
-
+    
     # flask-restless
     rest.init_app(app, flask_sqlalchemy_db=db)
     restless_routes() #actually setup the routes
@@ -177,18 +178,19 @@ def configure_template_filters(app):
 def configure_logging(app):
     """Configure file(info) and email(error) logging."""
 
-    if app.debug or app.testing:
+    #if app.debug or app.testing:
         # Skip debug and test mode. Just check standard output.
-        return
+    #    return
 
     import logging
     from logging.handlers import SMTPHandler
 
     # Set info level on logger, which might be overwritten by handers.
     # Suppress DEBUG messages.
-    app.logger.setLevel(logging.INFO)
+    app.logger.setLevel(logging.DEBUG)
 
     info_log = os.path.join(app.config['LOG_FOLDER'], 'info.log')
+
     info_file_handler = logging.handlers.RotatingFileHandler(info_log, maxBytes=100000, backupCount=10)
     info_file_handler.setLevel(logging.INFO)
     info_file_handler.setFormatter(logging.Formatter(
@@ -198,9 +200,9 @@ def configure_logging(app):
     app.logger.addHandler(info_file_handler)
 
     # Testing
-    #app.logger.info("testing info.")
-    #app.logger.warn("testing warn.")
-    #app.logger.error("testing error.")
+    app.logger.info("testing info.")
+    app.logger.warn("testing warn.")
+    app.logger.error("testing error.")
 
     mail_handler = SMTPHandler(app.config['MAIL_SERVER'],
                                app.config['MAIL_USERNAME'],

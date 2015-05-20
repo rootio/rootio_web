@@ -13,11 +13,16 @@ from ..radio.models import *
 from ..onair.models import *
 from ..telephony.models import *
 
+import flask.ext.wtf as wtf
+from flask_admin.contrib.sqla import ModelView
+
+class MyModelView(ModelView):
+    form_base_class = wtf.Form
+
 def datetime_formatter(view, context, model, name):
     return getattr(model, name).strftime("%Y-%m-%d %H:%M:%S")
 
-
-class AdminView(ModelView):
+class AdminView(MyModelView):
     column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
     form_excluded_columns = ('created_at', 'updated_at')
     
@@ -62,7 +67,7 @@ def admin_routes(admin):
     admin.add_view(AdminView(Network, db.session, category='RootIO'))
     admin.add_view(AdminView(Location, db.session, category='RootIO'))
 
-    admin.add_view(AdminView(PhoneNumber, db.session, category='Telephony', name="PhoneNumber"))
+    admin.add_view(AdminView(PhoneNumber, db.session, category='Telephony')) #, name="PhoneNumber"))
     admin.add_view(AdminView(Message, db.session, category='Telephony'))
     admin.add_view(AdminView(Call, db.session, category='Telephony'))
     admin.add_view(AdminView(Gateway, db.session, category='Telephony'))

@@ -22,8 +22,8 @@ class BaseConfig(object):
     # http://flask.pocoo.org/docs/quickstart/#sessions
     SECRET_KEY = os.environ.get("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
 
-    LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
-    make_dir(LOG_FOLDER)
+    LOG_FOLDER = "/home/vagrant/rootio/rootio_web/instance/logs/" #os.path.join(INSTANCE_FOLDER_PATH, 'logs')
+    #make_dir(LOG_FOLDER)
 
     # File upload, should override in production.
     # Limited the maximum allowed payload to 16 megabytes.
@@ -34,13 +34,14 @@ class BaseConfig(object):
 
     ZMQ_BIND_ADDR = "tcp://127.0.0.1:55777"
     ZMQ_SOCKET_TYPE = "PUB"
- 
+    WTF_CSRF_SECRET_KEY = 'a random string'
+    CSRF_SESSION_KEY = "02090298402394okajsdflkaslfkj02934" 
 
 
 class DefaultConfig(BaseConfig):
-    DEBUG = False
-    CSRF_ENABLED = False
-
+    DEBUG = True
+    CSRF_ENABLED = False 
+    #WTF_CSRF_CHECK_DEFAULT = True
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
     # Postgres for production.
@@ -74,7 +75,8 @@ class DefaultConfig(BaseConfig):
     # Flask-openid: http://pythonhosted.org/Flask-OpenID/
     OPENID_FS_STORE_PATH = os.path.join(INSTANCE_FOLDER_PATH, 'openid')
     make_dir(OPENID_FS_STORE_PATH)
-
+    
+    #WTF_CSRF_ENABLED=True
 
 class TestConfig(BaseConfig):
     TESTING = True

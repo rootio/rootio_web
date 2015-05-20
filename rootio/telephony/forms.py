@@ -1,4 +1,5 @@
 from flask.ext.wtf import Form
+#from wtforms import Form
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms import SubmitField, RadioField, IntegerField, StringField
 from wtforms.validators import AnyOf
