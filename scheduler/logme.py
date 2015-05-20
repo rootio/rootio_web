@@ -8,7 +8,7 @@ def setup(the_name):
         logger.setLevel(logging.DEBUG)
     
         # create a file handler
-	handler = logging.FileHandler('/home/rootio/public_python/rootio_web/scheduler/scheduler.log', mode='a')
+	handler = logging.FileHandler('/home/vagrant/rootio/rootio_web/scheduler/scheduler.log', mode='a')
         handler.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
@@ -24,4 +24,5 @@ def setup(the_name):
         return logger
     except Exception, e:
         logger.error('Failed to open logger', exc_info=True)
+        return str(str(Exception) + str(e))
 
