@@ -22,18 +22,6 @@ ESL_AUTHENTICATION = 'ClueCon'
 
 class CallHandler:
     
-    __is_in_call = False
-    __radio_station = None
-    __ongoing_calls = []
-    __ESLConnection = None
-    __incoming_call_recipients = None
-    __incoming_dtmf_recipients = None
-    __outgoing_call_recipients = None
-    __available_calls = None
-    __media_playback_stop_recipients = None
-    __gateways = dict()
-    __available_gateways = []
-    
     def __init__(self, radio_station):
         self.__radio_station = radio_station
         self.__ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
@@ -43,6 +31,7 @@ class CallHandler:
         self.__incoming_call_recipients = dict()
         self.__incoming_dtmf_recipients = dict()
         self.__outgoing_call_recipients = dict()
+        self.__waiting_call_recipients = dict()
         self.__available_calls = dict()
         self.__media_playback_stop_recipients = dict()
         self.__listen_for_hangup()
@@ -55,8 +44,10 @@ class CallHandler:
 
     def __load_station_gateways(self):
         gws = self.__radio_station.db.session.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(id=self.__radio_station.id).all()
-        #gws = Gateway.query.join(Gateway.stations_using_for_incoming).filter_by(id=self.__radio_station.id).all()
+        self.__gateways = dict()
+        self.__available_gateways = []
         for gw in gws:
+            print gw.number_bottom
             self.__gateways[str(gw.number_bottom)] = gw
             self.__available_gateways.append(gw.number_bottom)
             self.__available_gateways.sort()
@@ -82,18 +73,15 @@ class CallHandler:
 
     def deregister_for_media_playback_stop(self, recipient, from_number):
         del self.__media_playback_stop_recipients[from_number]
-        print  self.__media_playback_stop_recipients.keys()
 
     def call(self, program_action, to_number, action, argument, time_limit):
         if to_number in self.__available_calls.keys():
-            print self.__available_calls
             program_action.notify_call_answered(self.__available_calls[to_number])
         else:
-            #call_command = 'originate sofia/gateway/goip/{0} &conference("hey")'.format(to_number)
-            #originate {origination_caller_id_name='rootio',origination_caller_id_number=0417744801}sofia/gateway/utl/9510794451574 &conference("hey")
             gw = self.__gateways[str(self.__available_gateways.pop())[-9:]]
             call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string, gw.sofia_string, gw.gateway_prefix, to_number, program_action.program.id, program_action.program.radio_station.id)
             print call_command
+            self.__waiting_call_recipients[to_number] = program_action
             t = threading.Thread(target=self.__report_answered, args=(program_action,))
             #t.daemon = True
             t.start()
@@ -110,12 +98,10 @@ class CallHandler:
     
     def play(self, file_location, call_UUID):
         play_command = 'uuid_displace {1} start \'{0}\''.format(call_UUID, file_location)
-        print 'play command is ' + play_command
         return self.__do_ESL_command(play_command)
     
     def stop_play(self, call_UUID, content_location):
         stop_play_command = 'uuid_displace {0} stop \'{1}\''.format(call_UUID, content_location)
-        print stop_play_command 
         return self.__do_ESL_command(stop_play_command)
 
     def speak(self, phrase, call_UUID):
@@ -126,12 +112,18 @@ class CallHandler:
     def __report_answered(self, program_action):
         ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
         ESLConnection.events("plain", "CHANNEL_ANSWER")
-        e = ESLConnection.recvEvent()
-        if e:
-            event_json_string = e.serialize('json')
-            event_json = json.loads(event_json_string)
-            self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]] = event_json
-            program_action.notify_call_answered(event_json)
+        while 1:
+            e = ESLConnection.recvEvent()
+            if e:
+                event_json_string = e.serialize('json')
+                event_json = json.loads(event_json_string)
+                self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]] = event_json
+                print "received answer for {0}".format(event_json['Caller-Destination-Number'])
+                print self.__waiting_call_recipients.keys()
+                if str(event_json['Caller-Destination-Number'])[-10:] in self.__waiting_call_recipients:
+                    self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_call_answered(event_json)            
+                    del self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-10:]]
+                    break
 
     def request_conference(self, call_UUID, conference_UUID):
         break_command = 'break {0}'.format(conference_UUID)#currently al calls are added to conf. is there need to have a call not in conf?
@@ -205,13 +197,7 @@ class CallHandler:
                     print str(e)
                    
     def __claim_gateway(self, event_json):
-        #if it is an incoming call
-        if event_json['Caller-Destination-Number'] in self.__gateways:
-            pass
-            #self.__available_gateways.discard(event_json['Caller-Destination-Number'])
-        #if it is an outbound call
-        if event_json['Caller-Caller-ID-Number'] in self.__gateways:
-            pass
+        pass
             #self.__available_gateways.discard(event_json['Caller-Caller-ID-Number'])
 
     def __release_gateway(self, event_json):
@@ -226,4 +212,3 @@ class CallHandler:
             print "putting back {0}".format(event_json['variable_sip_from_user'])
         self.__available_gateways.sort()
         self.__available_gateways.reverse()
-        print self.__available_gateways

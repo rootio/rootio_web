@@ -11,16 +11,6 @@ import json
 
 class JingleAction:
     
-    __argument = None
-    __media = []
-    start_time = None
-    duration = None
-    __is_streamed = False
-    program = None
-    __plivo = None
-    __call_answer_info = None
-    __call_handler = None
-    
     def __init__(self, argument,start_time, duration, is_streamed, program):
         self.__argument = argument
         self.start_time = start_time
@@ -39,7 +29,6 @@ class JingleAction:
      
     def notify_call_answered(self, answer_info):
         self.__call_answer_info = answer_info
-        print self.__call_answer_info
         self.__play_jingle()
         
     def __request_call(self):

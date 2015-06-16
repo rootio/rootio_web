@@ -13,11 +13,6 @@ import pytz
 from apscheduler.scheduler import Scheduler
 
 class ProgramHandler:
-    __db = None
-    __radio_station = None
-    __scheduled_programs = []
-    __running_program = None
-    __scheduler = None
     
     def __init__(self, db, radio_station):
         self.__db = db
@@ -27,8 +22,8 @@ class ProgramHandler:
         return
     
     def run(self):
-        self.__scheduler.start()
         self.__schedule_programs()
+        self.__scheduler.start()
         pass
     
     def stop(self):

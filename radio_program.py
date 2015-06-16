@@ -16,24 +16,15 @@ from apscheduler.scheduler import Scheduler
 
 class RadioProgram:
     
-    __program_actions = []
-    __db = None
-    __program = None
-    __scheduler = None
-    __call_queue = []
-    radio_station = None
-    id = None
-    __IVR_JSON = None
-    __running_action = None
-        
     def __init__(self, db, program, radio_station):
-        print "initing program with id " + str(program.id)
         logging.basicConfig(filename='rootioweb.log')
+        self.__program_actions = []
         self.id = program.id
         self.__db = db
         self.__program = program
         self.radio_station = radio_station
         self.__scheduler = Scheduler()
+        self.__running_action = None
         return
         
     '''
@@ -43,7 +34,6 @@ class RadioProgram:
         self.__load_program_actions()
         self.__schedule_program_actions()
         self.__scheduler.start()
-        print 'starting program with id '.format(self.id)
         return
     
     '''
@@ -78,7 +68,6 @@ class RadioProgram:
     '''
     def __schedule_program_actions(self):
         for program_action in self.__program_actions:
-            print "Time for action is " + str(program_action.start_time)
             self.__scheduler.add_date_job(getattr(program_action,'start'), self.__get_start_datetime(program_action.start_time).replace(tzinfo=None))
          
     def set_running_action(self, running_action):

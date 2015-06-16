@@ -22,40 +22,25 @@ class PhoneStatus:
 
 class OutcallAction:
     
-    __argument = None
-    start_time = None
-    duration = None
-    __is_streamed = False
-    __warning_time = None
-    ___program = None
-    __scheduler = None
-    __call_details = None
-    __station_call_available = False 
-    __station_call_answer_info = None
-    __host_call_answer_info = None
-    __phone_status = None
-    __interested_participants = None
-    __call_handler = None
-    
     def __init__(self, argument, start_time, duration, is_streamed, warning_time, program):
         self.__argument = argument
         self.start_time = start_time
         self.duration = duration
         self.__is_streamed = is_streamed
         self.__warning_time = warning_time
-        self.__program = program
+        self.program = program
         self.__scheduler = Scheduler()
-        self.__call_handler = self.__program.radio_station.call_handler
+        self.__call_handler = self.program.radio_station.call_handler
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
         self.__interested_participants.add("30718451574")        
 
     def start(self):
-        #self.__program.set_running_action(self)
+        self.__program.set_running_action(self)
         self.__request_call()
         self.__scheduler.start()
         self.__call_handler.register_for_incoming_calls(self, '1003')
-        self.__call_handler.register_for_incoming_dtmf(self, '10758274150')
+        self.__call_handler.register_for_incoming_dtmf(self, self.__argument)
     
     def pause(self):
         self.__hold_call()
@@ -64,7 +49,7 @@ class OutcallAction:
         self.hangup_call()
         
     def __request_call(self):
-        self.__call_handler.call(self, self.__program.radio_station.station.transmitter_phone.number, 'play', self.__argument, self.duration)
+        self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play', self.__argument, self.duration)
 
     def call_host_number(self): #call the number specified thru plivo
         result = self.__call_handler.call(self, self.__argument, None, None, self.duration) 
@@ -93,7 +78,7 @@ class OutcallAction:
     
     def __pause_call(self):#hangup and schedule to call later
         #self.hangup_call()
-        interlude_action = InterludeAction("greetings", self.__program)
+        interlude_action = InterludeAction("greetings", self.program)
         interlude_action.start()
         self.__schedule_host_callback()
        
@@ -111,7 +96,7 @@ class OutcallAction:
         if dtmf_digit == "1":
             self.hangup_call() 
         elif dtmf_digit == "2":#stop the music, put this live on air
-            self.__program.set_running_action(self)
+            self.program.set_running_action(self)
    
         elif dtmf_digit == "3":#put the station =in auto_answer
             self.__phone_status = PhoneStatus.ANSWERING

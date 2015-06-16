@@ -11,19 +11,9 @@ import json
 
 class MediaAction:
     
-    __argument = None
-    __media = []
-    start_time = None
-    duration = None
-    __is_streamed = False
-    program = None
-    __plivo = None
-    __call_answer_info = None
-    __call_handler = None
-    __hangup_after_call = False
-
     def __init__(self, argument,start_time, duration, is_streamed, program, hangup_after_call=False):
         self.__argument = argument
+        self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
         self.__is_streamed = is_streamed
@@ -32,18 +22,17 @@ class MediaAction:
         self.__call_handler = self.program.radio_station.call_handler        
 
     def start(self):
-        self.program.set_running_action(self)
-        self.__request_call()
+        if self.__is_valid:
+            self.program.set_running_action(self)
+            self.__request_call()
     
     def pause(self):
         self.__pause_media()
     
     def stop(self):
-        print "media is now stopping"
         self.__stop_media()
      
     def notify_call_answered(self, answer_info):
-        print "notifying call in {0}".format(self.program.id)
         self.__call_answer_info = answer_info
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
         self.__listen_for_media_play_stop()
@@ -63,13 +52,16 @@ class MediaAction:
         pass
     
     def __stop_media(self):  #stop the media being played by the player
-        result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__argument)
-        print 'result of stop play is ' + result       
+        try:
+            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__argument)
+            print 'result of stop play is ' + result     
+        except Exception, e:
+            return  
      
     def notify_media_play_stop(self, media_stop_info):
-        print "received media play, now hanging up!"
         self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
         self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+        self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
