@@ -22,7 +22,7 @@ class PhoneStatus:
 
 class OutcallAction:
     
-    def __init__(self, argument, start_time, duration, is_streamed, warning_time, program):
+    def __init__(self, argument, start_time, duration, is_streamed, warning_time, program, hangup_on_complte):
         self.__argument = argument
         self.start_time = start_time
         self.duration = duration
@@ -33,7 +33,8 @@ class OutcallAction:
         self.__call_handler = self.program.radio_station.call_handler
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
-        self.__interested_participants.add("30718451574")        
+        self.__interested_participants.add("30718451574")
+        self.__hangup_on_complete = hangup_on_complete
 
     def start(self):
         self.__program.set_running_action(self)
@@ -89,6 +90,9 @@ class OutcallAction:
     def hangup_call(self):  #hangup the ongoing call
         result = self.__call_handler.hangup(self.__host_call_answer_info['Channel-Call-UUID'])
         print "result of hangup is " + result
+        if self.__hangup_on_complete:
+            result = self.__call_handler.hangup(self.__station_call_answer_info['Channel-Call-UUID'])
+        print "result of station hangup is " + result
     
     def notify_incoming_dtmf(self, dtmf_info):
         dtmf_json = dtmf_info
@@ -141,4 +145,4 @@ class OutcallAction:
         time_delta = timedelta(seconds=self.duration)
         now = datetime.utcnow()
         hangup_time = now + time_delta
-        #self.__scheduler.add_job(getattr(self,'hangup_call'), 'date', None, None, None, 'host_hangup', 1, 0, 1, hangup_time)   
+        self.__scheduler.add_job(getattr(self,'hangup_call'), hangup_time)   

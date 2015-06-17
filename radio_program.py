@@ -42,25 +42,29 @@ class RadioProgram:
     def __load_program_actions(self):
         print self.__program.program.description
         data = json.loads(self.__program.program.description) 
-        for j in data:
-            if j == "Jingle":
-                self.__program_actions.append(JingleAction(data["Jingle"]["argument"], data["Jingle"]["start_time"], data["Jingle"]["duration"], data["Jingle"]["is_streamed"], self))
-                print "Jingle scheduled to start at " + str(data["Jingle"]["start_time"])
-            if j == "Media":
-                self.__program_actions.append(MediaAction(data["Media"]["argument"], data["Media"]["start_time"], data["Media"]["duration"], data["Media"]["is_streamed"], self))
-                print "Media Scheduled to start at " + str(data["Media"]["start_time"])
-            if j == "Interlude":
-                self.__program_actions.append(InterludeAction(data["Interlude"]["argument"], data["Interlude"]["start_time"], data["Interlude"]["duration"], data["Interlude"]["is_streamed"], self))
-                print "Interlude Scheduled to start at " + str(data["Interlude"]["start_time"])
-            if j == "Stream":
+        for category in data:
+            if category == "Jingle":
+                for record in data[category]:
+                    self.__program_actions.append(JingleAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
+                    print "Jingle scheduled to start at " + str(record["start_time"])
+            if category == "Media":
+                for action in data[category]:
+                    self.__program_actions.append(MediaAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
+                    print "Media Scheduled to start at " + str(action["start_time"])
+            if category == "Interlude":
+                for action in data[category]:
+                    self.__program_actions.append(InterludeAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
+                    print "Interlude Scheduled to start at " + str(action["start_time"])
+            if category == "Stream":
                 #self.__program_actions.add(JingleAction(j['argument']))
-                print "Stream would have started at " + str(data["Stream"]["start_time"])
-            if j == "Music":
+                print "Stream would have started here"
+            if category == "Music":
                 #self.__program_actions.add(MediaAction(j['argument']))
-                print "This would have started at " + str(data["Music"]["start_time"])
-            if j == "Outcall":
-               print "Call to host scheduled to start at " + str(data["Outcall"]["start_time"])
-               self.__program_actions.append(OutcallAction(data['Outcall']['argument'],data["Outcall"]["start_time"], data['Outcall']['duration'], data['Outcall']['is_streamed'], data['Outcall']['warning_time'],self) )    
+                print "This would have started here"
+            if category == "Outcall":
+                for action in data[category]:
+                    print "Call to host scheduled to start at " + str(action["start_time"])
+                    self.__program_actions.append(OutcallAction(action['argument'],action["start_time"], action['duration'], action['is_streamed'], action['warning_time'],self, action["hangup_on_complete"]) )    
         return
     
     '''

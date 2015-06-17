@@ -11,14 +11,14 @@ import json
 
 class MediaAction:
     
-    def __init__(self, argument,start_time, duration, is_streamed, program, hangup_after_call=False):
+    def __init__(self, argument,start_time, duration, is_streamed, program, hangup_on_complete=False):
         self.__argument = argument
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
         self.__is_streamed = is_streamed
         self.program = program
-        self.__hangup_after_call = hangup_after_call
+        self.__hangup_on_complete = hangup_on_complete
         self.__call_handler = self.program.radio_station.call_handler        
 
     def start(self):
@@ -60,7 +60,8 @@ class MediaAction:
      
     def notify_media_play_stop(self, media_stop_info):
         self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
-        self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+        if self.__hangup_on_complete:
+            self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):

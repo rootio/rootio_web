@@ -13,11 +13,12 @@ from rootio.radiostation.media.community_media import CommunityMedia
 
 class InterludeAction:
     
-    def __init__(self, argument, start_time, duration, is_streamed, program):
+    def __init__(self, argument, start_time, duration, is_streamed, program, hangup_on_complete):
         self.__argument = argument
         self.program = program
         self.start_time = start_time
         self.__call_handler = self.program.radio_station.call_handler
+        self.__hangup_on_complete = hangup_on_complete
         
     def start(self):
         self.program.set_running_action(self)
@@ -58,7 +59,7 @@ class InterludeAction:
     def notify_media_play_stop(self, media_stop_info):
         media_stop_json_string = media_stop_info.serialize("json")
         media_stop_json = json.loads(media_stop_json_string)
-        if self.__media_index > len(self.__media) * 3: #all media has played thrice
+        if self.__media_index > len(self.__media) * 3 and self.__hangup_on_complete: #all media has played thrice
             result = self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
             #deregister for media bug stop events
             print "result of hangup is " + result            
