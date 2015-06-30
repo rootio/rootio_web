@@ -40,7 +40,7 @@
             {% set analytics = station.recent_analytics() %}
             <tr>
                 <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="line">{{0.5}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
                 <td><span class="sparkline" data-type="boolean">{{analytics.wifi_connected}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
