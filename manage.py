@@ -42,7 +42,7 @@ def easy():
 @manager.command
 def run():
     """Run webserver for local development."""
-    app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8000)
 
 @manager.command
 def alembic():
