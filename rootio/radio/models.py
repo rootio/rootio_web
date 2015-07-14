@@ -328,6 +328,17 @@ class ScheduledProgram(BaseMixin, db.Model):
         return cls.query.filter(ScheduledProgram.start <= date) \
                         .filter(ScheduledProgram.end >= date)
 
+
+
+
+    @classmethod
+    def updated(cls,date):
+        return cls.query.filter(ScheduledProgram.updated_at > date)
+
+
+
+
+
     def __unicode__(self):
         return "%s at %s" % (self.program.name, self.start)
 

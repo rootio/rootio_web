@@ -62,12 +62,13 @@ def restless_routes():
         preprocessors=restless_preprocessors)
 
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
-        exclude_columns=['station'],
-        preprocessors=restless_preprocessors)
+	exclude_columns=['station'],
+        preprocessors=restless_preprocessors,
+	postprocessors=restless_postprocessors)
 
     rest.create_api(Episode, collection_name='episode', methods=['GET'],
         exclude_columns=[],
-        preprocessors=restless_preprocessors)
+       preprocessors=restless_preprocessors)
     rest.create_api(Recording, collection_name='recording', methods=['GET'],
         exclude_columns=[],
         preprocessors=restless_preprocessors)
@@ -145,7 +146,7 @@ def station_schedule(station_id):
         return ScheduledProgram.after(start).filter_by(station_id=station.id)
     elif end:
         return ScheduledProgram.before(end).filter_by(station_id=station.id)
-    else:
+     else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
 
@@ -164,7 +165,7 @@ def station_programs(station_id):
             return programs.filter(ScheduledProgram.updated_at>updated_since)
 
         except (ValueError, TypeError):
-            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            message = jsonify(flag='error', msg="Programs Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
         return programs.all()
@@ -214,19 +215,25 @@ def station_analytics(station_id):
 @api.route('/station/<int:station_id>/scheduled_programs', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
-def scheduled_programs(station_id):
-    """API method to get all scheduled_programs currently available for a station"""
-    stationscheduled = ScheduledProgram.query.filter_by(ScheduledProgram.station_id=station_id).first_or_404()
-    
-    if request.args.get('updat_since'):
+def scheduled_programs:(station_id):
+    """API method to get all scheduled programs  currently linked to this station"""
+  
+   # station = Station.query.filter_by(id=station_id).first_or_404()  
+    #test = station.scheduled_programs
+    scheduleprogs = ScheduledProgram.query.filter_by(ScheduledProgram.station_id=station_id)
+    if request.args.get('updated_since'):
         try:
-            updated_since = parse_datetime(request.args.get('updat_since'))
-            return stationscheduled.filter(ScheduledProgram.updated_at>updated_since)
+           # updated_s = parse_datetime(request.args.get('updated_since')
+	    message = jsonify(flag='error', msg="Scheduled programs Unable to parse station analytic form.")
+            return message
         except (ValueError, TypeError):
-            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-        return jsonify(flag='info', msg="Unable to find scheduled programs for the updated_since parameter")
+	r= {'created_at':station.scheduled_programs.created_at,'program_id':station.scheduled_programs.program.id}
+	return r
+     
+
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
