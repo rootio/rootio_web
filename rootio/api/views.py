@@ -58,8 +58,9 @@ def restless_routes():
         preprocessors=restless_preprocessors,
         postprocessors=restless_postprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
-        exclude_columns=['scheduled_programs',],
+        exclude_columns=['scheduled_programs'],
         preprocessors=restless_preprocessors)
+
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
         exclude_columns=['station'],
         preprocessors=restless_preprocessors)
@@ -205,8 +206,27 @@ def station_analytics(station_id):
     else:
         #return just most recent analytic?
         # or allow filtering by datetime?
-        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
+        analytics_list = StationAnalytic.query.filter(station_id=station.id).all()
         return analytics_list
+
+
+
+@api.route('/station/<int:station_id>/scheduled_programs', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def scheduled_programs(station_id):
+    """API method to get all scheduled_programs currently available for a station"""
+    stationscheduled = ScheduledProgram.query.filter_by(ScheduledProgram.station_id=station_id).first_or_404()
+    
+    if request.args.get('updat_since'):
+        try:
+            updated_since = parse_datetime(request.args.get('updat_since'))
+            return stationscheduled.filter(ScheduledProgram.updated_at>updated_since)
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400))
+    else:
+        return jsonify(flag='info', msg="Unable to find scheduled programs for the updated_since parameter")
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
