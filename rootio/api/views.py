@@ -146,7 +146,7 @@ def station_schedule(station_id):
         return ScheduledProgram.after(start).filter_by(station_id=station.id)
     elif end:
         return ScheduledProgram.before(end).filter_by(station_id=station.id)
-     else:
+    else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400)) 
 
@@ -215,22 +215,24 @@ def station_analytics(station_id):
 @api.route('/station/<int:station_id>/scheduled_programs', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
-def scheduled_programs:(station_id):
+def scheduled_programs(station_id):
     """API method to get all scheduled programs  currently linked to this station"""
   
-   # station = Station.query.filter_by(id=station_id).first_or_404()  
+    station = Station.query.filter_by(id=station_id).first_or_404()  
     #test = station.scheduled_programs
-    scheduleprogs = ScheduledProgram.query.filter_by(ScheduledProgram.station_id=station_id)
+    #scheduleprogs = ScheduledProgram.query.filter_by(ScheduledProgram.station_id=station_id)
+    
     if request.args.get('updated_since'):
         try:
-           # updated_s = parse_datetime(request.args.get('updated_since')
-	    message = jsonify(flag='error', msg="Scheduled programs Unable to parse station analytic form.")
-            return message
+            updated_s = parse_datetime(request.args.get('updated_since')
+	    res =  r = {'teste_update':updated_s, 'prog':'p_id'}
+            return res
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
 	r= {'created_at':station.scheduled_programs.created_at,'program_id':station.scheduled_programs.program.id}
+	#r = {'teste':'testes', 'prog':'p_id'}
 	return r
      
 
