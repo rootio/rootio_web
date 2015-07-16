@@ -222,7 +222,7 @@ def scheduled_programs(station_id):
         
     if request.args.get('updated_since'):
         try:
-            updated_s = parse_datetime(request.args.get('updated_since')
+            updated_s = parse_datetime(request.args.get('updated_since'))
 	    r = {'testeupdate':'updated_s', 'prog':'p_id'}
             return r
         except (ValueError, TypeError):
