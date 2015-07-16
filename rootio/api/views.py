@@ -218,7 +218,7 @@ def station_analytics(station_id):
 def scheduled_programs(station_id):
     """API method to get all scheduled programs  currently linked to this station"""
   
-#    station = Station.query.filter_by(id=station_id).first_or_404()  
+    station = Station.query.filter_by(id=station_id).first_or_404()  
         
     if request.args.get('updated_since'):
         try:
