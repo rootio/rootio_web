@@ -218,18 +218,18 @@ def station_analytics(station_id):
 def scheduled_programs(station_id):
     """API method to get all scheduled programs  currently linked to this station"""
   
-    station = Station.query.filter_by(id=station_id).first_or_404()  
+#    station = Station.query.filter_by(id=station_id).first_or_404()  
         
     if request.args.get('updated_since'):
         try:
             updated_s = parse_datetime(request.args.get('updated_since')
-	    res = {'teste_update':updated_s, 'prog':'p_id'}
-            return res
+	    r = {'testeupdate':'updated_s', 'prog':'p_id'}
+            return r
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-	r = {'updated':station.scheduled_programs.updated_at, 'prog':station.scheduled_programs.program.id}
+	r = {"prog": "p_id", "teste": "test without update"}
 	return r
      
 
