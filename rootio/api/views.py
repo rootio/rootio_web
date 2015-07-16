@@ -231,9 +231,6 @@ def scheduled_programs(station_id):
     else:
 	r = {'prog': station.scheduled_programs.program_id, 'teste': 'test without update'}
 	return r
-     
-
-
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
 @api_key_or_auth_required
