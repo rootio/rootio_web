@@ -229,7 +229,7 @@ def scheduled_programs(station_id):
             message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-	r = {"prog": station.scheduled_programs.program_id, "teste": "test without update"}
+	r = {'prog': station.scheduled_programs.program_id, 'teste': 'test without update'}
 	return r
      
 
