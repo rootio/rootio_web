@@ -223,13 +223,13 @@ def scheduled_programs(station_id):
     if request.args.get('updated_since'):
         try:
             updated_s = parse_datetime(request.args.get('updated_since'))
-	    r = {'testeupdate':'updated_s', 'prog':'p_id'}
+	    r = {'testeupdate':updated_s, 'prog':'p_id'}
             return r
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-	r = {"prog": "p_id", "teste": "test without update"}
+	r = {"prog": station.scheduled_programs.program_id, "teste": "test without update"}
 	return r
      
 
