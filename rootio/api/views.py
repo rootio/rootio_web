@@ -8,7 +8,7 @@ from .utils import parse_datetime
 from ..extensions import db, rest, csrf
 
 from ..user import User
-from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic, Role
 from ..radio.forms import StationAnalyticForm
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
@@ -225,7 +225,7 @@ def scheduled_programs(station_id):
             updated_since = parse_datetime(request.args.get('updated_since'))
             return schedule_prog.filter(ScheduledProgram.updated_at>updated_since)
         except (ValueError, TypeError):
-            message = jsonify(flag='error', msg="ScheduledPrograms Unable to parse updated_since parameter. Must be ISO datetime format")
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
 	return schedule_prog.all()
@@ -249,3 +249,35 @@ def program_episodes(program_id):
         return episodes.all()
 
 
+@api.route('/station/<int:station_id>/user', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_user(station_id):
+    """API method to get the user information currently linked to a station"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    user = station.owner
+
+    return user
+
+@api.route('/person/<int:person_id>/role', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def person_role(person_id):
+    """API method to get the role information currently linked to a person"""
+    person = Person.query.filter_by(id=person_id).first_or_404()
+    role = person.role
+    if role.empty():
+	return  {'message': 'Unable to find person role.'}
+    else:
+	return role
+
+
+@api.route('/station/<int:station_id>/roles', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_roles(station_id):
+    """API method to get the role information currently linked to a person"""
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    roles = Role.query.filter_by(station_id=station.id)
+
+    return roles.all()
