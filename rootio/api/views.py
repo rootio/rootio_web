@@ -249,24 +249,3 @@ def program_episodes(program_id):
         return episodes.all()
 
 
-
-
-
-
-@api.route('/program/<int:program_id>/type', methods=['GET'])
-@api_key_or_auth_required
-@returns_json
-def program_type(program_id):
-    """API method to get all episodes currently available for a program"""
-    program = Program.query.filter_by(id=program_id).first_or_404()
-    ptype = program.program_type
-
-    if request.args.get('updated_since'):
-        try:
-            updated_since = parse_datetime(request.args.get('updated_since'))
-            return ptype.filter(ProgramType.updated_at>updated_since)
-        except (ValueError, TypeError):
-            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-            abort(make_response(message, 400)) 
-    else:
-        return ptype
