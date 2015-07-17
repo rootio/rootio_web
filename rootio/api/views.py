@@ -207,7 +207,7 @@ def station_analytics(station_id):
     else:
         #return just most recent analytic?
         # or allow filtering by datetime?
-        analytics_list = StationAnalytic.query.filter(station_id=station.id).all()
+        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
         return analytics_list
 
 
