@@ -320,3 +320,30 @@ def episode_message(episode_id):
 		#return {'message': 'Unable to find episodes.'}
     else:
 	return  {'message': 'Unable to find episodes.'}
+
+
+@api.route('/station/<int:station_id>/scheduled_programs/messages', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_messages(station_id):
+    """API method to get all scheduled programs  currently linked to this station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    schedule_prog = station.scheduled_programs
+
+    for sp in schedule_prog:
+    	onair = OnAirProgram.query.filter_by(scheduledprogram_id=sp.id).first_or_404()
+    	msg = onair.messages
+
+    	if request.args.get('updated_since'):
+        	try:
+          	  updated_since = parse_datetime(request.args.get('updated_since'))
+          	  aux = aux +  msg.filter(Message.updated_at>updated_since)
+        	except (ValueError, TypeError):
+           		message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            	abort(make_response(message, 400))
+    	else:
+        	aux = aux + msg.all()
+
+    return {'Messages':aux}
+   
