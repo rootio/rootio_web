@@ -276,8 +276,48 @@ def person_role(person_id):
 @api_key_or_auth_required
 @returns_json
 def station_roles(station_id):
-    """API method to get the role information currently linked to a person"""
+    """API method to get the role information currently linked to a station"""
     station = Station.query.filter_by(id=station_id).first_or_404()
     roles = Role.query.filter_by(station_id=station.id)
+    if roles.empty():
+        return  {'message': 'Unable to find station roles.'}
+    else:
+    	return roles.all()
 
-    return roles.all()
+
+@api.route('/person/<int:person_id>/phonenumber', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def person_phone(person_id):
+    """API method to get the PhoneNumber currently linked to a person"""
+    person = Person.query.filter_by(id=person_id).first_or_404()
+    phone = PhoneNumber.query.filter_by(id=person.phone_id)
+    if phone.empty():
+        return  {'message': 'Unable to find person phonenumber.'}
+    else:
+        return phone
+
+@api.route('/episode/<int:episode_id>/message', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def episode_message(episode_id):
+    """API method to get the message currently linked to an Episode"""
+    episode = Episode.query.filter_by(id=episode_id).first_or_404()
+    onair = OnAirProgram.query.filter_by(OnAirProgram.episode_id=episode.id)
+
+  	if request.args.get('updated_since'):
+        try:
+            updated_since = parse_datetime(request.args.get('updated_since'))
+            return Message.query.filter_by().filter_by(Message.updated_at>updated_since)
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime $
+            abort(make_response(message, 400))
+    #elif request.args.get('sendtime'):
+    #   try:
+    #      -___  send_time = parse_datetime(request.args.get('sendtime'))
+    #        return Message.query.filter_by(Message.onairprogram_id=onair.id).filter_by(Message.sendtime>send_time)
+    #    except (ValueError, TypeError):
+    #        message = jsonify(flag='error', msg="Unable to parse sendtime parameter. Must be ISO datetime $
+    #        abort(make_response(message, 400)):
+    else:
+    	return Message.query.filter_by(Message.onairprogram_id=onair.id)
