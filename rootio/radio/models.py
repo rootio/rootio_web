@@ -157,13 +157,13 @@ class Station(BaseMixin, db.Model):
             analytics_list = []
             for i in xrange(7):
                 a = StationAnalytic()
-                a.battery_level =50# randint(50,100)
-                a.gsm_signal = 50#randint(0,100)
-                a.wifi_connected =0# random_boolean(0.8)
-                a.memory_utilization =60# randint(60,80)
-                a.storage_usage = 20#randint(20,50)
-                a.cpu_load = 50#randint(0,100)
-                a.headphone_plug =0# random_boolean(0.9)
+                a.battery_level =randint(50,100)
+                a.gsm_signal = randint(0,100)
+                a.wifi_connected =random_boolean(0.8)
+                a.memory_utilization =randint(60,80)
+                a.storage_usage = randint(20,50)
+                a.cpu_load = randint(0,100)
+                a.headphone_plug = random_boolean(0.9)
                 analytics_list.append(a)
 
         #convert to named dict for sparkline display
