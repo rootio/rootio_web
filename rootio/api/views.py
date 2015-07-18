@@ -355,3 +355,25 @@ def station_messages(station_id):
         abort(make_response(message, 500))
 
 
+
+
+@csrf.exempt
+@api.route('/station/<int:station_id>', methods=['POST'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics_post(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationAnalyticForm(request.form, csrf_enabled=False)
+
+    if form.validate_on_submit():
+        analytic = StationAnalytic(**form.data) #create new object from data
+        analytic.station = station
+
+        db.session.add(analytic)
+        db.session.commit()
+        return {'message':'success'}
+    else:
+        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
+        abort(make_response(message, 400))    
