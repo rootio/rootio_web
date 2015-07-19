@@ -21,7 +21,18 @@ class OnAirProgram(BaseMixin, db.Model):
     # increment counters?
     # log in redis?
 
-    def __init__(self):
+    def __init__(self, scheduled_prog=None, prog_type=None):
         #init station, program type, etc thru foreign keys
-        self.station = self.scheduled_program.station
-        self.program_type = self.scheduled_program.program_type
+	if  (scheduled_prog is None) and (prog_type is None):
+        	self.station = self.scheduled_program.station
+        	self.program_type = self.scheduled_program.program_type
+	elif  scheduled_prog is not None:
+		self.scheduled_program = scheduled_prog
+		if prog_type is not None:
+			self.program_type = prog_type
+		else:
+			self.program_type = None
+	elif  program_type is not None:
+		self.program_type = prog_type
+		if scheduled_prog is None:
+			self.scheduled_program = None

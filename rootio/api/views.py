@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, current_app, request, jsonify, abort, make_response, redirect, url_for
+from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
 
 from .utils import parse_datetime
@@ -14,6 +14,7 @@ from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
 from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors, restless_postprocessors
+
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -82,6 +83,12 @@ def restless_routes():
     rest.create_api(Message, collection_name='message', methods=['GET'],
         exclude_columns=[],
         preprocessors=restless_preprocessors)
+
+
+    rest.create_api(OnAirProgram, collection_name='onairprogram', methods=['GET'],
+        exclude_columns=[],
+        preprocessors=restless_preprocessors)
+
 
 #need routes for:
     #phone to update station schedule?
@@ -355,9 +362,6 @@ def station_messages(station_id):
         abort(make_response(message, 500))
 
 
-
-
-@csrf.exempt
 @api.route('/station/<int:station_id>', methods=['POST'])
 @api_key_or_auth_required
 @returns_json
@@ -365,16 +369,6 @@ def station_analytics_post(station_id):
     """API method to get or post analytics for a station"""
 
     station = Station.query.filter_by(id=station_id).first_or_404()
-    form = StationAnalyticForm(request.form, csrf_enabled=False)
-
-   # if form.validate_on_submit():
-        #analytic = StationAnalytic(**form.data) #create new object from data
-        #analytic.station = station
-
-        #db.session.add(analytic)
-        #db.session.commit()
-        #return { "succes" : True}
-
 
     if request.method == "POST":
 
@@ -385,9 +379,9 @@ def station_analytics_post(station_id):
         gsm = request.form.get('GSM Strength')
 	
 	if request.form.get('WiFI Connectivity')>=1:
-        	wifi = bool(1)
+        	wifi = True
 	else:
-		wifi = bool(0)
+		wifi = False
 
         lat = request.form.get('Latitude')
         longi = request.form.get('Longitude')
@@ -401,7 +395,7 @@ def station_analytics_post(station_id):
         return { "succes" : True}
 	
     else:
-        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
+        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % requests.exceptions.RequestException)
         abort(make_response(message, 400))    
 
 
@@ -425,18 +419,4 @@ def station_analytics_delete(station_id):
     return {'deleted':'sucess %s' % numberdeleted}
 
 
-@api.route('/station/<int:station_id>/an', methods=['GET', 'POST'])
-@api_key_or_auth_required
-@returns_json
-def s_analytics(station_id):
-    """API method to get or post analytics for a station"""
 
-    if request.method == "GET":
-        r = {'GET':request.url}
-        return r
-    elif request.method == "POST":
-        r = {'POST':request.url}
-        return r
-    else:
-        message = jsonify(flag='error', msg="Unable to collect  data %s" % request.url)
-        abort(make_response(message, 400))
