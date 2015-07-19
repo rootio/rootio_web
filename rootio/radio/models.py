@@ -428,7 +428,7 @@ class StationAnalytic(BaseMixin, db.Model):
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
 
-    def __init__(self,cpu,mem,storage,battery,gsm,wifi,lat,longi):
+    def __init__(self,cpu=None,mem=None,storage=None,battery=None,gsm=None,wifi=None,lat=None,longi=None):
 	self.cpu_load = cpu
 	self.memory_utilization = mem
 	self.storage_usage = storage
@@ -437,3 +437,4 @@ class StationAnalytic(BaseMixin, db.Model):
 	self.wifi_connected = wifi
 	self.gps_lat = lat
 	self.gps_lon = longi
+

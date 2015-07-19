@@ -385,9 +385,9 @@ def station_analytics_post(station_id):
         gsm = request.form.get('GSM Strength')
 	
 	if request.form.get('WiFI Connectivity')>=1:
-        	wifi = True
+        	wifi = bool(1)
 	else:
-		wifi = False
+		wifi = bool(0)
 
         lat = request.form.get('Latitude')
         longi = request.form.get('Longitude')
