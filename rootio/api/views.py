@@ -306,21 +306,23 @@ def episode_message(episode_id):
     episode = Episode.query.filter_by(id=episode_id).first_or_404()
     
     if episode:
-	onair = OnAirProgram.query.filter_by(episode_id=episode.id)
+	onair =  OnAirProgram.query.filter_by(episode_id=episode.id).first_or_404()
 
-    	if request.args.get('updated_since'):
+	if request.args.get('updated_since'):
         	try:
-            		updated_since = parse_datetime(request.args.get('updated_since'))
-            		return Message.query.filter_by(onairprogram_id=onair.id).filter_by(updated_at>updated_since)
-        	except (ValueError, TypeError):
-            		message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+#            		updated_since = parse_datetime(request.args.get('updated_since'))
+#            		return Message.query.filter_by(onairprogram_id=onair.id).filter_by(Message.updated_at>updated_since)
+ 			return jsonify('msg', 'Not working updated_since %s' % request.args.get('updated_since'))
+	       	except (ValueError, TypeError):
+            		message = jsonify(flag='error', msg="Unable to parse updated_since parameter %s. Must be ISO datetime format" % request.args.get('updated_since'))
             		abort(make_response(message, 400))
-    	elif request.args.get('sendtime'):
+    	elif request.args.get('send_time'):
     		try:
-    			send_time = parse_datetime(request.args.get('sendtime'))
-			return Message.query.filter_by(onairprogram_id=onair.id).filter_by(sendtime>send_time)
+ #   			send_time = parse_datetime(request.args.get('send_time'))
+#			return Message.query.filter_by(onairprogram_id=onair.id).filter_by(Message.sendtime>send_time)
+			return jsonify('msg', 'Not working send_time %s' % request.args.get('send_time'))
     	    	except (ValueError, TypeError):
-    	        	message = jsonify(flag='error', msg="Unable to parse sendtime parameter. Must be ISO datetime format")
+    	        	message = jsonify(flag='error', msg="Unable to parse sendtime parameter %s. Must be ISO datetime format" % request.args.get('send_time'))
     	        	abort(make_response(message, 400))
     	else:
     		return Message.query.filter_by(onairprogram_id=onair.id)
@@ -337,7 +339,7 @@ def station_messages(station_id):
 
     station = Station.query.filter_by(id=station_id).first_or_404()
     schedule_prog = station.scheduled_programs
-
+    aux = ""
     if schedule_prog:
         for sp in schedule_prog:
             onair = OnAirProgram.query.filter_by(scheduledprogram_id=sp.id).first_or_404()
@@ -351,12 +353,26 @@ def station_messages(station_id):
                         message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
                         abort(make_response(message, 400))
                 else:
-                    aux = aux + msg.all()
-                
-                return {'Messages':aux}
+                    aux = aux + msg
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+               # return {'Messages':aux}
             else:
                 message = jsonify(flag='error', msg="No messages sent for station")
                 abort(make_response(message, 500))
+	return {'Messages':aux}
     else:
         message = jsonify(flag='error', msg="No programs scheduled for station")
         abort(make_response(message, 500))
