@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, current_app, request, jsonify, abort, make_response
+from flask import Blueprint, current_app, request, jsonify, abort, make_response, redirect, url_for
 from flask.ext.login import login_user, current_user, logout_user
 
 from .utils import parse_datetime
@@ -367,13 +367,76 @@ def station_analytics_post(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     form = StationAnalyticForm(request.form, csrf_enabled=False)
 
-    if form.validate_on_submit():
-        analytic = StationAnalytic(**form.data) #create new object from data
+   # if form.validate_on_submit():
+        #analytic = StationAnalytic(**form.data) #create new object from data
+        #analytic.station = station
+
+        #db.session.add(analytic)
+        #db.session.commit()
+        #return { "succes" : True}
+
+
+    if request.method == "POST":
+
+        cpu = request.form.get('CPU Utilization')  
+        mem =request.form.get('Memory Utilization')
+        storage = request.form.get('Storage Utilization')
+        battery= request.form.get('Battery Level')
+        gsm = request.form.get('GSM Strength')
+	
+	if request.form.get('WiFI Connectivity')>=1:
+        	wifi = True
+	else:
+		wifi = False
+
+        lat = request.form.get('Latitude')
+        longi = request.form.get('Longitude')
+
+ 	
+	analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
         analytic.station = station
 
         db.session.add(analytic)
         db.session.commit()
-        return {'message':'success'}
+        return { "succes" : True}
+	
     else:
         message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
         abort(make_response(message, 400))    
+
+
+
+@api.route('/station/<int:station_id>/analytics/delete', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics_delete(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+  
+    analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
+    
+    numberdeleted = 0
+    for a in analytics_list:
+        db.session.delete(a)
+        db.session.commit()
+        numberdeleted=numberdeleted+1
+        
+    return {'deleted':'sucess %s' % numberdeleted}
+
+
+@api.route('/station/<int:station_id>/an', methods=['GET', 'POST'])
+@api_key_or_auth_required
+@returns_json
+def s_analytics(station_id):
+    """API method to get or post analytics for a station"""
+
+    if request.method == "GET":
+        r = {'GET':request.url}
+        return r
+    elif request.method == "POST":
+        r = {'POST':request.url}
+        return r
+    else:
+        message = jsonify(flag='error', msg="Unable to collect  data %s" % request.url)
+        abort(make_response(message, 400))
