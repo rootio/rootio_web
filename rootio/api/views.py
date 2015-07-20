@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, current_app, request, jsonify, abort, make_response
+from flask import Blueprint, current_app, request, jsonify, abort, make_response, json, Response
 from flask.ext.login import login_user, current_user, logout_user
 
 from .utils import parse_datetime
@@ -284,6 +284,7 @@ def station_roles(station_id):
     """API method to get the role information currently linked to a station"""
     station = Station.query.filter_by(id=station_id).first_or_404()
     roles = Role.query.filter_by(station_id=station.id)
+    print "Station roles = %s" % roles.all()
     return roles.all()
 
 
@@ -293,9 +294,10 @@ def station_roles(station_id):
 def person_phone(person_id):
     """API method to get the PhoneNumber currently linked to a person"""
     person = Person.query.filter_by(id=person_id).first_or_404()
-    phone = PhoneNumber.query.filter_by(id=person.phone_id)
+    phone = PhoneNumber.query.filter_by(id=person.phone_id).first()
     if phone:
-        return  phone
+	print "Person %s Phone %s" % (person_id,phone)
+        return {"Coutry code: ":phone.countrycode, "Number:  ": phone.number}
     else:
         return {'message': 'Unable to find person phonenumber.'}
 
@@ -310,68 +312,74 @@ def episode_message(episode_id):
 	onair =  OnAirProgram.query.filter_by(episode_id=episode.id).first_or_404()
 
 	if request.args.get('updated_since'):
+		print "date = %s" % request.args.get('updated_since')
         	try:
-#            		updated_since = parse_datetime(request.args.get('updated_since'))
-#            		return Message.query.filter_by(onairprogram_id=onair.id).filter_by(Message.updated_at>updated_since)
- 			return jsonify('msg', 'Not working updated_since %s' % request.args.get('updated_since'))
+            		updated_since = parse_datetime(request.args.get('updated_since'))
+            		print "Updated: %s" % updated_since
+			m = Message.query.filter_by(onairprogram_id=onair.id).filter(Message.updated_at>updated_since)
+			print "Messages updated = %s" % m
+			return Message.query.filter_by(onairprogram_id=onair.id).filter(Message.updated_at>updated_since)
 	       	except (ValueError, TypeError):
             		message = jsonify(flag='error', msg="Unable to parse updated_since parameter %s. Must be ISO datetime format" % request.args.get('updated_since'))
             		abort(make_response(message, 400))
+		except Exception, e:
+               		message = jsonify(flag='error', msg="Unable to run messages by episode updated_since %s. " % e)
+               		abort(make_response(message, 400))
     	elif request.args.get('send_time'):
     		try:
- #   			send_time = parse_datetime(request.args.get('send_time'))
-#			return Message.query.filter_by(onairprogram_id=onair.id).filter_by(Message.sendtime>send_time)
-			return jsonify('msg', 'Not working send_time %s' % request.args.get('send_time'))
+    			send_time = parse_datetime(request.args.get('send_time'))
+			print "send: %s" % send_time
+			send = Message.query.filter_by(onairprogram_id=onair.id).filter(Message.sendtime>send_time)
+			print "Messages send: %s" % send
+			return send
     	    	except (ValueError, TypeError):
     	        	message = jsonify(flag='error', msg="Unable to parse sendtime parameter %s. Must be ISO datetime format" % request.args.get('send_time'))
     	        	abort(make_response(message, 400))
+		except Exception, e:
+                        message = jsonify(flag='error', msg="Unable to run messages by episode send_time %s. " % e)
+                        abort(make_response(message, 400))
     	else:
-    		return Message.query.filter_by(onairprogram_id=onair.id)
-		#return {'message': 'Unable to find episodes.'}
+		all_msg = Message.query.filter_by(onairprogram_id=onair.id)
+		print "Messages all: %s" % all_msg    
+    		return all_msg
     else:
 	return  {'message': 'Unable to find episodes.'}
+
 
 @api.route('/station/<int:station_id>/scheduled_programs/messages', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
 def station_messages(station_id):
-    """API method to get all scheduled programs  currently linked to this station"""
+   """API method to get all messages currently linked to this station"""
 
-    station = Station.query.filter_by(id=station_id).first_or_404()
-    schedule_prog = station.scheduled_programs
-    elements = []
-    i = 0
-    if schedule_prog:
-	print "Entrou If scheduled"
-    	for sp in schedule_prog:
-            i = i +1
-	    print  " schedule_prog = %s" %sp.id 	   
-       	    try:
-        	onair = OnAirProgram.query.filter_by(scheduledprogram_id=sp.id).first()
-            	if onair :
-			print "On air program =  %s" % onair.id
-                	print ">>>>>> onair message = %s" % onair.messages
-                	msg = onair.messages
-     	        	if msg:
-        	               print "List of messages %s" % msg
-                	       elements.append(msg)
-               	        else:
-				print "else msg"
-                	        pass
-            	else:
-                	print "else onair"
-                	pass
-    	    except Exception, e:
-        	 message = jsonify(flag='error', msg="Unable to run Onair  %s. " % e)
-                 abort(make_response(message, 400))
-	else:
-		print "value of i= %s" %i
-	#for i in elements:
-#    		print "Element was: %s" % jsonify(i[0])
-	return {elements}
-    else:
-	print "Else od if schedule"
-        return jsonify(flag='info', msg="No programs scheduled for station")
+   try:
+      Men = Message.query.join(OnAirProgram).join(ScheduledProgram).join(Station).filter_by(id=station_id)
+      if Men :
+         if request.args.get('updated_since'):
+            try:
+               updated_since = parse_datetime(request.args.get('updated_since'))
+               print "Messages updated =  %s" % Men.filter(Message.updated_at>updated_since)
+               return Men.filter(Message.updated_at>updated_since)
+            except Exception, e:
+               message = jsonify(flag='error', msg="Unable to run messages updated_since %s. " % e)
+               abort(make_response(message, 400))
+         elif request.args.get('sent_time'):
+            try:
+               sent = parse_datetime(request.args.get('sent_time'))
+               print "Messages sent time =  %s" % Men.filter(Message.sendtime>sent)
+               return Men.filter(Message.sendtime>sent)
+            except Exception, e:
+               message = jsonify(flag='error', msg="Unable to run messages sent_time %s. " % e)
+               abort(make_response(message, 400))
+	 else:
+            print "Messages else =  %s" % Men.all()
+            return Men.all()
+      else:
+         print "else no Messages"
+         return jsonify(flag='info', msg="No messages for this station.")
+   except Exception, e:
+      message = jsonify(flag='error', msg="Unable to run messages  %s. " % e)
+      abort(make_response(message, 400))
 
 
 @api.route('/station/<int:station_id>', methods=['POST'])
@@ -379,34 +387,39 @@ def station_messages(station_id):
 @returns_json
 def station_analytics_post(station_id):
     """API method to get or post analytics for a station"""
-
+    print "Entrou .... "
     station = Station.query.filter_by(id=station_id).first_or_404()
-
+    print ">>>>>>>>>station = " % station.id
     if request.method == "POST":
-
-        cpu = request.form.get('CPU Utilization')  
-        mem =request.form.get('Memory Utilization')
-        storage = request.form.get('Storage Utilization')
-        battery= request.form.get('Battery Level')
-        gsm = request.form.get('GSM Strength')
+	try:
+            cpu = request.form.get('CPU Utilization')  
+            mem =request.form.get('Memory Utilization')
+            storage = request.form.get('Storage Utilization')
+            battery= request.form.get('Battery Level')
+            gsm = request.form.get('GSM Strength')
 	
-	if request.form.get('WiFI Connectivity')>=1:
+	    if request.form.get('WiFI Connectivity')>=1:
         	wifi = True
-	else:
+	    else:
 		wifi = False
 
-        lat = request.form.get('Latitude')
-        longi = request.form.get('Longitude')
+            lat = request.form.get('Latitude')
+            longi = request.form.get('Longitude')
 
- 	
-	analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
-        analytic.station = station
+ 	    print "Received info = %s, %s, %s, %s, %s, %s, %s, %s" % (cpu,mem,storage,battery,gsm,wifi,lat,longi)
+	    analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
+            analytic.station = station
 
-        db.session.add(analytic)
-        db.session.commit()
-        return { "succes" : True}
-	
+            db.session.add(analytic)
+            db.session.commit()
+    	    return { "succes" : True}
+	except Exception, e:
+	    print "Exception: %s" % e
+            message = jsonify(flag='error', msg="Unable to run messages  %s. " % e)
+            abort(make_response(message, 400))
+
     else:
+	print "Erro = " % requests.exceptions.RequestException
         message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % requests.exceptions.RequestException)
         abort(make_response(message, 400))    
 
@@ -432,3 +445,50 @@ def station_analytics_delete(station_id):
 
 
 
+@api.route('/station/<int:station_id>/analytics/update', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics_update(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    analytics = StationAnalytic.query.filter_by(id=3473).first()
+    print "Analytics %s" % analytics
+    analytics.battery_level = 94.0
+    analytics.cpu_load = 10.0
+    analytics.gps_lat = 10.0
+    analytics.gps_lon = 10.0
+    analytics.gsm_signal = 10.0
+    analytics.memory_utilization = 10.0
+    analytics.storage_usage = 10.0
+    db.session.commit()
+
+    return {'updated':'sucess'}
+
+
+
+@api.route('/station/<int:station_id>/analytics/add', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_analytics_add(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    cpu = 90.0
+    mem =90.0
+    storage = 80.0
+    battery= 80.0
+    gsm = 80.0
+    wifi = True
+    lat = 80.0
+    longi = 80.0
+
+    print "Save info = %s, %s, %s, %s, %s, %s, %s, %s" % (cpu,mem,storage,battery,gsm,wifi,lat,longi)
+    analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
+    analytic.station = station
+
+    db.session.add(analytic)
+    db.session.commit()
+
+    return {'updated':'sucess'}
