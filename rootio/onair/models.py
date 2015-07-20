@@ -16,7 +16,7 @@ class OnAirProgram(BaseMixin, db.Model):
     scheduled_program = db.relationship(u'ScheduledProgram', backref=db.backref('onairprogram',uselist=False))
     # incoming calls and messages
     calls = db.relationship(u'Call', backref=db.backref('onairprogram'))
-    messages = db.relationship(u'Message', backref=db.backref('onairprogram'))
+    messages = db.relationship(u'Message', backref=db.backref('onairprogram'),lazy='dynamic')
     # alternate architectures:
     # increment counters?
     # log in redis?

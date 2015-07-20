@@ -15,6 +15,7 @@ from ..onair import OnAirProgram
 
 from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors, restless_postprocessors
 
+from array import array
 
 #the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -330,7 +331,6 @@ def episode_message(episode_id):
     else:
 	return  {'message': 'Unable to find episodes.'}
 
-
 @api.route('/station/<int:station_id>/scheduled_programs/messages', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -339,43 +339,39 @@ def station_messages(station_id):
 
     station = Station.query.filter_by(id=station_id).first_or_404()
     schedule_prog = station.scheduled_programs
-    aux = ""
+    elements = []
+    i = 0
     if schedule_prog:
-        for sp in schedule_prog:
-            onair = OnAirProgram.query.filter_by(scheduledprogram_id=sp.id).first_or_404()
-            msg = onair.messages
-            if msg:
-                if request.args.get('updated_since'):
-                    try:
-                        updated_since = parse_datetime(request.args.get('updated_since'))
-                        aux = aux +  msg.filter(Message.updated_at>updated_since)
-                    except (ValueError, TypeError):
-                        message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-                        abort(make_response(message, 400))
-                else:
-                    aux = aux + msg
-                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-               # return {'Messages':aux}
-            else:
-                message = jsonify(flag='error', msg="No messages sent for station")
-                abort(make_response(message, 500))
-	return {'Messages':aux}
+	print "Entrou If scheduled"
+    	for sp in schedule_prog:
+            i = i +1
+	    print  " schedule_prog = %s" %sp.id 	   
+       	    try:
+        	onair = OnAirProgram.query.filter_by(scheduledprogram_id=sp.id).first()
+            	if onair :
+			print "On air program =  %s" % onair.id
+                	print ">>>>>> onair message = %s" % onair.messages
+                	msg = onair.messages
+     	        	if msg:
+        	               print "List of messages %s" % msg
+                	       elements.append(msg)
+               	        else:
+				print "else msg"
+                	        pass
+            	else:
+                	print "else onair"
+                	pass
+    	    except Exception, e:
+        	 message = jsonify(flag='error', msg="Unable to run Onair  %s. " % e)
+                 abort(make_response(message, 400))
+	else:
+		print "value of i= %s" %i
+	#for i in elements:
+#    		print "Element was: %s" % jsonify(i[0])
+	return {elements}
     else:
-        message = jsonify(flag='error', msg="No programs scheduled for station")
-        abort(make_response(message, 500))
+	print "Else od if schedule"
+        return jsonify(flag='info', msg="No programs scheduled for station")
 
 
 @api.route('/station/<int:station_id>', methods=['POST'])
