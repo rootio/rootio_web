@@ -22,7 +22,7 @@ class PhoneStatus:
 
 class OutcallAction:
     
-    def __init__(self, argument, start_time, duration, is_streamed, warning_time, program, hangup_on_complte):
+    def __init__(self, argument, start_time, duration, is_streamed, warning_time, program, hangup_on_complete):
         self.__argument = argument
         self.start_time = start_time
         self.duration = duration
@@ -31,13 +31,14 @@ class OutcallAction:
         self.program = program
         self.__scheduler = Scheduler()
         self.__call_handler = self.program.radio_station.call_handler
+        self.__station_call_available = False
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
         self.__interested_participants.add("30718451574")
         self.__hangup_on_complete = hangup_on_complete
 
     def start(self):
-        self.__program.set_running_action(self)
+        self.program.set_running_action(self)
         self.__request_call()
         self.__scheduler.start()
         self.__call_handler.register_for_incoming_calls(self, '1003')
@@ -74,7 +75,7 @@ class OutcallAction:
     def warn_number(self): 
         seconds = self.duration - self.__warning_time
         phrase = "This call will end in {0} seconds".format({seconds})
-        result = self.__call_handler.speak(self.__host_call_answer_info['Channel-Call-UUID'], phrase)
+        result = self.__call_handler.play('home/amour/media/call_warning.mp3',self.__host_call_answer_info['Channel-Call-UUID'])
         print "result of warning is " + result;
     
     def __pause_call(self):#hangup and schedule to call later
@@ -133,7 +134,7 @@ class OutcallAction:
         time_delta = timedelta(seconds=60) #one minutes
         now = datetime.utcnow()
         callback_time = now + time_delta
-        self.__scheduler.add_job(getattr(self,'call_host_number'), callback_time)
+        self.__scheduler.add_date_job(getattr(self,'call_host_number'), callback_time)
     
     def __schedule_warning(self):
         time_delta = timedelta(seconds=self.__warning_time)
@@ -145,4 +146,4 @@ class OutcallAction:
         time_delta = timedelta(seconds=self.duration)
         now = datetime.utcnow()
         hangup_time = now + time_delta
-        self.__scheduler.add_job(getattr(self,'hangup_call'), hangup_time)   
+        self.__scheduler.add_date_job(getattr(self,'hangup_call'), hangup_time)   

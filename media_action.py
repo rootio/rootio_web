@@ -18,6 +18,8 @@ class MediaAction:
         self.duration = duration
         self.__is_streamed = is_streamed
         self.program = program
+        self.__media_index = 0
+        self.__media_expected_to_stop = False
         self.__hangup_on_complete = hangup_on_complete
         self.__call_handler = self.program.radio_station.call_handler        
 
@@ -45,8 +47,9 @@ class MediaAction:
     
     def __play_media(self, call_UUID): #play the media in the array
         if self.__is_streamed == True:
-            result1 = self.__call_handler.play(call_UUID, self.__argument)
-            print 'result of play is ' + result1
+            result = self.__call_handler.play(call_UUID, self.__argument[self.__media_index])
+            self.__media_index = self.__media_index + 1
+            print 'result of play is ' + result
     
     def __pause_media(self): #pause the media in the array
         pass
@@ -59,10 +62,13 @@ class MediaAction:
             return  
      
     def notify_media_play_stop(self, media_stop_info):
-        self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
-        if self.__hangup_on_complete:
-            self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
-        self.__is_valid = False
+        if self.__media_index >= len(self.__argument):
+            self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
+            if self.__hangup_on_complete and media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]:
+                self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+            self.__is_valid = False
+        else:
+            self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])

@@ -44,7 +44,7 @@ class RadioProgram:
         data = json.loads(self.__program.program.description) 
         for category in data:
             if category == "Jingle":
-                for record in data[category]:
+                for action in data[category]:
                     self.__program_actions.append(JingleAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
                     print "Jingle scheduled to start at " + str(record["start_time"])
             if category == "Media":

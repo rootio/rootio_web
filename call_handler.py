@@ -12,6 +12,7 @@ from rootio.telephony.models import Gateway
 import plivohelper
 import threading
 import json
+import time
 from sets import Set
 
 #Define some constants - though these should come from the config
@@ -51,7 +52,7 @@ class CallHandler:
             self.__gateways[str(gw.number_bottom)] = gw
             self.__available_gateways.append(gw.number_bottom)
             self.__available_gateways.sort()
-            self.__available_gateways.reverse()
+            #self.__available_gateways.reverse()
         print self.__gateways.keys()
     
     def __do_ESL_command(self, ESL_command):
@@ -120,10 +121,15 @@ class CallHandler:
                 self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]] = event_json
                 print "received answer for {0}".format(event_json['Caller-Destination-Number'])
                 print self.__waiting_call_recipients.keys()
+                self.__record_call(event_json['Channel-Call-UUID'], event_json['variable_sip_from_user'], event_json['Caller-Destination-Number'])
                 if str(event_json['Caller-Destination-Number'])[-10:] in self.__waiting_call_recipients:
                     self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_call_answered(event_json)            
                     del self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-10:]]
                     break
+
+    def __record_call(self, call_UUID, from_number, destination_number):
+        record_command = "uuid_record {0} start '/home/amour/test_media/RootioNew/Northern Uganda Pilot/Luo_Recordings/Call_Recordings/{1}_{2}_{3}_recording.wav'".format(call_UUID, from_number, destination_number, time.strftime("%Y_%m_%d_%H_%M_%S"))
+        result = self.__do_ESL_command(record_command)
 
     def request_conference(self, call_UUID, conference_UUID):
         break_command = 'break {0}'.format(conference_UUID)#currently al calls are added to conf. is there need to have a call not in conf?
@@ -138,7 +144,8 @@ class CallHandler:
                 print "Got DTMF event"
                 event_json_string = e.serialize('json')
                 event_json = json.loads(event_json_string)
-                self.__incoming_dtmf_recipients[event_json['Caller-Destination-Number']].notify_incoming_dtmf(event_json)
+                if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'] in self.__incoming_dtmf_recipients:
+                    self.__incoming_dtmf_recipients[event_json['Caller-Destination-Number']].notify_incoming_dtmf(event_json)
     
     def __listen_for_media_play_stop(self):
         t = threading.Thread(target=self.__handle_media_play_stop, args=())
@@ -192,7 +199,7 @@ class CallHandler:
                 event_json = json.loads(event_json_string)
                 try:
                     if  event_json['Caller-Destination-Number'] in  self.__media_playback_stop_recipients:
-                        self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']].notify_media_play_stop(e)
+                        self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']].notify_media_play_stop(event_json)
                 except e:
                     print str(e)
                    
@@ -206,9 +213,8 @@ class CallHandler:
             self.__available_gateways.append(event_json['Caller-Destination-Number'])
             print "putting back {0}".format(event_json['Caller-Destination-Number'])
         #if it is an outbound call
-        print "json is {0} but keys is {1}".format(event_json['variable_sip_from_user'][-9:], self.__gateways.keys())
         if 'variable_sip_from_user' in event_json and event_json['variable_sip_from_user'][-9:] in self.__gateways.keys():
             self.__available_gateways.append(int(event_json['variable_sip_from_user'][-9:]))
             print "putting back {0}".format(event_json['variable_sip_from_user'])
         self.__available_gateways.sort()
-        self.__available_gateways.reverse()
+        #self.__available_gateways.reverse()

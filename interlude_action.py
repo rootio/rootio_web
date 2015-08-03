@@ -17,12 +17,18 @@ class InterludeAction:
         self.__argument = argument
         self.program = program
         self.start_time = start_time
+        self.duration = duration
+        self.__media = []
+        self.__media_index = 0
+        self.__media_expected_to_stop = False
         self.__call_handler = self.program.radio_station.call_handler
         self.__hangup_on_complete = hangup_on_complete
         
     def start(self):
-        self.program.set_running_action(self)
-        self.__request_call()
+        self.__load_media()
+        if len(self.__media) > 0:
+            self.program.set_running_action(self)
+            self.__request_call()
     
     def pause(self):
         self.__pause_media()
@@ -33,7 +39,7 @@ class InterludeAction:
      
     def notify_call_answered(self, answer_info):
         self.__call_answer_info = answer_info
-        self.__load_media()
+        #self.__load_media()
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
         self.__listen_for_media_play_stop()
         
@@ -57,15 +63,14 @@ class InterludeAction:
         print 'result of stop play is ' + result       
      
     def notify_media_play_stop(self, media_stop_info):
-        media_stop_json_string = media_stop_info.serialize("json")
-        media_stop_json = json.loads(media_stop_json_string)
-        if self.__media_index > len(self.__media) * 3 and self.__hangup_on_complete: #all media has played thrice
-            result = self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
-            #deregister for media bug stop events
-            print "result of hangup is " + result            
-        elif not self.__media_expected_to_stop:
-            self.__media_index = self.__media_index + 1
-            self.__play_media(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
+        if media_stop_info["Media-Bug-Target"] == self.__media[self.__media_index % len(self.__media)]: #its our media stopping, not some other media
+            if self.__media_index > len(self.__media) * 3 and self.__hangup_on_complete: #all media has played thrice
+                result = self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+                #deregister for media bug stop events
+                print "result of hangup is " + result            
+            elif not self.__media_expected_to_stop:
+                self.__media_index = self.__media_index + 1
+                self.__play_media(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)
             
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])

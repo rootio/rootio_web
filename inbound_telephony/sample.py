@@ -27,7 +27,7 @@ def get_message_category(session):
 def get_validity(session):
     i = 0 
     digits = '0'
-    digits = session.playAndGetDigits(1, 1, 3, 5000, "*#", "{0}/{1}".format(base_prompts_directory, station_validity_prompts[station_lines[session.getVariable('destination_number')]]),"","")
+    digits = session.playAndGetDigits(1, 2, 3, 5000, "*#", "{0}/{1}".format(base_prompts_directory, station_validity_prompts[station_lines[session.getVariable('destination_number')]]),"","")
     return digits
     
 
@@ -93,5 +93,5 @@ def handler(session, args):
         session.hangup()
         return
     filename = get_filename(session.getVariable('caller_id_number'))
-    record_message(session, filename, 30, 0, 1)
+    record_message(session, filename, 150, 0, 1)
     confirmation(session, filename, validity_days, station_lines[session.getVariable('destination_number')],  message_category) 

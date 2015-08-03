@@ -26,9 +26,9 @@ class CommunityMedia:
         for label in self.__bucket_keeper.list_labels(self.__bucket_id):
             metadata_json = self.__bucket_keeper.get_metadata(self.__bucket_id, label)
             #metadata_json = json.loads(metadata)
-            #if self.__is_valid(metadata_json["_creation_date"], metadata_json["validity"]):
-            file_url = self.__bucket_keeper.get_url(self.__bucket_id, label)
-            media_files.append(self.__sanitize_url(file_url))
+            if self.__is_valid(metadata_json["_creation_date"], metadata_json["validity"]):
+                file_url = self.__bucket_keeper.get_url(self.__bucket_id, label)
+                media_files.append(self.__sanitize_url(file_url))
         return media_files 
 
     def __is_valid(self, creation_date, validity):
