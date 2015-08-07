@@ -74,18 +74,22 @@ def api_key_or_auth_required(f):
         from .radio import Station
         api_key = request.args.get('api_key')
         if api_key:
+	    ##print ">>>>>>>>>>>>>>>>>>>   api_key = %s" % api_key
             if 'station_id' in kwargs:
                 station = Station.query.get(kwargs['station_id'])
                 if station and station.api_key == api_key:
                     #valid
+		    ##print ">>>> station.api_key == api_key -> %s " % station.api_key == api_key
                     return f(*args, **kwargs)
             else:
                 #no specific station, check against all valid keys
                 if Station.query.filter_by(api_key=api_key).count():
                     #matches, should be only one because of unique constraint
+		   ## print ">>>> station.api_key count -> %s " % Station.query.filter_by(api_key=api_key).count()
                     return f(*args, **kwargs)
         else:
             if current_user.is_authenticated():
+		##print ">>>>>>>>>>>>>>>>>> User authenticated = %s" % current_user.is_authenticated()
                 return f(*args, **kwargs)
         abort(403)
     return decorated_function
@@ -108,7 +112,7 @@ def restless_api_auth(*args, **kwargs):
         #check if user is logged in
         if current_user.is_authenticated():
             return None # allow
-
+    ##print "Not authenticated! - restless_api_auth"
     raise ProcessingException(message='Not authenticated!')
     
 

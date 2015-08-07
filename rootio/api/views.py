@@ -8,7 +8,7 @@ from .utils import parse_datetime
 from ..extensions import db, rest, csrf
 
 from ..user import User
-from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic, Role
+from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic, Role, ScheduledBlock
 from ..radio.forms import StationAnalyticForm
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
@@ -382,49 +382,6 @@ def station_messages(station_id):
       abort(make_response(message, 400))
 
 
-@api.route('/station/<int:station_id>', methods=['POST'])
-@api_key_or_auth_required
-@returns_json
-def station_analytics_post(station_id):
-    """API method to get or post analytics for a station"""
-    print "Entrou .... "
-    station = Station.query.filter_by(id=station_id).first_or_404()
-    print ">>>>>>>>>station = " % station.id
-    if request.method == "POST":
-	try:
-            cpu = request.form.get('CPU Utilization')  
-            mem =request.form.get('Memory Utilization')
-            storage = request.form.get('Storage Utilization')
-            battery= request.form.get('Battery Level')
-            gsm = request.form.get('GSM Strength')
-	
-	    if request.form.get('WiFI Connectivity')>=1:
-        	wifi = True
-	    else:
-		wifi = False
-
-            lat = request.form.get('Latitude')
-            longi = request.form.get('Longitude')
-
- 	    print "Received info = %s, %s, %s, %s, %s, %s, %s, %s" % (cpu,mem,storage,battery,gsm,wifi,lat,longi)
-	    analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
-            analytic.station = station
-
-            db.session.add(analytic)
-            db.session.commit()
-    	    return { "succes" : True}
-	except Exception, e:
-	    print "Exception: %s" % e
-            message = jsonify(flag='error', msg="Unable to run messages  %s. " % e)
-            abort(make_response(message, 400))
-
-    else:
-	print "Erro = " % requests.exceptions.RequestException
-        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % requests.exceptions.RequestException)
-        abort(make_response(message, 400))    
-
-
-
 @api.route('/station/<int:station_id>/analytics/delete', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -455,13 +412,13 @@ def station_analytics_update(station_id):
 
     analytics = StationAnalytic.query.filter_by(id=3473).first()
     print "Analytics %s" % analytics
-    analytics.battery_level = 94.0
-    analytics.cpu_load = 10.0
-    analytics.gps_lat = 10.0
-    analytics.gps_lon = 10.0
-    analytics.gsm_signal = 10.0
-    analytics.memory_utilization = 10.0
-    analytics.storage_usage = 10.0
+    analytics.battery_level = 94
+    analytics.cpu_load = 10
+    analytics.gps_lat = 10
+    analytics.gps_lon = 10
+    analytics.gsm_signal = 10
+    analytics.memory_utilization = 10
+    analytics.storage_usage = 10
     db.session.commit()
 
     return {'updated':'sucess'}
@@ -475,14 +432,14 @@ def station_analytics_add(station_id):
     """API method to get or post analytics for a station"""
 
     station = Station.query.filter_by(id=station_id).first_or_404()
-    cpu = 90.0
-    mem =90.0
-    storage = 80.0
-    battery= 80.0
-    gsm = 80.0
+    cpu = 0.108108
+    mem =10.0
+    storage = 32.0
+    battery= 49.0
+    gsm = 15.0
     wifi = True
-    lat = 80.0
-    longi = 80.0
+    lat = 0.0
+    longi = 0.0
 
     print "Save info = %s, %s, %s, %s, %s, %s, %s, %s" % (cpu,mem,storage,battery,gsm,wifi,lat,longi)
     analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
@@ -492,3 +449,82 @@ def station_analytics_add(station_id):
     db.session.commit()
 
     return {'updated':'sucess'}
+
+
+
+@api.route('/station/<int:station_id>/scheduled_block/delete', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_scheduled_block_delete(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    sb_list = ScheduledBlock.query.filter_by(station_id=station.id).all()
+
+    numberdeleted = 0
+    for a in sb_list:
+        db.session.delete(a)
+        db.session.commit()
+        numberdeleted=numberdeleted+1
+
+    return {'deleted':'success %s' % numberdeleted}
+
+
+@api.route('/station/<int:station_id>/scheduled_program/delete', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def station_scheduled_program_delete(station_id):
+    """API method to get or post analytics for a station"""
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    sp_list = ScheduledProgram.query.filter_by(station_id=station.id).all()
+
+    numberdeleted = 0
+    for a in sp_list:
+        db.session.delete(a)
+        db.session.commit()
+        numberdeleted=numberdeleted+1
+
+    return {'deleted':'success %s' % numberdeleted}
+
+
+
+@api.route('/station/<int:station_id>/diagnostics', methods=['POST'])
+@api_key_or_auth_required
+@returns_json
+def station_diagnostics_post(station_id):
+    """API method to post analytics for a station"""
+
+    print "Entrou .... %s" % str(request.values)
+    print " query = %s" %request.query_string
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    print ">>>>>>>>>station = %s" % station.id
+    if request.method == "POST":
+    	try:
+            cpu =request.form.get('CPU Utilization')
+            mem =request.form.get('Memory Utilization')
+            storage =request.form.get('Storage Utilization')
+            battery= request.form.get('Battery Level')
+            gsm = request.form.get('GSM Strength')
+
+            if float(request.form.get('WiFI Connectivity')) > float(0):
+                wifi = True
+            else:
+                wifi = False
+
+            lat = request.form.get('Latitude')
+            longi = request.form.get('Longitude')
+
+            print "Received info POST = %s, %s, %s, %s, %s, %s, %s, %s" % (cpu,mem,storage,battery,gsm,wifi,lat, longi)
+            analytic = StationAnalytic(cpu,mem,storage,battery,gsm,wifi,lat,longi) #create new object from data
+            analytic.station = station
+
+            db.session.add(analytic)
+            db.session.commit()
+            return { "success": True}
+    	except Exception, e:
+            print "Exception: %s" % e
+            message = jsonify(flag='error', msg="Exception:  %s. " % e)
+            abort(make_response(message, 400))
