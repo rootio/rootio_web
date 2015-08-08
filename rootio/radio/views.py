@@ -237,7 +237,7 @@ def scheduled_block_add():
 @returns_json
 def schedule_program_add_ajax():
     data = json.loads(request.data)
-
+    print "resquest.data = %s" % data
     if not 'program' in data:
         return {'status':'error','errors':'program required','status_code':400}
     if not 'station' in data:
@@ -299,39 +299,49 @@ def schedule_program_edit_ajax():
 def schedule_recurring_program_ajax():
     "Schedule a recurring program"
     data = json.loads(request.data)
-
+    print "Recurring = %s" % data
     #ensure specified foreign key ids are valid
     fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    print "if fk_errors:"
     if fk_errors:
+	print "fk_errors = %s" % fk_errors
         return fk_errors
-
+    
     form = ScheduleProgramForm(None, **data)
-
+    print "try:"
     try:
         air_time = datetime.strptime(form.data['air_time'],'%H:%M').time()
     except ValueError:
         response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
-        return response
-
+        print "response %s" % response
+	return response
+    print "if form.validate_on_submit():"
     if form.validate_on_submit():
         #save refs to form objects
         program = form.data['program']
         station = form.data['station']
 
         #parse recurrence rule
+	print "station time zone = %s" % station.timezone
+	dt_start = datetime.now()
+	print "dt_start is today = %s" % dt_start 
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:10]: #TODO: dynamically determine instance limit
+        print "r = %s form data = %s" % (r, form.data['recurrence'])
+	i = 1
+	for instance in r[:10]: #TODO: dynamically determine instance limit
+	    print "instance_%s = %s" % (i,instance)
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
-            scheduled_program.end = scheduled_program.start + program.duration
-            
+#	    print "Start date = %s" %scheduled_program.start
+            scheduled_program.end = scheduled_program.start + program.duration 
             db.session.add(scheduled_program)
-
+	    i = i+1
         db.session.commit()
-        
+        print "commit"
         response = {'status':'success','result':{},'status_code':200}
     elif request.method == "POST":
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+	print " elif request.method == POST: %s" % response
     return response
 
 
