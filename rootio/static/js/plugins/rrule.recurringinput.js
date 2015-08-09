@@ -79,8 +79,20 @@ $.widget("rrule.recurringinput", {
 
     // starts on
     tmpl += '<label>Start ';
-    tmpl += '<input name="dtstart" type="date"/>';
+    
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1; //Months are zero based
+
+    if (curr_date < 10) { curr_date = '0' + curr_date; }
+    if (curr_month < 10) { curr_month = '0' + curr_month; }
+
+    var curr_year = d.getFullYear();
+    console.log(curr_year + "-" + curr_month + "-" + curr_date);
+    
+    tmpl += '<input name="dtstart" type="date" value="' + curr_year + "-" + curr_month + "-" + curr_date +'" />';
     tmpl += '</label>';
+
 
     // end on
     tmpl += '<div class="end-options controls">';
@@ -89,10 +101,10 @@ $.widget("rrule.recurringinput", {
     tmpl += '<label class="inline">';
     tmpl += '<input type="radio" name="end" value="0" checked="checked"/> Never</label>';
     tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value="1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
+    tmpl += '<input type="radio" name="end" value="1" /> After <input type="number" value = "1" max="1000" min="1" name="count"/> occurences';
     tmpl += '</label>';
     tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value="2"> On date <input type="date" name="until"/>';
+    tmpl += '<input type="radio" name="end" value="2"> On date <input type="date" name="until" value="' + curr_year + "-" + curr_month + "-" + curr_date +'"/>';
     tmpl += '</label>';
 
     tmpl += '</div>';
@@ -230,9 +242,12 @@ $.widget("rrule.recurringinput", {
         continue;
       }
       options[k] = v;
+
     }
     try {
+ 	console.log("Try new RRule ");  
         rule = new RRule(options);
+        console.log(options);
       } catch (_error) {
         e = _error;
         $("#text-output").append($('<pre class="error"/>').text('=> ' + String(e || null)));

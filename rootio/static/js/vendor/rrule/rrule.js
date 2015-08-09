@@ -196,8 +196,8 @@ var dateutil = {
         var date = new Date(time);
         var comp, comps = [
             date.getUTCFullYear(),
-            date.getUTCMonth() + 1,
-            date.getUTCDate(),
+            date.getUTCMonth() +1,
+            date.getUTCDate(),/* + 1, Added  +1 like the month*/
             'T',
             date.getUTCHours(),
             date.getUTCMinutes(),
@@ -497,6 +497,10 @@ var RRule = function(options, noCache) {
     if (!opts.dtstart) {
         opts.dtstart = new Date();
         opts.dtstart.setMilliseconds(0);
+	console.log(" if (!opts.dtstart) >>>>>>> ");
+	console.log("!opts.dtstart = " + !opts.dtstart)
+	console.log(opts.dtstart)
+	console.log("<<<<<<<<<<<<<<")
     }
 
     if (opts.wkst === null) {
@@ -715,8 +719,6 @@ RRule.DEFAULT_OPTIONS = {
     byeaster:    null
 };
 
-
-
 RRule.parseText = function(text, language) {
     return getnlp().parseText(text, language)
 };
@@ -777,9 +779,12 @@ RRule.optionsToString = function(options) {
                 value = strValues;
                 break;
             case'DTSTART':
+//		break;/*nao tinha break*/
             case'UNTIL':
                 value = dateutil.timeToUntilString(value);
-                break;
+                console.log("dstart or until = ")
+		console.log(value)
+		break;
             default:
                 if (value instanceof Array) {
                     for (var j = 0; j < value.length; j++) {
@@ -791,7 +796,10 @@ RRule.optionsToString = function(options) {
                 }
 
         }
-        pairs.push([key, value]);
+	if (key != 'DTSTART' && key != 'UNTIL'){
+        	pairs.push([key, value]);
+	}
+	//added the if to remove the DSTART and UNTIL from recurrence string
     }
 
     var strings = [];
@@ -1437,7 +1445,11 @@ RRule.parseString = function(rfcString) {
                 break;
             case 'DTSTART':
                 options.dtstart = dateutil.untilStringToDate(value);
-                break;
+		console.log("<<<<<<<<<<")
+                console.log("                options.dtstart = dateutil.untilStringToDate(value);")
+		console.log (options.dtstart)
+		console.log(">>>>>>>>>>>")
+		break;
             case 'UNTIL':
                 options.until = dateutil.untilStringToDate(value);
                 break;

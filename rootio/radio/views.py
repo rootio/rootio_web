@@ -4,6 +4,9 @@ import os
 from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
+from dateutil.parser import *
+
+from dateutil.rrule import *
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
@@ -322,17 +325,38 @@ def schedule_recurring_program_ajax():
         station = form.data['station']
 
         #parse recurrence rule
-	print "station time zone = %s" % station.timezone
-	dt_start = datetime.now()
-	print "dt_start is today = %s" % dt_start 
-        r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        print "r = %s form data = %s" % (r, form.data['recurrence'])
+
+	print "test "  
+	test = rrule(YEARLY, bymonth=1, byweekday=range(7),dtstart=parse("19980101T090000"),until=parse("20000131T090000"))
+     	print ">>>> %s" % test
+
+	print "test 2"	
+#	y = rrule(DAILY,dtstart=parse("19970902T090000"),until=parse("19971224T000000"))
+#	y =dateutil.rrule.rrulestr('FREQ=WEEKLY')
+#        y =dateutil.rrule.rrulestr('FREQ=WEEKLY',dtstart=parse("20150902T090000"))
+#	y= dateutil.rrule.rrulestr(""" DTSTART:19970902T090000 RRULE:FREQ=DAILY;INTERVAL=10;COUNT=5;UNTIL=19970922T090000""")
+#        y= dateutil.rrule.rrulestr("FREQ=DAILY;INTERVAL=10;COUNT=5;UNTIL=20150922", dtstart=parse("20150902"))
+
+#	print "<<<<<<<<< RRuleSTR  %s" % y
+
+	if(data['until']!= ""):
+		aux = "%s;UNTIL=%s" % (form.data['recurrence'], data['until'])
+        	print "Aux = %s" % aux
+        	print "until = %s" % data['until']
+	else:
+		aux = "%s" % form.data['recurrence']
+	
+	
+#	print "form.data = %s " % form.data['recurrence']
+       # r = dateutil.rrule.rrulestr(form.data['recurrence'])
+        r = dateutil.rrule.rrulestr(aux, dtstart=parse(data['dtstart']))
+
+	print "has dstart = %s" % data['dtstart']
 	i = 1
 	for instance in r[:10]: #TODO: dynamically determine instance limit
 	    print "instance_%s = %s" % (i,instance)
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
-#	    print "Start date = %s" %scheduled_program.start
             scheduled_program.end = scheduled_program.start + program.duration 
             db.session.add(scheduled_program)
 	    i = i+1
