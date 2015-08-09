@@ -302,35 +302,30 @@ def schedule_program_edit_ajax():
 def schedule_recurring_program_ajax():
     "Schedule a recurring program"
     data = json.loads(request.data)
-    print "Recurring = %s" % data
+    print "Recurring data = %s" % data
     #ensure specified foreign key ids are valid
     fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
-    print "if fk_errors:"
+    
     if fk_errors:
 	print "fk_errors = %s" % fk_errors
         return fk_errors
     
     form = ScheduleProgramForm(None, **data)
-    print "try:"
+    
     try:
         air_time = datetime.strptime(form.data['air_time'],'%H:%M').time()
     except ValueError:
         response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
         print "response %s" % response
 	return response
-    print "if form.validate_on_submit():"
+  
     if form.validate_on_submit():
         #save refs to form objects
         program = form.data['program']
         station = form.data['station']
 
         #parse recurrence rule
-
-	print "test "  
-	test = rrule(YEARLY, bymonth=1, byweekday=range(7),dtstart=parse("19980101T090000"),until=parse("20000131T090000"))
-     	print ">>>> %s" % test
-
-	print "test 2"	
+	
 #	y = rrule(DAILY,dtstart=parse("19970902T090000"),until=parse("19971224T000000"))
 #	y =dateutil.rrule.rrulestr('FREQ=WEEKLY')
 #        y =dateutil.rrule.rrulestr('FREQ=WEEKLY',dtstart=parse("20150902T090000"))
@@ -346,8 +341,6 @@ def schedule_recurring_program_ajax():
 	else:
 		aux = "%s" % form.data['recurrence']
 	
-	
-#	print "form.data = %s " % form.data['recurrence']
        # r = dateutil.rrule.rrulestr(form.data['recurrence'])
         r = dateutil.rrule.rrulestr(aux, dtstart=parse(data['dtstart']))
 
