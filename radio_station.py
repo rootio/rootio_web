@@ -14,8 +14,9 @@ from flask.ext.sqlalchemy import SQLAlchemy
 import time
 import threading
 import json
-
+import logging
 from rootio.extensions import db
+
 telephony_server = Flask("ResponseServer")
 telephony_server.debug = True
 telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost/rootio'
@@ -36,8 +37,10 @@ class RadioStation(Station):
         self.__program_handler.stop()
         pass
     
-    def __init__(self, station_id):
+    def __init__(self, station_id, logger):
         self.id = station_id
+        self.logger = logger
         self.db = SQLAlchemy(telephony_server)
         self.station = self.db.session.query(Station).filter(Station.id == station_id).one()
+        self.logger.info("Starting up station {0}".format(self.station.name))
         return

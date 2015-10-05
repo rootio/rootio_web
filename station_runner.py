@@ -13,8 +13,10 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime
 import threading
-
+import logging
+from logging.handlers import TimedRotatingFileHandler 
 from rootio.extensions import db
+
 telephony_server = Flask("ResponseServer")
 telephony_server.debug = True
 telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost/rootio'
@@ -24,12 +26,21 @@ telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPo
 
 
 if __name__ == "__main__":
+    #setup logging
+    app_logger = logging.getLogger('station_runner')
+    hdlr = TimedRotatingFileHandler('/var/log/rootio/stations.log',when='midnight',interval=1)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    hdlr.setFormatter(formatter)
+    app_logger.addHandler(hdlr)
+    app_logger.setLevel(logging.DEBUG)    
+
     db = SQLAlchemy(telephony_server)
     stations = db.session.query(Station).all()
     for station in stations:
-        radio_station = RadioStation(station.id)
-        print 'launching station : {0}'.format(station.id)
+        radio_station = RadioStation(station.id, app_logger)
+        app_logger.info('launching station : {0}'.format(station.id))
         t = threading.Thread(target=radio_station.run, args=())
         t.start()
      
     print "================ service started at {0} ==============".format(datetime.utcnow())
+

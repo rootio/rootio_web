@@ -19,23 +19,24 @@ class ProgramHandler:
         self.__radio_station = radio_station
         self.__load_programs()
         self.__scheduler = Scheduler()
-        return
-    
+        self.__radio_station.logger.info("Done initing ProgramHandler for {0}".format(radio_station.name))
+ 
     def run(self):
         self.__schedule_programs()
         self.__scheduler.start()
-        pass
     
     def stop(self):
         self.__stop_program()
         #any clean up goes here
-        return
     
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:#throw all the jobs into AP scheduler and have it rain down alerts
             if not self.__is_program_expired(scheduled_program):
-                program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
-                self.__scheduler.add_date_job(getattr(program,'start'), scheduled_program.start.replace(tzinfo=None))
+                try:
+                    program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
+                    self.__scheduler.add_date_job(getattr(program,'start'), scheduled_program.start.replace(tzinfo=None))
+                except Exception, e:
+                    self.__radio_station.logger.error(str(e))
         return 
     
     def __stop_program(self):
@@ -48,6 +49,7 @@ class ProgramHandler:
     
     def __load_programs(self):
         self.__scheduled_programs = self.__db.session.query(ScheduledProgram).filter(ScheduledProgram.station_id == self.__radio_station.id).all()
+        self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.name))
     
     """
     Gets the program to run from the current list of programs that are lined up for the day

@@ -6,7 +6,6 @@ __author__="HP Envy"
 __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
 import json
-import logging
 from outcall_action import OutcallAction
 from jingle_action import JingleAction
 from media_action import MediaAction
@@ -17,10 +16,10 @@ from apscheduler.scheduler import Scheduler
 class RadioProgram:
     
     def __init__(self, db, program, radio_station):
-        logging.basicConfig(filename='rootioweb.log')
         self.__program_actions = []
         self.id = program.id
         self.__db = db
+        self.name = program.id
         self.__program = program
         self.radio_station = radio_station
         self.__scheduler = Scheduler()

@@ -93,5 +93,5 @@ def handler(session, args):
         session.hangup()
         return
     filename = get_filename(session.getVariable('caller_id_number'))
-    record_message(session, filename, 150, 0, 1)
+    record_message(session, filename, 150, 0, 0)
     confirmation(session, filename, validity_days, station_lines[session.getVariable('destination_number')],  message_category) 

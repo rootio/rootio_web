@@ -22,6 +22,7 @@ class MediaAction:
         self.__media_expected_to_stop = False
         self.__hangup_on_complete = hangup_on_complete
         self.__call_handler = self.program.radio_station.call_handler        
+        self.program.radio_station.logger.info("Done initing Media action for program {0}".format(self.program.name))
 
     def start(self):
         if self.__is_valid:
@@ -35,6 +36,7 @@ class MediaAction:
         self.__stop_media()
      
     def notify_call_answered(self, answer_info):
+        self.program.radio_station.logger.info("Received call answer notification for Media action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
         self.__listen_for_media_play_stop()
@@ -47,6 +49,7 @@ class MediaAction:
     
     def __play_media(self, call_UUID): #play the media in the array
         if self.__is_streamed == True:
+            self.program.radio_station.logger.info("Playing media {0} at position {1}".format(self.__media_index, self.__argument))
             result = self.__call_handler.play(call_UUID, self.__argument[self.__media_index])
             self.__media_index = self.__media_index + 1
             print 'result of play is ' + result
@@ -59,13 +62,19 @@ class MediaAction:
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__argument)
             print 'result of stop play is ' + result     
         except Exception, e:
+            self.program.radio_station.logger.error(str(e))
             return  
      
     def notify_media_play_stop(self, media_stop_info):
         if self.__media_index >= len(self.__argument):
+            self.program.radio_station.logger.info("Played all media, stopping media play in Media action for {0}".format(self.program.name))
             self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
-            if self.__hangup_on_complete and media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]:
-                self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+            if self.__hangup_on_complete:
+                self.program.radio_station.logger.info("Hngup on complete is true for {0}".format(self.program.name)) 
+                if media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]:
+                    self.program.radio_station.logger.info("Deregistered, all good, about to order hangup for {0}".format(self.program.name))
+                    self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
+                
             self.__is_valid = False
         else:
             self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
