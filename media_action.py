@@ -71,7 +71,7 @@ class MediaAction:
             self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
             if self.__hangup_on_complete:
                 self.program.radio_station.logger.info("Hngup on complete is true for {0}".format(self.program.name)) 
-                if media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]:
+                if media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]: 
                     self.program.radio_station.logger.info("Deregistered, all good, about to order hangup for {0}".format(self.program.name))
                     self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
                 

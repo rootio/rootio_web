@@ -100,12 +100,12 @@ class OutcallAction:
     def notify_incoming_dtmf(self, dtmf_info):
         dtmf_json = dtmf_info
         dtmf_digit = dtmf_json["DTMF-Digit"]
-        if dtmf_digit == "1":
-            self.hangup_call() 
-        elif dtmf_digit == "2":#stop the music, put this live on air
-            self.program.set_running_action(self)
+        #if dtmf_digit == "1":
+        #    self.hangup_call() 
+        #elif dtmf_digit == "2":#stop the music, put this live on air
+        #    self.program.set_running_action(self)
    
-        elif dtmf_digit == "3":#put the station =in auto_answer
+        if dtmf_digit == "3":#put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
                 self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'],'/home/amour/media/incoming_auto_answer.mp3')
@@ -154,7 +154,7 @@ class OutcallAction:
             self.__call_handler.hangup(call_info['Channel-Call-UUID']);
  
     def __schedule_host_callback(self):
-        time_delta = timedelta(seconds=300) #one minutes
+        time_delta = timedelta(seconds=600) #one minutes
         now = datetime.utcnow()
         callback_time = now + time_delta
         #self.__scheduler.add_date_job(getattr(self,'call_host_number'), callback_time)

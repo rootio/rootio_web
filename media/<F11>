@@ -1,6 +1,0 @@
-from community_media import CommunityMedia
-
-comm = CommunityMedia("advertisements","1")
-items = comm.get_media_files()
-for item in items:
-    print item.split("://")[1]

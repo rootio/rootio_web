@@ -88,7 +88,10 @@ def handler(session, args):
     if message_category == None or message_category == '':
         session.hangup()
         return
-    validity_days = get_validity(session)
+    if message_category == '3': #greetings have a duration of one day
+        validity_days = '1'
+    else:     
+        validity_days = get_validity(session)
     if validity_days == None or validity_days == '':
         session.hangup()
         return
