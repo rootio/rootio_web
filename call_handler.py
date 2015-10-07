@@ -72,8 +72,11 @@ class CallHandler:
     
     def __do_ESL_command(self, ESL_command):
         self.__radio_station.logger.info("Executing ESL Command: {0}".format(ESL_command))
-        result = self.__ESLConnection.api(ESL_command)
+        con = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
+        #result = self.__ESLConnection.api(ESL_command)
+        result = con.api(ESL_command)
         try:
+            con.disconnect()
             return result.getBody()
         except Exception, e:
             self.__radio_station.logger.error(str(e))
