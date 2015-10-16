@@ -7,7 +7,6 @@ __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
 from rootio.config import *
 from rootio.radio.models import Station
-from call_handler import CallHandler
 from radio_station import RadioStation
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy

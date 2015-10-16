@@ -35,7 +35,7 @@ class OutcallAction:
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
         self.__hangup_on_complete = hangup_on_complete
-        
+        self.__in_talkshow_setup = True 
 
     def start(self):
         self.program.set_running_action(self)
@@ -62,7 +62,8 @@ class OutcallAction:
     def notify_call_answered(self, answer_info):
         if self.__argument not in self.__available_calls:
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
-            self.request_station_call() 
+            #self.request_station_call() 
+            self.__inquire_host_readiness()
         else:#This notification is from answering the host call
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
             result1 = self.__schedule_warning()
@@ -86,26 +87,32 @@ class OutcallAction:
         else: #It is a hangup by the station or the host
             self.hangup_call() #clean this later
 
+    def __inquire_host_readiness(self):
+        self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'],'/home/amour/media/inquire_host_readiness.mp3')
+
     def __hold_call(self): #put ongoing call on hold
         print "We should be holding now"
     
     def hangup_call(self):  #hangup the ongoing call
         for available_call in self.__available_calls:
             self.__call_handler.deregister_for_call_hangup(self, available_call)
-            result = self.__call_handler.hangup(self.__available_calls[available_call]['Channel-Call-UUID'])
+            self.__call_handler.hangup(self.__available_calls[available_call]['Channel-Call-UUID'])
             #del self.__available_calls[available_call]
-            print "result of hangup is " + result
+            #print "result of hangup is " + result
         self.__available_calls = dict() #empty available calls. they all are hung up
         
     def notify_incoming_dtmf(self, dtmf_info):
         dtmf_json = dtmf_info
         dtmf_digit = dtmf_json["DTMF-Digit"]
-        #if dtmf_digit == "1":
-        #    self.hangup_call() 
-        #elif dtmf_digit == "2":#stop the music, put this live on air
-        #    self.program.set_running_action(self)
-   
-        if dtmf_digit == "3":#put the station =in auto_answer
+        if dtmf_digit == "1" and self.__in_talkshow_setup:
+            self.request_station_call()
+            self.__in_talkshow_setup = False
+
+        elif dtmf_digit == "2" and self.__in_talkshow_setup:#stop the music, put this live on air
+            self.hangup_call()  
+            self.__in_talkshow_setup = False
+ 
+        elif dtmf_digit == "3":#put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
                 self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'],'/home/amour/media/incoming_auto_answer.mp3')
