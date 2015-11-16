@@ -50,6 +50,7 @@ class MediaAction:
     def __play_media(self, call_UUID): #play the media in the array
         if self.__is_streamed == True:
             self.program.radio_station.logger.info("Playing media {0} at position {1}".format(self.__media_index, self.__argument))
+            self.__listen_for_media_play_stop()
             result = self.__call_handler.play(call_UUID, self.__argument[self.__media_index])
             self.__media_index = self.__media_index + 1
             print 'result of play is ' + result
@@ -68,7 +69,7 @@ class MediaAction:
     def notify_media_play_stop(self, media_stop_info):
         if self.__media_index >= len(self.__argument):
             self.program.radio_station.logger.info("Played all media, stopping media play in Media action for {0}".format(self.program.name))
-            self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
+            #self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
             if self.__hangup_on_complete:
                 self.program.radio_station.logger.info("Hngup on complete is true for {0}".format(self.program.name)) 
                 if media_stop_info["Media-Bug-Target"] == self.__argument[self.__media_index -1]: 

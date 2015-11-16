@@ -12,4 +12,3 @@ latest_world_news_file=`ls -t /home/amour/test_media/RootioNew/Northern\ Uganda\
 cp "/home/amour/test_media/RootioNew/Northern Uganda Pilot/BBC Podcasts/World News/$latest_world_news_file" /home/amour/media/bbc/latest_world_news.mp3
 
 echo "============= Done syncing BBC on `date`==============="
-

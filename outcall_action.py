@@ -52,6 +52,7 @@ class OutcallAction:
         self.hangup_call()
         
     def request_host_call(self):
+        self.__in_talkshow_setup = True
         result = self.__call_handler.call(self, self.__argument, None, None, self.duration)
         print "result of host call is " + result;
 
@@ -72,9 +73,9 @@ class OutcallAction:
 
     def warn_number(self): 
         seconds = self.duration - self.__warning_time
-        phrase = "This call will end in {0} seconds".format({seconds})
-        result = self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'], '/home/amour/media/call_warning.mp3')
-        print "result of warning is " + result;
+        if self.__argument in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[self.__argument]:
+            result = self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'], '/home/amour/media/call_warning.mp3')
+            print "result of warning is " + result;
     
     def __pause_call(self):#hangup and schedule to call later
         self.__schedule_host_callback()
