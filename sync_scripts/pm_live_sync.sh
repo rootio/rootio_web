@@ -1,5 +1,6 @@
-#/bin/sh
-
+#/bin/bash
+cd /home/amour/RootIO_Web_Old/rootio/radiostation/sync_scripts
+source /home/amour/venv/bin/activate
 python pm_live_sync.py
 
 cd /home/amour/test_media/RootioNew/Northern\ Uganda\ Pilot/PM\ Live/

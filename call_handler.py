@@ -193,9 +193,9 @@ class CallHandler:
                         del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
               
                 elif event_name == "CHANNEL_PARK":
-                    self.__radio_station.logger.info("Notifying recipient for {0} in {1}".format(event_json['Caller-Destination-Number'], self.__incoming_call_recipients))
-                    if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'] in self.__incoming_call_recipients:
-                        self.__incoming_call_recipients[event_json['Caller-Destination-Number']].notify_incoming_call(event_json)
+                    self.__radio_station.logger.info("Notifying recipient for {0} in {1}".format(event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients))
+                    if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'][-9:] in self.__incoming_call_recipients:
+                        self.__incoming_call_recipients[event_json['Caller-Destination-Number'][-9:]].notify_incoming_call(event_json)
               
                 elif event_name == "MEDIA_BUG_STOP":
                     try:
