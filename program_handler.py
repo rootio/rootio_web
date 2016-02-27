@@ -11,6 +11,7 @@ from datetime import datetime
 from radio_program import RadioProgram
 import pytz
 from apscheduler.scheduler import Scheduler
+from sqlalchemy import text
 
 class ProgramHandler:
     
@@ -35,8 +36,9 @@ class ProgramHandler:
                 try:
                     program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
                     self.__scheduler.add_date_job(getattr(program,'start'), scheduled_program.start.replace(tzinfo=None))
+                    self.__radio_station.logger.info("Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name, self.__radio_station.name, scheduled_program.start))
                 except Exception, e:
-                    self.__radio_station.logger.error(str(e))
+                    self.__radio_station.logger.info(str(e))
         return 
     
     def __stop_program(self):
@@ -48,7 +50,7 @@ class ProgramHandler:
         return
     
     def __load_programs(self):
-        self.__scheduled_programs = self.__db.session.query(ScheduledProgram).filter(ScheduledProgram.station_id == self.__radio_station.id).all()
+        self.__scheduled_programs = self.__db.session.query(ScheduledProgram).filter(ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start) = current_date")).all()
         self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.name))
     
     """
