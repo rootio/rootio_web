@@ -7,7 +7,7 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 2:17:51 PM$"
 
 from rootio.radio.models import ScheduledProgram, Program
-from datetime import datetime
+from datetime import datetime, timedelta
 from radio_program import RadioProgram
 import pytz
 from apscheduler.scheduler import Scheduler
@@ -32,10 +32,10 @@ class ProgramHandler:
     
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:#throw all the jobs into AP scheduler and have it rain down alerts
-            if not self.__is_program_expired(scheduled_program):
+            if not self.__is_program_expired(scheduled_program, scheduled_program.program.duration):
                 try:
                     program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
-                    self.__scheduler.add_date_job(getattr(program,'start'), scheduled_program.start.replace(tzinfo=None))
+                    self.__scheduler.add_date_job(getattr(program,'start'), scheduled_program.start.replace(tzinfo=None), misfire_grace_time=scheduled_program.program.duration.total_seconds())
                     self.__radio_station.logger.info("Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name, self.__radio_station.name, scheduled_program.start))
                 except Exception, e:
                     self.__radio_station.logger.info(str(e))
@@ -65,8 +65,7 @@ class ProgramHandler:
     """
     Returns whether or not the time for a particular program has passed
     """
-    def __is_program_expired(self, program):
-        original_program = self.__db.session.query(Program).filter(Program.id == program.program_id).one()
+    def __is_program_expired(self, scheduled_program, program_duration):
         now = pytz.utc.localize(datetime.utcnow())
-        return program.start + original_program.duration < now 
+        return scheduled_program.start + scheduled_program.program.duration < now 
     

@@ -36,10 +36,11 @@ if __name__ == "__main__":
     db = SQLAlchemy(telephony_server)
     stations = db.session.query(Station).all()
     for station in stations:
-        radio_station = RadioStation(station.id, app_logger)
-        app_logger.info('launching station : {0}'.format(station.id))
-        t = threading.Thread(target=radio_station.run, args=())
-        t.start()
+        #if station.id == 13:
+            radio_station = RadioStation(station.id, app_logger)
+            app_logger.info('launching station : {0}'.format(station.id))
+            t = threading.Thread(target=radio_station.run, args=())
+            t.start()
      
     print "================ service started at {0} ==============".format(datetime.utcnow())
 

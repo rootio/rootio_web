@@ -71,7 +71,7 @@ class RadioProgram:
     '''
     def __schedule_program_actions(self):
         for program_action in self.__program_actions:
-            self.__scheduler.add_date_job(getattr(program_action,'start'), self.__get_start_datetime(program_action.start_time).replace(tzinfo=None))
+            self.__scheduler.add_date_job(getattr(program_action,'start'), self.__get_start_datetime(program_action.start_time).replace(tzinfo=None), misfire_grace_time=program_action.duration)
          
     def set_running_action(self, running_action):
         if not self.__running_action == None:
