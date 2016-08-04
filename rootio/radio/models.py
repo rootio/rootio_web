@@ -433,6 +433,8 @@ class BotFunctions(IdMixin,db.Model):
     __tablename__ = u'bot_function'
     name = db.Column(db.String(STRING_LEN))
 
+    def __unicode__(self):
+        return self.name
 class StationhasBots(db.Model):
     __tablename__ = u'station_has_bots'
 
@@ -447,6 +449,7 @@ class StationhasBots(db.Model):
     ###Relations
     function_of_bots = db.relationship("BotFunctions", backref=db.backref('function_from_bots'))
     bot_generates_info = db.relationship("Bothasinfo", backref=db.backref('info_has_one_bot'))
+
 
 
 class Bothasinfo(BaseMixin, db.Model):
