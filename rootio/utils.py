@@ -8,6 +8,10 @@ import random
 import os
 import re
 
+import httplib2
+from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulStoneSoup
+
 from datetime import datetime, time, timedelta
 
 from flask import Flask
@@ -211,3 +215,27 @@ class OrderedForm(Form):
                     temp_fields.append([f for f in self._unbound_fields if f[0] == name][0])
             self._unbound_fields = temp_fields
         return super(OrderedForm, self).__iter__()
+
+#From https://github.com/nandopedrosa/as_mais_lidas
+def getpage(url):
+    """
+    Downloads the html page
+
+    :rtype: tuple
+    :param url: the page address
+    :return: the header response and contents (bytes) of the page
+    """
+    http = httplib2.Http()
+    response, content = http.request(url, headers={'User-agent': 'Mozilla/5.0'})
+    return response, content
+
+#From https://github.com/nandopedrosa/as_mais_lidas
+def parsepage(content,parsetype):
+    """
+    Parses a single page and its contents into a BeautifulSoup object
+
+    :param content: bytearray
+    :return soup: object
+    """
+    soup = BeautifulSoup(content,parsetype)
+    return soup

@@ -15,7 +15,7 @@ class BaseConfig(object):
     DEBUG = True
     TESTING = False
 
-    ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
+    ADMINS = ['fabiocl93@gmail.com']
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
 

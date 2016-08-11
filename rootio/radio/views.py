@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
 import os
+import sys
+
 from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
@@ -11,11 +13,11 @@ from flask.ext.babel import gettext as _
 
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
+from .aggregation_bot import __getRTP_RSS
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
-
 from ..messenger import messages
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -440,6 +442,7 @@ def new_bot_add():
    return render_template('radio/bot.html', bot=bot, form=form)
 
 @radio.route('/bot/<int:radio_id>&<int:function_id>', methods=['GET', 'POST'])
+@login_required
 def bot_edit(radio_id, function_id):
 
     bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()
@@ -452,3 +455,12 @@ def bot_edit(radio_id, function_id):
         flash(_('Bot updated.'), 'success')
 
     return render_template('radio/bot.html', bot=bot, form=form)
+
+@radio.route('/bots/content')
+def bot_present_info():
+    url = "http://www.rtp.pt/madeira/rss"
+    __getRTP_RSS(url,2,10)
+    #data = zip(date, title, link, news)
+    #items = soup.findall('item')
+    #sys.stderr.write(items)
+    return render_template("radio/present_news.html")
