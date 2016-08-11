@@ -1,0 +1,43 @@
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Bots') }}</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('radio.new_bot_add') }}"><strong>{{ _('Add') }} +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('Function Name') }}</th>
+                <th>{{ _('Next Fetch') }}</th>
+                <th>{{ _('State') }}</th>
+                <th>{{ _('Action') }}</th>
+            </tr>
+        </thead>
+        {% for station in stations %}
+        <tr>
+            {%set numbot = station.station_has_bots|length %}
+            {%if numbot == 0%}
+                <td rowspan="{{ numbot }}">{{ station.name }}</td>
+                <td colspan="4">{{ 'There is no bots' }}</td>
+            {% else %}
+                {% set first = True %}
+                {% for bot in station.station_has_bots %}
+                    {% if first %}
+                        <td rowspan="{{ numbot }}">{{ station.name }}</td>
+                        {% set first = False %}
+                    {% endif %}
+                    <td>{{ bot.function_of_bots.name }}</td>
+                    <td>{{ bot.next_run }}</td>
+                    <td>{{ bot.state }}</td>
+                    <td><a href="{{ url_for('radio.bot_edit',radio_id=station.id, function_id=bot.function_of_bots.id) }}">{{ _('Edit') }}</a></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

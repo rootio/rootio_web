@@ -1,0 +1,25 @@
+{% from "macros/_form.html" import render_form, render_field %}
+
+{% extends "radio/layout.html" %}
+{#TODO This page should be removed ->Only to simulate cron and check if the script really works#}
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/block.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bot.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+    {{ 'I got the news' }}
+{% endblock %}

@@ -4,14 +4,14 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, DateTimeField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -120,3 +120,18 @@ class ScheduleProgramForm(Form):
     #priority = IntegerField(description=_("Ascending values"))
     # other options for flexibility?
     submit = SubmitField(_('Save'))
+
+def all_bot_functions():
+    return BotFunctions.query.all()
+
+class AddBotForm(Form):
+  bot_belongs_to_station = QuerySelectField('Station', query_factory=all_stations, allow_blank=False, blank_text='- select station-')
+  function_of_bots = QuerySelectField('Function', query_factory=all_bot_functions, allow_blank=False, blank_text='- select function-')
+  #state = SelectField(choices=[('active', 'Active'), ('inactive', 'Inactive')])
+  state = SelectField(choices=[(g, g)for g in StationhasBots.state.property.columns[0].type.enums]) #Get the state from Station_has_Bots Table.
+  next_run = DateTimeField()
+  run_frequency = HiddenField()
+  source_url = StringField('Source')
+  path = StringField()
+  submit = SubmitField(_('Save'))
+
