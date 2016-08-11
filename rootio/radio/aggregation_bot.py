@@ -43,7 +43,9 @@ def __getRTP_RSS(url,function,station):
             else:
                 #if the table has tuples get the items that are more recent than the most recent record on the table.
                 recentData = Bothasinfo.query.filter(Bothasinfo.fk_station_has_bots_bot_function_id == function, Bothasinfo.fk_station_has_bots_radio_station_id == station).order_by(Bothasinfo.created_at.desc()).first()
-
+                print pub_date
+                print recentData.created_at
+                print pub_date > recentData.created_at
                 if pub_date > recentData.created_at:
                     getRTP_Articles(link_wtho_tag, station, function, pub_date)
                 else:
@@ -65,7 +67,9 @@ def getRTP_Articles(link_to_article,station,function,publication_date):
         bot_info = new.get_text()  # .encode('utf-8')
 
     if bot_info != "":  # when we don't have anything form the webpage url. (or Weird URLs is received)
-        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=bot_info)
+        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=bot_info.encode('utf-8'))
+        #print "Bothasinfo(created_at="+publication_date+", fk_station_has_bots_bot_function_id="+function+", fk_station_has_bots_radio_station_id="+station+", info="+bot_info.encode('utf-8')+")"
+
         db.session.add(new_info)
         try:
             db.session.commit()
@@ -73,6 +77,7 @@ def getRTP_Articles(link_to_article,station,function,publication_date):
         except Exception as e:
             db.session.rollback()
             db.session.flush()
+            print "Error: " + e
             print "Error the new could not be saved on database"
     else:
         print "No need to update"
