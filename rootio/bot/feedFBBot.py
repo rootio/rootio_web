@@ -2,9 +2,9 @@
 
 from datetime import datetime
 
-from .models import Bothasinfo
+from rootio.radio.models import Bothasinfo
 
-from ..extensions import db
+from rootio.extensions import db
 
 import requests
 
