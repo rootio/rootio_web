@@ -136,20 +136,3 @@ class AddBotForm(Form):
     source_url = StringField(validators=[Required("Please enter a Source URL")])
     local_url = StringField(validators=[Required("Please enter a Local URL.")])
     submit = SubmitField(_('Save'))
-
-    def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
-        #self.user = None
-
-    def validate(self):
-        fv = Form.validate(self)
-        if not fv:
-            return False
-
-        #botExists = StationhasBots.query.filter(StationhasBots.fk_radio_station_id== self.bot_belongs_to_station.data.id,StationhasBots.fk_bot_function_id==self.function_of_bots.data.id).first()
-        #if botExists:
-        #    flash(_('The bot you\'re trying to add already exists'), 'error')
-        #    return False
-
-
-        return True

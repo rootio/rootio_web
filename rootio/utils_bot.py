@@ -61,73 +61,70 @@ def send_mail(title, body):
         print str(e)
         print "An error happened mail was not sent"
 
-def add_cron(station, bot_function, recurrence, url, state,action):
-    """
-    Adds cron job to www-data crontab
-    These cron jobs will make automatic request to the local website and will make the bot fetch info at specific times.
-    This uses python-crontab
-    :param station:         -> Station id
-    :param bot_function:    -> Bot Function name id
-    :param recurrence:      -> Run Frequency of the bot
-    :param url:             -> Local URL to make web request
-    :param state:           -> The bot is active or inactive
-    :return:
-    """
+
+def add_cron(bot, type):
+    print "Prepare Cron"
     cron = CronTab(user=True)
-
-    if(state == "active"):
-        print "Adding Bot"
-        job = cron.new(command="wget -O - \"" + url + str(station.id) + "&" + str(bot_function.id) + "\" >/dev/null ",comment=str(station.id)+" "+str(bot_function.id))
-
-        if recurrence == "MIN":
-            job.minute.every(2)
-        elif recurrence == "HOUR":
-            job.minute.on(0)
-            job.hour.during(0, 23)
-        elif recurrence == "DAY":
-            job.minute.on(0)
-            job.hour.on(0)
-        elif recurrence == "WEEEk":
-            job.minute.on(0)
-            job.hour.on(0)
-            job.dow.on(1)
-        if action == "added":
-            send_mail("REPORT: New bot addition", "A new Bot has been added \n" + "wget -O - \"" + url + str(station.id) + "&" + str(bot_function.id) + "\" >/dev/null # " + str(station.id)+" "+str(bot_function.id))
+    #cron.remove_all()
+    if type == "add":
+        print "Adding a new bot"
+        if bot.state == "active":
+           bot = bakeCron(bot,cron)
         else:
-            send_mail("REPORT: Bot was enabled","The bot is now enabled.")
+           bot = removeCron(bot,cron)
+           print ("Added bot no cronjob has been created.")
     else:
-        cron.remove_all(comment=str(station.id) + " " + str(bot_function.id))
-        if action == "added":
-            send_mail("REPORT: New bot addition", "The was added to database no cronjob was created.")
+        getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == bot.bot_belongs_to_station.id, StationhasBots.fk_bot_function_id == bot.function_of_bots.id).first()
+        #list = cron.find_comment(str(bot.bot_belongs_to_station.id) + " " + str(bot.function_of_bots.id))
+        print "Editing Bot"
+        if getBot:
+            if bot.state == "active":
+                #Remove the existing
+                bot = removeCron(bot,cron)
+                #Add a new one
+                bot = bakeCron(bot, cron)
+                print "Added a cronjob for existing bot"
+            else:
+                bot = removeCron(bot,cron)
+                print "Remove exiting cron Job"
         else:
-            send_mail("REPORT: Bot was disabled", "The bot is now disabled.")
+            print "The bot does not exist and you're trying to edit it."
+    #cron.write()
+    return bot #ALways return the bot even if it has not been changed
+
+def bakeCron(bot,cron):
+    job = cron.new(command="wget -O - \"" + bot.local_url + str(bot.bot_belongs_to_station.id) + "&" + str(bot.function_of_bots.id) + "\" >/dev/null ", comment=str(bot.bot_belongs_to_station.id) + " " + str(bot.function_of_bots.id))
+    #print "Baking Cron"
+    if bot.run_frequency == "MIN":
+        job.minute.every(2)
+    elif bot.run_frequency == "HOUR":
+        job.minute.on(0)
+        job.hour.during(0, 23)
+    elif bot.run_frequency == "DAY":
+        job.minute.on(0)
+        job.hour.on(0)
+    elif bot.run_frequency == "WEEEk":
+        job.minute.on(0)
+        job.hour.on(0)
+        job.dow.on(1)
     cron.write()
+    #print "Cron was baked"
+    # print ("Added a cronjob for the new bot.")
+    bot.next_run = updateNBRun(bot.bot_belongs_to_station.id, bot.function_of_bots.id)
+    return bot
 
-
-def updateNextRun(station, bot_function, state):
-    """
-    Update next_run field that show the time in which the bot will run next time
-    :return:
-    """
+def updateNBRun(station,bot_function):
     cron = CronTab(user=True)
-    getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == station.id, StationhasBots.fk_bot_function_id == bot_function.id).first()
-    if state == "active":
-        try:
-            list = cron.find_comment(str(station.id) + " " + str(bot_function.id))
-            for i in list:
-                schedule = i.schedule(date_from=datetime.now())
-            getBot.next_run = schedule.get_next()
-            db.session.add(getBot)
-            db.session.commit()
-        except Exception as e:
-            db.session.roolback()
-            print str(e)
-    else:
-        try:
-            #getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == station.id , StationhasBots.fk_bot_function_id == bot_function.id).first()
-            getBot.next_run = None
-            db.session.add(getBot)
-            db.session.commit()
-        except Exception as e:
-            db.session.roolback()
-            print str(e)
+    list = cron.find_comment(str(station) + " " + str(bot_function))
+    for i in list:
+        schedule = i.schedule(date_from=datetime.now())
+    return schedule.get_next()
+
+def removeCron(bot,cron):
+    #print str(bot.bot_belongs_to_station.id) + " " + str(bot.function_of_bots.id)
+    cron.remove_all(comment=str(bot.bot_belongs_to_station.id) + " " + str(bot.function_of_bots.id))
+    cron.write()
+    bot.next_run = None
+    return bot
+
+

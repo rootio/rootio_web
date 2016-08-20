@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import string
+import random
+import os
+import re
 
 import dateutil.parser
 import dateutil.rrule
-from __builtin__ import len
-from crontab import CronTab
+
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash, json,url_for
 from flask.ext.babel import gettext as _
@@ -16,7 +19,7 @@ from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db
 from ..utils import error_dict, fk_lookup_form_data
-from ..utils_bot import add_cron, send_mail, updateNextRun
+from ..utils_bot import add_cron, send_mail, removeCron
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -434,20 +437,22 @@ def new_bot_add():
     """
     form = AddBotForm(request.form)
     bot = None
+    type = "add"
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
         cleaned_data.pop('submit', None)  # remove submit field from list
         bot = StationhasBots(**cleaned_data)  # create new object from data
         try:
+            bot = add_cron(bot,type)
             db.session.add(bot)
             db.session.commit()
-            add_cron(bot.bot_belongs_to_station, bot.function_of_bots, bot.run_frequency, bot.local_url, bot.state,"added")
-            updateNextRun(bot.bot_belongs_to_station, bot.function_of_bots,bot.state)
+            flash(_('Bot added.'), 'success')
         except Exception as e:
-            send_mail("Error Adding Bot", str(e))
-
-        flash(_('Bot added.'), 'success')
+            removeCron(bot, CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print (str(e))
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
@@ -459,18 +464,21 @@ def bot_edit(radio_id, function_id):
 
     bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()
     form = AddBotForm(obj=bot, next=request.args.get('next'))
-
+    type = "edit"
     if form.validate_on_submit():
         form.populate_obj(bot)
         try:
+            bot = add_cron(bot, type)
             db.session.add(bot)
             db.session.commit()
-            add_cron(bot.bot_belongs_to_station, bot.function_of_bots, bot.run_frequency, bot.local_url, bot.state,"edit")
-            updateNextRun(bot.bot_belongs_to_station, bot.function_of_bots,bot.state)
+            flash(_('Bot updated.'), 'success')
         except Exception as e:
-            send_mail("Error Changing Bot", str(e))
+            removeCron(bot,CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print(str(e))
+            flash(_('Error Bot Not Updated.'), 'error')
 
-        flash(_('Bot updated.'), 'success')
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
