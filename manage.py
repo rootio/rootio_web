@@ -110,6 +110,11 @@ manager.add_option('-c', '--config',
                    help="config file")
 
 @manager.command
+def demo_data():
+    from rootio import demo_data
+    demo_data.setup(db)
+
+@manager.command
 def drop_db_hard():
     #for when db.drop_all won't cut it, particularly with postgres on server
 
