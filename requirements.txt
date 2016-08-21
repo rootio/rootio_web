@@ -33,3 +33,4 @@ python-openid==2.2.5
 
 pyzmq==14.2.0
 Fabric==1.7.0
+pathlib==1.0.1
