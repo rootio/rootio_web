@@ -136,3 +136,19 @@ class AddBotForm(Form):
     source_url = StringField(validators=[Required("Please enter a Source URL")])
     local_url = StringField(validators=[Required("Please enter a Local URL.")])
     submit = SubmitField(_('Save'))
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        #self.user = None
+
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        #print self.type
+        #getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == self.bot_belongs_to_station.data.id, StationhasBots.fk_bot_function_id == self.function_of_bots.data.id).first()
+        #if getBot.fk_radio_station_id == self.bot_belongs_to_station.data.id and getBot.fk_bot_function_id  == self.function_of_bots.data.id and getBot.state    == self.state.data and getBot.run_frequency == self.run_frequency.data and getBot.source_url == self.source_url.data and getBot.local_url == self.local_url.data:
+        #    return False
+
+        #if
+        return True

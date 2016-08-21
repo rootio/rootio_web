@@ -1,9 +1,11 @@
+import pytz
 from flask import Blueprint, render_template
 
 from rootio.radio import StationhasBots
 from rootio.utils_bot import updateNBRun
-from .aggregation_bot import __getRTP_RSS
+from .aggregation_bot import __getRTP_RSS, textToDatetime
 from ..extensions import db
+from ..utils_bot import send_mail
 
 #TODO GIVE A THREATMENT TO ALL THE STRING THAT ARE FETCHED BY THE BOT
 #TODO ADD DECORATOR TO REFUSED CONNECTION FROM OUTSIDE OF THE SERVER.
@@ -15,12 +17,17 @@ def rtp_puller(radio_id, function_id):
     __getRTP_RSS(radio_id,function_id)
     #Update Time
     getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == radio_id,StationhasBots.fk_bot_function_id == function_id).first()
-    getBot.next_run = updateNBRun(radio_id, function_id)
+    #date = textToDatetime(str(updateNBRun(radio_id, function_id)), "%Y-%m-%d %H:%M:%S")
+    date = updateNBRun(radio_id, function_id)
+    #print "This is the date I'm printing " + str(date)
+    getBot.next_run = date.replace(tzinfo=pytz.utc)
     try:
         db.session.add(getBot)
         db.session.commit()
+        send_mail("AUTOMODE: I'm ok", " Hi it's me RTP-M RSS aggregator Just to let you know that I just run and it's everything ok. ;) \n Just to let you know I will be running at "+str(date.replace(tzinfo=pytz.utc)))
     except Exception as e:
-        print e
+        send_mail("AUTOMODE: Error updating next run data", str(e))
+
     return render_template("bot/getnews.html")
 
 

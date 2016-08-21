@@ -38,13 +38,14 @@ def __getRTP_RSS(station,function):
             else:
                 #if the table has tuples get the items that are more recent than the most recent record on the table.
                 recentData = Bothasinfo.query.filter(Bothasinfo.fk_station_has_bots_bot_function_id == function, Bothasinfo.fk_station_has_bots_radio_station_id == station).order_by(Bothasinfo.created_at.desc()).first()
-                print pub_date
-                print recentData.created_at
-                print pub_date > recentData.created_at
+                #print pub_date
+                #print recentData.created_at
+                #print pub_date > recentData.created_at
                 if pub_date > recentData.created_at:
                     getRTP_Articles(link_wtho_tag, station, function, pub_date)
                 else:
                     #no need to get more news(links) from the rss because the rss links are ordered by data and the most recent ones stay on top
+                    print "Every seems up-to-date no need to fetch."
                     break
 
 def getRTP_Articles(link_to_article,station,function,publication_date):
@@ -73,8 +74,6 @@ def getRTP_Articles(link_to_article,station,function,publication_date):
         except Exception as e:
             db.session.rollback()
             db.session.flush()
-
-            #send_mail("Error Saving news to Database",str(e))
             print "Error the new could not be saved on database" + str(e)
     else:
         print "No need to update"
@@ -90,5 +89,4 @@ def textToDatetime(text,format):
          date = datetime.strptime(text,format)  # Str to datetime conversion Wed, 10 Aug 2016 18:36:25
     except Exception as e:
         send_mail("Error DateTime Conversion",str(e))
-        #print "An error happened on date conversion"
     return date

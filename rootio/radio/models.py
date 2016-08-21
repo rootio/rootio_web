@@ -440,7 +440,7 @@ class StationhasBots(db.Model):
 
     fk_radio_station_id =  db.Column(db.ForeignKey('radio_station.id'), primary_key=True)
     fk_bot_function_id =  db.Column(db.ForeignKey('bot_function.id'), primary_key=True)
-    state = state = db.Column(db.Enum('active','inactive',name='state'),nullable=False)
+    state = db.Column(db.Enum('active','inactive',name='state'),nullable=False)
     next_run = db.Column(db.DateTime(timezone=True), nullable=True)
     run_frequency = db.Column(db.String(STRING_LEN),nullable=False)
     source_url = db.Column(db.String(STRING_LEN),nullable=False)

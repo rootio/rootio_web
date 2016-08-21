@@ -7,11 +7,13 @@ import re
 
 import dateutil.parser
 import dateutil.rrule
+from crontab import CronTab
 
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash, json,url_for
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import redirect
 
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
@@ -453,6 +455,9 @@ def new_bot_add():
             db.session.rollback()
             db.session.flush()
             print (str(e))
+            send_mail("Error happened while you're adding a bot", str(e))
+            flash(_('Error Bot Not Added.'), 'error')
+
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
@@ -477,7 +482,9 @@ def bot_edit(radio_id, function_id):
             db.session.rollback()
             db.session.flush()
             print(str(e))
+            send_mail("Error happened editig the bot", str(e))
             flash(_('Error Bot Not Updated.'), 'error')
+
 
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
