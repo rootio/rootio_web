@@ -52,7 +52,11 @@ def linkCut(url):
     :return:
     """
     id = None
-    url.replace("http://www.facebook.com/",url)
+    url = url.replace("http://www.facebook.com/","")
+    if url[:15] == 'profile.php?id=':
+    	id = url[15:].partition("&")[0]
+    else:
+    	id = url.partition("/")[0]
 
     print id
     return id
