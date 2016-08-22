@@ -43,7 +43,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
         'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone'])
 class StationForm(StationFormBase):
     owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
@@ -54,9 +54,11 @@ class StationForm(StationFormBase):
     submit = SubmitField(_('Save'))
     field_order = ('owner','name','location','timezone','*')
 
-
-StationAnalyticForm = model_form(StationAnalytic, db_session=db.session, base_class=Form)
-
+StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','network_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip'])
+class StationTelephonyForm(StationTelephonyFormBase):
+    submit = SubmitField(_('Save'))
+    
 
 def all_languages():
     return Language.query.all()
@@ -120,3 +122,9 @@ class ScheduleProgramForm(Form):
     #priority = IntegerField(description=_("Ascending values"))
     # other options for flexibility?
     submit = SubmitField(_('Save'))
+
+#added by nuno
+WhitlistsFormBase = model_form(Person, db_session=db.session, base_class=Form)
+class WhitlistsForm(WhitlistsFormBase):
+    submit = SubmitField(_('Save'))
+

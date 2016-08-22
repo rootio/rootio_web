@@ -1,0 +1,43 @@
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Stations Telephony') }}</h2>
+    <div class="pull-right">
+        <!--<a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>-->
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Cloud Number') }}</th>
+                <th>{{ _('Transmiter Number') }}</th>
+                <th>{{ _('Whitelist Numbers') }}</th>
+                <th>{{ _('Outgoing Gateways') }}</th>
+                <th>{{ _('Incoming Gateways') }}</th>
+            </tr>
+        </thead>
+        {% for station in stations %}
+        <tr>
+            <td>{{ station.name}} </td>
+            <td>{{ station.cloud_phone}} </td>
+            <td>{{ station.transmitter_phone}} </td>
+            <td>{% for whitelist_numbers in  station.whitelist_number %}
+            {{whitelist_numbers.number}}
+            {% endfor %}
+            </td>
+            <td>{% for outgoing_gateway in station.outgoing_gateways %}
+            {{outgoing_gateway.number_bottom}}
+            {% endfor %}
+            </td>
+            <td>{% for incoming_gateway in station.incoming_gateways %}
+            {{incoming_gateway.number_bottom}}
+            {% endfor %}
+            </td>
+            
+            <td><a href="{{ url_for('radio.telephony_station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

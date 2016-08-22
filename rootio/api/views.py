@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, current_app, request, jsonify, abort, make_response
+from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
 
 from .utils import parse_datetime
@@ -9,7 +9,6 @@ from ..extensions import db, rest, csrf
 
 from ..user import User
 from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
-from ..radio.forms import StationAnalyticForm
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
@@ -86,6 +85,14 @@ def restless_routes():
 
 #non CRUD-routes
 #protect with decorator
+#added by nuno
+'''@api.route('/station/<int:station_id>/information', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def current_program(station_id):
+    return Station.query.filter_by(id=station_id).first_or_404() '''
+
+
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -182,31 +189,55 @@ def station_phone_numbers(station_id):
     return r
 
 
+#changed by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_analytics(station_id):
     """API method to get or post analytics for a station"""
-
+    
     station = Station.query.filter_by(id=station_id).first_or_404()
-    form = StationAnalyticForm(request.form, csrf_enabled=False)
-
-    if form.validate_on_submit():
-        analytic = StationAnalytic(**form.data) #create new object from data
+    data = json.loads(request.data)
+    responses=[]
+  
+    for single_analytic_data in data['analytic_data']:
+        response=dict()
+        response['id'] = single_analytic_data['id']
+        del(single_analytic_data['id'])
+        analytic = StationAnalytic(**single_analytic_data) #use this format to avoid multidict-type issue
         analytic.station = station
-
         db.session.add(analytic)
-        db.session.commit()
-        return {'message':'success'}
-    elif request.method == "POST":
-        message = jsonify(flag='error', msg="Unable to parse station analytic form. Errors: %s" % form.errors)
-        abort(make_response(message, 400))    
-    else:
-        #return just most recent analytic?
-        # or allow filtering by datetime?
-        analytics_list = StationAnalytic.query.filter_by(station_id=station.id).all()
-        return analytics_list
+        try:
+            db.session.commit()
+            response['status'] = True
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            response['status'] = False
+            response['error'] = e.message
+        responses.append(response)
+
+    return responses
+
+
+#added by nuno
+@csrf.exempt
+@api.route('/station/<int:station_id>/whitelist', methods=['GET'])
+#@api_key_or_auth_required
+@returns_json
+def station_whitelist(station_id):
+    """API method to get or post whitelist for a station"""
+    
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    whitelists = station.whitelist_number
+    responses=[]
+    for number in whitelists:
+        response = number.number
+        responses.append(response)
+    allresponses= {"whitelist" : responses}
+    return allresponses
+
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
