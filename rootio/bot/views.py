@@ -1,6 +1,7 @@
 import pytz
 from flask import Blueprint, render_template
 
+from rootio.bot.feedFBBot import getFBPosts
 from rootio.radio import StationhasBots
 from rootio.utils_bot import updateNBRun
 from .aggregation_bot import __getRTP_RSS, textToDatetime
@@ -33,4 +34,19 @@ def rtp_puller(radio_id, function_id):
 
 @bot.route('/fb/<int:radio_id>&<int:function_id>')
 def facebook_puller(radio_id, function_id):
-    print "facebook_bot"
+    #Get the facebook posts.
+    getFBPosts(radio_id,function_id)
+
+    getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == radio_id,StationhasBots.fk_bot_function_id == function_id).first()
+    #date = textToDatetime(str(updateNBRun(radio_id, function_id)), "%Y-%m-%d %H:%M:%S")
+    date = updateNBRun(radio_id, function_id)
+    #print "This is the date I'm printing " + str(date)
+    getBot.next_run = date.replace(tzinfo=pytz.utc)
+    try:
+        db.session.add(getBot)
+        db.session.commit()
+        send_mail("AUTOMODE: I'm ok", " Hi it's me Facebook Aggregator Bot Just to let you know that I just run and it's everything ok. ;) \n Just to let you know I will be running at "+str(date.replace(tzinfo=pytz.utc)))
+    except Exception as e:
+        send_mail("AUTOMODE: Error updating next run data", str(e))
+
+    return render_template("bot/getnews.html")
