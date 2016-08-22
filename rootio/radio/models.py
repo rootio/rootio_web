@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy_utils import JSONType
+from sqlalchemy.sql import func
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
@@ -100,6 +101,8 @@ class Station(BaseMixin, db.Model):
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
     outgoing_gateways = db.relationship(u'Gateway', secondary=u'radio_outgoinggateway', backref=db.backref('stations_using_for_outgoing'))
     incoming_gateways = db.relationship(u'Gateway', secondary=u'radio_incominggateway', backref=db.backref('stations_using_for_incoming'))
+    
+    whitelist_number = db.relationship(u'PhoneNumber', secondary=u'radio_whitelist', backref=db.backref('stations'))
    
 
     client_update_frequency = db.Column(db.Float) #in seconds
@@ -147,7 +150,7 @@ class Station(BaseMixin, db.Model):
 
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
-            .filter(StationAnalytic.created_at>since_date)
+            .order_by(StationAnalytic.created_at.desc()).limit(10)
 
         if len(analytics_list.all()) == 0:
             #fake a week's worth for the demo
@@ -159,11 +162,10 @@ class Station(BaseMixin, db.Model):
                 a = StationAnalytic()
                 a.battery_level = randint(50,100)
                 a.gsm_signal = randint(0,100)
-                a.wifi_connected = random_boolean(0.8)
+                a.wifi_connectivity = randint(0,100)
                 a.memory_utilization = randint(60,80)
                 a.storage_usage = randint(20,50)
                 a.cpu_load = randint(0,100)
-                a.headphone_plug = random_boolean(0.9)
                 analytics_list.append(a)
 
         #convert to named dict for sparkline display
@@ -219,7 +221,11 @@ t_station_incominggateway = db.Table(
     db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
 
-
+t_station_whitelist = db.Table(
+    u'radio_whitelist',
+    db.Column(u'phone_id', db.ForeignKey('telephony_phonenumber.id')),
+    db.Column(u'station_id', db.ForeignKey('radio_station.id'))
+)
 
 class ProgramType(BaseMixin, db.Model):
     """A flexible definition of program dynamics, with python script (definition) for the definition
@@ -409,21 +415,35 @@ class Role(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
 
+#changed by nuno
 class StationAnalytic(BaseMixin, db.Model):
     "A store for analytics from the client"
     __tablename__ = 'radio_stationanalytic'
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    battery_level = db.Column(db.Float) # percentage 0,100 
-    gsm_signal = db.Column(db.Float) # signal strength in db
-    wifi_connected = db.Column(db.Boolean) # boolean 0/1
+    battery_level = db.Column(db.Integer) # percentage 0,100 
+    gsm_signal = db.Column(db.Integer) # signal strength in db
+    wifi_connectivity = db.Column(db.Float) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
     storage_usage = db.Column(db.Float) # percentage 0,100
     cpu_load = db.Column(db.Float) # percentage 0,100
-    headphone_plug = db.Column(db.Boolean) # boolean 0/1
     gps_lat = db.Column(db.Float) # location of the handset
     gps_lon = db.Column(db.Float) # 
-
+    record_date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+#added by nuno
+'''class Whitelist(BaseMixin, db.Model):
+    "A store for whilisted numbers"
+    __tablename__ = 'radio_whitelist'
+
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+
+    phone = db.relationship(u'PhoneNumber', backref=db.backref('whitelist'))
+    station = db.relationship(u'Station', backref=db.backref('whitelist'))'''
+        

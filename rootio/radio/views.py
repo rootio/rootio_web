@@ -10,7 +10,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
+from .forms import StationForm, StationTelephonyForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
@@ -320,7 +320,7 @@ def schedule_recurring_program_ajax():
 
         #parse recurrence rule
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:10]: #TODO: dynamically determine instance limit
+        for instance in r[:30]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
@@ -399,7 +399,7 @@ def schedule_station(station_id):
     block_list = []
     for block in scheduled_blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
-        for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
+        for instance in r[:30]: #TODO: dynamically determine instance limit from calendar view
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
                 'end':datetime.combine(instance,block.end_time)}
@@ -413,3 +413,49 @@ def schedule_station(station_id):
     return render_template('radio/schedule.html',
         form=form, station=station, block_list=block_list, addable_programs=all_programs,
         active='schedule')
+
+
+
+#added by nuno
+@radio.route('/telephony/', methods=['GET'])
+def telephony():
+    stations = Station.query.all()
+    return render_template('radio/stations_telephony.html', stations=stations)#, active='stations')
+
+
+@radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
+def telephony_station(station_id):
+    
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationTelephonyForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station updated.'), 'success')
+
+    return render_template('radio/station_telephony.html', station=station, form=form)
+
+
+@radio.route('/telephony/add/', methods=['GET', 'POST'])
+@login_required
+def telephony_add():
+    form = StationTelephonyForm(request.form)
+    station = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('phone_inline',None) #and also inline forms
+        cleaned_data.pop('location_inline',None)
+        station = Station(**cleaned_data) #create new object from data
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station added.'), 'success') 
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/person.html', person=person, form=form)

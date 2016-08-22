@@ -5,6 +5,7 @@ from ..extensions import db
 
 from .constants import PHONE_NUMBER_TYPE
 from ..utils import STRING_LEN
+#from ..radio import Station
 
 from coaster.sqlalchemy import BaseMixin
 
@@ -19,6 +20,7 @@ class PhoneNumber(BaseMixin, db.Model):
     countrycode = db.Column(db.String(3)) #does not include + symbol
     number = db.Column(db.String(20),nullable=False) #filtered data
     raw_number = db.Column(db.String(20)) #raw from telephony
+    #station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     number_type = db.Column(db.Integer) #convert to enum?
     @property
