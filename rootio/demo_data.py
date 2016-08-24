@@ -1,12 +1,32 @@
+from pathlib import Path
+from datetime import datetime, timedelta
+import json
+import flask
 from .user.models import User
-from .radio.models import Station
+from .radio.models import Station, Program, ScheduledProgram
 from .telephony.models import PhoneNumber
 from .telephony.constants import MOBILE
 
+app = flask.current_app
+MEDIA_PREFIX = Path(app.config['MEDIA_PREFIX'])
+
 PHONE_NUMBER = '1007'
 STATION_NAME = "Testy sounds"
+PROGRAM_NAME = "BBC Africa Today"
+PROGRAM_DURATION = 40
+PROGRAM_DESCRIPTION = {
+    'Media': [
+        {
+            'argument': [str(MEDIA_PREFIX / 'bbc/latest_africa.mp3')],
+            'start_time': '00:00:01',
+            'duration': PROGRAM_DURATION,
+            'is_streamed': True,
+            'hangup_on_complete': True,
+        },
+    ],
+}
 
-def setup(db):
+def setup(db, schedule):
     admin = User.query.get(1)
 
     phone = PhoneNumber.query.filter_by(number=PHONE_NUMBER).first()
@@ -31,5 +51,25 @@ def setup(db):
             broadcast_ip='230.255.255.257',
         )
         db.session.add(station)
+
+    program = Program.query.filter_by(name=PROGRAM_NAME).first()
+    if program is None:
+        program = Program(
+            name=PROGRAM_NAME,
+            description=json.dumps(PROGRAM_DESCRIPTION, indent=2),
+            duration=timedelta(minutes=PROGRAM_DURATION),
+        )
+        db.session.add(program)
+
+    if schedule:
+        station.scheduled_programs.delete()
+        start = datetime.utcnow() + timedelta(seconds=20)
+        scheduled_program = ScheduledProgram(
+            station=station,
+            program=program,
+            start=start,
+            end=start + timedelta(minutes=PROGRAM_DURATION),
+        )
+        db.session.add(scheduled_program)
 
     db.session.commit()
