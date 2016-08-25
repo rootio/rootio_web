@@ -45,6 +45,7 @@ def setup(db, schedule):
             name=GATEWAY_NAME,
             number_top=4000,
             number_bottom=4000,
+            gateway_prefix='',
             sofia_string='user',
             extra_string='bridge_early_media=true,hangup_after_bridge=true,'
                 'origination_caller_id_number=4000',
