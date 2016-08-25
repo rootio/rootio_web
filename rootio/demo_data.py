@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import json
 import flask
+import pytz
 from .user.models import User
 from .radio.models import Station, Program, ScheduledProgram
 from .telephony.models import PhoneNumber
@@ -63,7 +64,8 @@ def setup(db, schedule):
 
     if schedule:
         station.scheduled_programs.delete()
-        start = datetime.utcnow() + timedelta(seconds=schedule)
+        now = pytz.utc.localize(datetime.utcnow())
+        start = now + timedelta(seconds=schedule)
         scheduled_program = ScheduledProgram(
             station=station,
             program=program,
