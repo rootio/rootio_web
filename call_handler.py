@@ -18,8 +18,9 @@ from sets import Set
 
 class CallHandler:
     
-    def __init__(self, radio_station):
+    def __init__(self, radio_station, config={}):
         self.__radio_station = radio_station
+        self.config = config
         self.__incoming_call_recipients = dict()
         self.__incoming_dtmf_recipients = dict()
         self.__outgoing_call_recipients = dict()
@@ -42,9 +43,10 @@ class CallHandler:
         t.start()
 
     def create_esl(self):
-        ESL_SERVER = '127.0.0.1'
-        ESL_PORT = 8021
-        ESL_AUTHENTICATION = 'ClueCon'
+        ESL_SERVER = self.config.get('ESL_SERVER', '127.0.0.1')
+        ESL_PORT = self.config.get('ESL_PORT', 8021)
+        ESL_AUTHENTICATION = self.config.get('ESL_AUTHENTICATION', 'ClueCon')
+        print 'ESL config:', ESL_SERVER, ESL_PORT, ESL_AUTHENTICATION
         return ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
 
     def __load_incoming_gateways(self):

@@ -16,14 +16,16 @@ sys.path.append(app.config['ROOTIO_WEB_PATH'])
 
 def run():
     from rootio.radio.models import Station
-    from radio_station import RadioStation
+    import radio_station
 
     logging.basicConfig()
     logger = logging.getLogger('station_runner')
 
+    radio_station.telephony_server = app
+
     stations = db.session.query(Station)
     for station in stations.all():
-        radio_station = RadioStation(station.id, logger, db)
+        radio_station = radio_station.RadioStation(station.id, logger)
         logger.info('launching station : {0}'.format(station.id))
         t = threading.Thread(target=radio_station.run, args=())
         t.start()
