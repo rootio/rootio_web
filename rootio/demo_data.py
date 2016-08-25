@@ -5,13 +5,14 @@ import flask
 import pytz
 from .user.models import User
 from .radio.models import Station, Program, ScheduledProgram
-from .telephony.models import PhoneNumber
+from .telephony.models import PhoneNumber, Gateway
 from .telephony.constants import MOBILE
 
 app = flask.current_app
 MEDIA_PREFIX = Path(app.config['MEDIA_PREFIX'])
 
 PHONE_NUMBER = '1007'
+GATEWAY_NAME = 'Internal 4000'
 STATION_NAME = "Testy sounds"
 PROGRAM_NAME = "BBC Africa Today"
 PROGRAM_DURATION = 40
@@ -38,6 +39,19 @@ def setup(db, schedule):
         )
         db.session.add(phone)
 
+    gateway = Gateway.query.filter_by(name=GATEWAY_NAME).first()
+    if gateway is None:
+        gateway = Gateway(
+            name=GATEWAY_NAME,
+            number_top=4000,
+            number_bottom=4000,
+            sofia_string='user',
+            extra_string='bridge_early_media=true,hangup_after_bridge=true,'
+                'origination_caller_id_number=4000',
+            is_goip=False,
+        )
+        db.session.add(gateway)
+
     station = Station.query.filter_by(name=STATION_NAME).first()
     if station is None:
         station = Station(
@@ -50,6 +64,7 @@ def setup(db, schedule):
             client_update_frequency=30,
             analytic_update_frequency=30,
             broadcast_ip='230.255.255.257',
+            outgoing_gateways=[gateway],
         )
         db.session.add(station)
 
