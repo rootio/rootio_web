@@ -63,7 +63,7 @@ def setup(db, schedule):
 
     if schedule:
         station.scheduled_programs.delete()
-        start = datetime.utcnow() + timedelta(seconds=20)
+        start = datetime.utcnow() + timedelta(seconds=schedule)
         scheduled_program = ScheduledProgram(
             station=station,
             program=program,
