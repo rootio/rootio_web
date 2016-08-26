@@ -1,0 +1,97 @@
+#chatButton{
+    position: fixed;
+    bottom: 63px;
+    right: 6px;
+    border-radius: 50%;
+    background-color: rgba(91, 181, 91, 0.9);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+    font-size: 30px;
+}
+
+i{
+    padding: 13px 15px;
+    color: #fff;
+}
+
+#chatBox{
+    /*display:none;*/
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: white;
+    width: 250px;
+    height: 300px;
+}
+
+.chatBoxUp{
+    height: 30px;
+    background-color:  rgba(91, 181, 91, 1);
+}
+
+.chatBoxUp > p{
+    display:inline-block;
+    padding-top: 5px;
+    padding-left: 10px;
+    color : white;
+    margin-bottom: 0cm;
+}
+
+/*Message body*/
+
+.chatBoxBody {
+  height:230px;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+/*.chatBoxBody table {
+  width: 100%;
+}*/
+
+.chatBoxUp > i{
+    display:inline-block;
+    float: right;
+    padding-bottom: 0px;
+}
+
+#chatBoxText{
+    border-top: 1px solid lightgray;
+    height: 50px;
+    width: 95%;
+    font-family: 'tahoma';
+    font-size: 13px;
+    padding: 5px;
+}
+
+.msg-row {
+  width: 100%;
+  border-bottom: 1px solid lightgray;
+  padding: 3px 0px 3px 2px;
+
+}
+
+.message {
+  margin-left: 40px;
+}
+
+
+.user-label {
+  font-size: 11px;
+}
+
+.msg-time {
+  font-size: 10px;
+  float: right;
+  color: gray;
+}
+
+
+.avatar-left {
+  width: 24px;
+  height: 24px;
+  float: left;
+  background: url('/static/img/robot.png');
+  border: 1px solid lightgray;
+}
+

@@ -1,5 +1,5 @@
 import pytz
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify, request
 
 from rootio.bot.feedFBBot import getFBPosts
 from rootio.radio import StationhasBots
@@ -7,6 +7,7 @@ from rootio.utils_bot import updateNBRun
 from .aggregation_bot import __getRTP_RSS, textToDatetime
 from ..extensions import db
 from ..utils_bot import send_mail
+from .models import ChatBotCmd
 
 #TODO GIVE A THREATMENT TO ALL THE STRING THAT ARE FETCHED BY THE BOT
 #TODO ADD DECORATOR TO REFUSED CONNECTION FROM OUTSIDE OF THE SERVER.
@@ -50,3 +51,12 @@ def facebook_puller(radio_id, function_id):
         send_mail("AUTOMODE: Error updating next run data", str(e))
 
     return render_template("bot/getnews.html")
+
+@bot.route('/savechat', methods=['POST'])
+def chatBot_Save():
+    getanswer = ChatBotCmd.answerTocode(request.form['msg'])
+    if getanswer:
+        return getanswer.answer
+    else:
+        return "I don't know that command, check if you spelled it in the write way. " \
+               "If you don't know which commands to use write help"
