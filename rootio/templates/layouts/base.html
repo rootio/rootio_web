@@ -12,12 +12,11 @@
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="Shortcut Icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
-
     {% block css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/normalize.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
+
     {% endblock %}
 
     {% block css_style %}
@@ -32,45 +31,156 @@
 
     <div id='wrap'>
         {% block topbar %}
-        <div class="navbar navbar-static-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class='brand' href='{{ url_for('frontend.index') }}'><img src="{{ url_for('static', filename='img/logo.png') }}" /></a>
+            <nav class="navbar navbar-default">
+                <a class="navbar-brand" href="{{ url_for('frontend.index') }}" >
+                    <img width="90" height="40" class="logo" alt="" src="{{ url_for('static', filename='img/logo_white.png') }}">
+                </a>
 
-                    <form class="navbar-search pull-left" action="{{ url_for('frontend.search') }}">
-                        <input type='text' class="search-query" name='keywords' value='{{ keywords|default('') }}' placeholder='Search' />
-                    </form>
+                {% if current_user.is_authenticated() %}
+                <a class="toggle-nav btn pull-left hidden-xs" href="#">
+                    <i class="glyphicon glyphicon-align-justify white"></i>
+                </a>
 
-                     <div class="pull-right">
-                        <ul class="nav">
-                            {% if current_user.is_authenticated() %}
-                                {% if current_user.is_admin() %}
-                                <li><a href="{{ url_for('rootio.index') }}">{{ current_user.name }}</a></li>
-                                {% else %}
-                                <li><a href="{{ url_for('user.index') }}">{{ current_user.name }}</a></li>
-                                {% endif %}
-                                <li><a href="{{ url_for('settings.profile') }}">Settings</a></li>
-                                <li><a href="{{ url_for('frontend.logout') }}">Log out</a></li>
-                            {% else %}
-                                <li><span><a class="btn btn-success" href="{{ url_for('frontend.signup') }}"><strong>{{ _('Sign up') }}</strong></a></span></li>
-                                <li><a href="{{ url_for('frontend.login') }}">{{ _('Sign in') }}</a></li>
-                            {% endif %}
-                            <li>
-                                <form class="navbar-search pull-right" action="{{ url_for('frontend.lang') }}" method="POST" id="language-selector">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <select name='language'>
-                                    {% for lang_code,name in g.accept_languages.items() %}
-                                        <option value="{{lang_code}}" {% if lang_code == session.language%}selected=selectred{%endif%}>{{name}}</option>
-                                    {%endfor%}
-                                    </select>
-                                </form>
-                            </li>
+                    {% if current_user.is_admin() %}
+                        <ul class="nav-user">
+                          <li class="dropdown medium ">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                              <i class="fa fa-rss"></i>
+                              <div class="label">0</div>
+                            </a>
+
+                            <ul class="dropdown-menu">
+                              <li>
+                                <a href="#">
+                                  <div class="widget-body">
+                                    <div class="pull-left icon">
+                                      <i class="icon-user text-success"></i>
+                                    </div>
+                                    <div class="pull-left text">
+                                      No new notifications
+                                    </div>
+                                  </div>
+                                </a>
+                              </li>
+
+                              <li class="widget-footer">
+                                <a href="#">All notifications</a>
+                              </li>
+                            </ul>
+                          </li>
+
+
+                          <li class="dropdown dark user-menu">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                              <img width="23" height="23" src="{{ url_for('static', filename='img/avatar.png') }}">
+                              <span class="user-name">{{ current_user.name }}</span>
+                              <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                              <li>
+                                <a href="{{ url_for('rootio.index') }}">
+                                  <i class="glyphicon glyphicon-user"></i>
+                                  Profile
+                                </a>
+                              </li>
+                              <li>
+                                <a href="{{ url_for('settings.profile') }}">
+                                  <i class="glyphicon glyphicon-cog"></i>
+                                  Settings
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="{{ url_for('frontend.logout') }}">
+                                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                                  Sign out
+                                </a>
+                              </li>
+                            </ul>
+                          </li>
                         </ul>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
+                    {% else %}
+                        <ul class="nav-user">
+                          <li class="dropdown medium ">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                              <i class="fa fa-rss"></i>
+                              <div class="label">0</div>
+                            </a>
+
+                            <ul class="dropdown-menu">
+                              <li>
+                                <a href="#">
+                                  <div class="widget-body">
+                                    <div class="pull-left icon">
+                                      <i class="icon-user text-success"></i>
+                                    </div>
+                                    <div class="pull-left text">
+                                      No new notifications
+                                    </div>
+                                  </div>
+                                </a>
+                              </li>
+
+                              <li class="widget-footer">
+                                <a href="#">All notifications</a>
+                              </li>
+                            </ul>
+                          </li>
+
+
+                          <li class="dropdown dark user-menu">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                              <img width="23" height="23" src="{{ url_for('static', filename='img/avatar.png') }}">
+                              <span class="user-name">{{ current_user.name }}</span>
+                              <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                              <li>
+                                <a href="{{ url_for('user.index') }}">
+                                  <i class="glyphicon glyphicon-user"></i>
+                                  Profile
+                                </a>
+                              </li>
+                              <li>
+                                <a href="{{ url_for('settings.profile') }}">
+                                  <i class="glyphicon glyphicon-cog"></i>
+                                  Settings
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="{{ url_for('frontend.logout') }}">
+                                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                                  Sign out
+                                </a>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                    {% endif %}
+
+                    <form action="{{ url_for('frontend.search') }}" class="navbar-form hidden-xs" method="get">
+                      <button class="btn btn-link glyphicon glyphicon-search" name="button" type="submit"></button>
+                      <div class="form-group">
+                        <input value="{{ keywords|default('') }}" class="form-control" placeholder="Search..." autocomplete="off" id="q_header" name="q" type="text">
+                      </div>
+                    </form>
+                {% else %}
+
+                    <ul class="navbar-login">
+                        <li><a href="{{ url_for('frontend.signup') }}"><span class="glyphicon glyphicon-user white"></span > <span class="white">Sign Up</span> </a></li>
+                        <li><a href="{{ url_for('frontend.login') }}"><span class="glyphicon glyphicon-log-in white"></span> <span class="white">Sign In</span> </a></li>
+                    </ul>
+
+                <form action="{{ url_for('frontend.search') }}" class="navbar-form hidden-xs" method="get">
+                      <button class="btn btn-link glyphicon glyphicon-search" name="button" type="submit"></button>
+                      <div class="form-group">
+                        <input value="{{ keywords|default('') }}" class="form-control" placeholder="Search..." autocomplete="off" id="q_header" name="q" type="text">
+                      </div>
+                    </form>
+                {% endif %}
+            </nav>
+
         {% endblock %}
 
         {% block flash_message %}
@@ -118,7 +228,7 @@
         <div id="push"></div>
     </div>
 
-    <footer id="footer">
+    <!--<footer id="footer">
         <ul class="footer-links">
             <li>© 2013</li>
             <li><a href='http://rootio.org/'>{{ _('About') }}</a></li>
@@ -128,7 +238,7 @@
             <li><a href='https://github.com/rootio/rootio-cloud/blob/master/LICENSE'>{{ _('Terms') }}</a></li>
         </ul>
     </footer>
-
+-->
     <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
     <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"><\/script>')</script>
     <script src="{{ url_for('static', filename='js/vendor/jquery-ui.custom.min.js') }}"></script>
