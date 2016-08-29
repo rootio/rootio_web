@@ -28,6 +28,9 @@ Flask-Mail==0.9.0
 Flask-Script==0.6.2
 Flask-Restless==0.12.1
 Flask-Admin==1.0.7
+Flask-OpenID==1.2.5
+python-openid==2.2.5
 
 pyzmq==14.2.0
 Fabric==1.7.0
+pathlib==1.0.1
