@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os, sys
@@ -108,6 +109,11 @@ manager.add_option('-c', '--config',
                    dest="config",
                    required=False,
                    help="config file")
+
+@manager.command
+def demo_data(schedule=0):
+    from rootio import demo_data
+    demo_data.setup(db, int(schedule))
 
 @manager.command
 def drop_db_hard():
