@@ -1,0 +1,289 @@
+{% from "macros/_form.html" import render_form, render_field %}
+{% extends "radio/layout.html" %}
+{% block css_style %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<style>
+    #sortable1, #sortable2 {
+        border: 1px solid #eee;
+        width: 142px;
+        min-height: 20px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+        margin-right: 10px;
+    }
+    #sortable1 li, #sortable2 li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.2em;
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block js_btm %}
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+<script>
+    var est_time = moment.duration(0,'s');
+
+    $('#est_time').text(moment.utc(est_time.asMilliseconds()).format("HH:mm:ss"));
+
+    $( function() {
+        $( "#sortable1, #sortable2" ).sortable({
+            connectWith: ".connectedSortable"
+        }).disableSelection();
+    });
+
+    function calculate_time(sentence) {
+        var words = sentence.split(' ');
+        return words.length * 0.44 + 2;
+    }
+
+    $('#sortable2').on( "sortreceive", function( event, ui ) {
+        $('#est_time').text(function () {
+            est_time.add(moment.duration(calculate_time(ui['item']['context']['innerText']),'s'));
+            return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
+        });
+    });
+
+    $('#sortable2').on( "sortremove", function( event, ui ) {
+         $('#est_time').text(function () {
+             est_time.subtract(moment.duration(calculate_time(ui['item']['context']['innerText']),'s'));
+            return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
+        });
+    });
+
+    $('#cont_type').hide();
+    $('#program_data').hide();
+	$('#aggregator').hide();
+    $('#sortables').hide();
+
+	$('#content_type').change(function() {
+	    if ($(this).val() == '') {
+            $('#sortable1').empty();
+            $('#aggregator').hide();
+        }
+	    else if ($(this).val() == 'Aggregators') {
+	        $('#aggregator').show();
+	    }
+	    else if ($(this).val() == 'SMS') {
+	        $('#sortables').show();
+            $('#aggregator').hide();
+	        $.ajax({
+                url:'/radio/sms',
+                success:function(data) {
+                    for (var d in data) {
+                        for (var m in data[d]) {
+                            if (m == 'text') {
+                                $('#sortable1').append(
+                                        '<li class="ui-state-default"><input type="hidden" value="tts">' + data[d][m] + '</li>'
+                                );
+                            }
+                        }
+                    }
+                },
+                error: function(error) {
+                    console.log(errors)
+                }
+            })
+	    }
+	});
+
+    $('#duration').change(function () {
+        $('#est_time').text(function () {
+            return moment.utc(moment.duration($('#duration').val()).asMilliseconds()).format("HH:mm:ss");
+        });
+    });
+
+    $('#prog_type').change(function () {
+        if ($('#prog_type option:selected').text() == '') {
+            $('#cont_type').hide();
+            $('#program_data').hide();
+            $('#sortables').hide();
+        }
+        else if ($('#prog_type option:selected').text() == 'Call-in Show') {
+            $('#sortables').hide();
+            $('#cont_type').hide();
+            $('#program_data').show();
+        }
+        else {
+            $('#cont_type').show();
+            $('#program_data').hide();
+            $('#sortables').hide();
+        }
+    });
+
+    $('#cancel').click(function () {
+        $(this).closest('form').find("input[type=text], textarea, select").val("");
+        $('#est_time').text('0');
+        $('#sortable1').empty();
+        $('#sortable2').empty();
+    });
+
+    $('#submit').click(function () {
+        description = generateDescription();
+        console.log(description);
+        /*$.ajax({
+          type: "POST",
+          url: "/radio/addprogram/",
+          data: {description: description, name: $('#name').val(), language_id: $('#language').val(), duration: $('#est_time').text(), program_type_id:$('#prog_type').val()},
+          success: function(result){
+                alert(result);
+              },
+            error: function(result){
+                alert(result);
+              }
+            });*/
+    });
+
+    function generateDescription() {
+        var newProgram = {};
+        var start_time = moment.duration('1','s');
+        if ($('#prog_type option:selected').text() == 'Call-in Show') {
+            var outCall = [];
+            var callInObj = {};
+            callInObj.argument = $('#host_number').val();
+            callInObj.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
+            callInObj.duration = moment.duration($('#duration').val()).asSeconds();
+            callInObj.warning_time = parseFloat(callInObj.duration) - 60;
+            callInObj.is_streamed = false;
+            callInObj.hangup_on_complete = true;
+            outCall.push(callInObj);
+            start_time.add(moment.duration(callInObj.duration, 's'));
+            newProgram.Outcall = outCall;
+        }
+        else {
+            var tts = [];
+            var jingle = [];
+            var interlude = [];
+            var media = [];
+            var count = 0;
+            var num_comp = $('#sortable2').children().length;
+            $('#sortable2').children().each(function () {
+                if($(this).children().val() == 'tts') {
+                    var ttsOb = {};
+                    ttsOb.argument = $(this).text();
+                    ttsOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
+                    ttsOb.duration = calculate_time($(this).text());
+                    ttsOb.is_streamed = true;
+                    if (count + 1 == num_comp) {
+                        ttsOb.hangup_on_complete = true;
+                    }
+                    else {
+                        ttsOb.hangup_on_complete = false;
+                    }
+                    tts.push(ttsOb);
+                    start_time.add(moment.duration(ttsOb.duration, 's'));
+                }
+                else if ($(this).children().val() == 'interlude') {
+                    var intOb = {};
+                    intOb.argument = $(this).text();
+                    intOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
+                    intOb.duration = calculate_time($(this).text());
+                    intOb.is_streamed = true;
+                    if (count + 1 == num_comp) {
+                        intOb.hangup_on_complete = true;
+                    }
+                    else {
+                        intOb.hangup_on_complete = false;
+                    }
+                    interlude.push(intOb);
+                    start_time.add(moment.duration(intOb.duration, 's'));
+                }
+                else if ($(this).children().val() == 'media') {
+                    var mediaOb = {};
+                    mediaOb.argument = $(this).text();
+                    mediaOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
+                    mediaOb.duration = calculate_time($(this).text());
+                    mediaOb.is_streamed = true;
+                    if (count + 1 == num_comp) {
+                        mediaOb.hangup_on_complete = true;
+                    }
+                    else {
+                        mediaOb.hangup_on_complete = false;
+                    }
+                    media.push(mediaOb);
+                    start_time.add(moment.duration(mediaOb.duration, 's'));
+                }
+                else if ($(this).children().val() == 'jingle') {
+                    var jingOb = {};
+                    jingOb.argument = $(this).text();
+                    jingOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
+                    jingOb.duration = calculate_time($(this).text());
+                    jingOb.is_streamed = true;
+                    if (count + 1 == num_comp) {
+                        jingOb.hangup_on_complete = true;
+                    }
+                    else {
+                        jingOb.hangup_on_complete = false;
+                    }
+                    jingle.push(jingOb);
+                    start_time.add(moment.duration(jingOb.duration, 's'));
+                }
+                count++;
+            });
+            newProgram.tts = tts;
+            newProgram.Media = media;
+            newProgram.Jingle = jingle;
+            newProgram.Interlude = interlude;
+        }
+        return JSON.stringify(newProgram);
+    }
+</script>
+{% endblock %}
+{% block body %}
+<h2>Add Program</h2>
+<form action="POST">
+    <label>Name of the Program:</label>
+    <input id="name" name="name" type="text">
+    <label>Language of the Program:</label>
+    <select id="language" name="language">
+        <option></option>
+    {% for l in lang %}
+        <option value="{{ l.id }}">{{ l.name }}</option>
+    {% endfor %}
+    </select>
+    <label>Program type:</label>
+    <select id="prog_type" name="language">
+        <option></option>
+    {% for t in type %}
+        <option value="{{ t.id }}">{{ t.name }}</option>
+    {% endfor %}
+    </select>
+    <div id="cont_type">
+        <label>Please select the type of the content you want to add: </label>
+        <select id="content_type">
+            <option></option>
+            <option>Jingle</option>
+            <option>Intrelude</option>
+            <option>Other Audio Files</option>
+            <option>SMS</option>
+            <option>Aggregators</option>
+        </select>
+        <select id="aggregator">
+            <option></option>
+            <option>FB</option>
+            <option>RTP</option>
+            <option>IPMA</option>
+        </select>
+    </div>
+    <div id="program_data">
+        <label>Number of the host</label>
+        <input id="host_number" name="host_number" type="text">
+        <label>Duration</label>
+        <input id="duration" name="duration" type="text">
+    </div>
+    <div id="sortables">
+        <ul id="sortable1" class="connectedSortable">
+        </ul>
+
+        <ul id="sortable2" class="connectedSortable">
+        </ul>
+    </div>
+    <p>Estimated time of the program:<span id="est_time">0</span></p>
+    <button id="cancel" type="button" class="btn btn-default">Cancel</button>
+    <button id="submit" type="button" class="btn btn-primary">Save</button>
+</form>
+{% endblock %}

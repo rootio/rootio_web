@@ -9,8 +9,10 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
+from ..telephony import Message
+
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
@@ -119,6 +121,34 @@ def program_add():
         flash(_('Validation error'),'error')
 
     return render_template('radio/program.html', program=program, form=form)
+
+
+@radio.route('/program/newadd/', methods=['GET', 'POST'])
+@login_required
+def new_program_add():
+    lang = Language.query.all()
+    type = ProgramType.query.all()
+    return render_template('radio/newprograms.html', lang=lang, type=type)
+
+@radio.route('/sms/', methods=['GET', 'POST'])
+@login_required
+def list_sms():
+    messages = dict()
+    for m in Message.query.all():
+        messages[m.id] = {'message_id':m.id,'message_uuid':m.message_uuid,'sendtime':m.sendtime,
+                         'text': m.text,'from_phonenumber_id':m.from_phonenumber_id,
+                         'to_phonenumber_id':m.to_phonenumber_id,'onairprogram_id': m.onairprogram_id}
+    return json.jsonify(messages)
+
+@radio.route('/addprogram/', methods=['GET', 'POST'])
+@login_required
+def add_new_program():
+    program = Program(description=request.form['description'],language_id=request.form['language_id'],name=request.form['name'], duration=request.form['duration'], program_type_id=request.form['program_type_id'])
+
+    db.session.add(program)
+    db.session.commit()
+    return 'success'
+
 
 @radio.route('/people/', methods=['GET'])
 def people():
@@ -452,3 +482,53 @@ def bot_edit(radio_id, function_id):
         flash(_('Bot updated.'), 'success')
 
     return render_template('radio/bot.html', bot=bot, form=form)
+
+@radio.route('/media', methods=['GET', 'POST'])
+@login_required
+def media_files():
+    media = MediaFiles.query.all()
+    return render_template('radio/media.html', media=media)
+
+@radio.route('/media/add', methods=['GET', 'POST'])
+@login_required
+def media_add():
+    form = MediaForm(request.form)
+    media = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        media = MediaFiles(**cleaned_data)  # create new object from data
+
+        db.session.add(media)
+        db.session.commit()
+        flash(_('Media File added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/mediaform.html', media=media, form=form)
+
+@radio.route('/media/<int:media_id>', methods=['GET', 'POST'])
+@login_required
+def media_edit(media_id):
+    media = MediaFiles.query.filter_by(id=media_id).first_or_404()
+    form = MediaForm(obj=media, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(media)
+
+        db.session.add(media)
+        db.session.commit()
+        flash(_('Media File updated.'), 'success')
+
+    return render_template('radio/mediaform.html', media=media, form=form)
+
+@radio.route('/media/list', methods=['GET', 'POST'])
+@login_required
+def media_list():
+    media = dict()
+    for m in MediaFiles.query.all():
+        media[m.id] = {'media_id': m.id, 'description': m.descrptioni, 'path': m.path,
+                          'language': m.language, 'type': m.type,
+                          'duration': m.duration}
+    return json.jsonify(media)
