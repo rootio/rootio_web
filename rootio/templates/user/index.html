@@ -5,6 +5,7 @@
 <h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
 
 <ul>
+    
     <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
     <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
 
@@ -12,7 +13,7 @@
     <li><a href="{{ url_for('radio.emergency') }}">{% trans %} Emergency Broadcast {% endtrans %}</a></li>
     <li><a href="{{ url_for('messenger.message_test') }}">{% trans %} Schedule Message Tester {% endtrans %}</a></li>
     <li><a href="{{ url_for('user.user_dashboard') }}">{% trans %} Manage Users {% endtrans %}</a></li>
-    {%endif%}
+    {%endif%}ß
 </ul>
 
 
