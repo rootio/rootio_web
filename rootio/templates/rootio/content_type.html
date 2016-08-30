@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "rootio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if content_type%}
+        <h2>{{ _('Edit') }} {{ _('Content Type') }}</h2>
+        {{ render_form(url_for('rootio.content_type', content_type_id=content_type.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('Content Type') }}</h2>
+        {{ render_form(url_for('rootio.content_type_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}
