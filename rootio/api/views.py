@@ -180,7 +180,7 @@ def station_schedule(station_id):
 
 
 #changed by nuno
-@api.route('/station/<int:station_id>/programs', methods=['GET'])
+@api.route('/station/<int:station_id>/programs', methods=['GET', 'POST'])
 #@api_key_or_auth_required
 @returns_json
 def station_programs(station_id):
@@ -242,7 +242,7 @@ def station_analytics(station_id):
 
 #added by nuno
 @csrf.exempt
-@api.route('/station/<int:station_id>/whitelist', methods=['GET'])
+@api.route('/station/<int:station_id>/whitelist', methods=['GET', 'POST'])
 @api_key_or_auth_required
 @returns_json
 def station_whitelist(station_id):
@@ -260,7 +260,7 @@ def station_whitelist(station_id):
 
 #added by nuno
 @csrf.exempt
-@api.route('/station/<int:station_id>/frequency_update', methods=['GET'])
+@api.route('/station/<int:station_id>/frequency_update', methods=['GET', 'POST'])
 @api_key_or_auth_required
 @returns_json
 def frequency_update(station_id):
@@ -334,7 +334,7 @@ def message_data(station_id):
     return allresponses
 
 
-@api.route('/program/<int:program_id>/episodes', methods=['GET'])
+@api.route('/program/<int:program_id>/episodes', methods=['GET', 'POST'])
 @api_key_or_auth_required
 @returns_json
 def program_episodes(program_id):
