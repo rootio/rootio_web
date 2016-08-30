@@ -9,8 +9,8 @@ from ..decorators import admin_required
 from ..user import User
 from ..user.forms import UserForm
 
-from ..radio import Language, ProgramType
-from ..radio.forms import LanguageForm, ProgramTypeForm
+from ..radio import Language, ProgramType, ContentType
+from ..radio.forms import LanguageForm, ProgramTypeForm, ContentTypeForm
 
 rootio = Blueprint('rootio', __name__, url_prefix='/rootio')
 
@@ -141,3 +141,49 @@ def program_type_add():
     return render_template('rootio/program_type.html', program_type=program_type, form=form)
 
 #TODO: program_type_add, with custom widget for picklefield
+
+#added by nuno
+@rootio.route('/content_type/')
+@login_required
+@admin_required
+def content_types():
+    content_types = ContentType.query.all()
+    return render_template('rootio/content_types.html', content_types=content_types, active='content_types')
+
+@rootio.route('/content_type/<int:content_type_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def content_type(content_type_id):
+    content_types = ContentType.query.filter_by(id=content_type_id).first_or_404()
+    form = ContentTypeForm(obj=content_types, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_types)
+
+        db.session.add(content_types)
+        db.session.commit()
+
+        flash('Content Type updated.', 'success')
+
+    return render_template('rootio/content_type.html', content_type=content_types, form=form)
+
+
+@rootio.route('/content_type/add/', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def content_type_add():
+    form = ContentTypeForm(request.form)
+    content_types = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        content_types = ContentType(**cleaned_data) #create new object from data
+        
+        db.session.add(content_types)
+        db.session.commit()
+        flash('Content Type added.', 'success') 
+    elif request.method == "POST":
+        flash('Validation error','error')
+
+    return render_template('rootio/content_type.html', content_type=content_types, form=form)
