@@ -440,4 +440,15 @@ class StationAnalytic(BaseMixin, db.Model):
     
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
-        
+
+#added by nuno
+class ContentType(BaseMixin, db.Model):
+    __tablename__ = u'radio_contenttype'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN),nullable=False)
+    description = db.Column(db.Text,nullable=False)
+
+
+    def __unicode__(self):
+        return self.name    
