@@ -11,7 +11,7 @@ import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -83,6 +83,14 @@ ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=
 class ProgramTypeForm(ProgramTypeFormBase):
     definition = JSONField()
     phone_functions = JSONField()
+    submit = SubmitField(_('Save'))
+
+
+
+ContentTypeFormBase = model_form(ContentType, db_session=db.session, base_class=Form, exclude=['created_at','updated_at'])
+class ContentTypeForm(ContentTypeFormBase):
+    name = StringField()
+    description = TextAreaField()
     submit = SubmitField(_('Save'))
 
 

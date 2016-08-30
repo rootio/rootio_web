@@ -339,7 +339,7 @@ def schedule_recurring_program_ajax():
     return response
 
 #changed by nuno
-@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
     if not ('start' in request.args and 'end' in request.args):
@@ -422,7 +422,7 @@ def schedule_station(station_id):
 
 
 #added by nuno
-@radio.route('/telephony/', methods=['GET'])
+@radio.route('/telephony/', methods=['GET', 'POST'])
 def telephony():
     stations = Station.query.all()
     return render_template('radio/stations_telephony.html', stations=stations)
