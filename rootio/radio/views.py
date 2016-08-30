@@ -252,6 +252,7 @@ def schedule_program_add_ajax():
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -259,11 +260,13 @@ def schedule_program_add_ajax():
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
+#changed by nuno
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
 def delete_program(_id):
     _program = ScheduledProgram.query.get(_id)
-    db.session.delete(_program)
+    _program.deleted = True
+    db.session.add(_program)
     db.session.commit()
     return ""
 
@@ -286,6 +289,7 @@ def schedule_program_edit_ajax():
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -324,7 +328,7 @@ def schedule_recurring_program_ajax():
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
-            
+            scheduled_program.deleted = False
             db.session.add(scheduled_program)
 
         db.session.commit()
@@ -334,17 +338,18 @@ def schedule_recurring_program_ajax():
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
-
+#changed by nuno
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
-    if request.args.get('start') and request.args.get('end'):
-        start = dateutil.parser.parse(request.args.get('start'))
-        end = dateutil.parser.parse(request.args.get('end'))
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
-        #TODO: filter by start > start, end < end
-    else:
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status':'error','errors':'scheduledprograms.json requires start and end','status_code':400}
+    start = dateutil.parser.parse(request.args.get('start'))
+    end = dateutil.parser.parse(request.args.get('end'))
+    scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)\
+                                                   .filter(ScheduledProgram.start >= start)\
+                                                   .filter(ScheduledProgram.end <= end)\
+                                                   .filter(ScheduledProgram.deleted == False)
     resp = []
     for s in scheduled_programs:
         d = {'title':s.program.name,
@@ -420,9 +425,10 @@ def schedule_station(station_id):
 @radio.route('/telephony/', methods=['GET'])
 def telephony():
     stations = Station.query.all()
-    return render_template('radio/stations_telephony.html', stations=stations)#, active='stations')
+    return render_template('radio/stations_telephony.html', stations=stations)
 
 
+#added by nuno
 @radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
 def telephony_station(station_id):
     
@@ -439,6 +445,7 @@ def telephony_station(station_id):
     return render_template('radio/station_telephony.html', station=station, form=form)
 
 
+#added by nuno
 @radio.route('/telephony/add/', methods=['GET', 'POST'])
 @login_required
 def telephony_add():

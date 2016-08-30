@@ -108,6 +108,7 @@ class Station(BaseMixin, db.Model):
     client_update_frequency = db.Column(db.Float) #in seconds
     analytic_update_frequency = db.Column(db.Float) #in seconds
     broadcast_ip = db.Column(db.String(16))
+    broadcast_port = db.Column(db.String(16))
 
     def init(self):
         #load dummy program
@@ -248,6 +249,7 @@ class Program(BaseMixin, db.Model):
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
     description = db.Column(db.Text,nullable=True)
+    structure = db.Column(db.Text,nullable=True)
     duration = db.Column(db.Interval)
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
@@ -306,6 +308,7 @@ class ScheduledBlock(BaseMixin, db.Model):
         return self.name
 
 
+#changed by nuno
 class ScheduledProgram(BaseMixin, db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
@@ -315,6 +318,9 @@ class ScheduledProgram(BaseMixin, db.Model):
     program_id = db.Column(db.ForeignKey('radio_program.id'))
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
+    deleted = db.Column(db.Boolean)
+    
+    programs = db.relationship(u'Program', backref=db.backref('program'))
 
     @classmethod
     def after(cls,date):
@@ -434,16 +440,4 @@ class StationAnalytic(BaseMixin, db.Model):
     
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
-
-
-#added by nuno
-'''class Whitelist(BaseMixin, db.Model):
-    "A store for whilisted numbers"
-    __tablename__ = 'radio_whitelist'
-
-    station_id = db.Column(db.ForeignKey('radio_station.id'))
-    phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
-
-    phone = db.relationship(u'PhoneNumber', backref=db.backref('whitelist'))
-    station = db.relationship(u'Station', backref=db.backref('whitelist'))'''
         

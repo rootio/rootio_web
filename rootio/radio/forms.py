@@ -55,7 +55,7 @@ class StationForm(StationFormBase):
     field_order = ('owner','name','location','timezone','*')
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','network_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','network_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port'])
 class StationTelephonyForm(StationTelephonyFormBase):
     submit = SubmitField(_('Save'))
     
@@ -68,6 +68,7 @@ class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
     description = TextAreaField()
+    structure = TextAreaField()
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)

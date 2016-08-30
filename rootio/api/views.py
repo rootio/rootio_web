@@ -85,12 +85,17 @@ def restless_routes():
 
 #non CRUD-routes
 #protect with decorator
+
 #added by nuno
-'''@api.route('/station/<int:station_id>/information', methods=['GET'])
+@api.route('/station/<int:station_id>/information', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
-def current_program(station_id):
-    return Station.query.filter_by(id=station_id).first_or_404() '''
+def station_information(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+   
+    response = {"name" : station.name, "frequency" : station.frequency, "location" : station.location, "telephone" : station.cloud_phone, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
+    responses= {"station" : response}
+    return responses
 
 
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
@@ -130,8 +135,10 @@ def current_block(station_id):
     return station.current_block()
 
 
-@api.route('/station/<int:station_id>/schedule', methods=['GET'])
-@api_key_or_auth_required
+#changed by nuno
+@csrf.exempt
+@api.route('/station/<int:station_id>/schedule', methods=['GET', 'POST'])
+#@api_key_or_auth_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
@@ -139,60 +146,72 @@ def station_schedule(station_id):
         start: ISO datetime
         end: ISO datetime
         all: if truthy, then ignores start and end constraints"""
-    station = Station.query.filter_by(id=station_id).first_or_404()
-    start = parse_datetime(request.args.get('start'))
-    end = parse_datetime(request.args.get('end'))
+    try:
+        start = parse_datetime(request.args.get('start'))
+        end = parse_datetime(request.args.get('end'))
+    except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400))
     #TODO, investigate the proper ordering of these clauses for query speed
     if request.args.get('all'):
-        return ScheduledProgram.query.filter_by(station_id=station.id)
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).all()
     elif start and end:
-        return ScheduledProgram.between(start,end).filter_by(station_id=station.id)
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.start>start).filter(ScheduledProgram.end>end).all()
     elif start:
-        return ScheduledProgram.after(start).filter_by(station_id=station.id)
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.start>start).all()
     elif end:
-        return ScheduledProgram.before(end).filter_by(station_id=station.id)
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.end>end).all()
     else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
-        abort(make_response(message, 400)) 
+        abort(make_response(message, 400))
+    responses=[]
+    for program in scheduled_programs:
+        response=dict()
+        response['name'] = program.Program.name
+        response['scheduled_program_id'] = program.ScheduledProgram.id
+        response['start'] = program.ScheduledProgram.start
+        response['end'] = program.ScheduledProgram.end
+        response['updated_at'] = program.ScheduledProgram.updated_at
+        response['deleted'] = program.ScheduledProgram.deleted
+        response['structure'] = program.Program.structure
+        responses.append(response)        
+    allresponses = {"scheduled_programs" : responses}
+    return allresponses 
 
 
+#changed by nuno
 @api.route('/station/<int:station_id>/programs', methods=['GET'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
-    station = Station.query.filter_by(id=station_id).first_or_404()
-    programs = station.scheduled_programs
-    
+
     if request.args.get('updated_since'):
         try:
             updated_since = parse_datetime(request.args.get('updated_since'))
-            return programs.filter(ScheduledProgram.updated_at>updated_since)
-
+            scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.updated_at>updated_since).all()
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-        return programs.all()
-
-
-@api.route('/station/<int:station_id>/phone_numbers', methods=['GET'])
-@api_key_or_auth_required
-@returns_json
-def station_phone_numbers(station_id):
-    """API method to get all phone numbers currently linked to a station"""
-    station = Station.query.filter_by(id=station_id).first_or_404()
-
-    #TODO, query the whitelisted_phones m2m
-    #until then, just the two predefined
-    r = {'cloud':station.cloud_phone.raw_number,'transmitter':station.transmitter_phone.raw_number}
-    return r
-
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).all()
+    responses=[]
+    for program in scheduled_programs:
+        response=dict()
+        response['name'] = program.Program.name
+        response['scheduled_program_id'] = program.ScheduledProgram.id
+        response['start'] = program.ScheduledProgram.start
+        response['end'] = program.ScheduledProgram.end
+        response['deleted'] = program.ScheduledProgram.deleted
+        response['structure'] = program.Program.structure
+        responses.append(response)        
+    allresponses = {"scheduled_programs" : responses}
+    return allresponses
 
 #changed by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def station_analytics(station_id):
     """API method to get or post analytics for a station"""
@@ -200,7 +219,7 @@ def station_analytics(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     data = json.loads(request.data)
     responses=[]
-  
+    
     for single_analytic_data in data['analytic_data']:
         response=dict()
         response['id'] = single_analytic_data['id']
@@ -217,17 +236,17 @@ def station_analytics(station_id):
             response['status'] = False
             response['error'] = e.message
         responses.append(response)
-
-    return responses
+    allresponses = {"results" : responses}
+    return allresponses
 
 
 #added by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/whitelist', methods=['GET'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def station_whitelist(station_id):
-    """API method to get or post whitelist for a station"""
+    """API method to get whitelist for a station"""
     
     station = Station.query.filter_by(id=station_id).first_or_404()
     whitelists = station.whitelist_number
@@ -238,6 +257,81 @@ def station_whitelist(station_id):
     allresponses= {"whitelist" : responses}
     return allresponses
 
+
+#added by nuno
+@csrf.exempt
+@api.route('/station/<int:station_id>/frequency_update', methods=['GET'])
+@api_key_or_auth_required
+@returns_json
+def frequency_update(station_id):
+    """API method to get the frequency of updates for a station"""  
+    station = Station.query.filter_by(id=station_id).first_or_404()
+   
+    diagnostic = {"interval" : station.analytic_update_frequency, "unit" : "seconds"}
+    synchronization = {"interval" : station.client_update_frequency, "unit" : "seconds"}
+    response= {"synchronization" : synchronization, "diagnostics" : diagnostic}
+    return response
+
+#added by nuno
+@csrf.exempt
+@api.route('/station/<int:station_id>/call', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@returns_json
+def call_data(station_id):
+    """API method to get or post analytics for a station"""
+    
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    data = json.loads(request.data)
+    responses=[]
+  
+    for single_call_data in data['call_data']:
+        response=dict()
+        response['id'] = single_call_data['call_uuid']
+        call_data = Call(**single_call_data) #use this format to avoid multidict-type issue
+        call_data.station = station
+        db.session.add(call_data)
+        try:
+            db.session.commit()
+            response['status'] = True
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            response['status'] = False
+            response['error'] = e.message
+        responses.append(response)
+    allresponses= {"results" : responses}
+    return allresponses
+
+
+#added by nuno
+@csrf.exempt
+@api.route('/station/<int:station_id>/message', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@returns_json
+def message_data(station_id):
+    """API method to get or post analytics for a station"""
+    
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    data = json.loads(request.data)
+    responses=[]
+  
+    for single_message_data in data['message_data']:
+        response=dict()
+        response['id'] = single_message_data['message_uuid']
+        message_data = Message(**single_message_data) #use this format to avoid multidict-type issue
+        message_data.station = station
+        db.session.add(message_data)
+        try:
+            db.session.commit()
+            response['status'] = True
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            response['status'] = False
+            response['error'] = e.message
+        responses.append(response)
+    allresponses= {"results" : responses}
+    return allresponses
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET'])
@@ -257,4 +351,3 @@ def program_episodes(program_id):
             abort(make_response(message, 400)) 
     else:
         return episodes.all()
-
