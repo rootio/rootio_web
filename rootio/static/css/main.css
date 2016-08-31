@@ -3,9 +3,7 @@
     --navbarColor: #009688;
     --navbarShadow:  rgba(255, 255, 255, 0.9);
     --navsearchHover: #fff;
-
 }
-
 
 .form-actions {
     padding: 0;
@@ -110,7 +108,6 @@
     padding: 10px;
 }
 
-
 .nav-user .dropdown-toggle{
     color:white;
     text-decoration: none; !important;
@@ -131,18 +128,139 @@
     left: auto;
 }
 
-
-
-/*End of navbar*/
-
-
-
-
-
 /*Icon color*/
 .white{
     color: #fff;
 }
+
+/*New look for flash container messages*/
+.alert{
+    border-radius: 0px;
+    margin-top: 10px;
+}
+/*End of new look*/
+
+
+/*Side Bar*/
+.side-nav{
+    position: absolute;
+    display: block;
+    width: 250px;
+    background: #f4f4f4;
+    top: 45px;
+    left: 0;
+    bottom:0px;
+    border-right: 1px solid #dddddd;
+    overflow-x: hidden;
+   /* transition: 0.5s;*/
+}
+
+.navside-tabs-wrapper{
+    width: 100%;
+}
+
+.side-nav .navside-tabs{
+    list-style: none;
+    padding: 0px;
+    margin: 0;
+}
+
+.side-nav .dropdown{
+    padding: 10px 15px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+.side-nav .navside-tabs a{
+    color: #3c3c3c;
+    font-size: 14px;
+    text-decoration: none;
+    line-height: 30px;
+}
+
+.dropdown-toggle .fa-chevron-down{
+    float: right;
+    padding-top: 7px;
+    padding-left: 10px;
+}
+
+.dropdown-toggle .fa{
+    font-size: 18px;
+    padding-right: 15px;
+}
+
+.navside-tabs-wrapper .no-dropdown{
+    padding: 10px 15px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+.side-nav .dropdown-menu {
+    position: relative;
+    width: 100%;
+    padding-top: 11px;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    background-color: #f4f4f4;
+    box-shadow: none;
+}
+
+.side-nav .dropdown-menu .fa-caret-right{
+    padding-right: 10px;
+}
+
+
+.side-nav .dropdown-menu li a {
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+/*ENd Side NavBar*/
+
+.header-content-header{
+    margin-left: 250px;
+    background-color: #f9f9f9;
+}
+
+.header-content-header h2{
+    padding: 20px 0px 20px 20px;
+    border-bottom: 1px solid #dddddd;
+    margin: 0px;
+}
+
+
+/*COntent container*/
+.content-container{
+    margin-left: 250px;
+    padding: 0px 30px 0px 30px;
+    margin-top: 20px;
+}
+
+
+/*ENd Content Container*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -159,10 +277,6 @@ form .required label:after {
     margin-left:2px;
 }
 
-/* 
- * Sticky footer 
- * http://twitter.github.io/bootstrap/examples/sticky-footer.html
- * */
 
 html,
 body { 
@@ -181,38 +295,6 @@ body {
     height: 60px;
     z-index: 10;
 }
-#footer {
-    background-color: #f5f5f5;
-}
-
-@media (max-width: 767px) {
-    #footer {
-        margin-left: -20px;
-        margin-right: -20px;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-}
-
-.footer-links {
-    text-align: center;
-    font-size: 12px;
-    line-height: 59px;
-    text-shadow: 0 1px 0 white;
-    background-color: whiteSmoke;
-    border-top: 1px solid #E5E5E5;
-}
-
-.footer-links li {
-    display: inline;
-    padding: 0 2px;
-}
-
-.footer-links li:first-child {
-    padding-left: 0;
-}
-
-/* End of sticky footer */
 
 /* bootstrap + tablesorter */
 

@@ -1,7 +1,7 @@
 {% macro render_checkbox(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
     <div class="controls">
-        <label for="{{ field.id }}" class="checkbox inline {%if field.flags.required%}required{%endif%}">
+        <label for="{{ field.id }}" class="checkbox-inline {%if field.flags.required%}required{%endif%}">
             {{ field }}{{ field.label.text }}
         </label>
         <span class="help-inline">{{ field.description }}</span>
@@ -70,7 +70,7 @@
 {% endmacro %}
 
 {% macro render_inline_form(field, inline_form) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
     <label class="control-label {%if field.flags.required%}required{%endif%}" 
         for="{{ field.id }}">
         {{ field.label }}
@@ -118,12 +118,12 @@
 {% endmacro %}
 
 {% macro render_input(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label {%if field.flags.required%}required{%endif%}" 
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+    <label class="control-label {%if field.flags.required%}required{%endif%}"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls">
+    <div class="form-control">
         {{ field }}
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
@@ -176,7 +176,7 @@
     {% endif %}
 {% endmacro %}
 
-
+{#RENDERIZA O FORM#}
 {% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None) %}
 <form class="{% if horizontal %}form-horizontal{% endif %}" method="POST" action="{{ url }}"
     {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %} 

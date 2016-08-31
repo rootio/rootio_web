@@ -1,8 +1,10 @@
-{% extends "radio/layout.html" %}
+{#% extends "radio/layout.html" %#}
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Stations"%}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Stations') }}</h2>
+    <!--<h2 class="pull-left">{{ _('Stations') }}</h2>-->
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
@@ -27,5 +29,4 @@
         </tr>
         {% endfor %}
     </table>
-</div>
 {% endblock %}
