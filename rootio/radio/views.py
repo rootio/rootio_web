@@ -20,6 +20,8 @@ from ..extensions import db
 
 from ..messenger import messages
 
+from werkzeug import secure_filename
+
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
@@ -497,7 +499,12 @@ def media_add():
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
+        upload_file = request.files[form.path.name]
+        data = upload_file.read()
+        path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
+        open(path_file, 'w').write(data)
         cleaned_data.pop('submit', None)  # remove submit field from list
+        cleaned_data['path'] = path_file
         media = MediaFiles(**cleaned_data)  # create new object from data
 
         db.session.add(media)
@@ -516,7 +523,12 @@ def media_edit(media_id):
 
     if form.validate_on_submit():
         form.populate_obj(media)
-
+        if request.files[form.path.name]:
+            upload_file = request.files[form.path.name]
+            data = upload_file.read()
+            path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
+            open(path_file, 'w').write(data)
+            media.path = path_file
         db.session.add(media)
         db.session.commit()
         flash(_('Media File updated.'), 'success')
@@ -528,7 +540,7 @@ def media_edit(media_id):
 def media_list():
     media = dict()
     for m in MediaFiles.query.all():
-        media[m.id] = {'media_id': m.id, 'description': m.descrptioni, 'path': m.path,
-                          'language': m.language, 'type': m.type,
+        media[m.id] = {'media_id': m.id, 'name': m.name, 'description': m.description, 'path': m.path,
+                          'language': unicode(m.language), 'type': m.type,
                           'duration': m.duration}
     return json.jsonify(media)

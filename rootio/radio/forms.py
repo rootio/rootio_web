@@ -4,14 +4,14 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, DateTimeField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, DateTimeField, FileField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots, MediaFiles
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -135,3 +135,14 @@ class AddBotForm(Form):
   path = StringField()
   submit = SubmitField(_('Save'))
 
+class MediaForm(Form):
+    #can't use model_form, because we want to use a custom field for time duration
+    multipart = True
+    name = StringField()
+    description = TextAreaField()
+    duration = DurationField(description=_("Duration of the audio file, in HH:MM(:SS)"))
+    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
+    type = SelectField(choices=[(g, g)for g in MediaFiles.type.property.columns[0].type.enums])
+    path = FileField()
+
+    submit = SubmitField(_('Save'))

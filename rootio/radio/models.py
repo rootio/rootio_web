@@ -41,6 +41,7 @@ class Language(BaseMixin, db.Model):
 
     #relationships
     programs = db.relationship(u'Program', backref=db.backref('language'))
+    media = db.relationship(u'MediaFiles', backref=db.backref('language'))
 
     def __unicode__(self):
         return self.name
@@ -468,44 +469,13 @@ t_radioprogramgasinfo = db.Table(
     db.Column(u'fk_radio_program_id', db.ForeignKey('radio_program.id'))
 )
 
+class MediaFiles(BaseMixin, db.Model):
+    '''Table that stores the media files that could be used during programs'''
+    __tablename__ = u'media_files'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    name = db.Column(db.String(STRING_LEN), nullable=False)
+    path = db.Column(db.String(STRING_LEN), nullable=False)
+    type = db.Column(db.Enum('Jingle','Interlude','Other',name='type'),nullable=False)
+    description = db.Column(db.String(STRING_LEN))
+    duration = db.Column(db.Interval)
+    language_id = db.Column(db.ForeignKey('radio_language.id'))
