@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Player MP3 Maxi</title>
+		<style type="text/css">
+		html {
+			background-color: #7f7f8e;
+			color: #fff;
+		}
+		body {
+			background: #fff;
+			color: #000;
+			border: solid 5px #9494A5;
+			padding: 1em;
+			margin: 1em 2em 1em 2em;
+		}
+		h1 {
+			text-align: center;
+			border-bottom: solid 2px #ccc;
+		}
+		table {
+			width: 100%;
+			border: solid 1px #666;
+			border-collapse: collapse;
+		}
+		table th {
+			text-align: left;
+			padding: .5em;
+		}
+		table tfoot {
+			display: none;
+		}
+		table tbody td {
+			vertical-align: top;
+			padding: .5em;
+			border-top: solid 1px #666;
+		}
+		table th.description, table th.html {
+			width: 50%;
+		}
+		.code {
+			border: solid 1px #990;
+			background-color: #ffffdd;
+			overflow: auto;
+			margin: 0;
+		}
+		</style>
+        <script type="text/javascript">
+            function play() {
+                document.getElementById("monFlash").SetVariable("player:jsPlay", "");
+            }
+            function pause() {
+                document.getElementById("monFlash").SetVariable("player:jsPause", "");
+            }
+            function stop() {
+                document.getElementById("monFlash").SetVariable("player:jsStop", "");
+            }
+            function volume(n) {
+                document.getElementById("monFlash").SetVariable("player:jsVolume", n);
+            }
+        </script>
+	</head>
+	<body>
+		<h1>Thème maxi</h1>
+		<table summary="Des exemples d'affichage du lecteur">
+			<thead>
+				<tr><th>Aperçu</th><th class="description">Description</th><th class="html">Code HTML</th></tr>
+			</thead>
+			<tfoot>
+				<tr><td>Aperçu</td><td>La description de l'exemple</td><td>Le code HTML de l'exemple</td></tr>
+			</tfoot>
+			<tbody>
+				<tr>
+					<td>
+						<object id="monFlash" type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="mp3=test.mp3" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>
+                        Affichage par défaut, sans options.
+                        <br/>Contrôles Javascript:
+                        <br/><a href="javascript:play()">PLAY</a> - <a href="javascript:pause()">PAUSE</a> - <a href="javascript:stop()">STOP</a> - <a href="javascript:volume(0)">VOLUME</a>
+                    </td>
+					<td>
+						<pre class="code">&lt;object id="monFlash" type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="mp3=test.mp3" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre><br/>
+                        <pre class="code">&lt;script language="Javascript"&gt;
+function play() {
+    document.getElementById("monFlash").SetVariable("player:jsPlay", "");
+}
+function pause() {
+    document.getElementById("monFlash").SetVariable("player:jsPause", "");
+}
+function stop() {
+    document.getElementById("monFlash").SetVariable("player:jsStop", "");
+}
+function volume(n) {
+    document.getElementById("monFlash").SetVariable("player:jsVolume", n);
+}
+&lt;/script&gt;</pre>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color:#99c">
+						<object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="mp3=test.mp3&amp;showstop=1&amp;showinfo=1&amp;showvolume" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>Toutes les options d'affichage sont activées. On teste la transparence sur un fond d'une autre couleur. Si vous avez des problèmes avec la transparence, vous pouvez forcer la couleur comme indiqué <a href="http://resources.neolao.com/flash/components/player_mp3/templates/maxi#le_fond_n_est_pas_transparent">ici</a>.</td>
+					<td>
+						<pre class="code">&lt;object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="mp3=test.mp3&amp;amp;showstop=1&amp;amp;showinfo=1&amp;amp;showvolume=1" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="mp3=test.mp3&amp;bgcolor1=ffffff&amp;bgcolor2=cccccc&amp;buttoncolor=999999&amp;buttonovercolor=0&amp;slidercolor1=cccccc&amp;slidercolor2=999999&amp;sliderovercolor=666666&amp;textcolor=0&amp;showvolume=1" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>Exemple avec un changement de couleurs.</td>
+					<td>
+						<pre class="code">&lt;object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="mp3=test.mp3&amp;amp;bgcolor1=ffffff&amp;amp;bgcolor2=cccccc&amp;amp;buttoncolor=999999&amp;amp;buttonovercolor=0&amp;amp;slidercolor1=cccccc&amp;amp;slidercolor2=999999&amp;amp;sliderovercolor=666666&amp;amp;textcolor=0&amp;amp;showvolume=1" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="mp3=test.mp3&amp;skin=skin001.jpg" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>Exemple avec une image de fond.</td>
+					<td>
+						<pre class="code">&lt;object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="200" height="20"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="mp3=test.mp3&amp;amp;skin=skin001.jpg" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color:#cc9">
+						<object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="300" height="30">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="config=config.txt&amp;bgcolor1=ffcc00" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>Exemple d'utilisation d'un fichier de configuration avec priorité sur les paramètres HTML. On peut changer la taille du lecteur ainsi que celle de la barre et des boutons.<br/> Voir <a href="config.txt">le fichier de configuration en texte</a>.</td>
+					<td>
+						<pre class="code">&lt;object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="300" height="30"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="config=config.txt&amp;amp;bgcolor1=ffcc00" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color:#cc9">
+						<object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="300" height="30">
+							<param name="wmode" value="transparent" />
+							<param name="movie" value="player_mp3_maxi.swf" />
+							<param name="FlashVars" value="configxml=config.xml&amp;bgcolor1=ffcc00" />
+							<p>Texte alternatif</p>
+						</object>
+					</td>
+					<td>Même chose mais en XML.<br/> Voir <a href="config.xml">le fichier de configuration en XML</a>.</td>
+					<td>
+						<pre class="code">&lt;object type="application/x-shockwave-flash" data="player_mp3_maxi.swf" width="300" height="30"&gt;
+	&lt;param name="wmode" value="transparent" /&gt;
+	&lt;param name="movie" value="player_mp3_maxi.swf" /&gt;
+	&lt;param name="FlashVars" value="configxml=config.xml&amp;amp;bgcolor1=ffcc00" /&gt;
+	&lt;p&gt;Texte alternatif&lt;/p&gt;
+&lt;/object&gt;</pre>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>Plus d'information sur <a href="http://resources.neolao.com/flash/components/player_mp3/templates/maxi">la page officielle</a>.</p>
+	</body>
+</html>
