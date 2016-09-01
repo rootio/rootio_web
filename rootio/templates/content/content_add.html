@@ -1,0 +1,43 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2>Upload File</h2>
+    <form method="post" enctype="multipart/form-data">
+        <div style="display:none;">{{ form.csrf_token }}</div>
+    
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label " for="content_type">
+                    <label for="content_type">Content Track</label>
+                </label>
+                <div class="controls">
+                    {{ form.contenttrack_id }}
+                    <span class="help-inline"></span>
+            
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label " for="name">
+                    <label for="name">Audio file</label>
+                </label>
+                <div class="controls">
+                    {{ form.file }}
+                    <span class="help-inline"></span>
+                    
+                </div>
+            </div> 
+            <div class="control-group">
+    <div class="form-actions">
+        <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Save">
+    </div>
+</div>
+                
+            
+        </fieldset>
+    </form>
+</div>
+{% endblock %}
