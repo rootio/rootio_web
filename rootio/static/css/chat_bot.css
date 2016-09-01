@@ -15,7 +15,7 @@ i{
 }
 
 #chatBox{
-    /*display:none;*/
+    display:none;
     position: fixed;
     bottom: 80px;
     right: 20px;
@@ -41,13 +41,18 @@ i{
 
 .chatBoxBody {
   height:230px;
-  width: 100%;
+  width: 249px;
   overflow-y: scroll;
+  overflow-x: hidden;
+    border-right: 1px solid lightgray;
+
 }
 
-/*.chatBoxBody table {
-  width: 100%;
-}*/
+.chatBoxBody table {
+  width: 99%; !important;
+  max-width: 240px;
+  table-layout: fixed;
+}
 
 .chatBoxUp > i{
     display:inline-block;
@@ -57,22 +62,24 @@ i{
 
 #chatBoxText{
     border-top: 1px solid lightgray;
-    height: 50px;
-    width: 95%;
+    height: 30px;
     font-family: 'tahoma';
     font-size: 13px;
     padding: 5px;
 }
 
 .msg-row {
-  width: 100%;
-  border-bottom: 1px solid lightgray;
-  padding: 3px 0px 3px 2px;
-
+    max-width: 99%;
+    border-bottom: 1px solid lightgray;
+    padding: 3px 0px 3px 2px;
 }
 
 .message {
-  margin-left: 40px;
+    margin-left: 40px;
+}
+.chatBoxBody .msg-text{
+    width: 11em;
+    word-wrap: break-word;
 }
 
 
@@ -87,6 +94,14 @@ i{
 }
 
 
+#chatBoxText #helpCmd{
+    margin: 0;
+    width: 95%;
+    border: none;
+    outline:none;
+    box-shadow: none;
+;}
+
 .avatar-left {
   width: 24px;
   height: 24px;
@@ -95,3 +110,9 @@ i{
   border: 1px solid lightgray;
 }
 
+.avatar-user{
+  width: 24px;
+  height: 24px;
+  float: left;
+  border: 1px solid lightgray;
+}

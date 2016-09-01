@@ -51,7 +51,7 @@
                         <ul class="nav">
                             {% if current_user.is_authenticated() %}
                                 {% if current_user.is_admin() %}
-                                <li><a href="{{ url_for('rootio.index') }}">{{ current_user.name }}</a></li>
+                                <li><a id="username" href="{{ url_for('rootio.index') }}">{{ current_user.name }}</a></li>
                                 {% else %}
                                 <li><a href="{{ url_for('user.index') }}">{{ current_user.name }}</a></li>
                                 {% endif %}
@@ -136,9 +136,8 @@
 
             <div class="chatBoxBody">
                 <table>
-
                 </table>
-                </div>
+            </div>
         <div id="chatBoxText">
             <input type="text" id="helpCmd" placeholder="Type your message.">
         </div>
