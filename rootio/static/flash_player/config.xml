@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<param name="mp3" value="test.mp3" />
+	<param name="width" value="300" />
+	<param name="height" value="30" />
+	<param name="sliderwidth" value="30" />
+	<param name="sliderheight" value="16" />
+	<param name="buttonwidth" value="30" />
+	<param name="bgcolor" value="cccc99" />
+	<param name="bgcolor1" value="0000ff" />
+	<param name="bgcolor2" value="ff0000" />
+	<param name="showvolume" value="1" />
+	<param name="volumewidth" value="50" />
+	<param name="volumeheight" value="10" />
+</config>
