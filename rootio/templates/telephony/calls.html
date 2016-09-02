@@ -12,6 +12,7 @@
                 <th>{{ _('End') }}</th>
                 <th>{{ _('From') }}</th>
                 <th>{{ _('To') }}</th>
+                <th>{{ _('Station') }}</th>
             </tr>
         </thead>
         {% for call in calls %}
@@ -21,9 +22,7 @@
             <td>{{ call.end_time }}</td>
             <td>{{ call.from_phonenumber }}</td>
             <td>{{ call.to_phonenumber }}</td>
-	    {#todo: fix linking below#}
-            {#<td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.from_phonenumber.id) }}">{{ call.from_phonenumber }}</a></td>#}
-            {#<td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.to_phonenumber.id) }}">{{ call.to_phonenumber }}</a></td>#}
+	        <td>{{ call.station_id }}</td>
         </tr>
         {% endfor %}
     </table>

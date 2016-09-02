@@ -11,7 +11,9 @@ from .constants import PRIVACY_TYPE
 from ..utils import STRING_LEN, GENDER_TYPE, id_generator, object_list_to_named_dict
 from ..extensions import db
 
-from ..telephony import PhoneNumber
+from ..telephony.models import PhoneNumber
+
+
 
 class Location(BaseMixin, db.Model):
     "A geographic location"
@@ -71,6 +73,8 @@ t_networkadmins = db.Table(
 class Station(BaseMixin, db.Model):
     "A single radio station"
     __tablename__ = 'radio_station'
+
+    
 
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
@@ -308,7 +312,6 @@ class ScheduledBlock(BaseMixin, db.Model):
         return self.name
 
 
-#changed by nuno
 class ScheduledProgram(BaseMixin, db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
@@ -316,6 +319,7 @@ class ScheduledProgram(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
+    status = db.Column(db.Boolean)
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)
@@ -421,7 +425,6 @@ class Role(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
 
-#changed by nuno
 class StationAnalytic(BaseMixin, db.Model):
     "A store for analytics from the client"
     __tablename__ = 'radio_stationanalytic'
@@ -441,7 +444,7 @@ class StationAnalytic(BaseMixin, db.Model):
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
 
-#added by nuno
+
 class ContentType(BaseMixin, db.Model):
     __tablename__ = u'radio_contenttype'
 

@@ -37,6 +37,8 @@ class BaseConfig(object):
     WTF_CSRF_SECRET_KEY = 'a random string'
     CSRF_SESSION_KEY = "02090298402394okajsdflkaslfkj02934" 
 
+    CONTENT_DIR = "/home/amour/test_media"
+
 
 class DefaultConfig(BaseConfig):
     DEBUG = True
