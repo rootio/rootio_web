@@ -1,61 +1,10 @@
-{% extends "radio/layout.html" %}
-
-{% block css_style %}
-<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
-<!--[if lte IE 8]>
-    <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
-<![endif]-->
-<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 300px; border:1px solid #ddd; margin-bottom:20px; }</style>
-{% endblock %}
-
-{% block js_top %}
-<script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
-{% endblock %}
+{% extends "content/layout.html" %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <h2>{% trans %}Content Dashboard {% endtrans %}</h2>
-
-        <h3>{% trans %} Stations {% endtrans %}</h3>
-        <!--<div id="map" class="span4"></div>
-
-        <div class="span7">
-            <table class='table table-bordered table-hover span12'>
-            <thead>
-                <tr>
-                    <th>{{ _('Name') }}</th>
-                    <th>{{ _('Battery') }}</th>
-                    <th>{{ _('GSM Signal') }}</th>
-                    <th>{{ _('WiFi Network') }}</th>
-                    <th>{{ _('Memory') }}</th>
-                    <th>{{ _('Storage') }}</th>
-                    <th>{{ _('CPU ') }}</th>
-                </tr>
-            </thead>
-            {%for station in stations %}
-            {% set analytics = station.recent_analytics() %}
-            <tr>
-                <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-            </tr>
-            {%endfor%}
-            </table>
-        </div>-->
-        
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div>
+        {%trans%}System status{%endtrans%}
     </div>
 </div>
-{% endblock %}
-
-{% block js_btm %}
-<script src="{{ url_for('static', filename='js/map.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
