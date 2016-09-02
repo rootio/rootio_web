@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if content_news%}
+        <h2>{{ _('Edit') }} {{ _('ContentUploads') }}</h2>
+        {{ render_form(url_for('content.content_upload', content_news_id=content_news.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('ContentUploads') }}</h2>
+        {{ render_form(url_for('content.content_news_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}
