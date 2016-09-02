@@ -14,7 +14,7 @@ telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])
 def index():
-    from ..radio.models import Station
+    from rootio.radio.models import Station
     #ugh, circular imports...
 
     stations = Station.query.all()
