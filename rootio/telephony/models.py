@@ -5,7 +5,8 @@ from ..extensions import db
 
 from .constants import PHONE_NUMBER_TYPE
 from ..utils import STRING_LEN
-#from ..radio import Station
+#from ..radio.models import Station
+    
 
 from coaster.sqlalchemy import BaseMixin
 
@@ -20,7 +21,6 @@ class PhoneNumber(BaseMixin, db.Model):
     countrycode = db.Column(db.String(3)) #does not include + symbol
     number = db.Column(db.String(20),nullable=False) #filtered data
     raw_number = db.Column(db.String(20)) #raw from telephony
-    #station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     number_type = db.Column(db.Integer) #convert to enum?
     @property
@@ -37,6 +37,8 @@ class PhoneNumber(BaseMixin, db.Model):
 class Call(BaseMixin, db.Model):
     """An incoming or outgoing call from the telephony system.
     Defined here for easy readability by the web server, but should not be written to in this process."""
+    #from rootio.radio.models import Station
+    #ugh, circular imports...
     __tablename__ = u'telephony_call'
 
     
@@ -50,8 +52,9 @@ class Call(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
     
-    #from_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.from_phonenumber_id == PhoneNumber.id')
-    #to_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Call.to_phonenumber_id == PhoneNumber.id')
+    #todo: add station relationship
+    #station = db.relationship(u'Station')
+   
 
 
 class Message(BaseMixin, db.Model):
@@ -68,9 +71,7 @@ class Message(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id')) 
     onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
 
-    #from_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Message.from_phonenumber_id == PhoneNumber.id')
-    #to_phonenumber = db.relationship(u'PhoneNumber', primaryjoin='Message.to_phonenumber_id == PhoneNumber.id')
-
+  
 class Gateway(BaseMixin, db.Model):
     """A sip gateway specification, one (current) or more (TODO) per station"""
     __tablename__ = u'telephony_gateway'
@@ -85,5 +86,3 @@ class Gateway(BaseMixin, db.Model):
 
     def __unicode__(self):
         return self.name
-
-

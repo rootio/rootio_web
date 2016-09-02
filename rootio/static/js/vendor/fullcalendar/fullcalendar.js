@@ -4731,10 +4731,13 @@ function AgendaEventRenderer() {
 						.text(
 							formatDate(event.start, opt('timeFormat')) + ' - ' + event.title
 						);
+						
 					eventElement.find('div.fc-event-title')
 						.remove();
 				}
 				trigger('eventAfterRender', event, event, eventElement);
+				eventElement[0].style.backgroundColor = event.status == undefined? '#ffcc00' : event.status? '#008000' : '#e60000';
+				eventElement[0].style.borderColor = event.status == undefined? '#bb9900' : event.status? '#004000' : '#b20000';
 			}
 		}
 					

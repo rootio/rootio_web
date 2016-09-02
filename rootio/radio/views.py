@@ -260,7 +260,7 @@ def schedule_program_add_ajax():
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
-#changed by nuno
+
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
 def delete_program(_id):
@@ -338,7 +338,7 @@ def schedule_recurring_program_ajax():
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
-#changed by nuno
+
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
@@ -355,7 +355,8 @@ def scheduled_programs_json(station_id):
         d = {'title':s.program.name,
             'start':s.start.isoformat(),
             'end':s.end.isoformat(),
-            'id':s.id}
+            'id':s.id,
+            'status':s.status}
         resp.append(d)
     return resp
 
@@ -421,14 +422,13 @@ def schedule_station(station_id):
 
 
 
-#added by nuno
 @radio.route('/telephony/', methods=['GET', 'POST'])
 def telephony():
     stations = Station.query.all()
     return render_template('radio/stations_telephony.html', stations=stations)
 
 
-#added by nuno
+
 @radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
 def telephony_station(station_id):
     
@@ -445,7 +445,6 @@ def telephony_station(station_id):
     return render_template('radio/station_telephony.html', station=station, form=form)
 
 
-#added by nuno
 @radio.route('/telephony/add/', methods=['GET', 'POST'])
 @login_required
 def telephony_add():
@@ -465,4 +464,4 @@ def telephony_add():
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
-    return render_template('radio/person.html', person=person, form=form)
+    return render_template('radio/station_telephony.html', station=station, form=form)
