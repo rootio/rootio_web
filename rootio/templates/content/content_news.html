@@ -1,0 +1,42 @@
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('News') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.content_news_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Track name') }}</th>
+                <th>{{ _('Uploaded date') }}</th>
+                <th>{{ _('Listen') }}</th>
+                <th>{{ _('File name') }}</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for content_upload in content_news %}
+        <tr>
+            <td>{{ content_upload.content_tracks.name }}</td>
+            <td>{{ content_upload.created_at }}</td>
+            <td>
+                <object type="application/x-shockwave-flash" data="../../static/flash_player/player_mp3_maxi.swf" width="200" height="25">
+                    <param name="wmode" value="transparent" />
+                    <param name="movie" value="../../static/flash_player/player_mp3_maxi.swf" />
+                    <param name="FlashVars" value="mp3=../../media/{{ content_upload.uri }}&height=25&width=200;bgcolor1=ffffff&bgcolor2=cccccc&buttoncolor=999999&buttonovercolor=0&slidercolor1=cccccc&slidercolor2=999999&sliderovercolor=666666&textcolor=0&showvolume=1" />
+                    <p>{{ content_upload.title }}</p>
+                </object>
+            </td>
+            <td>{{ content_upload.name }}</td>
+            <td><a href="{{ url_for('content.content_news_edit', content_news_id=content_upload.id) }}">Edit</a></td>
+            <td></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
