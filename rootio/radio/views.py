@@ -465,7 +465,7 @@ def new_bot_add():
     return render_template('radio/bot.html', bot=bot, form=form)
 
 @radio.route('/bot/<int:radio_id>/<int:function_id>', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def bot_edit(radio_id, function_id):
 
     bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()

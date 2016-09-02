@@ -1,0 +1,31 @@
+{% from "macros/_form.html" import render_form, render_field %}
+
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/block.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Add') }} {{ _('Aggregator Function Name') }}</h2>
+    <form method="POST" action="{{ url_for('bot.add_aggregator_function')}}" >
+        {{ form.hidden_tag() }}
+        {{ render_field(form, form.name) }}
+        {{ render_field(form, form.submit) }}
+    </form>
+</div>
+{% endblock %}

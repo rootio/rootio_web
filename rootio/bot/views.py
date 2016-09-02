@@ -1,5 +1,10 @@
 import pytz
 from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, request, flash, json,url_for
+from flask.ext.babel import gettext as _
+
+from flask.ext.login import login_required
+from flask import Blueprint, render_template, request, flash, json,url_for
 
 from rootio.bot.feedFBBot import getFBPosts
 from rootio.radio import StationhasBots
@@ -8,6 +13,8 @@ from .aggregation_bot import __getRTP_RSS, textToDatetime
 from ..extensions import db
 from ..utils_bot import send_mail
 from .models import ChatBotCmd
+from ..radio.models import BotFunctions
+from .forms import AddBotFunction, AddNewCommand
 
 #TODO GIVE A THREATMENT TO ALL THE STRING THAT ARE FETCHED BY THE BOT
 #TODO ADD DECORATOR TO REFUSED CONNECTION FROM OUTSIDE OF THE SERVER.
@@ -52,6 +59,7 @@ def facebook_puller(radio_id, function_id):
 
     return render_template("bot/getnews.html")
 
+
 @bot.route('/savechat', methods=['POST'])
 def chatBot_Save():
     getanswer = ChatBotCmd.answerTocode(request.form['msg'])
@@ -60,3 +68,52 @@ def chatBot_Save():
     else:
         return "I don't know that command, check if you spelled it in the write way. " \
                "If you don't know which commands to use write help"
+
+
+@bot.route('/add/function', methods=['GET', 'POST'])
+@login_required
+def add_aggregator_function():
+    form = AddBotFunction(request.form)
+    new_function = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data                        # make a copy
+        cleaned_data.pop('submit', None)                # remove submit field from list
+        new_function = BotFunctions(**cleaned_data)   # create new object from data
+        try:
+            db.session.add(new_function)
+            db.session.commit()
+            flash(_('New Aggregation.'), 'success')
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash(_('Error Bot Not Added.'), 'error')
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('bot/aggregator_functions.html', new_function=new_function, form=form)
+
+@bot.route('/add/command', methods=['GET', 'POST'])
+@login_required
+def add_chatbot_command():
+    form = AddNewCommand(request.form)
+    new_command = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data                        # make a copy
+        cleaned_data.pop('submit', None)                # remove submit field from list
+        new_command = ChatBotCmd(**cleaned_data)        # create new object from data
+        try:
+            db.session.add(new_command)
+            db.session.commit()
+            flash(_('New Chat Bot Command Added.'), 'success')
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash(_('Error No ChatBot Command Added.'), 'error')
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('bot/chatbot_commands.html', new_command=new_command, form=form)
