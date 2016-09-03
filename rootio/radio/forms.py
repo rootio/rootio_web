@@ -6,7 +6,7 @@ from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, DateTimeField, FileField
 from wtforms_components.fields import TimeField
-from wtforms.validators import Required, AnyOf
+from wtforms.validators import Required, AnyOf, Optional
 import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
@@ -17,7 +17,7 @@ from .widgets import ChoicesSelect
 from ..user.models import User
 from ..telephony.forms import PhoneNumberForm
 
-from ..utils import OrderedForm, GENDER_TYPE
+from ..utils import OrderedForm, GENDER_TYPE, ALLOWED_AUDIO_EXTENSIONS, allowed_audio_file
 from ..extensions import db
 
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
@@ -138,11 +138,23 @@ class AddBotForm(Form):
 class MediaForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     multipart = True
-    name = StringField()
-    description = TextAreaField()
-    duration = DurationField(description=_("Duration of the audio file, in HH:MM(:SS)"))
-    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
-    type = SelectField(choices=[(g, g)for g in MediaFiles.type.property.columns[0].type.enums])
-    path = FileField()
+    name = StringField(u'Name',[Required()])
+    description = TextAreaField(u'Description',[Optional()])
+    language = QuerySelectField(u'Language',query_factory=all_languages,allow_blank=False)
+    type = SelectField(u'Type',choices=[(g, g)for g in MediaFiles.type.property.columns[0].type.enums])
+    path = FileField(u'Audio File')
+    submit = SubmitField(_('Save'))
 
+    def validate_audio_file(form, field):
+        if field.data and not allowed_audio_file(field.data.filename):
+            raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS))
+
+class NewProgramForm(Form):
+    #can't use model_form, because we want to use a custom field for time duration
+    name = StringField()
+    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
+    program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
+    #content_type = SelectField(u'Type of content',choices=[('audio','Audio Files'), ('sms','SMS'), ('agg','Aggregators')])
+    #aggregators = SelectField(u'Aggregators',choices=[('fb','FB'), ('rtp','RTP'), ('ipma','Weather')])
+    #type = SelectField(u'Type of Audio File', choices=[(g, g) for g in MediaFiles.type.property.columns[0].type.enums])
     submit = SubmitField(_('Save'))

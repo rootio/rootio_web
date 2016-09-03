@@ -16,6 +16,8 @@ from flask.ext.wtf import Form
 
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
+ALLOWED_AUDIO_EXTENSIONS = set(['mp3', 'wav'])
+
 # Form validation
 
 USERNAME_LEN_MIN = 4
@@ -92,6 +94,9 @@ def random_boolean(threshold):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AVATAR_EXTENSIONS
+
+def allowed_audio_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AUDIO_EXTENSIONS
 
 
 def id_generator(size=10, chars=string.ascii_letters + string.digits):
