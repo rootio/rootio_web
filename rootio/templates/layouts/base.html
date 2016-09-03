@@ -18,13 +18,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_bot.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     {% endblock %}
 
     {% block css_style %}
+
     {% endblock %}
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
     {% block js_top %}
+
     {% endblock %}
 </head>
 <body>
@@ -35,17 +41,17 @@
         <div class="navbar navbar-static-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class='brand' href='{{ url_for('frontend.index') }}'><img src="{{ url_for('static', filename='img/logo.png') }}" /></a>
+                    <a class='brand' href="{{ url_for('frontend.index') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" /></a>
 
                     <form class="navbar-search pull-left" action="{{ url_for('frontend.search') }}">
-                        <input type='text' class="search-query" name='keywords' value='{{ keywords|default('') }}' placeholder='Search' />
+                        <input type='text' class="search-query" name='keywords' value="{{ keywords|default('') }}" placeholder='Search' />
                     </form>
 
                      <div class="pull-right">
                         <ul class="nav">
                             {% if current_user.is_authenticated() %}
                                 {% if current_user.is_admin() %}
-                                <li><a href="{{ url_for('rootio.index') }}">{{ current_user.name }}</a></li>
+                                <li><a id="username" href="{{ url_for('rootio.index') }}">{{ current_user.name }}</a></li>
                                 {% else %}
                                 <li><a href="{{ url_for('user.index') }}">{{ current_user.name }}</a></li>
                                 {% endif %}
@@ -118,12 +124,32 @@
         <div id="push"></div>
     </div>
 
+        <div id="chatButton">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+        </div>
+
+        <div id="chatBox">
+            <div class="chatBoxUp">
+                <p>Help Bot</p>
+                <i class="fa fa-minus"  id="minimizeChat"  aria-hidden="true"></i>
+            </div>
+
+            <div class="chatBoxBody">
+                <table>
+                </table>
+            </div>
+        <div id="chatBoxText">
+            <input type="text" id="helpCmd" placeholder="Type your message.">
+        </div>
+    </div>
+            </div>
+
     <footer id="footer">
         <ul class="footer-links">
             <li>© 2013</li>
             <li><a href='http://rootio.org/'>{{ _('About') }}</a></li>
             <li class="muted">&middot;</li>
-            <li><a href='{{ url_for('frontend.help') }}'>{{ _('Help') }}</a></li>
+            <li><a href="{{ url_for('frontend.help') }}">{{ _('Help') }}</a></li>
             <li class="muted">&middot;</li>
             <li><a href='https://github.com/rootio/rootio-cloud/blob/master/LICENSE'>{{ _('Terms') }}</a></li>
         </ul>
@@ -138,6 +164,8 @@
     {% block js_btm %}{% endblock %}
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/chat_bot.js') }}"></script>
 
 
     {% block ga %}

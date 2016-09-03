@@ -55,7 +55,7 @@ class DefaultConfig(BaseConfig):
                         'nyn':'Nyankore',
                         'lug':'Luganda',
                         'luo':'Luo',
-			'es':'Espanol'}
+			            'es':'Espanol'}
 
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'

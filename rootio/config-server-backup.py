@@ -13,7 +13,7 @@ class BaseConfig(object):
     DEBUG = False
     TESTING = False
 
-    ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
+    ADMINS = ['fabiocl93@gmail.com']
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
     SECRET_KEY = 'SeekritKey'

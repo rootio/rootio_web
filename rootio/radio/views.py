@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
+import string
+import random
 import os
 from datetime import datetime, timedelta
 import time
@@ -7,18 +9,31 @@ import dateutil.rrule, dateutil.parser
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
+import re
+
+import dateutil.parser
+import dateutil.rrule
+from crontab import CronTab
+
+from datetime import datetime
+from flask import Blueprint, render_template, request, flash, json,url_for
 from flask.ext.babel import gettext as _
+from flask.ext.login import login_required
+from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import redirect
 
 from ..telephony import Message
 
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
 
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
 from ..extensions import db
-
-from ..messenger import messages
+from ..utils import error_dict, fk_lookup_form_data
+from ..utils_bot import add_cron, send_mail, removeCron
 
 from werkzeug import secure_filename
 
@@ -387,40 +402,73 @@ def schedule_station(station_id):
 
 @radio.route('/bots/', methods=['GET'])
 def list_bots():
+    """
+    Presents a list with all the bots that have been created and the radios where they're working
+    :return:
+    """
     stations = Station.query.all()
     return render_template('radio/bots.html', stations=stations)
+
+
 
 @radio.route('/bots/add/', methods=['GET', 'POST'])
 @login_required
 def new_bot_add():
-   """Renders the form"""
-   form = AddBotForm(request.form)
-   bot = None
+    """
+        Renders the form to insert a new bot in the database.
+        Add cronJobs if the state bot is active
+    """
+    form = AddBotForm(request.form)
+    bot = None
+    type = "add"
 
-   if form.validate_on_submit():
-       cleaned_data = form.data  # make a copy
-       cleaned_data.pop('submit', None)  # remove submit field from list
-       bot = StationhasBots(**cleaned_data)  # create new object from data
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        bot = StationhasBots(**cleaned_data)  # create new object from data
+        try:
+            bot = add_cron(bot,type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot added.'), 'success')
+        except Exception as e:
+            removeCron(bot, CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print (str(e))
+            send_mail("Error happened while you're adding a bot", str(e))
+            flash(_('Error Bot Not Added.'), 'error')
 
-       db.session.add(bot)
-       db.session.commit()
-       flash(_('New Bot Added.'), 'success')
-   elif request.method == "POST":
-       flash(_('Validation error'), 'error')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
 
-   return render_template('radio/bot.html', bot=bot, form=form)
+    return render_template('radio/bot.html', bot=bot, form=form)
 
-@radio.route('/bot/<int:radio_id>&<int:function_id>', methods=['GET', 'POST'])
+@radio.route('/bot/<int:radio_id>/<int:function_id>', methods=['GET', 'POST'])
+@login_required
 def bot_edit(radio_id, function_id):
 
     bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()
     form = AddBotForm(obj=bot, next=request.args.get('next'))
-
+    type = "edit"
     if form.validate_on_submit():
         form.populate_obj(bot)
-        db.session.add(bot)
-        db.session.commit()
-        flash(_('Bot updated.'), 'success')
+        try:
+            bot = add_cron(bot, type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot updated.'), 'success')
+        except Exception as e:
+            removeCron(bot,CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print(str(e))
+            send_mail("Error happened editig the bot", str(e))
+            flash(_('Error Bot Not Updated.'), 'error')
+
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/bot.html', bot=bot, form=form)
 

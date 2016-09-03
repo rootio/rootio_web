@@ -40,9 +40,8 @@
             {{ render_field(form, form.function_of_bots) }}
         {% endif %}
         {{ render_field(form, form.state) }}
-        {{ render_field(form, form.next_run) }}
         {{ render_field(form, form.source_url) }}
-        {{ render_field(form, form.path) }}
+        {{ render_field(form, form.local_url) }}
 
         <div class="control-group">
             <label class="control-label " for="run_frequency">
@@ -50,13 +49,16 @@
             </label>
             <div class="controls">
                 <!-- common schedules -->
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> {{ _('Daily') }}</label>
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> {{ _('Weekdays') }}</label>
-                    <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> {{ _('Weekends') }}</label>
-                    <label><input type="radio" name="preset-recurrence" value="custom" /> {{ _('Custom') }}</label>
-                    <div id="recurringinput">
+
+                    <!--<label><input type="radio" name="preset-recurrence" value="SEC"/> {{ _('Secondly') }}</label>-->
+                    <label><input type="radio" name="preset-recurrence" value="MIN"/> {{ _('Minutely') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="HOUR"/> {{ _('Hourly') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="DAY"/> {{ _('Daily') }}</label>
+                    <label><input type="radio" name="preset-recurrence" value="WEEEk" /> {{ _('Weekly') }}</label>
+                    <!--<label><input type="radio" name="preset-recurrence" value="custom" /> {{ _('Custom') }}</label>
+                    <div id="recurringinput">-->
                         <!-- custom user inputs created here by rrule.recurringinput.js -->
-                    </div>
+                    <!--</div>-->
             </div>
         </div>
 
