@@ -24,12 +24,9 @@ class LoginForm(Form):
 
 class SignupForm(Form):
     next = HiddenField()
-    email = EmailField(_('Email'), [Required(), Email()],
-            description=_("What's your email address?"))
-    password = PasswordField(_('Password'), [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
-            description=_('%s characters or more' % PASSWORD_LEN_MIN))
-    name = TextField(_('Choose your username'), [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
-            description=_("Don't worry. you can change it later."))
+    name = TextField(_('Your username'), [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)])
+    email = EmailField(_('Email'), [Required(), Email()])
+    password = PasswordField(_('Password'), [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)])
     agree = BooleanField(u'Agree to the ' +
         Markup('<a target="blank" href="/terms">Terms of Service</a>'), [Required()])
     submit = SubmitField(_('Sign up'))

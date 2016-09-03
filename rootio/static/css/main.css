@@ -217,7 +217,7 @@
 }
 
 /*ENd Side NavBar*/
-
+/*
 .header-content-header{
     margin-left: 250px;
     background-color: #f9f9f9;
@@ -228,14 +228,14 @@
     border-bottom: 1px solid #dddddd;
     margin: 0px;
 }
-
+*/
 
 /*COntent container*/
-.content-container{
+/*.content-container{
     margin-left: 250px;
     padding: 0px 30px 0px 30px;
     margin-top: 20px;
-}
+}*/
 
 
 /*ENd Content Container*/
@@ -284,6 +284,8 @@ body {
 }
 
 #wrap {
+
+   /* position: relative;*/
     min-height: 100%;
     height: auto !important;
     height: 100%;

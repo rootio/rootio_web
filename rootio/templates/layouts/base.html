@@ -19,7 +19,6 @@
    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-theme.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}">
 
-
     {% endblock %}
 
     {% block css_style %}
@@ -28,53 +27,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
     {% block js_top %}
     {% endblock %}
-
-
-
-
-{% set radio = [
-    (_("Status"), url_for('radio.index')),
-    (_("Stations"), url_for('radio.stations')),
-    (_("People"), url_for('radio.people')),
-    (_("Programs"), url_for('radio.programs')),
-    (_("Blocks"), url_for('radio.scheduled_blocks')),
-    (_("Schedule"), url_for('radio.schedule')),
-    (_("Bots"), url_for('radio.list_bots')),
-]%}
-
-{% set telephony = [
-    (_("Status"), url_for('telephony.index')),
-    (_("Phone Numbers"), url_for('telephony.phonenumbers')),
-    (_("Calls"), url_for('telephony.calls')),
-    (_("Messages"), url_for('telephony.messages')),
-    (_("Gateways"), url_for('telephony.gateways'))
-]%}
-
-{% set rootio = [
-    (_("System"), url_for('rootio.index')),
-    (_("Users"), url_for('rootio.users')),
-    (_("Languages"), url_for('rootio.languages')),
-    (_("Networks"), '#'),
-    (_("Program Types"), url_for('rootio.program_types')),
-]%}
-
-
-{% set messenger = [
-    (_("Message Test"), url_for('messenger.message_test')),
-]%}
-
-
-{% set emergency = [
-]%}
-
-{% set tabs = [
-    (_("Radio Dashboard"),_("fa fa-tachometer"),radio),
-    (_("Telephony Dashboard"),_("fa fa-phone"),telephony),
-    (_("Emergency Broadcast"),_("fa fa-exclamation-triangle"),emergency),
-    (_("Schedule Message"),_("fa fa-envelope-o"),messenger),
-    (_("Manage Users"),_("fa fa-users"),rootio),
-]%}
-
 </head>
 <body>
     {% include "macros/_ask_user_to_update_ie.html" %}
@@ -230,89 +182,34 @@
                     </form>
                 {% endif %}
             </nav>
-
         {% endblock %}
 
 
-        {% block container %}
-      <!--  <div class="container">-->
-
-            {% block top %}
-                {% if current_user.is_authenticated() %}
-                    <nav class="side-nav">
-                        <div class="navside-tabs-wrapper">
-                            <ul class="navside-tabs">
-                                {% for tab, icon, suburls in tabs %}
-                                {%if suburls|length == 0%}
-                                    <li class="no-dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="{{icon}}"></i> {{tab}} </a>
-                                    </li>
-                                {% else %}
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                            <i class="{{icon}}"></i>
-                                            {{tab}} <i class="fa fa-chevron-down" aria-hidden="true"></i></a>
-                                        <ul class="dropdown-menu" role="menu">
-                                            {% for name, links in suburls %}
-                                                <li><a href="{{links}}"><i class="fa fa-caret-right" aria-hidden="true"></i> {{name}}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                        {% endif %}
-
-                                    </li>
-                                {% endfor %}
-                            </ul>
+        {% block flash_message %}
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <div class="container">
+                        <div id='flash_message_container'>
+                            {% for category, msg in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    {{ msg }}
+                                </div>
+                            {% endfor %}
                         </div>
-                    </nav><!--END side-nav-->
+                    </div>
                 {% endif %}
-            {% endblock %}
-            <div class="header-content-header">
-                {% if page_title %}
-                    <h2>{{page_title}}</h2>
-                {% endif %}
-            </div>
-            <div class="content-container">
-
-
-                 {% block flash_message %}
-                    {% with messages = get_flashed_messages(with_categories=True) %}
-                        {% if messages %}
-                        <div class="container">
-                            <div id='flash_message_container'>
-                                {% for category, msg in messages %}
-                                    <div class="alert alert-{{ category }}">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        {{ msg }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endblock %}
-
-
-                {% block body %}
-                {% endblock %}
-            </div>    <!-- end main -->
-        </div>
+            {% endwith %}
         {% endblock %}
 
-<!--</div>-->      <!-- <div id="push"></div>
-    </div>-->
+        {% block body %}
 
-    <!--
-    <footer id="footer">
-        <ul class="footer-links">
-            <li>© 2013</li>
-            <li><a href='http://rootio.org/'>{{ _('About') }}</a></li>
-            <li class="muted">&middot;</li>
-            <li><a href='{{ url_for('frontend.help') }}'>{{ _('Help') }}</a></li>
-            <li class="muted">&middot;</li>
-            <li><a href='https://github.com/rootio/rootio-cloud/blob/master/LICENSE'>{{ _('Terms') }}</a></li>
-        </ul>
-    </footer>
--->
+        {% endblock %}
+
+    </div> <!-- END wrap -->
+
+
+
     <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
     <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"><\/script>')</script>
     <script src="{{ url_for('static', filename='js/vendor/jquery-ui.custom.min.js') }}"></script>
