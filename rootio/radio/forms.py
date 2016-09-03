@@ -62,15 +62,6 @@ def all_languages():
     return Language.query.all()
 def all_program_types():
     return ProgramType.query.all()
-class ProgramForm(Form):
-    #can't use model_form, because we want to use a custom field for time duration
-    name = StringField()
-    description = TextAreaField()
-    duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
-    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
-    program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
-    submit = SubmitField(_('Save'))
-
 
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
@@ -149,12 +140,9 @@ class MediaForm(Form):
         if field.data and not allowed_audio_file(field.data.filename):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS))
 
-class NewProgramForm(Form):
+class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
-    #content_type = SelectField(u'Type of content',choices=[('audio','Audio Files'), ('sms','SMS'), ('agg','Aggregators')])
-    #aggregators = SelectField(u'Aggregators',choices=[('fb','FB'), ('rtp','RTP'), ('ipma','Weather')])
-    #type = SelectField(u'Type of Audio File', choices=[(g, g) for g in MediaFiles.type.property.columns[0].type.enums])
     submit = SubmitField(_('Save'))

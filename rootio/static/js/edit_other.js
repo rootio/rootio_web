@@ -54,37 +54,12 @@ $(function() {
         console.log(i);
         if (components[i].type == 'jingle') {
             requestName(components[i].argument,'jingle',components[i].duration);
-            /*console.log(jingleName);
-            $('#sortable2').append(
-                '<li class="ui-state-default">' +
-                '<input type="hidden" value="jingle">' +
-                '<input type="hidden" name ="duration" value="' + components[i].duration + '">' +
-                '<input type="hidden" name ="path" value="' + components[i].argument + '">' +  jingleName + '</li>'
-            );*/
         }
         else if (components[i].type == 'media') {
             requestName(components[i].argument,'media',components[i].duration);
-            /*console.log(components[i].argument);
-            mediaName = requestName(components[i].argument);
-            console.log(mediaName);
-            $('#sortable2').append(
-                '<li class="ui-state-default">' +
-                '<input type="hidden" value="media">' +
-                '<input type="hidden" name ="duration" value="' + components[i].duration + '">' +
-                '<input type="hidden" name ="path" value="' + components[i].argument + '">' +  mediaName + '</li>'
-            );*/
         }
         else if (components[i].type == 'interlude') {
             requestName(components[i].argument,'interlude',components[i].duration);
-            /*console.log(components[i].argument);
-            interludeName = requestName(components[i].argument);
-            console.log(interludeName);
-            $('#sortable2').append(
-                '<li class="ui-state-default">' +
-                '<input type="hidden" value="media">' +
-                '<input type="hidden" name ="duration" value="' + components[i].duration + '">' +
-                '<input type="hidden" name ="path" value="' + components[i].argument + '">' + interludeName  + '</li>'
-            );*/
         }
         else {
             $('#sortable2').append(

@@ -12,7 +12,7 @@ from flask.ext.babel import gettext as _
 from ..telephony import Message
 
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm, NewProgramForm
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
@@ -90,41 +90,6 @@ def station_add():
 def programs():
     programs = Program.query.all()
     return render_template('radio/programs.html', programs=programs, active='programs')
-
-
-'''@radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
-def program(program_id):
-    program = Program.query.filter_by(id=program_id).first_or_404()
-    form = ProgramForm(obj=program, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(program)
-
-        db.session.add(program)
-        db.session.commit()
-        flash(_('Program updated.'), 'success')
-
-    return render_template('radio/program.html', program=program, form=form)'''
-
-
-@radio.route('/program/add/', methods=['GET', 'POST'])
-@login_required
-def program_add():
-    form = ProgramForm(request.form)
-    program = None
-
-    if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        program = Program(**cleaned_data) #create new object from data
-        
-        db.session.add(program)
-        db.session.commit()
-        flash(_('Program added.'), 'success') 
-    elif request.method == "POST":
-        flash(_('Validation error'),'error')
-
-    return render_template('radio/program.html', program=program, form=form)
 
 @radio.route('/people/', methods=['GET'])
 def people():
@@ -558,10 +523,10 @@ def media_find():
         media = MediaFiles.query.filter_by(path=request.form['path[]'])
         return media[0].name
 
-@radio.route('/program/newadd/', methods=['GET', 'POST'])
+@radio.route('/program/add/', methods=['GET', 'POST'])
 @login_required
-def new_program_add():
-    form = NewProgramForm(request.form)
+def program_add():
+    form = ProgramForm(request.form)
     program = None
 
     if form.validate_on_submit():
@@ -577,7 +542,7 @@ def new_program_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/program1.html', program=program, form=form)
+    return render_template('radio/program.html', program=program, form=form)
 
 @radio.route('/sms/', methods=['GET', 'POST'])
 @login_required
@@ -589,19 +554,10 @@ def list_sms():
                          'to_phonenumber_id':m.to_phonenumber_id,'onairprogram_id': m.onairprogram_id}
     return json.jsonify(messages)
 
-@radio.route('/addprogram/', methods=['GET', 'POST'])
-@login_required
-def add_new_program():
-    program = Program(description=request.form['description'],language_id=request.form['language_id'],name=request.form['name'], duration=request.form['duration'], program_type_id=request.form['program_type_id'])
-
-    db.session.add(program)
-    db.session.commit()
-    return 'success'
-
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
 def program(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
-    form = NewProgramForm(obj=program, next=request.args.get('next'))
+    form = ProgramForm(obj=program, next=request.args.get('next'))
 
     if form.validate_on_submit():
         form.populate_obj(program)
@@ -612,4 +568,4 @@ def program(program_id):
         db.session.commit()
         flash(_('Program updated.'), 'success')
 
-    return render_template('radio/program1.html', program=program, form=form)
+    return render_template('radio/program.html', program=program, form=form)
