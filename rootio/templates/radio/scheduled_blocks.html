@@ -1,18 +1,21 @@
-{% extends "radio/layout.html" %}
+{% set forms = [
+    (_("Add Scheduled Block"), url_for('radio.scheduled_block_add')),
+]%}
+
+{% extends "layouts/base_after_login.html" %}
+
+{% set page_title = "Blocks"%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Blocks') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.scheduled_block_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
                 <th>{{ _('Stations') }}</th>
                 <th>{{ _('Start-End') }}</th>
                 <th>{{ _('Recurrence') }}</th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
         {% for scheduled_block in scheduled_blocks %}
@@ -25,5 +28,6 @@
         </tr>
         {% endfor %}
     </table>
-</div>
+
+
 {% endblock %}

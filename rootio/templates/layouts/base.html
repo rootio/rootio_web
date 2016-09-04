@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-theme.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/dataTables.bootstrap.min.css') }}">
 
     {% endblock %}
 
@@ -185,28 +186,54 @@
         {% endblock %}
 
 
-        {% block flash_message %}
-            {% with messages = get_flashed_messages(with_categories=True) %}
-                {% if messages %}
-                    <div class="container">
-                        <div id='flash_message_container'>
-                            {% for category, msg in messages %}
-                                <div class="alert alert-{{ category }}">
-                                    <button type="button" class="close" data-dismiss="alert">×</button>
-                                    {{ msg }}
+        {%  block sidebar%}
+        {% endblock %}
+
+        <div {% if current_user.is_authenticated() %} {{"class=header-content-header"}} {% else %} {{" style=display:none"}} {% endif %}>
+            {% if page_title %}
+                <h2>{{page_title}}</h2>
+            {% endif %}
+        </div>
+
+        <div {% if forms %}class="row button-form-row"{% else %}  {{" style=display:none"}}{% endif %}>
+            {% for name, url in forms %}
+            <a class="btn btn-success" href="{{ url }}"><strong>{{ name }}</strong></a>
+            {% endfor %}
+        </div>
+
+        <div class="{% if current_user.is_authenticated() %} {{"content-container"}} {% endif %}">
+            {% block flash_message %}
+                    {% with messages = get_flashed_messages(with_categories=True) %}
+                        {% if messages %}
+                            {% if current_user.is_authenticated() %}
+                                    <div id='flash_message_container'>
+                                        {% for category, msg in messages %}
+                                            <div class="alert alert-{{ category }}">
+                                                <button type="button" class="close" data-dismiss="alert">×</button>
+                                                {{ msg }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                            {% else %}
+                                <div class="container">
+                                    <div id='flash_message_container'>
+                                        {% for category, msg in messages %}
+                                            <div class="alert alert-{{ category }}">
+                                                <button type="button" class="close" data-dismiss="alert">×</button>
+                                                {{ msg }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endwith %}
-        {% endblock %}
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+            {% endblock %}
 
-        {% block body %}
-
-        {% endblock %}
-
-    </div> <!-- END wrap -->
+            {% block body %}
+            {% endblock %}
+        </div>
+ </div> <!-- END wrap -->
 
 
 
@@ -216,6 +243,15 @@
     <script>window.jQuery.ui || document.write('<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"><\/script>')</script>
 
     <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+
+    {# DataTables #}
+        <script src="{{ url_for('static', filename='js/vendor/dataTable/jquery.dataTables.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/dataTable/dataTables.bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/dataTables.js') }}"></script>
+
+
     <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
     {% block js_btm %}{% endblock %}
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>

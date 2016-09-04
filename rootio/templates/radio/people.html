@@ -1,19 +1,26 @@
-{#% extends "radio/layout.html" %#}
-{% extends "layouts/base.html" %}
+{% set forms = [
+    (_("Add Person"), url_for('radio.person_add')),
+]%}
+
+
+{% extends "layouts/base_after_login.html" %}
+
+{% set page_title = "People"%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('People') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
+    <!--<div class="pull-right">
+        <a class="btn btn-success" href="{# url_for('') }#}"><strong>{{ _('Add') }} +</strong></a>
+    </div>-->
+
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
                 <th>{{ _('Email') }}</th>
                 <th>{{ _('Phone') }}</th>
                 <th>{{ _('Role') }}</th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
         {% for person in people %}
@@ -26,5 +33,5 @@
         </tr>
         {% endfor %}
     </table>
-</div>
+
 {% endblock %}

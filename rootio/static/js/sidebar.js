@@ -24,6 +24,11 @@ function closeSideBar(){
     $(".header-content-header").css({
        marginLeft: "0px"
     })
+    $(".button-form-row").css({
+       marginLeft: "0px"
+    })
+
+
     closed = true
 }
 
@@ -36,6 +41,9 @@ function openSideBar(){
     })
     $(".header-content-header").css({
         marginLeft: "250px"
+    })
+    $(".button-form-row").css({
+       marginLeft: "250px"
     })
     closed = false;
 }

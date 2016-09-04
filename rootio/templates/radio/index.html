@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+{% extends "layouts/base_after_login.html" %}
 
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
@@ -7,11 +7,14 @@
 <!--<![endif]>-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
 <style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; }</style>
+            <link href="{{ url_for('static', filename='css/after_login.css') }}" rel='stylesheet' />
+
 {% endblock %}
 
 {% block js_top %}
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
+
 {% endblock %}
 
 {% set page_title = "Radio Dashboard" %}
@@ -22,7 +25,7 @@
         <div id="map" class="col-md-12"></div>
     </div>
     <div class="row">
-               <table class='table table-hover table-condensed table-striped col-md-12'>
+               <table id="table-pager-radio-dash" class='table table-hover table-condensed table-striped col-md-12'>
                 <thead>
                     <tr>
                         <th>{{ _('Name') }}</th>

@@ -1,9 +1,11 @@
-{% extends "radio/layout.html" %}
+{% extends "layouts/base_after_login.html" %}
+
+{% set page_title = "Station Schedules"%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Station Schedules') }}</h2>
-    <table class='table table-bordered table-hover'>
+
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
@@ -11,6 +13,7 @@
                 <th>{{ _('Current Block') }}</th>
                 <th>{{ _('Current Program') }}</th>
                 <th>{{ _('Next Program') }}</th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
         {% for station in stations %}
@@ -24,5 +27,4 @@
         </tr>
         {% endfor %}
     </table>
-</div>
 {% endblock %}
