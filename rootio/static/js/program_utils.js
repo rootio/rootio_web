@@ -67,11 +67,31 @@ $( function() {
             $('#media').hide();
         }
         else if ($(this).val() == 'Aggregators') {
+            $('#media').hide();
             $('#sortable1').empty();
+            $('#aggregator').empty();
+            $('#aggregator').append(
+                '<option></option>'
+            );
             $('#aggregator').show();
+            $.ajax({
+                url:'/bot/list',
+                success:function(data) {
+                    for (var d in data) {
+                        $('#aggregator').append(
+                            '<option value="'+ data[d]['station_id'] + '-' + data[d]['function_id'] + '">' + data[d]['station_name'] + '-' + data[d]['function_name'] + '</option>'
+                        );
+
+                    }
+                },
+                error: function(error) {
+                    console.log(errors)
+                }
+            });
         }
         else if ($(this).val() == 'Audio Files') {
             $('#sortable1').empty();
+            $('#aggregator').hide();
             $('#media').val('');
             $('#media').show();
         }
@@ -96,8 +116,28 @@ $( function() {
                 error: function(error) {
                     console.log(errors)
                 }
-            })
+            });
         }
+    });
+
+    $('#aggregator').change(function() {
+        $('#sortables').show();
+        $('#sortable1').empty();
+        $.ajax({
+            method: 'POST',
+            url:'/bot/getinfo',
+            data: {'station_id':$(this).val().split('-')[0],'function_id':$(this).val().split('-')[1],'csrf_token':token},
+            success:function(data) {
+                for (var d in data) {
+                    $('#sortable1').append(
+                        '<li class="ui-state-default"><input type="hidden" value="tts">' + data[d] + '</li>'
+                    );
+                }
+            },
+            error: function(error) {
+                console.log(errors)
+            }
+        });
     });
 
     $('#media').change(function() {

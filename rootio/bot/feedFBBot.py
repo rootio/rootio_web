@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from rootio.utils_bot import validate_sms
 
 from rootio.radio.models import Bothasinfo, StationhasBots
 
@@ -28,11 +30,12 @@ def getFBPosts(station,function):
     r = requests.get('https://graph.facebook.com/oauth/access_token?client_id='+FB_APP_ID+'&client_secret='+FB_APP_SECRET+'&grant_type=client_credentials')
     access_token = r.text[13:]
     graph = GraphAPI(access_token)
-    profile = graph.get_object(linkCut(url))
+    linkCut(url.source_url)
+    profile = graph.get_object(linkCut(url.source_url))
     # Gets the last info that was introduced into the database
     last_bot_info = Bothasinfo.query.filter(Bothasinfo.fk_station_has_bots_radio_station_id == station, Bothasinfo.fk_station_has_bots_bot_function_id == function).order_by(Bothasinfo.created_at.desc()).first()
     if last_bot_info == None:
-        last_info_date = datetime.now()
+        last_info_date = datetime.now() - timedelta(days=7)
     else:
         last_info_date = last_bot_info.created_at
     posts = graph.get_connections(profile['id'], 'posts')
@@ -40,8 +43,8 @@ def getFBPosts(station,function):
         # This condition grants that we only get info from posts
         if 'message' in post:
             if datetime.strptime(post['created_time'], "%Y-%m-%dT%H:%M:%S+%f") > last_info_date:
-	        info = post['message'].encode('utf8')
-                new_info = Bothasinfo(created_at = post['created_time'], fk_station_has_bots_radio_station_id = 15 , fk_station_has_bots_bot_function_id = 1, info = info)
+                info = validate_sms(post['message'])
+                new_info = Bothasinfo(created_at = post['created_time'], fk_station_has_bots_radio_station_id = station , fk_station_has_bots_bot_function_id = function, info = info)
                 db.session.add(new_info)
                 db.session.commit()
 
@@ -52,11 +55,9 @@ def linkCut(url):
     :return:
     """
     id = None
-    url = url.replace("http://www.facebook.com/","")
+    url = url.replace("https://www.facebook.com/","")
     if url[:15] == 'profile.php?id=':
-    	id = url[15:].partition("&")[0]
+        id = url[15:].partition("&")[0]
     else:
-    	id = url.partition("/")[0]
-
-    print id
+        id = url.partition("/")[0]
     return id

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+from rootio.utils_bot import validate_sms
+
 from rootio.radio.models import  Bothasinfo, StationhasBots
 
 from rootio.extensions import db
@@ -21,7 +23,7 @@ def __getRTP_RSS(station,function):
     response, content = getpage(url.source_url)
     soup = parsepage(content,'xml')
 
-    hasRows = Bothasinfo.query.count()
+    hasRows = Bothasinfo.query.filter(Bothasinfo.fk_station_has_bots_bot_function_id == function, Bothasinfo.fk_station_has_bots_radio_station_id == station).count()
     for article in soup.findAll('item'):
         link_wtho_tag = unicode(article.find('link').get_text())
 
@@ -66,7 +68,9 @@ def getRTP_Articles(link_to_article,station,function,publication_date):
         bot_info = new.get_text()  # .encode('utf-8')
 
     if bot_info != "":  # when we don't have anything form the webpage url. (or Weird URLs is received)
-        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=bot_info.encode('utf-8'))
+        print bot_info.encode('utf-8')
+        info = validate_sms(bot_info)
+        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=info)
         db.session.add(new_info)
         try:
             db.session.commit()
@@ -88,5 +92,6 @@ def textToDatetime(text,format):
     try:
          date = datetime.strptime(text,format)  # Str to datetime conversion Wed, 10 Aug 2016 18:36:25
     except Exception as e:
-        send_mail("Error DateTime Conversion",str(e))
+        print str(e)
+	#send_mail("Error DateTime Conversion",str(e))
     return date

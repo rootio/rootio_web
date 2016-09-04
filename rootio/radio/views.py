@@ -3,22 +3,18 @@ from __future__ import print_function
 import string
 import random
 import os
+import re
+
 from datetime import datetime, timedelta
 import time
 import dateutil.rrule, dateutil.parser
 
-from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, url_for
 from flask.ext.login import login_required, current_user
-import re
 
-import dateutil.parser
-import dateutil.rrule
 from crontab import CronTab
 
-from datetime import datetime
-from flask import Blueprint, render_template, request, flash, json,url_for
 from flask.ext.babel import gettext as _
-from flask.ext.login import login_required
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import redirect
 
@@ -27,12 +23,9 @@ from ..telephony import Message
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
 from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
 
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
 from ..extensions import db
-from ..utils import error_dict, fk_lookup_form_data
 from ..utils_bot import add_cron, send_mail, removeCron
 
 from werkzeug import secure_filename

@@ -25,9 +25,6 @@ cont_type = '' +
 aggregators = '' +
     '<select id="aggregator">' +
     '<option></option>' +
-    '<option>FB</option>' +
-    '<option>RTP</option>' +
-    '<option>IPMA</option>' +
     '</select>';
 
 media = '' +

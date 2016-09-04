@@ -430,12 +430,14 @@ class StationAnalytic(BaseMixin, db.Model):
 
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
+
 class BotFunctions(IdMixin,db.Model):
     __tablename__ = u'bot_function'
     name = db.Column(db.String(STRING_LEN))
 
     def __unicode__(self):
         return self.name
+
 class StationhasBots(db.Model):
     __tablename__ = u'station_has_bots'
 

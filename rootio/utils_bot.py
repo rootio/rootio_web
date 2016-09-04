@@ -48,7 +48,8 @@ def send_mail(title, body):
     :param body: The error that happened
     :return:
     """
-    print "Preparing to send mail"
+    print body   
+    """print "Preparing to send mail"
     CONST_SENDERMAIL = "speechworks2016@gmail.com"
     recipient_mails = "fabiocl93@gmail.com"
     try:
@@ -60,8 +61,8 @@ def send_mail(title, body):
         print 'Mail Sent'
     except Exception as e:
         print str(e)
-        print "An error happened mail was not sent"
-
+        print "An error happened mail was not sent" 
+    """
 
 def add_cron(bot, type):
     """
@@ -156,5 +157,11 @@ def removeCron(bot,cron):
     cron.write()
     bot.next_run = None
     return bot
+
+def validate_sms(message):
+    message = message.replace("(", ",")
+    message = message.replace(")", ",")  # removes the bug that makes FS send a bye signal do TTS server.
+    message = message.replace("\n", " ")  # Remove the new line character people can envetually send and makes FS stop the TTS
+    return message
 
 
