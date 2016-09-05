@@ -1,9 +1,8 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "layouts/base_after_login.html" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
     {%if station%}
         <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station', station_id=station.id), form) }}
@@ -11,5 +10,4 @@
         <h2>{{ _('Add') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station_add'), form) }}
     {%endif%}
-</div>
 {% endblock %}

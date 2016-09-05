@@ -2,17 +2,12 @@
     (_("Add Program"), url_for('radio.program_add')),
 ]%}
 
-{% extends "layouts/base_after_login.html" %}
+{% extends "layouts/base.html" %}
 
 {% set page_title = "Programs"%}
 
 
 {% block body %}
-    <!--<div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>-->
-
-
     <table id="table-pager"  class="table table-striped table-bordered" cellspacing="0" width="100%">
         <thead>
             <tr>

@@ -1,27 +1,28 @@
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
+{% set page_title = "Users" %}
 
 {% block body %}
-<div class="container">
-    <h2>Users</h2>
-    <table class='table table-bordered table-hover'>
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Username') }}</th>
                 <th>{{ _('Status') }}</th>
                 <th>{{ _('Role') }}</th>
                 <th>{{ _('Created Time') }}</th>
-                <th></th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
-        {% for user in users %}
-        <tr>
-            <td>{{ user.name }}</td>
-            <td>{{ user.status }}</td>
-            <td>{{ user.role }}</td>
-            <td>{{ user.created_time|format_date }}</td>
-            <td><a href="{{ url_for('rootio.user', user_id=user.id) }}">Edit</a></td>
-        </tr>
-        {% endfor %}
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.status }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.created_time|format_date }}</td>
+                <td><a href="{{ url_for('rootio.user', user_id=user.id) }}">Edit</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-</div>
+
 {% endblock %}

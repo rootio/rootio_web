@@ -1,12 +1,13 @@
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Program Types" %}
+{% set forms = [
+    (_("Add New Program Type"), url_for('rootio.program_type_add')),
+]%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Program Types') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('rootio.program_type_add') }}"><strong>Add +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
@@ -16,15 +17,16 @@
                 <th></th>
             </tr>
         </thead>
-        {% for program_type in program_types %}
-        <tr>
-            <td>{{ program_type.name }}</td>
-            <td>{{ program_type.description }}</td>
-            <td>{{ program_type.definition }}</td>
-            <td>{{ program_type.phone_functions }}</td>
-            <td><a href="{{ url_for('rootio.program_type', program_type_id=program_type.id) }}">Edit</a></td>
-        </tr>
-        {% endfor %}
+        <tbody>
+            {% for program_type in program_types %}
+            <tr>
+                <td>{{ program_type.name }}</td>
+                <td>{{ program_type.description }}</td>
+                <td>{{ program_type.definition }}</td>
+                <td>{{ program_type.phone_functions }}</td>
+                <td><a href="{{ url_for('rootio.program_type', program_type_id=program_type.id) }}">Edit</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-</div>
 {% endblock %}

@@ -1,10 +1,16 @@
-{% extends "telephony/layout.html" %}
+{% extends "layouts/base.html" %}
+
+
+{% set forms = [
+    (_("Add Phone Number"), url_for('telephony.phonenumber_add')),
+]%}
+{% set page_title = "Phone Numbers" %}
+
 
 {% block body %}
-<div class="container">
     <h2 class="pull-left">{{ _('Messages') }}</h2>
 
-    <table class='table table-bordered table-hover'>
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('UUID') }}</th>
@@ -24,5 +30,4 @@
         </tr>
         {% endfor %}
     </table>
-</div>
 {% endblock %}

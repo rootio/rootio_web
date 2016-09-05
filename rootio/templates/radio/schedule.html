@@ -1,10 +1,12 @@
-{% extends "radio/layout.html" %}
+{% extends "layouts/base.html" %}
+
 {% from "macros/_form.html" import render_input %}
 {% from "macros/_calendar.js" import render_duration_to_seconds %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+
 {% endblock %}
 
 {% block js_btm %}
@@ -54,12 +56,12 @@
 
 {% block body %}
 <div class="container-fluid">
-    <div class="row-fluid">
+    <div class="row">
         <h2 class="pull-left">{{station.name}} {{ _('Schedule') }}</h2>
         <div class="pull-right top-25" id="timezone">Timezone: {{station.timezone}}</div>
     </div>
 
-    <div class="row-fluid">
+    <div class="row">
         <div id='addable-programs' class="span2">
             <h4>{{ _('Add Programs') }}</h4>
             <ul>

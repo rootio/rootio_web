@@ -1,9 +1,8 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
     {%if language%}
         <h2>{{ _('Edit') }} {{ _('Language') }}</h2>
         {{ render_form(url_for('rootio.language', language_id=language.id), form) }}
@@ -11,5 +10,4 @@
         <h2>{{ _('Add') }} {{ _('Language') }}</h2>
         {{ render_form(url_for('rootio.language_add'), form) }}
     {%endif%}
-</div>
 {% endblock %}

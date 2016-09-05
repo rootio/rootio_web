@@ -1,6 +1,6 @@
 {% from "macros/_form.html" import render_form, render_field %}
 
-{% extends "layouts/base_after_login.html" %}
+{% extends "layouts/base.html" %}
 
 
 {% block js_btm %}
@@ -9,7 +9,6 @@
 
 
 {% block body %}
-<div class="container">
    {%if bot%}
         <h2>{{ _('Edit') }} {{ _('Block') }}</h2>
     {%else%}
@@ -50,5 +49,4 @@
 
         {{ render_field(form, form.submit) }}
     </form>
-</div>
 {% endblock %}

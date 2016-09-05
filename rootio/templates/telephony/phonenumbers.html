@@ -1,21 +1,21 @@
-{% extends "telephony/layout.html" %}
+{% set forms = [
+    (_("Add Phone Number"), url_for('telephony.phonenumber_add')),
+]%}
+{% set page_title = "Phone Numbers" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Phone Numbers') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('telephony.phonenumber_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
+    <table id="table-pager" class='table table-hover table-condensed table-striped'>
         <thead>
             <tr>
                 <th>{{ _('Type') }}</th>
                 <th>{{ _('Country') }}</th>
                 <th>{{ _('Number') }}</th>
                 <th>{{ _('Person') }}</th>
-                <th></th>
+                <th>{{ _('Action') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for phonenumber in phonenumbers %}
         <tr>
             <td>{{ phonenumber.type }}</td>
@@ -25,6 +25,6 @@
             <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
-</div>
 {% endblock %}

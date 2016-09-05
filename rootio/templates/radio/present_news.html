@@ -1,7 +1,9 @@
 {% from "macros/_form.html" import render_form, render_field %}
 
-{% extends "radio/layout.html" %}
+{% extends "layouts/base.html" %}
+
 {#TODO This page should be removed ->Only to simulate cron and check if the script really works#}
+
 {% block css_style %}
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/block.css') }}" rel='stylesheet' />

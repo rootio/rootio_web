@@ -1,4 +1,4 @@
-{% extends "layouts/base_after_login.html" %}
+{% extends "layouts/base.html" %}
 
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
@@ -7,7 +7,6 @@
 <!--<![endif]>-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
 <style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; }</style>
-            <link href="{{ url_for('static', filename='css/after_login.css') }}" rel='stylesheet' />
 
 {% endblock %}
 
@@ -62,3 +61,6 @@
 <script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
+
+
+

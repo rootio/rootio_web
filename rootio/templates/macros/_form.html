@@ -13,12 +13,12 @@
 </div>
 {% endmacro%}
 
-{# Renders all radios inline #}
+{# Renders all radios #}
 {% macro render_radio(field) %}
 <div class="form-group{% if field.errors %} has-error{% endif %}">
     {{ field.label(class_="control-label") }}
         {% for subfield in field -%}
-        <label for="{{ subfield.id }}" class="radio-inline">
+        <label for="{{ subfield.id }}" class="radio">
             {{ subfield }} {{ subfield.label.text }}
         </label>
         {%- endfor %}
@@ -42,7 +42,7 @@
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
 </div>
@@ -54,11 +54,11 @@
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-        {{ field(class="span6", rows="5") }}
+        {{ field(class="form-control", rows="5") }}
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
 </div>
@@ -71,18 +71,19 @@
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls form-inline">
-        {{ field }}
+    <div class="form-inline">
+        {{ field(class_="form-control") }}
         {# show add button to open modal #}
         <a class="btn btn-success" data-toggle="modal" data-target="#{{field.name}}-modal">+</a>
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
     </div>
 </div>
+
 
 {# render bootstrap modal to submit inline form via ajax #}
   <!-- Modal -->

@@ -1,3 +1,44 @@
+
+{# All pages that exist are defined here #}
+{% set radio = [
+    (_("Status"), url_for('radio.index')),
+    (_("Stations"), url_for('radio.stations')),
+    (_("People"), url_for('radio.people')),
+    (_("Programs"), url_for('radio.programs')),
+    (_("Blocks"), url_for('radio.scheduled_blocks')),
+    (_("Schedule"), url_for('radio.schedule')),
+    (_("Bots"), url_for('radio.list_bots')),
+]%}
+
+{% set telephony = [
+    (_("Status"), url_for('telephony.index')),
+    (_("Phone Numbers"), url_for('telephony.phonenumbers')),
+    (_("Calls"), url_for('telephony.calls')),
+    (_("Messages"), url_for('telephony.messages')),
+    (_("Gateways"), url_for('telephony.gateways'))
+]%}
+
+{% set rootio = [
+    (_("System"), url_for('rootio.index')),
+    (_("Users"), url_for('rootio.users')),
+    (_("Languages"), url_for('rootio.languages')),
+    (_("Networks"), '#'),
+    (_("Program Types"), url_for('rootio.program_types')),
+]%}
+
+{% set messenger = [
+    (_("Message Test"), url_for('messenger.message_test')),
+]%}
+
+{% set emergency = [
+    (_("Emergency Broadcast"),url_for('radio.emergency')),
+]%}
+
+{% set manage = [
+    (_("Manage User"),url_for('user.user_dashboard')),
+]%}
+
+
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -84,6 +125,12 @@
                                 <a href="{{ url_for('rootio.index') }}">
                                   <i class="glyphicon glyphicon-user"></i>
                                   Profile
+                                </a>
+                              </li>
+                                <li>
+                                <a href="{{ url_for('settings.password') }}">
+                                  <i class="fa fa-lock" aria-hidden="true"></i>
+                                  Password
                                 </a>
                               </li>
                               <li>
@@ -185,10 +232,52 @@
             </nav>
         {% endblock %}
 
+        {% if current_user.is_authenticated() %}
+            {% if current_user.is_admin() %}
+                {% set tabs = [
+                    (_("Radio Dashboard"),_("fa fa-tachometer"),radio),
+                    (_("Telephony Dashboard"),_("fa fa-phone"),telephony),
+                    (_("Emergency Broadcast"),_("fa fa-exclamation-triangle"),emergency),
+                    (_("Schedule Message"),_("fa fa-envelope-o"),messenger),
+                    (_("Manage Users"),_("fa fa-users"),manage),
+                    (_("Admin Dashboard"),_("fa fa-cog"),rootio),
+                ]%}
+            {% else %}
+                {% set tabs = [
+                    (_("Radio Dashboard"),_("fa fa-tachometer"),radio),
+                    (_("Telephony Dashboard"),_("fa fa-phone"),telephony),
+                ]%}
+            {% endif %}
 
-        {%  block sidebar%}
-        {% endblock %}
 
+            {%  block sidebar%}
+                <nav class="side-nav">
+                    <div class="navside-tabs-wrapper">
+                        <ul class="navside-tabs">
+                            {% for tab, icon, suburls in tabs %}
+                                {%if suburls|length == 0%}
+                                    <li class="no-dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="{{icon}}"></i> {{tab}} </a>
+                                    </li>
+                                {% else %}
+                                    <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="{{icon}}"></i>
+                                        {{tab}} <i class="fa fa-chevron-down" aria-hidden="true"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        {% for name, links in suburls %}
+                                            <li><a href="{{links}}"><i class="fa fa-caret-right" aria-hidden="true"></i> {{name}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </nav><!--END side-nav-->
+            {% endblock %}
+        {% endif %}
         <div {% if current_user.is_authenticated() %} {{"class=header-content-header"}} {% else %} {{" style=display:none"}} {% endif %}>
             {% if page_title %}
                 <h2>{{page_title}}</h2>

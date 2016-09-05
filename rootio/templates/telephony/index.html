@@ -1,12 +1,11 @@
-{% extends "telephony/layout.html" %}
-
+{% extends "layouts/base.html" %}
+{% set page_title = "Telephony Dashboard" %}
 {% block body %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <h2>{{ _('Telephony Dashboard') }}</h2>
+<!--<div class="container-fluid">
+    <div class="row">
 
-        <div class="span12">
-            <table class='table table-bordered table-hover'>
+        <div class="col-md-12">-->
+            <table id="table-pager" class='table table-hover table-condensed table-striped'>
             <thead>
                 <tr>
                     <th>{{ _('Name') }}</th>
@@ -16,25 +15,29 @@
                     <th>{{ _('Credits') }}</th>
                     <th>{{ _('Messages') }}</th>
                     <th>{{ _('Calls') }}</th>
+                    <th>{{ _('Action') }}</th>
                 </tr>
             </thead>
-            {%for station in stations %}
-            {% set analytics = station.recent_telephony() %}
-            <tr>
-                <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.sim}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.gsm}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.voip}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.credits}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.messages}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.calls}}</span></td>
-                <td><a href="#">More</a></td>
-            </tr>
-            {%endfor%}
+            <tbody>
+                {%for station in stations %}
+                    {% set analytics = station.recent_telephony() %}
+                    <tr>
+                        <td>{{station.name}}</td>
+                        <td><span class="sparkline" data-type="boolean">{{analytics.sim}}</span></td>
+                        <td><span class="sparkline" data-type="boolean">{{analytics.gsm}}</span></td>
+                        <td><span class="sparkline" data-type="boolean">{{analytics.voip}}</span></td>
+                        <td><span class="sparkline" data-type="line">{{analytics.credits}}</span></td>
+                        <td><span class="sparkline" data-type="line">{{analytics.messages}}</span></td>
+                        <td><span class="sparkline" data-type="line">{{analytics.calls}}</span></td>
+                        <td><a href="#">More</a></td>
+                    </tr>
+                {%endfor%}
+            </tbody>
             </table>
-        </div>
+
+    <!--    </div>
     </div>
-</div>
+</div>-->
 {% endblock %}
 
 {% block js_btm %}

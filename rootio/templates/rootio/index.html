@@ -1,10 +1,10 @@
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Admin Dashboard" %}
+
 
 {% block body %}
-<div class="container">
-    <h2>{{ _('Admin Dashboard') }}</h2>
     <div>
         {%trans%}System status{%endtrans%}
     </div>
-</div>
 {% endblock %}
