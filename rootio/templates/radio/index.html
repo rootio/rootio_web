@@ -34,7 +34,6 @@
                         <th>{{ _('Memory') }}</th>
                         <th>{{ _('Storage') }}</th>
                         <th>{{ _('CPU ') }}</th>
-                        <th>{{ _('Audio Plug') }}</th>
                     </tr>
                 </thead>
                 {%for station in stations %}
@@ -47,7 +46,6 @@
                     <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-                    <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
                 </tr>
                 {%endfor%}
                 </table>

@@ -37,7 +37,9 @@
 {% set manage = [
     (_("Manage User"),url_for('user.user_dashboard')),
 ]%}
-
+{# !!!IMPORTANT THERE IS AN ARRAY IN THE MIDDLE OF THIS PAGE THAT DEFINES THE THE PAGES
+THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
+{# End of page defenition #}
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -234,6 +236,7 @@
 
         {% if current_user.is_authenticated() %}
             {% if current_user.is_admin() %}
+                {# Name to print sidebar | Icon | Array Declared on top of this page #}
                 {% set tabs = [
                     (_("Radio Dashboard"),_("fa fa-tachometer"),radio),
                     (_("Telephony Dashboard"),_("fa fa-phone"),telephony),
@@ -243,6 +246,7 @@
                     (_("Admin Dashboard"),_("fa fa-cog"),rootio),
                 ]%}
             {% else %}
+                {# Name to print sidebar | Icon | Array Declared on top of this page #}
                 {% set tabs = [
                     (_("Radio Dashboard"),_("fa fa-tachometer"),radio),
                     (_("Telephony Dashboard"),_("fa fa-phone"),telephony),
@@ -255,10 +259,16 @@
                     <div class="navside-tabs-wrapper">
                         <ul class="navside-tabs">
                             {% for tab, icon, suburls in tabs %}
-                                {%if suburls|length == 0%}
+                                {%if suburls|length == 0 %}
                                     <li class="no-dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="{{icon}}"></i> {{tab}} </a>
+                                        <a href="{{links}}" class="dropdown-toggle"><i class="{{icon}}"></i> {{tab}} </a>
                                     </li>
+                                {% elif suburls|length == 1 %}
+                                    {% for name, links in suburls %}
+                                        <li class="no-dropdown">
+                                            <a href="{{links}}" class="dropdown-toggle" ><i class="{{icon}}"></i> {{tab}} </a>
+                                        </li>
+                                    {% endfor %}
                                 {% else %}
                                     <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
