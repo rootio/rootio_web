@@ -362,6 +362,15 @@ $( function() {
         }
         return JSON.stringify(newProgram);
     }
+
+    $("#text_submit").click(function() {
+        $('#sortable2').prepend(
+            '<li class="ui-state-default"><input type="hidden" value="tts">' + $("#new_text").val() + '</li>'
+        );
+        $("#new_text").val('');
+        $('#sortables').show();
+        $('#sortable2').show();
+    })
 });
 
 function calculate_time(sentence) {

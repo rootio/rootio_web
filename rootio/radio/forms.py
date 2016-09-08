@@ -159,7 +159,6 @@ class MediaForm(Form):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS))
 
 class ProgramForm(Form):
-    #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
