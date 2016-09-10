@@ -55,6 +55,7 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="Shortcut Icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
+
     {% block css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -62,7 +63,8 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-theme.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/dataTables.bootstrap.min.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_bot.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     {% endblock %}
 
     {% block css_style %}
@@ -338,6 +340,26 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
  </div> <!-- END wrap -->
 
 
+        <div id="chatButton">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+        </div>
+
+        <div id="chatBox">
+            <div class="chatBoxUp">
+                <p>Help Bot</p>
+                <i class="fa fa-minus"  id="minimizeChat"  aria-hidden="true"></i>
+            </div>
+
+            <div class="chatBoxBody">
+                <table>
+                </table>
+            </div>
+        <div id="chatBoxText">
+            <input type="text" id="helpCmd" placeholder="Type your message.">
+        </div>
+    </div>
+            </div>
+
 
     <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
     <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"><\/script>')</script>
@@ -358,6 +380,8 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
     {% block js_btm %}{% endblock %}
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/chat_bot.js') }}"></script>
 
 
     {% block ga %}

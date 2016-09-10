@@ -1,23 +1,34 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import string
+import random
 import os
+import re
+
+from datetime import datetime, timedelta
 import sys
 
-from datetime import datetime
 import time
 import dateutil.rrule, dateutil.parser
 
-from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, url_for
 from flask.ext.login import login_required, current_user
+from crontab import CronTab
 from flask.ext.babel import gettext as _
-
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
-from .aggregation_bot import __getRTP_RSS
+from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import redirect
+from ..telephony import Message
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
+from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
 
 from ..decorators import returns_json, returns_flat_json
-from ..utils import error_dict, fk_lookup_form_data
+from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
 from ..extensions import db
+from ..utils_bot import add_cron, send_mail, removeCron
+
+from werkzeug import secure_filename
+
+import mutagen
 from ..messenger import messages
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -418,49 +429,216 @@ def schedule_station(station_id):
 
 @radio.route('/bots/', methods=['GET'])
 def list_bots():
+    """
+    Presents a list with all the bots that have been created and the radios where they're working
+    :return:
+    """
     stations = Station.query.all()
     return render_template('radio/bots.html', stations=stations)
 
 @radio.route('/bots/add/', methods=['GET', 'POST'])
 @login_required
 def new_bot_add():
-   """Renders the form"""
-   form = AddBotForm(request.form)
-   bot = None
+    """
+        Renders the form to insert a new bot in the database.
+        Add cronJobs if the state bot is active
+    """
+    form = AddBotForm(request.form)
+    bot = None
+    type = "add"
 
-   if form.validate_on_submit():
-       cleaned_data = form.data  # make a copy
-       cleaned_data.pop('submit', None)  # remove submit field from list
-       bot = StationhasBots(**cleaned_data)  # create new object from data
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        bot = StationhasBots(**cleaned_data)  # create new object from data
+        try:
+            bot = add_cron(bot,type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot added.'), 'success')
+        except Exception as e:
+            removeCron(bot, CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print (str(e))
+            send_mail("Error happened while you're adding a bot", str(e))
+            flash(_('Error Bot Not Added.'), 'error')
 
-       db.session.add(bot)
-       db.session.commit()
-       flash(_('New Bot Added.'), 'success')
-   elif request.method == "POST":
-       flash(_('Validation error'), 'error')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
 
-   return render_template('radio/bot.html', bot=bot, form=form)
+    return render_template('radio/bot.html', bot=bot, form=form)
 
-@radio.route('/bot/<int:radio_id>&<int:function_id>', methods=['GET', 'POST'])
+@radio.route('/bot/<int:radio_id>/<int:function_id>', methods=['GET', 'POST'])
 @login_required
 def bot_edit(radio_id, function_id):
 
     bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()
     form = AddBotForm(obj=bot, next=request.args.get('next'))
-
+    type = "edit"
     if form.validate_on_submit():
         form.populate_obj(bot)
-        db.session.add(bot)
-        db.session.commit()
-        flash(_('Bot updated.'), 'success')
+        try:
+            bot = add_cron(bot, type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot updated.'), 'success')
+        except Exception as e:
+            removeCron(bot,CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print(str(e))
+            send_mail("Error happened editig the bot", str(e))
+            flash(_('Error Bot Not Updated.'), 'error')
+
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
 
     return render_template('radio/bot.html', bot=bot, form=form)
 
-@radio.route('/bots/content')
-def bot_present_info():
-    url = "http://www.rtp.pt/madeira/rss"
-    __getRTP_RSS(url,2,10)
-    #data = zip(date, title, link, news)
-    #items = soup.findall('item')
-    #sys.stderr.write(items)
-    return render_template("radio/present_news.html")
+@radio.route('/media', methods=['GET', 'POST'])
+@login_required
+def media_files():
+    media = MediaFiles.query.all()
+    return render_template('radio/media.html', media=media)
+
+@radio.route('/media/add', methods=['GET', 'POST'])
+@login_required
+def media_add():
+    form = MediaForm(request.form)
+    media = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        upload_file = request.files[form.path.name]
+        if upload_file and allowed_audio_file(upload_file.filename):
+            data = upload_file.read()
+            path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
+            open(path_file, 'w').write(data)
+            filename, file_extension = os.path.splitext(path_file)
+            if file_extension == '.wav':
+                import wave
+                import contextlib
+                with contextlib.closing(wave.open(path_file, 'r')) as f:
+                    frames = f.getnframes()
+                    rate = f.getframerate()
+                    duration = unicode(timedelta(seconds=frames / float(rate)))
+            else:
+                audio = mutagen.File(path_file)
+                duration = unicode(timedelta(seconds=audio.info.length))
+            cleaned_data.pop('submit', None)  # remove submit field from list
+            cleaned_data['path'] = path_file
+            cleaned_data['duration'] = duration
+            media = MediaFiles(**cleaned_data)  # create new object from data
+
+            db.session.add(media)
+            db.session.commit()
+            flash(_('Media File added.'), 'success')
+        else:
+            flash("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS), 'error')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/mediaform.html', media=media, form=form)
+
+@radio.route('/media/<int:media_id>', methods=['GET', 'POST'])
+@login_required
+def media_edit(media_id):
+    media = MediaFiles.query.filter_by(id=media_id).first_or_404()
+    form = MediaForm(obj=media, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(media)
+        upload_file = request.files[form.path.name]
+        if upload_file and allowed_audio_file(upload_file.filename):
+            data = upload_file.read()
+            path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
+            open(path_file, 'w').write(data)
+            filename, file_extension = os.path.splitext(path_file)
+            if file_extension == '.wav':
+                import wave
+                import contextlib
+                with contextlib.closing(wave.open(path_file, 'r')) as f:
+                    frames = f.getnframes()
+                    rate = f.getframerate()
+                    duration = unicode(timedelta(seconds=frames / float(rate)))
+            else:
+                audio = mutagen.File(path_file)
+                duration = unicode(timedelta(seconds=audio.info.length))
+            media.path = path_file
+            media.duration = duration
+            db.session.add(media)
+            db.session.commit()
+            flash(_('Media File updated.'), 'success')
+        else:
+            flash("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS), 'error')
+
+    return render_template('radio/mediaform.html', media=media, form=form)
+
+@radio.route('/media/list', methods=['GET', 'POST'])
+@login_required
+def media_list():
+    media = dict()
+    for m in MediaFiles.query.all():
+        media[m.id] = {'media_id': m.id, 'name': m.name, 'description': m.description, 'path': m.path,
+                          'language': unicode(m.language), 'type': m.type,
+                          'duration': m.duration}
+    return json.jsonify(media)
+
+@radio.route('/media/find', methods=['GET', 'POST'])
+@login_required
+def media_find():
+    try:
+        media = MediaFiles.query.filter_by(path=request.form['path'])
+        return media[0].name
+    except:
+        media = MediaFiles.query.filter_by(path=request.form['path[]'])
+        return media[0].name
+
+@radio.route('/program/add/', methods=['GET', 'POST'])
+@login_required
+def program_add():
+    form = ProgramForm(request.form)
+    program = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        cleaned_data['duration'] = request.form['est_time']
+        cleaned_data['description'] = request.form['description']
+        program = Program(**cleaned_data)  # create new object from data
+
+        db.session.add(program)
+        db.session.commit()
+        flash(_('Program added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/program.html', program=program, form=form)
+
+@radio.route('/sms/', methods=['GET', 'POST'])
+@login_required
+def list_sms():
+    messages = dict()
+    for m in Message.query.all():
+        messages[m.id] = {'message_id':m.id,'message_uuid':m.message_uuid,'sendtime':m.sendtime,
+                         'text': m.text,'from_phonenumber_id':m.from_phonenumber_id,
+                         'to_phonenumber_id':m.to_phonenumber_id,'onairprogram_id': m.onairprogram_id}
+    return json.jsonify(messages)
+
+@radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
+def program(program_id):
+    program = Program.query.filter_by(id=program_id).first_or_404()
+    form = ProgramForm(obj=program, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(program)
+        program.duration = request.form['est_time']
+        program.description = request.form['description']
+
+        db.session.add(program)
+        db.session.commit()
+        flash(_('Program updated.'), 'success')
+
+    return render_template('radio/program.html', program=program, form=form)
