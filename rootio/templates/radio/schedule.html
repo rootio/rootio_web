@@ -54,16 +54,16 @@
     </script>
 {% endblock %}
 
+
+{% set page_title = station.name + ' Schedule' %}
+{#% set timezone = station.timezone%#}
 {% block body %}
 <div class="container-fluid">
     <div class="row">
-        <h2 class="pull-left">{{station.name}} {{ _('Schedule') }}</h2>
-        <div class="pull-right top-25" id="timezone">Timezone: {{station.timezone}}</div>
-    </div>
+            <div id='calendar' class="col-sm-9" data-timezone="{{station.timezone}}"></div>
 
-    <div class="row">
-        <div id='addable-programs' class="span2">
-            <h4>{{ _('Add Programs') }}</h4>
+        <div id='addable-programs' class="col-sm-3">
+            <h4>{{ _('Addable Programs') }}</h4>
             <ul>
             {% for p in addable_programs %}
                 <li class='external-event'
@@ -86,7 +86,6 @@
             <ul id="schedule-edit-log"></ul>
         </div>
 
-        <div id='calendar' class="span10" data-timezone="{{station.timezone}}"></div>
     </div>
 </div>
 

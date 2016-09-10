@@ -78,12 +78,12 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
     <div id='wrap'>
         {% block topbar %}
             <nav class="navbar navbar-default">
-                <a class="navbar-brand" href="{{ url_for('frontend.index') }}" >
+                <a class="navbar-brand  hidden-xs" href="{{ url_for('frontend.index') }}" >
                     <img width="90" height="40" class="logo" alt="" src="{{ url_for('static', filename='img/logo_white.png') }}">
                 </a>
 
                 {% if current_user.is_authenticated() %}
-                <a class="toggle-nav btn pull-left hidden-xs" href="#">
+                <a class="toggle-nav btn pull-left" href="#">
                     <i class="glyphicon glyphicon-align-justify white"></i>
                 </a>
 
@@ -261,19 +261,19 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
                             {% for tab, icon, suburls in tabs %}
                                 {%if suburls|length == 0 %}
                                     <li class="no-dropdown">
-                                        <a href="{{links}}" class="dropdown-toggle"><i class="{{icon}}"></i> {{tab}} </a>
+                                        <a href="{{links}}" class="dropdown-toggle"><i class="{{icon}}"></i><span> {{tab}} </span></a>
                                     </li>
                                 {% elif suburls|length == 1 %}
                                     {% for name, links in suburls %}
                                         <li class="no-dropdown">
-                                            <a href="{{links}}" class="dropdown-toggle" ><i class="{{icon}}"></i> {{tab}} </a>
+                                            <a href="{{links}}" class="dropdown-toggle" ><i class="{{icon}}"></i><span>{{tab}}</span></a>
                                         </li>
                                     {% endfor %}
                                 {% else %}
                                     <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                         <i class="{{icon}}"></i>
-                                        {{tab}} <i class="fa fa-chevron-down" aria-hidden="true"></i></a>
+                                        <span>{{tab}} </span><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
                                     <ul class="dropdown-menu" role="menu">
                                         {% for name, links in suburls %}
                                             <li><a href="{{links}}"><i class="fa fa-caret-right" aria-hidden="true"></i> {{name}}</a></li>
@@ -291,6 +291,9 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
         <div {% if current_user.is_authenticated() %} {{"class=header-content-header"}} {% else %} {{" style=display:none"}} {% endif %}>
             {% if page_title %}
                 <h2>{{page_title}}</h2>
+            {% endif %}
+            {% if timezone %}
+                        <div class="pull-right top-25" id="timezone">Timezone: {{ timezone}}</div>
             {% endif %}
         </div>
 

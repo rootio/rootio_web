@@ -171,6 +171,7 @@
     margin: 15px 0px 15px 250px;
     padding: 10px;
 }
+
 .button-form-row .btn{
     background-color: var(--navbarColor);
     border-color: white;
@@ -204,7 +205,6 @@
     bottom:0px;
     border-right: 1px solid #dddddd;
     overflow-x: hidden;
-   /* transition: 0.5s;*/
 }
 
 .navside-tabs-wrapper{
@@ -218,12 +218,14 @@
 }
 
 .side-nav .dropdown{
-    padding: 10px 15px;
+    padding: 10px 0px;
     border-bottom: 1px solid white;
     border-top: 1px solid #e7e7e7;
 }
 
+
 .side-nav .navside-tabs a{
+    padding-left: 15px;
     color: #3c3c3c;
     font-size: 14px;
     text-decoration: none;
@@ -242,37 +244,102 @@
 }
 
 .navside-tabs-wrapper .no-dropdown{
-    padding: 10px 15px;
+    padding: 10px 0px;
     border-bottom: 1px solid white;
     border-top: 1px solid #e7e7e7;
 }
 
+.navside-tabs-wrapper .no-dropdown:hover{
+    background-color: white;
+}
+
+
 .side-nav .dropdown-menu {
+    /*display: block;*/
     position: relative;
     width: 100%;
-    padding-top: 11px;
-    margin: 0;
+    padding: 0px;
+    margin: 10px 0px 10px 0px;
     border-radius: 0;
     border: none;
-    background-color: #f4f4f4;
+    background-color: #ececec;
     box-shadow: none;
 }
 
 .side-nav .dropdown-menu .fa-caret-right{
-    padding-right: 10px;
+   padding-right: 0px;
 }
 
 
 .side-nav .dropdown-menu li a {
+    padding-left: 30px;
+    line-height: 20px;
     border-bottom: 1px solid white;
     border-top: 1px solid #e7e7e7;
 }
 
-/*ENd Side NavBar*/
-.content-container{
-    margin-left: 250px;
+
+.side-nav .dropdown:hover{
+    background-color: white;
+    color: var(--navbarColor);
+
 }
 
+.side-nav .dropdown-menu li a:hover{
+    background-color: #dfdfdf;
+}
+
+.side-nav .dropdown-menu li a:hover{
+    background-color: #dfdfdf;
+}
+
+
+
+/*For smaller screen's*/
+@media screen and (max-width: 480px){
+    .side-nav {
+        position: absolute;
+        display: block;
+        width: 50px;
+        height: 100%;
+        background: #f4f4f4;
+        top: 45px;
+        left: 0;
+        bottom: 0px;
+        border-right: 1px solid #dddddd;
+        overflow-x: hidden;
+    }
+
+    .side-nav .navside-tabs a span, .side-nav .navside-tabs a .fa-chevron-down{
+        display: none;
+    }
+
+    .content-container, .header-content-header, .button-form-row{
+        margin-left: 50px;
+    }
+}
+/*ENd Side NavBar*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.tooltip-class {
+    width: 29px;
+    height: 23px;
+    color:#00FFFF;
+    background-color: transparent;
+    margin: 0;
+}
 
 
 
