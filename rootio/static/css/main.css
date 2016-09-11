@@ -332,7 +332,7 @@
 
 
 
-
+/*Sparkline tooltip CSS*/
 .tooltip-class {
     width: 29px;
     height: 23px;
@@ -340,10 +340,136 @@
     background-color: transparent;
     margin: 0;
 }
+/*End Sparkline tooltip*/
 
 
+/*Chat Bot CSS*/
+#chatButton{
+    position: fixed;
+    bottom: 63px;
+    right: 6px;
+    border-radius: 50%;
+    background-color: var(--navbarColor);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+    font-size: 30px;
+}
+
+#chatButton i{
+    padding: 13px 15px;
+    color: #fff;
+}
+
+#chatBox{
+    display:none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: white;
+    width: 249px;
+    height: 290px;
+    z-index: 20;
+}
+
+.chatBoxUp{
+    height: 30px;
+    background-color:  var(--navbarColor);
+}
+
+.chatBoxUp > p{
+    display:inline-block;
+    padding-top: 5px;
+    padding-left: 10px;
+    color : white;
+    margin-bottom: 0cm;
+}
+
+/*Message body*/
+
+.chatBoxBody {
+  height:230px;
+  width: 249px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  border: 1px solid lightgray;
+
+}
+
+.chatBoxBody table {
+  width: 99%; !important;
+  max-width: 240px;
+  table-layout: fixed;
+}
+
+.chatBoxUp > i{
+    display:inline-block;
+    float: right;
+    padding: 7px 10px 0px 0px;
+    color: white;
+    font-size: 15px;
+}
+
+#chatBoxText{
+    border-left: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+    height: 30px;
+    font-family: 'tahoma';
+    font-size: 13px;
+    padding: 5px;
+}
+
+.msg-row {
+    max-width: 99%;
+    border-bottom: 1px solid lightgray;
+    padding: 3px 0px 3px 2px;
+}
+
+.message {
+    margin-left: 40px;
+}
+.chatBoxBody .msg-text{
+    width: 11em;
+    word-wrap: break-word;
+}
 
 
+.user-label {
+  font-size: 11px;
+}
+
+.msg-time {
+  font-size: 10px;
+  float: right;
+  color: gray;
+}
+
+
+#chatBoxText #helpCmd{
+    margin: 0;
+    width: 95%;
+    border: none;
+    outline:none;
+    box-shadow: none;
+;}
+
+.avatar-left {
+  width: 24px;
+  height: 24px;
+  float: left;
+  background: url('/static/img/robot.png');
+  border: 1px solid lightgray;
+}
+
+.avatar-user{
+  width: 24px;
+  height: 24px;
+  float: left;
+  border: 1px solid lightgray;
+}
+
+
+/*End Chat Bot CSS*/
 
 
 

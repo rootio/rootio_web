@@ -8,6 +8,7 @@
     (_("Blocks"), url_for('radio.scheduled_blocks')),
     (_("Schedule"), url_for('radio.schedule')),
     (_("Bots"), url_for('radio.list_bots')),
+    (_("Media Files"), url_for('radio.media_files')),
 ]%}
 
 {% set telephony = [
@@ -63,7 +64,6 @@ THAT AND ADMIN OR A NORMAL USER ARE ABLE TO ACCESS!!! #}
    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-theme.min.css') }}">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/dataTables.bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_bot.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     {% endblock %}
 

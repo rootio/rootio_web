@@ -6,9 +6,7 @@
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />-->
 <!--<![endif]>-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; }</style>
-            <link href="{{ url_for('static', filename='css/after_login.css') }}" rel='stylesheet' />
-
+<style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; z-index: -1; }</style>
 {% endblock %}
 
 {% block js_top %}

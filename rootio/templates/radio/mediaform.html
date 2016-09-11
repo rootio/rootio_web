@@ -1,6 +1,6 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "radio/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
@@ -13,7 +13,6 @@
 
 
 {% block body %}
-<div class="container">
     {%if media%}
         <h2>{{ _('Edit') }} {{ _('Media File') }}</h2>
         {{ render_form(url_for('radio.media_edit', media_id=media.id), form) }}
@@ -21,5 +20,4 @@
         <h2>{{ _('Add') }} {{ _('Media File') }}</h2>
         {{ render_form(url_for('radio.media_add'), form) }}
     {%endif%}
-</div>
 {% endblock %}

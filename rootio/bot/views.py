@@ -66,8 +66,8 @@ def chatBot_Save():
     if getanswer:
         return getanswer.answer
     else:
-        return "I don't know that command, check if you spelled it in the write way. " \
-               "If you don't know which commands to use write help"
+        return "I don't know that command, check if you spelled it in the right way. " \
+               "If you don't know which commands to use type help"
 
 
 @bot.route('/add/function', methods=['GET', 'POST'])

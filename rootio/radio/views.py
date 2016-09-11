@@ -97,8 +97,7 @@ def station_add():
 def programs():
     programs = Program.query.all()
     return render_template('radio/programs.html', programs=programs, active='programs')
-
-
+"""
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
 def program(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
@@ -112,7 +111,7 @@ def program(program_id):
         flash(_('Program updated.'), 'success')
 
     return render_template('radio/program.html', program=program, form=form)
-
+"""
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
 @login_required
@@ -132,6 +131,7 @@ def program_add():
         flash(_('Validation error'),'error')
 
     return render_template('radio/program.html', program=program, form=form)
+
 
 @radio.route('/people/', methods=['GET'])
 def people():
@@ -430,7 +430,7 @@ def schedule_station(station_id):
 @radio.route('/bots/', methods=['GET'])
 def list_bots():
     """
-    Presents a list with all the bots that have been created and the radios where they're working
+    Presents a list with all the bots that have been created and the radios where they\'re working
     :return:
     """
     stations = Station.query.all()
@@ -595,27 +595,6 @@ def media_find():
     except:
         media = MediaFiles.query.filter_by(path=request.form['path[]'])
         return media[0].name
-
-@radio.route('/program/add/', methods=['GET', 'POST'])
-@login_required
-def program_add():
-    form = ProgramForm(request.form)
-    program = None
-
-    if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('submit', None)  # remove submit field from list
-        cleaned_data['duration'] = request.form['est_time']
-        cleaned_data['description'] = request.form['description']
-        program = Program(**cleaned_data)  # create new object from data
-
-        db.session.add(program)
-        db.session.commit()
-        flash(_('Program added.'), 'success')
-    elif request.method == "POST":
-        flash(_('Validation error'), 'error')
-
-    return render_template('radio/program.html', program=program, form=form)
 
 @radio.route('/sms/', methods=['GET', 'POST'])
 @login_required
