@@ -1,5 +1,7 @@
 {% set forms = [
     (_("Add New Bot"), url_for('radio.new_bot_add')),
+    (_("Add Aggregator Function"), url_for('bot.add_aggregator_function')),
+    (_("Add Chat Bot Command"), url_for('bot.add_chatbot_command')),
 ]%}
 
 {% extends "layouts/base.html" %}
