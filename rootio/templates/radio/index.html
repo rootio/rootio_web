@@ -1,26 +1,27 @@
 {% extends "layouts/base.html" %}
 
+{% set page_title = "Radio Dashboard" %}
+
+
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
 <!--[if lte IE 8]>-->
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />-->
 <!--<![endif]>-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; z-index: -1; }</style>
+<style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; z-index: 0; }</style>
 {% endblock %}
 
 {% block js_top %}
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
-
 {% endblock %}
 
-{% set page_title = "Radio Dashboard" %}
 
 {% block body %}
 <!--<div class="container-fluid">-->
     <div class="row">
-        <div id="map" class="col-md-12"></div>
+        <div id="map" class="col-xs-12"></div>
     </div>
     <div class="row">
                <table id="table-pager-radio-dash" class='table table-hover table-condensed table-striped col-md-12'>

@@ -9,7 +9,7 @@ function addElements() {
     $('fieldset').append(aggregators);
     $('fieldset').append(media);
     $('fieldset').append(sortables);
-    $('fieldset').append(durationHTML);
+    /*$('fieldset').append(durationHTML);*/
     $('fieldset').append(submit);
 }
 
