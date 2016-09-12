@@ -10,10 +10,19 @@
         <p>{% trans %}a loosely-integrated, content-agnostic “solution stack” for peer-oriented radio networks {%endtrans%}</p>
         <p><a href="{{ url_for('frontend.login')}}" class="btn btn-success btn-large" style="background-color: #009688; border-color: white"><strong>{{ _('Demo') }} »</strong></a></p>
         <p> You're able to listen our broadcast by clicking on the play button of out player.</p>
-       <audio controls>
+       <audio controls id="player">
             <source src="localhost:8000/stream.mp3" type="audio/mpeg">
            Your browser does not support the audio element.
        </audio>
     </div>
 </div>
+{% block js_btm %}
+<script>
+    $(function(){
+        src = document.location.hostname + ':8000/stream.mp3';
+        $('#player').attr("src",src);
+    });
+
+</script>
+{% endblock %}
 {% endblock %}
