@@ -19,7 +19,7 @@
 {% block js_btm %}
 <script>
     $(function(){
-        src = document.location.hostname + ':8000/stream.mp3';
+        src = 'http://' + document.location.hostname + ':8000/stream.mp3';
         $('#player').attr("src",src);
     });
 

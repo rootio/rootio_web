@@ -240,7 +240,12 @@ $( function() {
         description = generateDescription();
         console.log(description);
         $('fieldset').append("<input type='hidden' name='description' value='"+description+"'>");
-        $('fieldset').append("<input type='hidden' name='est_time' value='"+$('#est_time').text()+"'>");
+        if ($('#program_type option:selected').text() == 'Call-in Show') {
+            $('fieldset').append("<input type='hidden' name='est_time' value='"+$('#duration').val()+"'>");
+        }
+        else {
+            $('fieldset').append("<input type='hidden' name='est_time' value='"+$('#est_time').text()+"'>");
+        }
     });
 
     function generateDescription() {
@@ -367,6 +372,10 @@ $( function() {
         $('#sortable2').prepend(
             '<li class="ui-state-default"><input type="hidden" value="tts">' + $("#new_text").val() + '</li>'
         );
+        $('#est_time').text(function () {
+            est_time.add(moment.duration(calculate_time($("#new_text").val()), 's'));
+            return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
+        });
         $("#new_text").val('');
         $('#sortables').show();
         $('#sortable2').show();

@@ -145,7 +145,6 @@ class AddBotForm(Form):
         return True
 
 class MediaForm(Form):
-    #can't use model_form, because we want to use a custom field for time duration
     multipart = True
     name = StringField(u'Name',[Required()])
     description = TextAreaField(u'Description',[Optional()])

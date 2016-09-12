@@ -162,6 +162,9 @@ def validate_sms(message):
     message = message.replace("(", ",")
     message = message.replace(")", ",")  # removes the bug that makes FS send a bye signal do TTS server.
     message = message.replace("\n", " ")  # Remove the new line character people can envetually send and makes FS stop the TTS
+    message = message.replace("\r"," ")  # Remove the new line character people can envetually send and makes FS stop the TTS
+    message = message.replace('"', "")  # Remove the quotes
+    message = message.replace("'", "")  # Remove the single quotes
     return message
 
 

@@ -9,7 +9,7 @@ program_data ='' +
             '<label class="control-label" >Number of the host</label>' +
             '<input class="form-control" id="host_number" name="host_number" type="text">' +
             '<label>Duration</label>' +
-            '<input class="form-control" id="duration" name="duration" type="text">' +
+            '<input placeholder="hh:mm:ss" class="form-control" id="duration" name="duration" type="text">' +
         '</div>'+
     '</div>';
 
@@ -80,7 +80,7 @@ sortables = '' +
         '</div>'+
     '</div>';
 
-durationHTML = '<p>Estimated time of the program:<span id="est_time">0</span></p>';
+//durationHTML = '<p>Estimated time of the program:<span id="est_time">0</span></p>';
 
 function adjustForm() {
     if ($('#program_type option:selected').text() == '') {
