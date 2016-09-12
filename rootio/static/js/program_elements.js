@@ -80,8 +80,6 @@ sortables = '' +
         '</div>'+
     '</div>';
 
-//durationHTML = '<p>Estimated time of the program:<span id="est_time">0</span></p>';
-
 function adjustForm() {
     if ($('#program_type option:selected').text() == '') {
         $('#cont_type').hide();

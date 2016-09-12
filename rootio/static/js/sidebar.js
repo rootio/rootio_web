@@ -61,9 +61,7 @@ function openSideBar(){
     closed = false;
 }
 
-/*TODO - MAYBE LATER USE SASS OR LESS TO DO THIS*/
 /*Hover events CSS*/
-
 $(".side-nav .dropdown,.side-nav .no-dropdown").mouseover(function(){
     $(this).children("a").children("i").css({
         color: "#009688"
@@ -85,3 +83,4 @@ $(".side-nav .dropdown-menu li a").mouseover(function () {
         color: "#3c3c3c"
     })
 })
+/*End Hover and CSS Events*/
