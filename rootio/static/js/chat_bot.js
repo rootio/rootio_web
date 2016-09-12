@@ -15,7 +15,7 @@ function addMessages(username,date,message){
         )
     }
     else{
-        var user = $('#username').text();
+        var user = $('.user-name').text();
        if(user != "")
        {
            username = user;
