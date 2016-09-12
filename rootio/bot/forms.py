@@ -8,10 +8,8 @@ from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 import pytz
 
-
 from .models import ChatBotCmd
 from ..radio.models import BotFunctions
-
 from ..extensions import db
 
 
@@ -23,6 +21,6 @@ class AddBotFunction(AddBotFunctionFormBase):
     submit = SubmitField(_('Save'))
 
 
-AddNewCommandFormBase =  model_form(ChatBotCmd, db_session=db.session, base_class=Form)
+AddNewCommandFormBase = model_form(ChatBotCmd, db_session=db.session, base_class=Form)
 class AddNewCommand(AddNewCommandFormBase):
     submit = SubmitField(_('Save'))

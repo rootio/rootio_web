@@ -20,13 +20,12 @@
 
 
 {% block body %}
-<div class="container">
     <h2>{{ _('Add') }} {{ _('Chat Bot Command') }}</h2>
     <form method="POST" action="{{ url_for('bot.add_chatbot_command')}}" >
         {{ form.hidden_tag() }}
         {{ render_field(form, form.code) }}
+        {{ render_field(form, form.description) }}
         {{ render_field(form, form.answer) }}
         {{ render_field(form, form.submit) }}
     </form>
-</div>
 {% endblock %}

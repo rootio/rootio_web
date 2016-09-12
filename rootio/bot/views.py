@@ -62,12 +62,23 @@ def facebook_puller(radio_id, function_id):
 
 @bot.route('/savechat', methods=['POST'])
 def chatBot_Save():
-    getanswer = ChatBotCmd.answerTocode(request.form['msg'])
-    if getanswer:
-        return getanswer.answer
+    print request.form['msg']
+    if request.form['msg'] == "help":
+        commands = dict()
+        list = ChatBotCmd.answerTohelp()
+        for response in list:
+            commands[response.id] = {'code': response.code, 'description': response.description}
     else:
-        return "I don't know that command, check if you spelled it in the right way. " \
-               "If you don't know which commands to use type help"
+        getanswer = ChatBotCmd.answerTocode(request.form['msg'])
+        if getanswer:
+            commands = {'answer': getanswer.answer}
+        else:
+            errormsg = "I don't know that command, check if you spelled it in the right way. " \
+            "If you don't know which commands to use type help"
+
+            commands = {'answer': errormsg}
+
+    return json.jsonify(commands)
 
 
 @bot.route('/add/function', methods=['GET', 'POST'])

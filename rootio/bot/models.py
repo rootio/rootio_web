@@ -13,8 +13,13 @@ class ChatBotCmd(IdMixin, db.Model):
     __tablename__ = u'chatbotcodes'
 
     code = db.Column(db.String(STRING_LEN), nullable=False)
+    description = db.Column(db.String(STRING_LEN), nullable=True)
     answer = db.Column(db.String(STRING_LEN), nullable=False)
 
     @classmethod
     def answerTocode(cls, code):
         return cls.query.filter(ChatBotCmd.code == code).first()
+
+    @classmethod
+    def answerTohelp(cls):
+        return cls.query.all()

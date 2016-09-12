@@ -95,8 +95,30 @@ function sendCommand(message){
         method: 'POST',
         data:{msg: message},
         success:function(data){
-            //console.log(data)
-             addMessages("Bot",date(),data)
+            for(first in data){
+                break;
+            }
+            console.log(first)
+
+            /*This is a way to check if the object returned has object inside. Every first member of an array of arrays will be a number
+            * and that number is their respective id on the database.*/
+            if( $.isNumeric(first)){
+                /*Compose the codes that a user is able to use*/
+                var message = ""
+                for(index in data){
+                    if(data[index].description == null) {
+                        message = message + data[index].code + "<br>"
+                    }
+                    else {
+                        message = message + data[index].code + " -> " + data[index].description + "<br>"
+                    }
+                }
+                addMessages("Bot",date(),message)
+            }
+            else{
+                addMessages("Bot",date(),data.answer)
+            }
+
         },
         error: function(error){
             console.log(errors)
