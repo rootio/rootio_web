@@ -44,12 +44,12 @@ sortables = '' +
         '<div id="sortables">' +
             '<div class="col-md-4">' +
                 '<label class="control-label">Existing Content: </label>' +
-                '<ul id="sortable1" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px;">' +
+                '<ul id="sortable1" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px; max-height: 300px; overflow-y: auto;">' +
                 '</ul>' +
             '</div>'+
             '<div class="col-md-4">' +
                 '<label class="control-label">New Program Content : </label>' +
-                '<ul id="sortable2" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px;">' +
+                '<ul id="sortable2" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px;/* max-height: 300px; overflow-y: auto;*/">' +
                 '</ul>' +
             '</div>'+
 
