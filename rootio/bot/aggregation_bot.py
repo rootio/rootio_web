@@ -68,9 +68,9 @@ def getRTP_Articles(link_to_article,station,function,publication_date):
         bot_info = new.get_text()  # .encode('utf-8')
 
     if bot_info != "":  # when we don't have anything form the webpage url. (or Weird URLs is received)
-        print bot_info.encode('utf-8')
+        print bot_info.encode('cp1252')
         info = validate_sms(bot_info)
-        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=info)
+        new_info = Bothasinfo(created_at=publication_date, fk_station_has_bots_bot_function_id=function, fk_station_has_bots_radio_station_id=station, info=info.encode('cp1252'))
         db.session.add(new_info)
         try:
             db.session.commit()
