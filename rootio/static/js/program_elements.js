@@ -49,8 +49,8 @@ sortables = '' +
             '</div>'+
             '<div class="col-md-4">' +
                 '<label class="control-label">New Program Content : </label>' +
-                '<ul id="sortable2" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px;/* max-height: 300px; overflow-y: auto;*/">' +
-                '</ul>' +
+                '<ol id="sortable2" class="connectedSortable" style="width: 100%; min-height: 45px; border: 1px solid #ccc; border-radius: 4px;/* max-height: 300px; overflow-y: auto;*/">' +
+                '</ol>' +
             '</div>'+
 
             '<div class="col-md-4">' +
