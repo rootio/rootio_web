@@ -4,26 +4,28 @@
 
 
 {% block body %}
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
+                    <th>{{ _('Status') }}</th>
+                    <th>{{ _('Current Block') }}</th>
+                    <th>{{ _('Current Program') }}</th>
+                    <th>{{ _('Next Program') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            {% for station in stations %}
             <tr>
-                <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
-                <th>{{ _('Status') }}</th>
-                <th>{{ _('Current Block') }}</th>
-                <th>{{ _('Current Program') }}</th>
-                <th>{{ _('Next Program') }}</th>
-                <th>{{ _('Action') }}</th>
+                <td>{{ station.name }} ({{station.frequency}})</td>
+                <td>{{ station.status() }}</td>
+                <td>{{ station.current_block() }}</td>
+                <td>{{ station.current_program() }}</td>
+                <td>{{ station.next_program() }}</td>
+                <td><a href="{{ url_for('radio.schedule_station', station_id=station.id) }}">{{ _('Schedule') }}</a></td>
             </tr>
-        </thead>
-        {% for station in stations %}
-        <tr>
-            <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.status() }}</td>
-            <td>{{ station.current_block() }}</td>
-            <td>{{ station.current_program() }}</td>
-            <td>{{ station.next_program() }}</td>
-            <td><a href="{{ url_for('radio.schedule_station', station_id=station.id) }}">{{ _('Schedule') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

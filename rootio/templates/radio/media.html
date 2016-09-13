@@ -9,28 +9,30 @@
 
 
 {% block body %}
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Duration') }}</th>
-                <th>{{ _('Language') }}</th>
-                <th>{{ _('Type') }}</th>
-                <th>{{ _('Description') }}</th>
-                <th>{{ _('Action') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in media %}
-            <tr>
-                <td>{{ m.name }}</td>
-                <td>{{ m.duration }}</td>
-                <td>{{ m.language }}</td>
-                <td>{{ m.type }}</td>
-                <td>{{ m.description }}</td>
-                <td><a href="{{ url_for('radio.media_edit',media_id=m.id) }}">{{ _('Edit') }}</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Duration') }}</th>
+                    <th>{{ _('Language') }}</th>
+                    <th>{{ _('Type') }}</th>
+                    <th>{{ _('Description') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in media %}
+                <tr>
+                    <td>{{ m.name }}</td>
+                    <td>{{ m.duration }}</td>
+                    <td>{{ m.language }}</td>
+                    <td>{{ m.type }}</td>
+                    <td>{{ m.description }}</td>
+                    <td><a href="{{ url_for('radio.media_edit',media_id=m.id) }}">{{ _('Edit') }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

@@ -8,26 +8,26 @@
 
 
 {% block body %}
-    <h2 class="pull-left">{{ _('Messages') }}</h2>
-
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('UUID') }}</th>
+                    <th>{{ _('Sendtime') }}</th>
+                    <th>{{ _('Text') }}</th>
+                    <th>{{ _('From') }}</th>
+                    <th>{{ _('To') }}</th>
+                </tr>
+            </thead>
+            {% for message in messages %}
             <tr>
-                <th>{{ _('UUID') }}</th>
-                <th>{{ _('Sendtime') }}</th>
-                <th>{{ _('Text') }}</th>
-                <th>{{ _('From') }}</th>
-                <th>{{ _('To') }}</th>
+                <td>{{ message.message_uuid }}</td>
+                <td>{{ message.sendtime }}</td>
+                <td>{{ message.text }}</td>
+                <td>{{ message.from_phonenumber }}</td>
+                <td>{{ message.to_phonenumber }}</td>
             </tr>
-        </thead>
-        {% for message in messages %}
-        <tr>
-            <td>{{ message.message_uuid }}</td>
-            <td>{{ message.sendtime }}</td>
-            <td>{{ message.text }}</td>
-            <td>{{ message.from_phonenumber }}</td>
-            <td>{{ message.to_phonenumber }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

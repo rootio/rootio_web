@@ -5,35 +5,36 @@
 {% set page_title = "Manage Users" %}
 
 {% block body %}
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Email') }}</th>
-                <th>{{ _('Age') }}</th>
-                <th>{{ _('Phone') }}</th>
-                <th>{{ _('Location') }}</th>
-                <th>{{ _('Role') }}</th>
-                <th>{{ _('Last Accessed') }}</th>
-                <th>{{ _('Status') }}</th>
-                <th>{{ _('Action') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for u in users %}
-            <tr>
-                <td>{{ u }} </td>
-                <td>{{ u.email }}</td>
-                <td>{{ u.user_detail.age }}</td>
-                <td>{{ u.user_detail.phone }}</td>
-                <td>{{ u.user_detail.location }}</td>
-                <td>{{ u.role }}</td>
-                <td>{{ u.last_accessed }}</td>
-                <td>{{ u.status }}</td>
-                <td><a href="{{ url_for('settings.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Age') }}</th>
+                    <th>{{ _('Phone') }}</th>
+                    <th>{{ _('Location') }}</th>
+                    <th>{{ _('Role') }}</th>
+                    <th>{{ _('Last Accessed') }}</th>
+                    <th>{{ _('Status') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u }} </td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.user_detail.age }}</td>
+                    <td>{{ u.user_detail.phone }}</td>
+                    <td>{{ u.user_detail.location }}</td>
+                    <td>{{ u.role }}</td>
+                    <td>{{ u.last_accessed }}</td>
+                    <td>{{ u.status }}</td>
+                    <td><a href="{{ url_for('settings.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

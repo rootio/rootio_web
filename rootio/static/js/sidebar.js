@@ -2,6 +2,46 @@
  * Created by fcl on 30-08-2016.
  */
 
+/*
+$(document).ready(function () {
+
+        var listItems = $(".navside-tabs li");
+
+        $(".navside-tabs li").each(function () {
+
+            if($.trim($(this).children().first().text()) == localStorage.getItem("dropHead")){
+
+                $(this).children().children("i").css({
+                        color: "#009688",
+                });
+                $(this).css({backgroundColor:"white"})
+                $(this).addClass("open")
+
+                $(this).each(function () {
+                    console.log($(this).children()[1])
+                    console.log(localStorage.getItem("dropContent"))
+                })
+
+            }else{
+                console.log("Not found")
+            }
+
+
+        })
+
+
+    }*/
+/*
+    $(".side-nav .dropdown-menu li a").click(function (e) {
+        e.stopPropagation();
+
+        localStorage.setItem("dropContent", $(this).text());
+        localStorage.setItem("dropHead", $.trim($(this).parent().parent().parent().children("a").text()) );
+
+    })
+})*/
+
+
 /*Handle th nav bar operations close and open*/
 $(".toggle-nav").click(function () {
     if ( $(".side-nav").css("width") == "250px") {
@@ -71,8 +111,6 @@ $(".side-nav .dropdown,.side-nav .no-dropdown").mouseover(function(){
         color: "#3c3c3c"
     })
 })
-
-
 
 $(".side-nav .dropdown-menu li a").mouseover(function () {
     $(this).children("i").css({
