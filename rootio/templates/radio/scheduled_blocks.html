@@ -8,26 +8,27 @@
 
 
 {% block body %}
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Stations') }}</th>
+                    <th>{{ _('Start-End') }}</th>
+                    <th>{{ _('Recurrence') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            {% for scheduled_block in scheduled_blocks %}
             <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Stations') }}</th>
-                <th>{{ _('Start-End') }}</th>
-                <th>{{ _('Recurrence') }}</th>
-                <th>{{ _('Action') }}</th>
+                <td>{{ scheduled_block.name }}</td>
+                <td>{{ scheduled_block.station }}</td>
+                <td>{{ scheduled_block.start_time }} - {{scheduled_block.end_time}} </td>
+                <td>{{ scheduled_block.recurrence }}</td>
+                <td><a href="{{ url_for('radio.scheduled_block', block_id=scheduled_block.id) }}">{{ _('Edit') }}</a></td>
             </tr>
-        </thead>
-        {% for scheduled_block in scheduled_blocks %}
-        <tr>
-            <td>{{ scheduled_block.name }}</td>
-            <td>{{ scheduled_block.station }}</td>
-            <td>{{ scheduled_block.start_time }} - {{scheduled_block.end_time}} </td>
-            <td>{{ scheduled_block.recurrence }}</td>
-            <td><a href="{{ url_for('radio.scheduled_block', block_id=scheduled_block.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-
+            {% endfor %}
+        </table>
+    </div>
 
 {% endblock %}

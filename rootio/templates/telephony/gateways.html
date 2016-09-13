@@ -2,22 +2,24 @@
 {% set page_title = "Gateways" %}
 
 {% block body %}
-    <table id="table-pager" class='table table-hover table-condensed table-striped'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Number') }}</th>
-                <th>{{ _('String') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for gateway in gateways %}
-            <tr>
-                <td>{{ gateway.name }}</td>
-                <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
-                <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Number') }}</th>
+                    <th>{{ _('String') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gateway in gateways %}
+                <tr>
+                    <td>{{ gateway.name }}</td>
+                    <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
+                    <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
