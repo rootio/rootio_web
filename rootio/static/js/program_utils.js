@@ -28,8 +28,14 @@ $( function() {
         }
     });
 
+    $('#sortable2 li').each(function(){
+        $(this).append('<i class="fa fa-times" aria-hidden="true"></i>');
+    });
+
     $('#sortable2').on( "sortreceive", function( event, ui ) {
         element = ui['item'];
+        $(ui.item).prepend('<i class="fa fa-times" aria-hidden="true"></i>').click(function(){
+        $(this).remove()});
         if (element.children().val() == 'tts') {
             $('#est_time').text(function () {
                 est_time.add(moment.duration(calculate_time(element.text()), 's'));
@@ -42,6 +48,11 @@ $( function() {
                 return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
             });
         }
+    });
+
+
+    $('.fa-times').click(function(){
+        $(this).parent().remove();
     });
 
     $('#sortable2').on( "sortremove", function( event, ui ) {
