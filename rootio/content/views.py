@@ -7,8 +7,9 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 
+from ..radio.models import ContentType
 from .models import ContentTrack, ContentUploads 
-from .forms import ContentTrackForm, ContentUploadForm 
+from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm
 
 from ..extensions import db, csrf
 from datetime import datetime
@@ -22,8 +23,10 @@ content = Blueprint('content', __name__, url_prefix='/content')
 @login_required
 def index():
     #select ct.id, ct.name "track", rct.name "content type", count(*) "uploads" , (select count(*) from radio_program where structure like '%'||ct.description||'%') "subscriptions" from content_track as ct join radio_contenttype as rct on "ct".content_contenttypeid = rct.id join content_uploads as cu on ct.id = cu.contenttrack_id  group by ct.id, rct.name;
-
-    return render_template('content/index.html')
+    
+    #tracks = ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all()
+    
+    return render_template('content/index.html')#, tracks=tracks)
 
 
 @content.route('/tracks/')
@@ -124,16 +127,18 @@ def content_upload_add():
             filename = secure_filename(file.filename)
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list 
         cleaned_data.pop('file',None)  
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
+        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
         cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
 
         uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
              
         cleaned_data['uri'] = uri
         content_uploads = ContentUploads(**cleaned_data) #create new object from data
-
+    
         db.session.add(content_uploads)
         db.session.commit()
         
@@ -141,15 +146,17 @@ def content_upload_add():
         flash(_('Content added.'), 'success')
         
     elif request.method == "POST":
-         flash(_(form.errors.items()),'error')
-    
-    return render_template('content/content_add.html', form=form) 
+        flash(_(form.errors.items()),'error')
+        
+    return render_template('content/content_upload.html', content_uploads=content_uploads, form=form) 
 
 
 @content.route('/news/')
 @login_required
 def content_news():
-    content_news = ContentUploads.query.filter_by(uploaded_by=current_user.id).all()#.filter_by(content_tracks.content_type.name='news').all()
+    name_content = 'News'
+    content_type = ContentType.query.filter(ContentType.name=='News').first()
+    content_news = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
     return render_template('content/content_news.html', content_news=content_news)
 
 
@@ -157,7 +164,7 @@ def content_news():
 @login_required
 def content_news_edit(content_news_id):
     content_news = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
-    form = ContentUploadForm(obj=content_news, next=request.args.get('next'))
+    form = ContentNewsForm(obj=content_news, next=request.args.get('next'))
 
     if form.validate_on_submit():
         form.populate_obj(content_news)
@@ -172,8 +179,9 @@ def content_news_edit(content_news_id):
 @login_required
 @csrf.exempt
 def content_news_add():
-    form = ContentUploadForm(request.form)
+    form = ContentNewsForm(request.form)
     content_news = None
+    cleaned_data = None
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -189,23 +197,146 @@ def content_news_add():
             filename = secure_filename(file.filename)
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
-        cleaned_data.pop('file',None)  
+        cleaned_data.pop('file',None)
+        cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
+        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
         cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+
 
         uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
              
         cleaned_data['uri'] = uri
         content_news = ContentUploads(**cleaned_data) #create new object from data
-
+       
         db.session.add(content_news)
         db.session.commit()
         
 
-        flash(_('Content added.'), 'success')
-        
+        flash(_('Content added.'), 'success')  
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_news_add.html', form=form)     
+    return render_template('content/content_news_edit.html', form=form)   
+
+
+@content.route('/adds/')
+@login_required
+def content_adds():
+    name_content = 'Adds'
+    content_type = ContentType.query.filter(ContentType.name=='Adds').first()
+    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
+    return render_template('content/content_adds.html', content_adds=content_adds)  
+
+
+@content.route('/adds/<int:content_adds_id>', methods=['GET', 'POST'])
+@login_required
+def content_adds_edit(content_adds_id):
+    content_adds = ContentUploads.query.filter_by(id=content_adds_id).first_or_404()
+    form = ContentAddsForm(obj=content_adds, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_adds)
+
+        db.session.add(content_adds)
+        db.session.commit()
+        flash(_('Content updated.'), 'success')
+    return render_template('content/content_adds_edit.html', content_adds=content_adds, form=form)
+
+
+@content.route('/adds/add/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def content_adds_add():
+    form = ContentAddsForm(request.form)
+    content_adds = None
+    cleaned_data = None
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('file',None)
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        cleaned_data['uploaded_by'] = current_user.id
+        cleaned_data['name'] = filename
+        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
+        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+
+
+        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
+             
+        cleaned_data['uri'] = uri
+        content_adds = ContentUploads(**cleaned_data) #create new object from data
+       
+        db.session.add(content_adds)
+        db.session.commit()
+        
+
+        flash(_('Content added.'), 'success')  
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+    
+    return render_template('content/content_adds_edit.html', form=form) 
+
+@content.route('/streams/')
+@login_required
+def content_streams():
+    name_content = 'Stream'
+    content_type = ContentType.query.filter(ContentType.name=='Stream').first()
+    content_streams = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
+    return render_template('content/content_streams.html', content_streams=content_streams) 
+
+
+@content.route('/streams/<int:content_streams_id>', methods=['GET', 'POST'])
+@login_required
+def content_stream(content_streams_id):
+    content_streams = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
+    form = ContentStreamsForm(obj=content_streams, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_streams)
+
+        db.session.add(content_streams)
+        db.session.commit()
+        flash(_('Content updated.'), 'success')
+    return render_template('content/content_stream.html', content_streams=content_streams, form=form)
+
+
+@content.route('/streams/add/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def content_streams_add():
+    form = ContentStreamsForm(request.form)
+    content_streams = None
+    cleaned_data = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('file',None)
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        cleaned_data['uploaded_by'] = current_user.id
+        #cleaned_data['name'] = filename
+        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
+        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+
+        content_streams = ContentUploads(**cleaned_data) #create new object from data
+       
+        db.session.add(content_streams)
+        db.session.commit()
+        
+        flash(_('Content added.'), 'success')  
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+    
+    return render_template('content/content_stream.html', form=form) 

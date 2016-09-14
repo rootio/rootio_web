@@ -34,6 +34,7 @@ class ContentUploads(BaseMixin, db.Model):
 
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     contenttrack_id = db.Column(db.ForeignKey('content_track.id'))
+    content_contenttypeid = db.Column(db.ForeignKey('radio_contenttype.id'))
     
     content_tracks = db.relationship(u'ContentTrack', backref=db.backref('uploads_track'))
 
