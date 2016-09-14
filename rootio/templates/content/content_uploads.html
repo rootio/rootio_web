@@ -17,7 +17,6 @@
                 <th>{{ _('Listen') }}</th>
                 <th>{{ _('File name') }}</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         {% for content_upload in content_uploads %}
@@ -34,7 +33,6 @@
             </td>
             <td>{{ content_upload.name }}</td>
             <td><a href="{{ url_for('content.content_upload', content_upload_id=content_upload.id) }}">Edit</a></td>
-            <td></td>
         </tr>
         {% endfor %}
     </table>
