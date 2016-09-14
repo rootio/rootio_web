@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if content_news%}
-        <h2>{{ _('Edit') }} {{ _('ContentUploads') }}</h2>
-        {{ render_form(url_for('content.content_upload', content_news_id=content_news.id), form) }}
+        <h2>{{ _('Edit') }} {{ _('News Uploads') }}</h2>
+        {{ render_form(url_for('content.content_news_edit', content_news_id=content_news.id), form) }}
     {%else%}
-        <h2>{{ _('Add') }} {{ _('ContentUploads') }}</h2>
+        <h2>{{ _('Add') }} {{ _('News Uploads') }}</h2>
         {{ render_form(url_for('content.content_news_add'), form) }}
     {%endif%}
 </div>
