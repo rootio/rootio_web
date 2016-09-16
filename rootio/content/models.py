@@ -13,7 +13,7 @@ class ContentTrack(BaseMixin, db.Model):
     name = db.Column(db.String(STRING_LEN))
     description = db.Column(db.Text)
     uri = db.Column(db.String(200))
-    
+    #add array
     content_contenttypeid = db.Column(db.ForeignKey('radio_contenttype.id'))
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     
@@ -31,6 +31,7 @@ class ContentUploads(BaseMixin, db.Model):
     uri = db.Column(db.String(200))
     expiration_date = db.Column(db.DateTime(timezone=True))
     ok_to_play = db.Column(db.Boolean)
+    order = db.Column(db.Integer)
 
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     contenttrack_id = db.Column(db.ForeignKey('content_track.id'))

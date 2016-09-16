@@ -33,6 +33,10 @@ def adds_tracks():
 
 def streams_tracks():
     content_type = ContentType.query.filter(ContentType.name=='Stream').first()
+    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all() 
+
+def musics_tracks():
+    content_type = ContentType.query.filter(ContentType.name=='Musics').first()
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all()  
 
 class ContentUploadForm(Form): 
@@ -60,5 +64,12 @@ class ContentStreamsForm(Form):
     name = StringField('Name of the stream')
     uri = StringField('URL')
     contenttrack_id = QuerySelectField('Track name',query_factory=streams_tracks,allow_blank=False)
+    expiration_date = DateField('Expiration Date')
+    submit = SubmitField(_('Save'))
+
+class ContentMusicForm(Form):
+    multipart = True 
+    file = FileField()
+    contenttrack_id = QuerySelectField('Track name',query_factory=musics_tracks,allow_blank=False)
     expiration_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))

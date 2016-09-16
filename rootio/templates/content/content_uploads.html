@@ -1,5 +1,6 @@
 {% extends "content/layout.html" %}
 
+
 {% block body %}
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
@@ -9,7 +10,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.content_upload_add') }}"><strong>Add +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table class='table table-bordered table-hover' id="sortable">
         <thead>
             <tr>
                 <th>{{ _('Track name') }}</th>
@@ -19,22 +20,24 @@
                 <th></th>
             </tr>
         </thead>
+        <tbody>
         {% for content_upload in content_uploads %}
-        <tr>
+        <tr id="{{ content_upload.id }}">
             <td>{{ content_upload.content_tracks.name }}</td>
             <td>{{ content_upload.created_at }}</td>
             <td>
-                <object type="application/x-shockwave-flash" data="../../static/flash_player/player_mp3_maxi.swf" width="200" height="25">
-                    <param name="wmode" value="transparent" />
-                    <param name="movie" value="../../static/flash_player/player_mp3_maxi.swf" />
-                    <param name="FlashVars" value="mp3=../../media/{{ content_upload.uri }}&height=25&width=200;bgcolor1=ffffff&bgcolor2=cccccc&buttoncolor=999999&buttonovercolor=0&slidercolor1=cccccc&slidercolor2=999999&sliderovercolor=666666&textcolor=0&showvolume=1" />
-                    <p>{{ content_upload.title }}</p>
-                </object>
+                <audio controls>
+                    <source src="../../media/{{ content_upload.uri }}" type="audio/mpeg">
+                    <source src="../../media/{{ content_upload.uri }}" type="audio/ogg">
+                    <source src="../../media/{{ content_upload.uri }}" type="audio/wav">
+                </audio>
+            </td>
             </td>
             <td>{{ content_upload.name }}</td>
             <td><a href="{{ url_for('content.content_upload', content_upload_id=content_upload.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}

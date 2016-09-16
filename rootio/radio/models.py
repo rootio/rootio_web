@@ -91,6 +91,8 @@ class Station(BaseMixin, db.Model):
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
+    #from ..telephony.models import PhoneNumber
+    #circular imports
 
     #relationships
     owner = db.relationship(u'User')
@@ -378,6 +380,8 @@ class Recording(BaseMixin, db.Model):
 class Person(BaseMixin, db.Model):
     "A person associated with a station or program, but not necessarily a user of Rootio system"
     __tablename__ = 'radio_person'
+    #from ..telephony.models import PhoneNumber
+    #circular imports
 
     title = db.Column(db.String(8))
     firstname = db.Column(db.String(STRING_LEN))
