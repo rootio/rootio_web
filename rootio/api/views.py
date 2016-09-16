@@ -86,7 +86,7 @@ def restless_routes():
 #non CRUD-routes
 #protect with decorator
 
-#added by nuno
+
 @api.route('/station/<int:station_id>/information', methods=['GET'])
 @api_key_or_auth_required
 @returns_json
@@ -135,10 +135,9 @@ def current_block(station_id):
     return station.current_block()
 
 
-#changed by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/schedule', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
@@ -179,9 +178,8 @@ def station_schedule(station_id):
     return allresponses 
 
 
-#changed by nuno
 @api.route('/station/<int:station_id>/programs', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
@@ -208,7 +206,7 @@ def station_programs(station_id):
     allresponses = {"scheduled_programs" : responses}
     return allresponses
 
-#changed by nuno
+
 @csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
 @api_key_or_auth_required
@@ -240,7 +238,6 @@ def station_analytics(station_id):
     return allresponses
 
 
-#added by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/whitelist', methods=['GET', 'POST'])
 @api_key_or_auth_required
@@ -258,7 +255,6 @@ def station_whitelist(station_id):
     return allresponses
 
 
-#added by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/frequency_update', methods=['GET', 'POST'])
 @api_key_or_auth_required
@@ -272,10 +268,10 @@ def frequency_update(station_id):
     response= {"synchronization" : synchronization, "diagnostics" : diagnostic}
     return response
 
-#added by nuno
+
 @csrf.exempt
 @api.route('/station/<int:station_id>/call', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def call_data(station_id):
     """API method to get or post analytics for a station"""
@@ -288,7 +284,7 @@ def call_data(station_id):
         response=dict()
         response['id'] = single_call_data['call_uuid']
         call_data = Call(**single_call_data) #use this format to avoid multidict-type issue
-        call_data.station = station
+        call_data.station_id = station_id
         db.session.add(call_data)
         try:
             db.session.commit()
@@ -303,10 +299,9 @@ def call_data(station_id):
     return allresponses
 
 
-#added by nuno
 @csrf.exempt
 @api.route('/station/<int:station_id>/message', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+@api_key_or_auth_required
 @returns_json
 def message_data(station_id):
     """API method to get or post analytics for a station"""
@@ -319,7 +314,7 @@ def message_data(station_id):
         response=dict()
         response['id'] = single_message_data['message_uuid']
         message_data = Message(**single_message_data) #use this format to avoid multidict-type issue
-        message_data.station = station
+        message_data.station_id = station_id
         db.session.add(message_data)
         try:
             db.session.commit()

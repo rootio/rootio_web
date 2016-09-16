@@ -5,6 +5,7 @@ from ..extensions import db
 
 from .constants import PHONE_NUMBER_TYPE
 from ..utils import STRING_LEN
+
 #from ..radio.models import Station
     
 
@@ -34,13 +35,15 @@ class PhoneNumber(BaseMixin, db.Model):
             return self.number
 
 
+
+
 class Call(BaseMixin, db.Model):
     """An incoming or outgoing call from the telephony system.
     Defined here for easy readability by the web server, but should not be written to in this process."""
-    #from rootio.radio.models import Station
-    #ugh, circular imports...
     __tablename__ = u'telephony_call'
-
+    #import Station
+    #from ..radio.models import Station
+    # circular imports...
     
     call_uuid = db.Column(db.String(100))
     start_time = db.Column(db.DateTime)
@@ -61,7 +64,8 @@ class Message(BaseMixin, db.Model):
     """An incoming or outgoing text message from the telephony system.
     Defined here for easy readability by the web server, but should not be written to in this process."""
     __tablename__ = u'telephony_message'
-
+    #from ..radio.models import Station
+    # circular imports...
     
     message_uuid = db.Column(db.String(100))
     sendtime = db.Column(db.DateTime)
