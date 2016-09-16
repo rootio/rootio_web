@@ -2,14 +2,14 @@
 
 import os
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, json
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 
 from ..radio.models import ContentType
 from .models import ContentTrack, ContentUploads 
-from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm
+from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm
 
 from ..extensions import db, csrf
 from datetime import datetime
@@ -226,7 +226,7 @@ def content_news_add():
 def content_adds():
     name_content = 'Adds'
     content_type = ContentType.query.filter(ContentType.name=='Adds').first()
-    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
+    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
     return render_template('content/content_adds.html', content_adds=content_adds)  
 
 
@@ -340,3 +340,108 @@ def content_streams_add():
          flash(_(form.errors.items()),'error')
     
     return render_template('content/content_stream.html', form=form) 
+
+
+@content.route('/musics/')
+@login_required
+def content_musics():
+    name_content = 'Musics'
+    content_type = ContentType.query.filter(ContentType.name=='Musics').first()
+    content_musics = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
+    return render_template('content/content_musics.html', content_musics=content_musics)
+
+
+@content.route('/musics/<int:content_musics_id>', methods=['GET', 'POST'])
+@login_required
+def content_music(content_musics_id):
+    content_musics = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
+    form = ContentMusicForm(obj=content_musics, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_musics)
+
+        db.session.add(content_musics)
+        db.session.commit()
+        flash(_('Content updated.'), 'success')
+    return render_template('content/content_music.html', content_musics=content_musics, form=form)
+
+
+@content.route('/musics/add/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def content_musics_add():
+    form = ContentMusicForm(request.form)
+    content_musics = None
+    cleaned_data = None
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('file',None)
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        cleaned_data['uploaded_by'] = current_user.id
+        cleaned_data['name'] = filename
+        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
+        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+
+
+        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
+             
+        cleaned_data['uri'] = uri
+        content_musics = ContentUploads(**cleaned_data) #create new object from data
+       
+        db.session.add(content_musics)
+        db.session.commit()
+        
+
+        flash(_('Content added.'), 'success')  
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+    
+    return render_template('content/content_music.html', form=form)  
+
+
+@content.route('/musics/reorder/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def musics_reorder():
+    str_indexes = request.form['indexes']
+    indexes = str_indexes.split(',')
+    indexes = map(int,indexes)
+    i = 1
+    for index in indexes:
+        music = ContentUploads.query.filter_by(id=index).first_or_404()
+        music.order = i
+        i +=1
+        db.session.add(music)
+    db.session.commit()
+    flash(_('Musics reordered.'), 'success')   
+    return str(indexes)  
+
+@content.route('/adds/reorder/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def adds_reorder():
+    str_indexes = request.form['indexes']
+    indexes = str_indexes.split(',')
+    indexes = map(int,indexes)
+    i = 1
+    for index in indexes:
+        adds = ContentUploads.query.filter_by(id=index).first_or_404()
+        adds.order = i
+        i +=1
+        db.session.add(adds)
+    db.session.commit()
+    flash(_('Adds reordered.'), 'success')  
+    return str(indexes)  

@@ -29,10 +29,10 @@
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
-        <h3>{{ _('Adds') }}</h3>
+        <h3>{{ _('Musics') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_adds_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_musics_add') }}"><strong>Add +</strong></a>
     </div>
     <table class='table table-bordered table-hover'>
         <thead>
@@ -45,20 +45,19 @@
             </tr>
         </thead>
         <tbody>
-            {% for content_add in content_adds %}
-            <tr id="{{content_add.id}}">
-                <td>{{ content_add.content_tracks.name }}</td>
-                <td>{{ content_add.created_at }}</td>
+            {% for content_music in content_musics %}
+            <tr id="{{content_music.id}}">
+                <td>{{ content_music.content_tracks.name }}</td>
+                <td>{{ content_music.created_at }}</td>
                 <td>
                     <audio controls>
-                        <source src="../../media/{{ content_add.uri }}" type="audio/mpeg">
-                        <source src="../../media/{{ content_add.uri }}" type="audio/ogg">
-                        <source src="../../media/{{ content_add.uri }}" type="audio/wav">
+                        <source src="../../media/{{ content_music.uri }}" type="audio/mpeg">
+                        <source src="../../media/{{ content_music.uri }}" type="audio/ogg">
+                        <source src="../../media/{{ content_music.uri }}" type="audio/wav">
                     </audio>
                 </td>
-                </td>
-                <td>{{ content_add.name }}</td>
-                <td><a href="{{ url_for('content.content_adds_edit', content_adds_id=content_add.id) }}">Edit</a></td>
+                <td>{{ content_music.name }}</td>
+                <td><a href="{{ url_for('content.content_music', content_musics_id=content_music.id) }}">Edit</a></td>
             </tr>
             {% endfor %}
         </tbody>
