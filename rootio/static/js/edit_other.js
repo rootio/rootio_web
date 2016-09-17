@@ -1,5 +1,10 @@
 /**
- * Created by vmcb on 02-09-2016.
+ * Created by vmcbaptista on 02-09-2016.
+ * Prepares the form for editing other programs than Call-In shows
+ */
+
+/**
+ * Add elements to the form
  */
 function addElements() {
     submit = $('fieldset').children().last();
@@ -9,22 +14,27 @@ function addElements() {
     $('fieldset').append(aggregators);
     $('fieldset').append(media);
     $('fieldset').append(sortables);
-    /*$('fieldset').append(durationHTML);*/
     $('fieldset').append(submit);
 }
 
+/**
+ * Hide some elements that aren't necessary initially
+ */
 function hideElements() {
     $('#program_data').hide();
     $('#aggregator').hide();
     $('#media').hide();
 }
 
-
+/**
+ * Prepares the form for the edition
+ */
 $(function() {
-    console.log(moment.duration(8.005,'s'));
     addElements();
     hideElements();
     est_time = moment.duration(time_prog,'s');
+    // The following lines of code creates an array with all the components of an existing program that then is
+    // sorted by their sequence along the program
     tts = description.tts;
     media = description.Media;
     interlude = description.Interlude;
@@ -49,7 +59,6 @@ $(function() {
     components.sort(function(a,b) {
         return moment.duration(a.start_time).asSeconds() - moment.duration(b.start_time).asSeconds();
     });
-    console.log(components);
     for (i in components) {
         console.log(i);
         if (components[i].type == 'jingle') {
@@ -69,6 +78,12 @@ $(function() {
 
     }
 
+    /**
+     * Get's the name of the file using AJAX
+     * @param path
+     * @param type
+     * @param duration
+     */
     function requestName(path,type,duration) {
         console.log(path);
         $.ajax({
@@ -77,15 +92,22 @@ $(function() {
             data: {'path':path,'csrf_token':token},
             async: false,
             success: function (data) {
-                namefun(data,type,duration,path);
+                addMedia(data,type,duration,path);
             },
-            error: function (error) {
+            error: function (error) {namefun
                 console.log(errors)
             }
         });
     }
 
-    function namefun(name,type,duration,path) {
+    /**
+     * Add a new file entry in the right list
+     * @param name
+     * @param type
+     * @param duration
+     * @param path
+     */
+    function addMedia(name,type,duration,path) {
         $('#sortable2').append(
             '<li class="ui-state-default">' +
             '<input type="hidden" value="'+type+'">' +

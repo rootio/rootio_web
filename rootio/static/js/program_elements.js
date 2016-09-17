@@ -1,8 +1,10 @@
 /**
- * Created by vmcb on 02-09-2016.
+ * Created by vmcbaptista on 02-09-2016.
+ * Contains a couple of HTML elements that may need to be add to the form
  */
 var est_time = moment.duration(0,'s');
 
+// Data needed for a call in show
 program_data ='' +
     '<div class="form-group">' +
         '<div id="program_data">' +
@@ -13,6 +15,7 @@ program_data ='' +
         '</div>'+
     '</div>';
 
+// Selectbox with type of content that could exist in a program
 cont_type = '' +
     '<div class="form-group">' +
         '<div id="cont_type">' +
@@ -26,11 +29,13 @@ cont_type = '' +
         '</div>'+
     '</div>';
 
+// Base of the selectbox to select the aggregators
 aggregators = '' +
     '<select  class="form-control"  id="aggregator">' +
         '<option></option>' +
     '</select>';
 
+// Select box with the types of media files
 media = '' +
     '<select  class="form-control"  id="media">' +
         '<option></option>' +
@@ -39,6 +44,7 @@ media = '' +
         '<option>Other Audio Files</option>' +
     '</select>';
 
+// Base of the two sortable lists
 sortables = '' +
     '<div class="row">' +
         '<div id="sortables">' +
@@ -80,6 +86,9 @@ sortables = '' +
         '</div>'+
     '</div>';
 
+/**
+ * Adjust the form according with the program type selected
+ */
 function adjustForm() {
     if ($('#program_type option:selected').text() == '') {
         $('#cont_type').hide();

@@ -104,13 +104,19 @@ function sendCommand(message){
             * and that number is their respective id on the database.*/
             if( $.isNumeric(first)){
                 /*Compose the codes that a user is able to use*/
-                var message = ""
+                var message = "";
+                count = 0;
                 for(index in data){
                     if(data[index].description == null) {
                         message = message + data[index].code + "<br>"
                     }
                     else {
-                        message = message + data[index].code + " -> " + data[index].description + "<br>"
+                        if (count == 0) {
+                            message = 'Hi! <br>These are the commands you can use to receive my help.<br>' + message + data[index].code + " -> " + data[index].description + "<br>"
+                        }else {
+                            message = message + data[index].code + " -> " + data[index].description + "<br>"
+                        }
+                        count++;
                     }
                 }
                 addMessages("Bot",date(),message)

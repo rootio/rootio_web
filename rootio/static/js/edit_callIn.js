@@ -1,5 +1,10 @@
 /**
- * Created by vmcb on 02-09-2016.
+ * Created by vmcbaptista on 02-09-2016.
+ * Prepares the form for editing a Call-In Show
+ */
+
+/**
+ * Add elements to the form
  */
 function addElements() {
     submit = $('fieldset').children().last();
@@ -9,10 +14,12 @@ function addElements() {
     $('fieldset').append(aggregators);
     $('fieldset').append(media);
     $('fieldset').append(sortables);
-    /*$('fieldset').append(durationHTML);*/
     $('fieldset').append(submit);
 }
 
+/**
+ * Hide some elements that aren't necessary initially
+ */
 function hideElements() {
     $('#cont_type').hide();
     $('#aggregator').hide();
@@ -20,11 +27,13 @@ function hideElements() {
     $('#sortables').hide();
 }
 
-
-$( function() {
+/**
+ * Prepares the form for the edition
+ */
+$(function() {
     addElements();
     hideElements();
     $('#host_number').val(description.Outcall[0].argument);
-    est_time = moment.duration(description.Outcall[0].duration,'s');
-    $('#duration').val(moment.utc(est_time.asMilliseconds()).format("HH:mm:ss"));
+    est_time = moment.duration(0,'s');
+    $('#duration').val(time_prog);
 });

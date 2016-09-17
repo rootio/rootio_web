@@ -1,5 +1,10 @@
 /**
- * Created by vmcb on 02-09-2016.
+ * Created by vmcbaptista on 02-09-2016.
+ * Prepares the form for adding a program
+ */
+
+/**
+ * Add elements to the form
  */
 function addElements() {
     submit = $('fieldset').children().last();
@@ -9,10 +14,12 @@ function addElements() {
     $('fieldset').append(aggregators);
     $('fieldset').append(media);
     $('fieldset').append(sortables);
-    /*$('fieldset').append(durationHTML);*/
     $('fieldset').append(submit);
 }
 
+/**
+ * Hide some elements that aren't necessary initially
+ */
 function hideElements() {
     $('#cont_type').hide();
     $('#program_data').hide();
@@ -21,6 +28,9 @@ function hideElements() {
     $('#sortables').hide();
 }
 
+/**
+ * Prepares the form for the addition
+ */
 $( function() {
     addElements();
     hideElements();

@@ -12,9 +12,9 @@ from ..extensions import db
 class ChatBotCmd(IdMixin, db.Model):
     __tablename__ = u'chatbotcodes'
 
-    code = db.Column(db.String(STRING_LEN), nullable=False)
-    description = db.Column(db.String(STRING_LEN), nullable=True)
-    answer = db.Column(db.String(STRING_LEN), nullable=False)
+    code = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
+    answer = db.Column(db.String(500), nullable=False)
 
     @classmethod
     def answerTocode(cls, code):

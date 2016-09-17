@@ -1,13 +1,18 @@
 /**
- * Created by vmcb on 02-09-2016.
+ * Created by vmcbaptista on 02-09-2016.
+ * This file contains all the logic behind the form used to add and edit programs
  */
 $( function() {
+    // est_time is a variable defined previously on the JS files that are invoked after this one
     $('#est_time').text(moment.utc(est_time.asMilliseconds()).format("HH:mm:ss"));
 
-
+    /**
+     * Prepares the two sortable lists
+     */
     $( "#sortable1" ).sortable({
         connectWith: ".connectedSortable",
         forcePlaceholderSize: false,
+        // Mantains the components in the left list after being dragged to the right one
         helper: function(e,li) {
             copyHelper= li.clone().insertAfter(li);
             return li.clone();
@@ -22,21 +27,42 @@ $( function() {
         }
     });
     $( "#sortable2" ).sortable({
-        connectWith: ".connectedSortable",
-        remove: function(e, ui) {
-            ui.item.hide();
-        }
+        connectWith: ".connectedSortable"
     });
 
+    /**
+     * Adds a delete button to all the elements in the right list.
+     * Used in the editing form.
+     */
     $('#sortable2 li').each(function(){
-        $(this).append('<i class="fa fa-times" aria-hidden="true"></i>');
+        $(this).prepend('<i class="fa fa-times" aria-hidden="true"></i>');
     });
 
+    /**
+     * Contains all logic needed after dropping a component on the right list
+     */
     $('#sortable2').on( "sortreceive", function( event, ui ) {
         element = ui['item'];
+        // Adds a delete button to the component dropped and the actions that should be done when the button is clicked
         $(ui.item).prepend('<i class="fa fa-times" aria-hidden="true"></i>').click(function(){
-        $(this).remove()});
-        if (element.children().val() == 'tts') {
+            element = $(this);
+            // Updates the estimate time of the program after removing the component
+            if (element.children().next().val() == 'tts') {
+                $('#est_time').text(function () {
+                    est_time.subtract(moment.duration(calculate_time(element.text()), 's'));
+                    return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
+                });
+            }
+            else {
+                $('#est_time').text(function () {
+                    est_time.subtract(moment.duration(parseFloat(element.children().next().next().val()),'s'));
+                    return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
+                });
+            }
+            element.remove();
+        });
+        // Updates the estimate time of the program after adding the component
+        if (element.children().next().val() == 'tts') {
             $('#est_time').text(function () {
                 est_time.add(moment.duration(calculate_time(element.text()), 's'));
                 return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
@@ -44,20 +70,19 @@ $( function() {
         }
         else {
             $('#est_time').text(function () {
-                est_time.add(moment.duration(parseFloat(element.children().next().val()),'s'));
+                est_time.add(moment.duration(parseFloat(element.children().next().next().val()),'s'));
                 return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
             });
         }
     });
 
-
+    /**
+     * Actions that should be done when the delete button is clicked
+     */
     $('.fa-times').click(function(){
-        $(this).parent().remove();
-    });
-
-    $('#sortable2').on( "sortremove", function( event, ui ) {
-        element = ui['item'];
-        if (element.children().val() == 'tts') {
+        element = $(this).parent();
+        // Updates the estimate time of the program after removing the component
+        if (element.children().next().val() == 'tts') {
             $('#est_time').text(function () {
                 est_time.subtract(moment.duration(calculate_time(element.text()), 's'));
                 return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
@@ -65,12 +90,17 @@ $( function() {
         }
         else {
             $('#est_time').text(function () {
-                est_time.subtract(moment.duration(parseFloat(element.children().next().val()),'s'));
+                est_time.subtract(moment.duration(parseFloat(element.children().next().next().val()),'s'));
                 return moment.utc(est_time.asMilliseconds()).format("HH:mm:ss");
             });
         }
+        element.remove();
+
     });
 
+    /**
+     * Adjusts the form according with the contetn type selected by the user
+     */
     $('#content_type').change(function() {
         if ($(this).val() == '') {
             $('#sortable1').empty();
@@ -85,6 +115,7 @@ $( function() {
                 '<option></option>'
             );
             $('#aggregator').show();
+            // Gets all the aggregators that exists on the DB and put them as options in a selectbox
             $.ajax({
                 url:'/bot/list',
                 success:function(data) {
@@ -111,6 +142,7 @@ $( function() {
             $('#sortable1').empty();
             $('#aggregator').hide();
             $('#media').hide();
+            // Gets all the SMS that exists on the DB and put them in the right sortable list
             $.ajax({
                 url:'/radio/sms',
                 success:function(data) {
@@ -125,12 +157,15 @@ $( function() {
                     }
                 },
                 error: function(error) {
-                    console.log(errors)
+                    console.log(error)
                 }
             });
         }
     });
 
+    /**
+     * Changes the content in the left sortable list according with the aggregator selected
+     */
     $('#aggregator').change(function() {
         $('#sortables').show();
         $('#sortable1').empty();
@@ -146,11 +181,14 @@ $( function() {
                 }
             },
             error: function(error) {
-                console.log(errors)
+                console.log(error)
             }
         });
     });
 
+    /**
+     * Changes the content in the left sortable list according with the media type selected
+     */
     $('#media').change(function() {
         if ($(this).val() == '') {
             $('#sortable1').empty();
@@ -229,36 +267,30 @@ $( function() {
         }
     });
 
-    $('#duration').change(function () {
-        $('#est_time').text(function () {
-            return moment.utc(moment.duration($('#duration').val()).asMilliseconds()).format("HH:mm:ss");
-        });
-    });
-
+    /**
+     * Adjust the form according with the type of the program
+     */
     $('#program_type').change(function () {
         adjustForm();
     });
 
-    $('#cancel').click(function () {
-        $(this).closest('form').find("input[type=text], textarea, select").val("");
-        $('#est_time').text('00:00:00');
-        est_time = moment.duration(0,'s');
-        $('#sortable1').empty();
-        $('#sortable2').empty();
-    });
-
+    /**
+     * Appends to the submited data some custom information
+     */
     $("form").submit(function(e){
         description = generateDescription();
-        console.log(description);
         $('fieldset').append("<input type='hidden' name='description' value='"+description+"'>");
         if ($('#program_type option:selected').text() == 'Call-in Show') {
             $('fieldset').append("<input type='hidden' name='est_time' value='"+$('#duration').val()+"'>");
         }
         else {
-            $('fieldset').append("<input type='hidden' name='est_time' value='"+$('#est_time').text()+"'>");
+            $('fieldset').append("<input type='hidden' name='est_time' value='"+moment.utc(est_time.asMilliseconds()).format("HH:mm:ss.SSS")+"'>");
         }
     });
 
+    /**
+     * Generates the JSON with the description of the program
+     */
     function generateDescription() {
         var newProgram = {};
         var start_time = moment.duration('0','s');
@@ -283,14 +315,10 @@ $( function() {
             var count = 0;
             var num_comp = $('#sortable2').children().length;
             $('#sortable2').children().each(function () {
-                if($(this).children().val() == 'tts') {
+                if($(this).children().next().val() == 'tts') {
                     var ttsOb = {};
                     ttsOb.argument = $(this).text();
-                    console.log(start_time);
-                    console.log(start_time.asMilliseconds());
-                    console.log(moment.utc(start_time.asMilliseconds()));
                     ttsOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
-                    console.log( ttsOb.start_time);
                     ttsOb.duration = calculate_time($(this).text());
                     ttsOb.is_streamed = true;
                     if (count + 1 == num_comp) {
@@ -300,19 +328,13 @@ $( function() {
                         ttsOb.hangup_on_complete = false;
                     }
                     tts.push(ttsOb);
-                    console.log(start_time);
-                    console.log(ttsOb.duration);
-                    console.log(moment.duration(ttsOb.duration),'s');
                     start_time.add(moment.duration(ttsOb.duration, 's'));
-                    console.log(start_time);
                 }
-                else if ($(this).children().val() == 'interlude') {
+                else if ($(this).children().next().val() == 'interlude') {
                     var intOb = {};
-                    intOb.argument = $(this).children().next().next().val();
-                    console.log(start_time);
+                    intOb.argument = $(this).children().next().next().next().val();
                     intOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
-                    console.log( intOb.start_time);
-                    intOb.duration = parseFloat($(this).children().next().val());
+                    intOb.duration = parseFloat($(this).children().next().next().val());
                     intOb.is_streamed = true;
                     if (count + 1 == num_comp) {
                         intOb.hangup_on_complete = true;
@@ -321,19 +343,13 @@ $( function() {
                         intOb.hangup_on_complete = false;
                     }
                     interlude.push(intOb);
-                    console.log(start_time);
-                    console.log(intOb.duration);
-                    console.log(moment.duration(intOb.duration),'s');
                     start_time.add(moment.duration(intOb.duration, 's'));
-                    console.log(start_time);
                 }
-                else if ($(this).children().val() == 'media') {
+                else if ($(this).children().next().val() == 'media') {
                     var mediaOb = {}
-                    mediaOb.argument = [$(this).children().next().next().val()];
-                    console.log(start_time);
+                    mediaOb.argument = [$(this).children().next().next().next().val()];
                     mediaOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
-                    console.log( mediaOb.start_time);
-                    mediaOb.duration = parseFloat($(this).children().next().val());
+                    mediaOb.duration = parseFloat($(this).children().next().next().val());
                     mediaOb.is_streamed = true;
                     if (count + 1 == num_comp) {
                         mediaOb.hangup_on_complete = true;
@@ -342,19 +358,13 @@ $( function() {
                         mediaOb.hangup_on_complete = false;
                     }
                     media.push(mediaOb);
-                    console.log(start_time);
-                    console.log(mediaOb.duration);
-                    console.log(moment.duration(mediaOb.duration),'s');
                     start_time.add(moment.duration(mediaOb.duration, 's'));
-                    console.log(start_time);
                 }
-                else if ($(this).children().val() == 'jingle') {
+                else if ($(this).children().next().val() == 'jingle') {
                     var jingOb = {};
-                    jingOb.argument = $(this).children().next().next().val();
-                    console.log(start_time);
+                    jingOb.argument = $(this).children().next().next().next().val();
                     jingOb.start_time = moment.utc(start_time.asMilliseconds()).format("HH:mm:ss");
-                    console.log( jingOb.start_time);
-                    jingOb.duration = parseFloat($(this).children().next().val());
+                    jingOb.duration = parseFloat($(this).children().next().next().val());
                     jingOb.is_streamed = true;
                     if (count + 1 == num_comp) {
                         jingOb.hangup_on_complete = true;
@@ -363,11 +373,7 @@ $( function() {
                         jingOb.hangup_on_complete = false;
                     }
                     jingle.push(jingOb);
-                    console.log(start_time);
-                    console.log(jingOb.duration);
-                    console.log(moment.duration(jingOb.duration),'s');
                     start_time.add(moment.duration(jingOb.duration, 's'));
-                    console.log(start_time);
                 }
                 count++;
             });
@@ -379,6 +385,9 @@ $( function() {
         return JSON.stringify(newProgram);
     }
 
+    /**
+     * Adds a text component to the right list with the text written in the modal
+     */
     $("#text_submit").click(function() {
         $('#sortable2').prepend(
             '<li class="ui-state-default"><input type="hidden" value="tts">' + $("#new_text").val() + '</li>'
@@ -393,6 +402,11 @@ $( function() {
     })
 });
 
+/**
+ * Estimates the time the TTS synthesizer will take to speak a text
+ * @param sentence -> the text will be synthesized by the TTS engine
+ * @returns {number}
+ */
 function calculate_time(sentence) {
     var words = sentence.split(' ');
     return words.length * 0.44 + 2;

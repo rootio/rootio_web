@@ -120,6 +120,7 @@ def add_chatbot_command():
             db.session.commit()
             flash(_('New Chat Bot Command Added.'), 'success')
         except Exception as e:
+            print e
             db.session.rollback()
             db.session.flush()
             flash(_('Error No ChatBot Command Added.'), 'error')
