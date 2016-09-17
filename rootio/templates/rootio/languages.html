@@ -1,33 +1,36 @@
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
+{% set page_title = "Language" %}
+{% set forms = [
+    (_("Add New Language"), url_for('rootio.language_add')),
+]%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Languages') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('rootio.language_add') }}"><strong>Add +</strong></a>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('ISO Code') }}</th>
+                    <th>{{ _('Locale') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for language in languages %}
+                <tr>
+                    <td>{{ language.name }}</td>
+                    <td>{% if language.iso639_1 and language.iso639_2 %} {{ language.iso639_1 }} / {{language.iso639_2 }}
+                        {% else%}
+                        {% if language.iso639_1 %} {{ language.iso639_1 }} {%endif%}
+                        {% if language.iso639_2 %} {{ language.iso639_2 }} {%endif%}
+                    {%endif%}
+                    </td>
+                    <td>{{ language.locale_code }}</td>
+                    <td><a href="{{ url_for('rootio.language', language_id=language.id) }}">Edit</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('ISO Code') }}</th>
-                <th>{{ _('Locale') }}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for language in languages %}
-        <tr>
-            <td>{{ language.name }}</td>
-            <td>{% if language.iso639_1 and language.iso639_2 %} {{ language.iso639_1 }} / {{language.iso639_2 }}
-                {% else%}
-                {% if language.iso639_1 %} {{ language.iso639_1 }} {%endif%}
-                {% if language.iso639_2 %} {{ language.iso639_2 }} {%endif%}
-            {%endif%}
-            </td>
-            <td>{{ language.locale_code }}</td>
-            <td><a href="{{ url_for('rootio.language', language_id=language.id) }}">Edit</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
 {% endblock %}

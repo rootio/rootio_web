@@ -1,92 +1,89 @@
+{# Renders the check boxes #}
 {% macro render_checkbox(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
-    <div class="controls">
-        <label for="{{ field.id }}" class="checkbox inline {%if field.flags.required%}required{%endif%}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id }}" class="checkbox-inline control-label {%if field.flags.required%}required{%endif%}">
             {{ field }}{{ field.label.text }}
         </label>
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error|e }}</span>
+            <span class="help-block">{{ error|e }}</span>
             {%- endfor %}
         {%- endif %}
-    </div>
 </div>
 {% endmacro%}
 
+{# Renders all radios #}
 {% macro render_radio(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
     {{ field.label(class_="control-label") }}
-    <div class="controls">
         {% for subfield in field -%}
-        <label for="{{ subfield.id }}" class="radio inline">
+        <label for="{{ subfield.id }}" class="radio">
             {{ subfield }} {{ subfield.label.text }}
         </label>
         {%- endfor %}
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
-    </div>
 </div>
 {% endmacro %}
 
+{# Renders DatePickers #}
 {% macro render_datepicker(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error {% endif %}">
     <label class="control-label" 
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls">
         {{ field() }}
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
-    </div>
 </div>
 {% endmacro %}
 
 {% macro render_textarea(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
     <label class="control-label {%if field.flags.required%}required{%endif%}" 
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls">
-        {{ field(class="span6", rows="5") }}
+        {{ field(class="form-control", rows="5") }}
         <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
-    </div>
 </div>
 {% endmacro %}
 
+
 {% macro render_inline_form(field, inline_form) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
+<div class="form-group{% if field.errors %} has-error{% endif %}">
     <label class="control-label {%if field.flags.required%}required{%endif%}" 
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls form-inline">
-        {{ field }}
+    <div class="form-inline">
+        {{ field(class_="form-control") }}
         {# show add button to open modal #}
         <a class="btn btn-success" data-toggle="modal" data-target="#{{field.name}}-modal">+</a>
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
     </div>
 </div>
+
 
 {# render bootstrap modal to submit inline form via ajax #}
   <!-- Modal -->
@@ -117,29 +114,27 @@
 
 {% endmacro %}
 
+
 {% macro render_input(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label {%if field.flags.required%}required{%endif%}" 
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+    <label class="control-label {%if field.flags.required%} required {%endif%}"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
-    <div class="controls">
-        {{ field }}
+        {{ field(class_="form-control") }}
          <span class="help-inline">{{ field.description }}</span>
         {% if field.errors -%}
             {% for error in field.errors -%}
-            <span class="help-block error">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {%- endfor %}
         {%- endif %}
-    </div>
 </div>
 {% endmacro %}
 
+{# Renders the buttons that are used in forms#}
 {% macro render_action(field) %}
-<div class="control-group">
-    <div class="form-actions">
-        {{ field(class_="btn btn-primary") }}
-    </div>
+<div class="form-group">
+    {{ field(class_="btn btn-primary") }}
 </div>
 {% endmacro %}
 
@@ -176,7 +171,7 @@
     {% endif %}
 {% endmacro %}
 
-
+{#RENDERIZA O FORM#}
 {% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None) %}
 <form class="{% if horizontal %}form-horizontal{% endif %}" method="POST" action="{{ url }}"
     {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %} 

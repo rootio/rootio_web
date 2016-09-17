@@ -1,10 +1,8 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
     <h2>{{ _('Edit') }} {{ _('User') }}</h2>
     {{ render_form(url_for('rootio.user', user_id=user.id), form) }}
-</div>
 {% endblock %}

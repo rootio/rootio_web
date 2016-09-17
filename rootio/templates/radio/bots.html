@@ -1,43 +1,49 @@
-{% extends "radio/layout.html" %}
+{% set forms = [
+    (_("Add New Bot"), url_for('radio.new_bot_add')),
+    (_("Add Aggregator Function"), url_for('bot.add_aggregator_function')),
+    (_("Add Chat Bot Command"), url_for('bot.add_chatbot_command')),
+]%}
+
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Bots"%}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Bots') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.new_bot_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
-            <tr>
-                <th>{{ _('Station') }}</th>
-                <th>{{ _('Function Name') }}</th>
-                <th>{{ _('Next Fetch') }}</th>
-                <th>{{ _('State') }}</th>
-                <th>{{ _('Action') }}</th>
-            </tr>
-        </thead>
-        {% for station in stations %}
-        <tr>
-            {%set numbot = station.station_has_bots|length %}
-            {%if numbot == 0%}
-                <td rowspan="{{ numbot }}">{{ station.name }}</td>
-                <td colspan="4">{{ 'There is no bots' }}</td>
-            {% else %}
-                {% set first = True %}
-                {% for bot in station.station_has_bots %}
-                    {% if first %}
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Station') }}</th>
+                    <th>{{ _('Function Name') }}</th>
+                    <th>{{ _('Next Fetch') }}</th>
+                    <th>{{ _('State') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for station in stations %}
+                <tr>
+                    {%set numbot = station.station_has_bots|length %}
+                    {%if numbot == 0%}
                         <td rowspan="{{ numbot }}">{{ station.name }}</td>
-                        {% set first = False %}
+                        <td colspan="4">{{ 'There are no bots' }}</td>
+                    {% else %}
+                        {% set first = True %}
+                        {% for bot in station.station_has_bots %}
+                            {% if first %}
+                                <td rowspan="{{ numbot }}">{{ station.name }}</td>
+                                {% set first = False %}
+                            {% endif %}
+                            <td>{{ bot.function_of_bots.name }}</td>
+                            <td>{{ bot.next_run }}</td>
+                            <td>{{ bot.state }}</td>
+                            <td><a href="{{ url_for('radio.bot_edit',radio_id=station.id, function_id=bot.function_of_bots.id) }}">{{ _('Edit') }}</a></td>
+                        </tr>
+                        {% endfor %}
                     {% endif %}
-                    <td>{{ bot.function_of_bots.name }}</td>
-                    <td>{{ bot.next_run }}</td>
-                    <td>{{ bot.state }}</td>
-                    <td><a href="{{ url_for('radio.bot_edit',radio_id=station.id, function_id=bot.function_of_bots.id) }}">{{ _('Edit') }}</a></td>
                 </tr>
                 {% endfor %}
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

@@ -41,6 +41,7 @@ class Language(BaseMixin, db.Model):
 
     #relationships
     programs = db.relationship(u'Program', backref=db.backref('language'))
+    media = db.relationship(u'MediaFiles', backref=db.backref('language'))
 
     def __unicode__(self):
         return self.name
@@ -429,22 +430,24 @@ class StationAnalytic(BaseMixin, db.Model):
 
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
+
 class BotFunctions(IdMixin,db.Model):
     __tablename__ = u'bot_function'
     name = db.Column(db.String(STRING_LEN))
 
     def __unicode__(self):
         return self.name
+
 class StationhasBots(db.Model):
     __tablename__ = u'station_has_bots'
 
     fk_radio_station_id =  db.Column(db.ForeignKey('radio_station.id'), primary_key=True)
     fk_bot_function_id =  db.Column(db.ForeignKey('bot_function.id'), primary_key=True)
-    state = state = db.Column(db.Enum('active','inactive',name='state'),nullable=False)
-    next_run =   db.Column(db.DateTime(timezone=True), nullable=False)
+    state = db.Column(db.Enum('active','inactive',name='state'),nullable=False)
+    next_run = db.Column(db.DateTime(timezone=True), nullable=True)
     run_frequency = db.Column(db.String(STRING_LEN),nullable=False)
-    source_url = db.Column(db.String(STRING_LEN),nullable=True)
-    path = db.Column(db.String(STRING_LEN),nullable=True )
+    source_url = db.Column(db.String(STRING_LEN),nullable=False)
+    local_url = db.Column(db.String(STRING_LEN),nullable=False)
 
     ###Relations
     function_of_bots = db.relationship("BotFunctions", backref=db.backref('function_from_bots'))
@@ -468,44 +471,13 @@ t_radioprogramgasinfo = db.Table(
     db.Column(u'fk_radio_program_id', db.ForeignKey('radio_program.id'))
 )
 
+class MediaFiles(BaseMixin, db.Model):
+    '''Table that stores the media files that could be used during programs'''
+    __tablename__ = u'media_files'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    name = db.Column(db.String(STRING_LEN), nullable=False)
+    path = db.Column(db.String(STRING_LEN), nullable=False)
+    type = db.Column(db.Enum('Jingle','Interlude','Other',name='type'),nullable=False)
+    description = db.Column(db.String(STRING_LEN))
+    duration = db.Column(db.Interval)
+    language_id = db.Column(db.ForeignKey('radio_language.id'))

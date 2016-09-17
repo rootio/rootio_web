@@ -1,4 +1,4 @@
-{% extends "radio/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
@@ -12,6 +12,7 @@
 /*hide select within zoom for demo*/
 .leaflet-container div.location-filter.button-container a.adjust-button {display:none;}
 </style>
+
 {% endblock %}
 
 {% block js_top %}
@@ -19,16 +20,13 @@
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/leaflet/locationfilter/locationfilter.js') }}"></script>
 {% endblock %}
-
+{% set page_title = "Emergency Broadcast" %}
 {% block body %}
 <div class="container-fluid">
-    <div class="row-fluid">
-        <h2>{{ _('Emergency Broadcast') }}</h2>
+    <div class="row">
+        <div id="map" class="col-md-8"></div>
 
-        <h3>{{ _('Stations') }}</h3>
-        <div id="map" class="span8"></div>
-
-        <div class="span3">
+        <div class="col-md-3">
             <h4>{{ _('Send Message') }}</h4>
             <form id="flash-message" action="post">
                 <ul id="station-list">
@@ -37,7 +35,7 @@
                 {%endfor%}
                 <li><a href="#" id="all">All / None</a></li>
                 </ul>
-                <input type="text" placeholder="type message here"/>
+                <input class="form-control" type="text" placeholder="type message here"/>
 
                 <a class="btn btn-primary" href="#"><i class="icon-play-circle icon-white"></i> Record</a>
 

@@ -1,0 +1,76 @@
+.background-login {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 45px;
+    background-image: url("http://lorempixel.com/1080/720/nature/");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-filter: blur(100px);
+    -moz-filter: blur(100px);
+    -ms-filter: blur(100px);
+    filter: blur(100px);
+    z-index: -1;
+}
+
+@media screen and (max-width: 767px) {
+    .form-container .box {
+        width: 300px;
+        min-height: 150px;
+        padding: 10px;
+        margin: auto;
+        margin-top: 50px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 3px;
+        border: 1px solid #fff;
+    }
+
+}
+@media screen and (min-width: 768px) {
+    .form-container .box {
+        width: 400px;
+        min-height: 150px;
+        padding: 10px;
+        margin: auto;
+        margin-top: 50px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 3px;
+        border: 1px solid #fff;
+    }
+}
+
+.login-title{
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.form-container .box form{
+    text-align: center;
+    margin: 0;
+
+}
+
+.form-container .btn{
+    background-color: #009688;
+    border-color: #ffffff;
+    width: 130px;
+
+}
+
+.form-container .login-bottom {
+    text-align: center;
+}
+
+.form-container .form-control{
+        text-align: center;
+        width:80%;
+        margin: auto;
+
+}
+
+.form-container .login-bottom a{
+    color: #1f1e21;
+    font-size: 12px;
+    text-decoration: underline;
+}

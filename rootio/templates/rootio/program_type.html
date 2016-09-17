@@ -1,9 +1,8 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "rootio/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
     {%if program_type%}
         <h2>{{ _('Edit') }} {{ _('Program Type') }}</h2>
         {{ render_form(url_for('rootio.program_type', program_type_id=program_type.id), form) }}
@@ -11,5 +10,5 @@
         <h2>{{ _('Add') }} {{ _('Program Type') }}</h2>
         {{ render_form(url_for('rootio.program_type_add'), form) }}
     {%endif%}
-</div>
+
 {% endblock %}
