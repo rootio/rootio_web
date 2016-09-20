@@ -1,16 +1,16 @@
-{% extends "messenger/layout.html" %}
+{% extends "layouts/base.html" %}
+{% set page_title = 'Message Test' %}
 
 {% block body %}
-<div class="container">
-    <h2>Message Test</h2>
-
     <div class="row">
-        <div class="span4">
+        <div class="col-md-4">
             <form id="message_test" name="message_test">
-                <label>Topic: </label><input name="topic" type="text"/>
-                <label>Message: </label><input name="message" type="text" />
+                <label class="control-label">Topic: </label>
+                    <input class="form-control" name="topic" type="text"/>
+                <label class="control-label">Message: </label>
+                    <input  class="form-control" name="message" type="text" />
                 <div class="pull-right">
-                    <button type="submit" value="Send" style="margin-left:10px;">Send</button>
+                    <button class="btn btn-success" type="submit" value="Send" style="margin:10px 0px 10px 10px;">Send</button>
                     <span id="status"></span>
                 </div>
             </form>
@@ -18,16 +18,15 @@
     </div>
 
     <div class="row">
-        <div id="log" class="span8">
+        <div id="log" class="col-md-8">
             Send Log:<br>
-            <textarea readonly class="span8" style="height:100px;"></textarea>
+            <textarea readonly class="col-md-8 form-control" style="height:100px;"></textarea>
         </div>
-        <div id="errors" class="span4" style="display:none;">
+        <div id="errors" class="help-block col-md-4" style="display:none;">
             Error:<br>
             <span class="err_msg" style="color:red;"></span>
         </div>
     </div>
-</div>
 {% endblock %}
 
 

@@ -1,29 +1,33 @@
-{% extends "radio/layout.html" %}
+{% set forms = [
+    (_("Add Person"), url_for('radio.person_add')),
+]%}
+
+{% extends "layouts/base.html" %}
+
+{% set page_title = "People"%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('People') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>
-    </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Email') }}</th>
+                    <th>{{ _('Phone') }}</th>
+                    <th>{{ _('Role') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            {% for person in people %}
             <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Email') }}</th>
-                <th>{{ _('Phone') }}</th>
-                <th>{{ _('Role') }}</th>
+                <td>{{ person}} </td>
+                <td>{{ person.email }}</td>
+                <td>{{ person.phone }}</td>
+                <td>{{ person.role }}</td>
+                <td><a href="{{ url_for('radio.person', person_id=person.id) }}">{{ _('Edit') }}</a></td>
             </tr>
-        </thead>
-        {% for person in people %}
-        <tr>
-            <td>{{ person}} </td>
-            <td>{{ person.email }}</td>
-            <td>{{ person.phone }}</td>
-            <td>{{ person.role }}</td>
-            <td><a href="{{ url_for('radio.person', person_id=person.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

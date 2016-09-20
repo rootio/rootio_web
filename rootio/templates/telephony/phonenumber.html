@@ -1,9 +1,8 @@
 {% from "macros/_form.html" import render_form %}
 
-{% extends "telephony/layout.html" %}
+{% extends "layouts/base.html" %}
 
 {% block body %}
-<div class="container">
     {%if phonenumber%}
         <h2>{{ _('Edit') }} {{ _('Phone Number') }}</h2>
         {{ render_form(url_for('telephony.phonenumber', phonenumber_id=phonenumber.id), form) }}
@@ -11,5 +10,4 @@
         <h2>{{ _('Add') }} {{ _('Phone Number') }}</h2>
         {{ render_form(url_for('telephony.phonenumber_add'), form) }}
     {%endif%}
-</div>
 {% endblock %}

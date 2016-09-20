@@ -1,31 +1,36 @@
-{% extends "radio/layout.html" %}
+{% set forms = [
+    (_("Add Radio Station"), url_for('radio.station_add')),
+]%}
+
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Stations"%}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Stations') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
+                    <th>{{ _('Location') }}</th>
+                    <th>{{ _('Owner') }}</th>
+                    <th>{{ _('Phone Numbers') }}</th>
+                    <th>{{ _('Languages') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for station in stations %}
+                <tr>
+                    <td>{{ station.name }} ({{station.frequency}})</td>
+                    <td>{{ station.location }}</td>
+                    <td>{{ station.owner }}</td>
+                    <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
+                    <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
+                    <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
-                <th>{{ _('Location') }}</th>
-                <th>{{ _('Owner') }}</th>
-                <th>{{ _('Phone Numbers') }}</th>
-                <th>{{ _('Languages') }}</th>
-            </tr>
-        </thead>
-        {% for station in stations %}
-        <tr>
-            <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.location }}</td>
-            <td>{{ station.owner }}</td>
-            <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
-            <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
-            <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
 {% endblock %}

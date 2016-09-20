@@ -1,10 +1,10 @@
 {% from "macros/_form.html" import render_form, render_field %}
 
-{% extends "radio/layout.html" %}
-
+{% extends "layouts/base.html" %}
 {% block css_style %}
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/block.css') }}" rel='stylesheet' />
+
 {% endblock %}
 
 {% block js_btm %}
@@ -21,7 +21,6 @@
 
 
 {% block body %}
-<div class="container">
     {%if scheduled_block%}
         <h2>{{ _('Edit') }} {{ _('Block') }}</h2>
     {%else%}
@@ -54,5 +53,4 @@
 
         {{ render_field(form, form.submit) }}
     </form>
-</div>
 {% endblock %}

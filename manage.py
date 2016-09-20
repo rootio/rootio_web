@@ -3,6 +3,7 @@
 import os, sys
 import subprocess
 import time
+import json
 
 from flask.ext.script import Manager, Shell
 
@@ -10,6 +11,7 @@ from rootio import create_app
 from rootio.extensions import db
 
 from rootio.radio import Station, Language
+from rootio.telephony import Message, PhoneNumber
 from rootio.user import User, UserDetail, ADMIN, ACTIVE
 from rootio.utils import MALE
 
@@ -94,7 +96,7 @@ def reset_db():
                 location=u'Kampala',
                 bio=u''))
     db.session.add(admin)
-    
+
     english = Language(name="English",iso639_1="en",iso639_2="eng",locale_code="en_UG")
     db.session.add(english)
     luganda = Language(name="Luganda",iso639_1="lg",iso639_2="lug",locale_code="lg_UG")
@@ -142,6 +144,33 @@ def list_routes():
 
     for line in sorted(output):
         print line
+
+@manager.command
+def add_sms(data):
+    data = json.loads(data)
+    fr = checkNumber(data['fr'])
+    to = checkNumber(data['to'])
+    message = validate_sms(data['text'])
+    sms = Message(message_uuid=data['uuid'], sendtime=data['time'], text=message, from_phonenumber_id=fr, to_phonenumber_id=to)
+    db.session.add(sms)
+    db.session.commit()
+
+def checkNumber(num):
+    from_phone = PhoneNumber.query.filter_by(number=num)
+    if from_phone.count() == 1:
+        num = from_phone[0].id
+    else:
+        phone = PhoneNumber(number=num,raw_number=num)
+        db.session.add(phone)
+        db.session.commit()
+        num = phone.id
+    return num
+
+def validate_sms(message):
+    message = message.replace("(", ",")
+    message = message.replace(")", ",")  # removes the bug that makes FS send a bye signal do TTS server.
+    message = message.replace("\n", " ")  # Remove the new line character people can envetually send and makes FS stop the TTS
+    return message
 
 if __name__ == "__main__":
     manager.run()

@@ -1,29 +1,35 @@
-{% extends "radio/layout.html" %}
+{% set forms = [
+    (_("Add Program"), url_for('radio.program_add')),
+]%}
+
+{% extends "layouts/base.html" %}
+
+{% set page_title = "Programs"%}
+
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Programs') }}</h2>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>{{ _('Add') }} +</strong></a>
+    <div class="table-responsive">
+        <table id="table-pager"  class="table table-hover table-condensed table-striped"  cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Duration') }}</th>
+                    <th>{{ _('Language') }}</th>
+                    <th>{{ _('Last Episode') }}</th>
+                    <th>{{ _('Action') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for program in programs %}
+                <tr>
+                    <td>{{ program.name }}</td>
+                    <td>{{ program.duration }}</td>
+                    <td>{{ program.language }}</td>
+                    <td>{{ program.last_episode }}</td>
+                    <td><a href="{{ url_for('radio.program',program_id=program.id) }}">{{ _('Edit') }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <table class='table table-bordered table-hover'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Duration') }}</th>
-                <th>{{ _('Language') }}</th>
-                <th>{{ _('Last Episode') }}</th>
-            </tr>
-        </thead>
-        {% for program in programs %}
-        <tr>
-            <td>{{ program.name }}</td>
-            <td>{{ program.duration }}</td>
-            <td>{{ program.language }}</td>
-            <td>{{ program.last_episode }}</td>
-            <td><a href="{{ url_for('radio.program',program_id=program.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
 {% endblock %}

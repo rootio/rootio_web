@@ -1,23 +1,25 @@
-{% extends "telephony/layout.html" %}
+{% extends "layouts/base.html" %}
+{% set page_title = "Gateways" %}
 
 {% block body %}
-<div class="container">
-    <h2 class="pull-left">{{ _('Gateways') }}</h2>
-    <table class='table table-bordered table-hover'>
-        <thead>
-            <tr>
-                <th>{{ _('Name') }}</th>
-                <th>{{ _('Number') }}</th>
-                <th>{{ _('String') }}</th>
-            </tr>
-        </thead>
-        {% for gateway in gateways %}
-        <tr>
-            <td>{{ gateway.name }}</td>
-            <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
-            <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+    <div class="table-responsive">
+        <table id="table-pager" class='table table-hover table-condensed table-striped'>
+            <thead>
+                <tr>
+                    <th>{{ _('Name') }}</th>
+                    <th>{{ _('Number') }}</th>
+                    <th>{{ _('String') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gateway in gateways %}
+                <tr>
+                    <td>{{ gateway.name }}</td>
+                    <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
+                    <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

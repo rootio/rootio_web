@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.wtf import Form
+from flask.ext.wtf import Form, validators
 from flask.ext.babel import gettext as _
+from flask import flash
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
+from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, DateTimeField, FileField
 from wtforms_components.fields import TimeField
-from wtforms.validators import Required, AnyOf
+from wtforms.validators import Required, AnyOf, Optional
 import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots, ContentType
 from .widgets import ChoicesSelect
 
 from ..user.models import User
 from ..telephony.forms import PhoneNumberForm
 
-from ..utils import OrderedForm, GENDER_TYPE
+from ..utils import OrderedForm, GENDER_TYPE, ALLOWED_AUDIO_EXTENSIONS, allowed_audio_file
 from ..extensions import db
 
 LocationFormBase = model_form(Location, db_session=db.session, base_class=Form,
@@ -58,22 +59,12 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
     exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','network_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port'])
 class StationTelephonyForm(StationTelephonyFormBase):
     submit = SubmitField(_('Save'))
-    
+
 
 def all_languages():
     return Language.query.all()
 def all_program_types():
     return ProgramType.query.all()
-class ProgramForm(Form):
-    #can't use model_form, because we want to use a custom field for time duration
-    name = StringField()
-    description = TextAreaField()
-    structure = TextAreaField()
-    duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
-    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
-    program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
-    submit = SubmitField(_('Save'))
-
 
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
@@ -122,6 +113,7 @@ def all_programs():
     return Program.query.all()
 def all_blocks():
     return ScheduledBlock.query.all()
+
 class ScheduleProgramForm(Form):
     station = QuerySelectField(query_factory=all_stations,allow_blank=False)
     program = QuerySelectField(query_factory=all_programs,allow_blank=True,blank_text='- select program -')
@@ -132,8 +124,44 @@ class ScheduleProgramForm(Form):
     # other options for flexibility?
     submit = SubmitField(_('Save'))
 
-#added by nuno
 WhitlistsFormBase = model_form(Person, db_session=db.session, base_class=Form)
 class WhitlistsForm(WhitlistsFormBase):
     submit = SubmitField(_('Save'))
 
+
+def all_bot_functions():
+    return BotFunctions.query.all()
+
+class AddBotForm(Form):
+    bot_belongs_to_station = QuerySelectField('Station', query_factory=all_stations, allow_blank=False, blank_text='- select station-')
+    function_of_bots = QuerySelectField('Function', query_factory=all_bot_functions, allow_blank=False, blank_text='- select function-')
+    #state = SelectField(choices=[('active', 'Active'), ('inactive', 'Inactive')])
+    state = SelectField(choices=[(g, g)for g in StationhasBots.state.property.columns[0].type.enums], validators=[Required("Please choose a bot state")]) #Get the state from Station_has_Bots Table.
+    #next_run = DateTimeField()
+    run_frequency = HiddenField(validators=[Required("Please select a run frequency.")])
+    source_url = StringField(validators=[Required("Please enter a Source URL")])
+    local_url = StringField(validators=[Required("Please enter a Local URL.")])
+    submit = SubmitField(_('Save'))
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        #self.user = None
+
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        #print self.type
+        #getBot = StationhasBots.query.filter(StationhasBots.fk_radio_station_id == self.bot_belongs_to_station.data.id, StationhasBots.fk_bot_function_id == self.function_of_bots.data.id).first()
+        #if getBot.fk_radio_station_id == self.bot_belongs_to_station.data.id and getBot.fk_bot_function_id  == self.function_of_bots.data.id and getBot.state    == self.state.data and getBot.run_frequency == self.run_frequency.data and getBot.source_url == self.source_url.data and getBot.local_url == self.local_url.data:
+        #    return False
+
+        #if
+        return True
+
+class ProgramForm(Form):
+    name = StringField()
+    description = TextAreaField()
+    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
+    program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
+    submit = SubmitField(_('Save'))

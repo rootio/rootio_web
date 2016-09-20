@@ -1,3 +1,10 @@
+/*Declaration of Color variables*/
+:root {
+    --navbarColor: #009688;
+    --navbarShadow:  rgba(255, 255, 255, 0.9);
+    --navsearchHover: #fff;
+}
+
 .form-actions {
     padding: 0;
     background-color: #fff;
@@ -13,19 +20,478 @@
 }
 
 /* NavBar */
-.navbar .btn-signup {
+/*It was based on http://www.bublinastudio.com/flattybs3/index.html*/
+.navbar{
+    margin: 0;
+    background-color: var(--navbarColor);
+    padding: 0px 20px;
+    border:none;
+    min-height:45px;
+    height:45px;
+    border-radius: 0;
+}
+
+.navbar-brand{
+    padding: 0px;
+}
+
+.navbar .toggle-nav{
+    margin-left: 10px;
+    margin-top: 4px;
     color: white;
-    text-decoration: none;
+    font-size:16px;
+
+    /*padding: 11px 0px 0px 20px;*/
+    border-radius: 0px;
+    border-color: rgba(0, 0, 0, 0.1);
+    -box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-ul.nav li.nav-header {
-    margin-top: 6px;
+.navbar .navbar-form{
+    position: relative;
+    margin: 7px 10px 0 0;
+    padding: 0;
+    border: none;
+    float: right;
+}
+
+.navbar-form input{
+    height: 30px;
+    border-radius: 0px ;
+    padding: 10px;
+    background-color: var(--navbarShadow);
+}
+
+.navbar-form input:focus{
+    background-color: var(--navsearchHover);
+}
+
+.navbar-form input [placeholder]{
+    color: var(--navbarColor);
+}
+
+.navbar-form .glyphicon-search{
+    position: absolute;
+    color: var(--navbarColor);
+    padding: 0px;
+    margin:0px;
+    right: 7px;
+    top: 4px;
+}
+
+.navbar .nav{
+    float: right;
+    margin:0;
+}
+
+.navbar-login{
+    float: right;
+    list-style: none;
+    padding: 5px 0px 0px 10px;
+
+}
+
+.navbar-login li{
+    float: left;
+    padding: 10px;
+}
+
+.navbar-login li a:hover{
+     text-decoration: none;
+}
+
+.nav-user{
+    float: right;
+    list-style: none;
+    padding: 2px 0px 0px 10px;
+    background-color: #00645a;
+}
+
+.nav-user li{
+    float: left;
+    padding: 10px;
+}
+
+.nav-user .dropdown-toggle{
+    color:white;
+    text-decoration: none; !important;
+}
+
+.nav-user .dropdown-toggle .fa-rss{
+    font-size: 16px;
+}
+
+.nav-user .dropdown-toggle .label{
+    background-color: white;
+    border-radius: 0px;
+    color: var(--navbarColor);
+}
+
+.nav-user .dropdown-menu{
+    right: 0px;
+    left: auto;
+}
+
+/*Icon color*/
+.white{
+    color: #fff;
+}
+
+/*New look for flash container messages*/
+.alert{
+    border-radius: 0px;
+    margin-top: 10px;
+}
+/*TODO REMOVE THIS CHECK WHY THE BOOTSTRAP CSS IS NOT BEING APPLIED*/
+.alert-danger,
+.alert-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+
+/*End of new look*/
+
+
+/*Title container appears when user os logged in*/
+.header-content-header{
+    margin-left: 250px;
+    background-color: #f9f9f9;
+}
+
+.header-content-header h2{
+    padding: 20px 0px 20px 20px;
+    border-bottom: 1px solid #dddddd;
+    margin: 0px;
+}
+/*End title container*/
+
+/*Content container*/
+.content-container{
+    margin-left: 250px;
+    padding: 0px 30px 0px 30px;
+    margin-top: 20px;
+}
+/*End Content Container*/
+
+/*Form Button row*/
+.button-form-row{
+    margin: 15px 0px 15px 250px;
+    padding: 10px;
+}
+
+.button-form-row .btn{
+    background-color: var(--navbarColor);
+    border-color: white;
+}
+/*End Form Button row*/
+
+/*Pagination Costumization*/
+.pagination > .active > a, .pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus, .pagination > .active > span:focus{
+    background-color: var(--navbarColor);
+    border-color: var(--navbarColor);
+}
+
+.pagination > li > a, .pagination > li > span{
+    color: var(--navbarColor);
+}
+/*End Pagination Costumizaton*/
+
+
+/*Side Bar*/
+.side-nav{
+    position: absolute;
+    display: block;
+    width: 250px;
+    height: 100%;
+    background: #f4f4f4;
+    top: 45px;
+    left: 0;
+    bottom:0px;
+    border-right: 1px solid #dddddd;
+    overflow-x: hidden;
+}
+
+.navside-tabs-wrapper{
+    width: 100%;
+}
+
+.side-nav .navside-tabs{
+    list-style: none;
+    padding: 0px;
+    margin: 0;
+}
+
+.side-nav .dropdown{
+    padding: 10px 0px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+
+.side-nav .navside-tabs a{
+    padding-left: 15px;
+    color: #3c3c3c;
     font-size: 14px;
+    text-decoration: none;
+    line-height: 30px;
 }
 
-form#language-selector select {
-    width:100px;
+.dropdown-toggle .fa-chevron-down{
+    float: right;
+    padding-top: 7px;
+    padding-left: 10px;
 }
+
+.dropdown-toggle .fa{
+    font-size: 18px;
+    padding-right: 15px;
+}
+
+.navside-tabs-wrapper .no-dropdown{
+    padding: 10px 0px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+.navside-tabs-wrapper .no-dropdown:hover{
+    background-color: white;
+}
+
+
+.side-nav .dropdown-menu {
+    /*display: block;*/
+    position: relative;
+    width: 100%;
+    padding: 0px;
+    margin: 10px 0px 10px 0px;
+    border-radius: 0;
+    border: none;
+    background-color: #ececec;
+    box-shadow: none;
+}
+
+.side-nav .dropdown-menu .fa-caret-right{
+   padding-right: 0px;
+}
+
+
+.side-nav .dropdown-menu li a {
+    padding-left: 30px;
+    line-height: 20px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #e7e7e7;
+}
+
+
+.side-nav .dropdown:hover{
+    background-color: white;
+    color: var(--navbarColor);
+
+}
+
+.side-nav .dropdown-menu li a:hover{
+    background-color: #dfdfdf;
+}
+
+.side-nav .dropdown-menu li a:hover{
+    background-color: #dfdfdf;
+}
+
+
+
+/*For smaller screen's*/
+@media screen and (max-width: 480px){
+    .side-nav {
+        position: absolute;
+        display: block;
+        width: 50px;
+        height: 100%;
+        background: #f4f4f4;
+        top: 45px;
+        left: 0;
+        bottom: 0px;
+        border-right: 1px solid #dddddd;
+        overflow-x: hidden;
+    }
+
+    .side-nav .navside-tabs a span, .side-nav .navside-tabs a .fa-chevron-down{
+        display: none;
+    }
+
+    .content-container, .header-content-header, .button-form-row{
+        margin-left: 50px;
+    }
+}
+/*ENd Side NavBar*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*Sparkline tooltip CSS*/
+.tooltip-class {
+    width: 29px;
+    height: 23px;
+    color:#00FFFF;
+    background-color: transparent;
+    margin: 0;
+}
+/*End Sparkline tooltip*/
+
+
+/*Chat Bot CSS*/
+#chatButton{
+    position: fixed;
+    bottom: 63px;
+    right: 6px;
+    border-radius: 50%;
+    background-color: var(--navbarColor);
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    border: 3px solid #fff;
+    font-size: 30px;
+}
+
+#chatButton i{
+    padding: 13px 15px;
+    color: #fff;
+}
+
+#chatBox{
+    display:none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: white;
+    width: 249px;
+    height: 290px;
+    z-index: 20;
+}
+
+.chatBoxUp{
+    height: 30px;
+    background-color:  var(--navbarColor);
+}
+
+.chatBoxUp > p{
+    display:inline-block;
+    padding-top: 5px;
+    padding-left: 10px;
+    color : white;
+    margin-bottom: 0cm;
+}
+
+/*Message body*/
+
+.chatBoxBody {
+  height:230px;
+  width: 249px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  border: 1px solid lightgray;
+
+}
+
+.chatBoxBody table {
+  width: 99%; !important;
+  max-width: 240px;
+  table-layout: fixed;
+}
+
+.chatBoxUp > i{
+    display:inline-block;
+    float: right;
+    padding: 7px 10px 0px 0px;
+    color: white;
+    font-size: 15px;
+}
+
+#chatBoxText{
+    border-left: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+    height: 30px;
+    font-family: 'tahoma';
+    font-size: 13px;
+    padding: 5px;
+}
+
+.msg-row {
+    max-width: 99%;
+    border-bottom: 1px solid lightgray;
+    padding: 3px 0px 3px 2px;
+}
+
+.message {
+    margin-left: 40px;
+}
+.chatBoxBody .msg-text{
+    width: 11em;
+    word-wrap: break-word;
+}
+
+
+.user-label {
+  font-size: 11px;
+}
+
+.msg-time {
+  font-size: 10px;
+  float: right;
+  color: gray;
+}
+
+
+#chatBoxText #helpCmd{
+    margin: 0;
+    width: 95%;
+    border: none;
+    outline:none;
+    box-shadow: none;
+;}
+
+.avatar-left {
+  width: 24px;
+  height: 24px;
+  float: left;
+  background: url('/static/img/robot.png');
+  border: 1px solid lightgray;
+}
+
+.avatar-user{
+  width: 24px;
+  height: 24px;
+  float: left;
+  border: 1px solid lightgray;
+}
+
+
+/*End Chat Bot CSS*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* form styles */
 form .required {
@@ -38,10 +504,6 @@ form .required label:after {
     margin-left:2px;
 }
 
-/* 
- * Sticky footer 
- * http://twitter.github.io/bootstrap/examples/sticky-footer.html
- * */
 
 html,
 body { 
@@ -49,6 +511,8 @@ body {
 }
 
 #wrap {
+
+    position: relative;
     min-height: 100%;
     height: auto !important;
     height: 100%;
@@ -60,38 +524,6 @@ body {
     height: 60px;
     z-index: 10;
 }
-#footer {
-    background-color: #f5f5f5;
-}
-
-@media (max-width: 767px) {
-    #footer {
-        margin-left: -20px;
-        margin-right: -20px;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-}
-
-.footer-links {
-    text-align: center;
-    font-size: 12px;
-    line-height: 59px;
-    text-shadow: 0 1px 0 white;
-    background-color: whiteSmoke;
-    border-top: 1px solid #E5E5E5;
-}
-
-.footer-links li {
-    display: inline;
-    padding: 0 2px;
-}
-
-.footer-links li:first-child {
-    padding-left: 0;
-}
-
-/* End of sticky footer */
 
 /* bootstrap + tablesorter */
 

@@ -2,11 +2,11 @@
 
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
-<!--[if lte IE 8]>
-    <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
-<![endif]-->
+<!--[if lte IE 8]>-->
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />-->
+<!--<![endif]>-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
-<style>#map { min-height: 300px; border:1px solid #ddd; margin-bottom:20px; }</style>
+<style>#map { min-height: 250px; border:1px solid #ddd; margin-bottom:20px; z-index: 0; }</style>
 {% endblock %}
 
 {% block js_top %}
@@ -15,43 +15,40 @@
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <h2>{% trans %}Radio Dashboard {% endtrans %}</h2>
-
-        <h3>{% trans %} Stations {% endtrans %}</h3>
-        <div id="map" class="span4"></div>
-
-        <div class="span7">
-            <table class='table table-bordered table-hover span12'>
-            <thead>
-                <tr>
-                    <th>{{ _('Name') }}</th>
-                    <th>{{ _('Battery') }}</th>
-                    <th>{{ _('GSM Signal') }}</th>
-                    <th>{{ _('WiFi Network') }}</th>
-                    <th>{{ _('Memory') }}</th>
-                    <th>{{ _('Storage') }}</th>
-                    <th>{{ _('CPU ') }}</th>
-                </tr>
-            </thead>
-            {%for station in stations %}
-            {% set analytics = station.recent_analytics() %}
-            <tr>
-                <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-            </tr>
-            {%endfor%}
-            </table>
-        </div>
-        
+<!--<div class="container-fluid">-->
+    <div class="row">
+        <div id="map" class="col-xs-12"></div>
     </div>
-</div>
+    <div class="row">
+        <div class="table-responsive">
+               <table id="table-pager-radio-dash" class='table table-hover table-condensed table-striped col-md-12'>
+                <thead>
+                    <tr>
+                        <th>{{ _('Name') }}</th>
+                        <th>{{ _('Battery') }}</th>
+                        <th>{{ _('GSM Signal') }}</th>
+                        <th>{{ _('WiFi Network') }}</th>
+                        <th>{{ _('Memory') }}</th>
+                        <th>{{ _('Storage') }}</th>
+                        <th>{{ _('CPU ') }}</th>
+                    </tr>
+                </thead>
+                {%for station in stations %}
+                {% set analytics = station.recent_analytics() %}
+                <tr>
+                    <td>{{station.name}}</td>
+                    <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.wifi_connected}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+                </tr>
+                {%endfor%}
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js_btm %}

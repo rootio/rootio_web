@@ -1,21 +1,34 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
+import string
+import random
 import os
-from datetime import datetime
+import re
+
+from datetime import datetime, timedelta
+import sys
+
 import time
 import dateutil.rrule, dateutil.parser
 
-from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
+from flask import g, current_app, Blueprint, render_template, request, flash, Response, json, url_for
 from flask.ext.login import login_required, current_user
+from crontab import CronTab
 from flask.ext.babel import gettext as _
-
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
-from .forms import StationForm, StationTelephonyForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
+from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import redirect
+from ..telephony import Message
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType
+from .forms import StationForm, ProgramForm, BlockForm, StationTelephonyForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
 
 from ..decorators import returns_json, returns_flat_json
-from ..utils import error_dict, fk_lookup_form_data
+from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
 from ..extensions import db
+from ..utils_bot import add_cron, send_mail, removeCron
 
+from werkzeug import secure_filename
+
+import mutagen
 from ..messenger import messages
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
@@ -84,41 +97,6 @@ def station_add():
 def programs():
     programs = Program.query.all()
     return render_template('radio/programs.html', programs=programs, active='programs')
-
-
-@radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
-def program(program_id):
-    program = Program.query.filter_by(id=program_id).first_or_404()
-    form = ProgramForm(obj=program, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(program)
-
-        db.session.add(program)
-        db.session.commit()
-        flash(_('Program updated.'), 'success')
-
-    return render_template('radio/program.html', program=program, form=form)
-
-
-@radio.route('/program/add/', methods=['GET', 'POST'])
-@login_required
-def program_add():
-    form = ProgramForm(request.form)
-    program = None
-
-    if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('submit',None) #remove submit field from list
-        program = Program(**cleaned_data) #create new object from data
-        
-        db.session.add(program)
-        db.session.commit()
-        flash(_('Program added.'), 'success') 
-    elif request.method == "POST":
-        flash(_('Validation error'),'error')
-
-    return render_template('radio/program.html', program=program, form=form)
 
 @radio.route('/people/', methods=['GET'])
 def people():
@@ -258,7 +236,6 @@ def schedule_program_add_ajax():
     db.session.commit()
     
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
-
 
 
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
@@ -431,7 +408,7 @@ def telephony():
 
 @radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
 def telephony_station(station_id):
-    
+
     station = Station.query.filter_by(id=station_id).first_or_404()
     form = StationTelephonyForm(obj=station, next=request.args.get('next'))
 
@@ -460,8 +437,115 @@ def telephony_add():
 
         db.session.add(station)
         db.session.commit()
-        flash(_('Station added.'), 'success') 
+        flash(_('Station added.'), 'success')
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
     return render_template('radio/station_telephony.html', station=station, form=form)
+
+@radio.route('/bots/', methods=['GET'])
+def list_bots():
+    """
+    Presents a list with all the bots that have been created and the radios where they\'re working
+    :return:
+    """
+    stations = Station.query.all()
+    return render_template('radio/bots.html', stations=stations)
+
+@radio.route('/bots/add/', methods=['GET', 'POST'])
+@login_required
+def new_bot_add():
+    """
+        Renders the form to insert a new bot in the database.
+        Add cronJobs if the state bot is active
+    """
+    form = AddBotForm(request.form)
+    bot = None
+    type = "add"
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        bot = StationhasBots(**cleaned_data)  # create new object from data
+        try:
+            bot = add_cron(bot,type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot added.'), 'success')
+        except Exception as e:
+            removeCron(bot, CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print (str(e))
+            send_mail("Error happened while you're adding a bot", str(e))
+            flash(_('Error Bot Not Added.'), 'error')
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/bot.html', bot=bot, form=form)
+
+@radio.route('/bot/<int:radio_id>/<int:function_id>', methods=['GET', 'POST'])
+@login_required
+def bot_edit(radio_id, function_id):
+
+    bot = StationhasBots.query.filter_by(fk_radio_station_id=radio_id, fk_bot_function_id=function_id).first_or_404()
+    form = AddBotForm(obj=bot, next=request.args.get('next'))
+    type = "edit"
+    if form.validate_on_submit():
+        form.populate_obj(bot)
+        try:
+            bot = add_cron(bot, type)
+            db.session.add(bot)
+            db.session.commit()
+            flash(_('Bot updated.'), 'success')
+        except Exception as e:
+            removeCron(bot,CronTab(user=True))
+            db.session.rollback()
+            db.session.flush()
+            print(str(e))
+            send_mail("Error happened editig the bot", str(e))
+            flash(_('Error Bot Not Updated.'), 'error')
+
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/bot.html', bot=bot, form=form)
+
+@radio.route('/program/add/', methods=['GET', 'POST'])
+@login_required
+def program_add():
+    form = ProgramForm(request.form)
+    program = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)  # remove submit field from list
+        cleaned_data['duration'] = request.form['est_time']
+        cleaned_data['description'] = request.form['description']
+        program = Program(**cleaned_data)  # create new object from data
+
+        db.session.add(program)
+        db.session.commit()
+        flash(_('Program added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('radio/program.html', program=program, form=form)
+
+@radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
+def program(program_id):
+    program = Program.query.filter_by(id=program_id).first_or_404()
+    form = ProgramForm(obj=program, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(program)
+        program.duration = request.form['est_time']
+        program.description = request.form['description']
+
+        db.session.add(program)
+        db.session.commit()
+        flash(_('Program updated.'), 'success')
+
+    return render_template('radio/program.html', program=program, form=form)

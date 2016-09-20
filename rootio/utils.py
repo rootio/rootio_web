@@ -8,6 +8,10 @@ import random
 import os
 import re
 
+import httplib2
+from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulStoneSoup
+
 from datetime import datetime, time, timedelta
 
 from flask import Flask
@@ -15,6 +19,8 @@ from flask import json
 from flask.ext.wtf import Form
 
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+ALLOWED_AUDIO_EXTENSIONS = set(['mp3', 'wav'])
 
 # Form validation
 
@@ -92,6 +98,9 @@ def random_boolean(threshold):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AVATAR_EXTENSIONS
+
+def allowed_audio_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AUDIO_EXTENSIONS
 
 
 def id_generator(size=10, chars=string.ascii_letters + string.digits):
@@ -211,3 +220,27 @@ class OrderedForm(Form):
                     temp_fields.append([f for f in self._unbound_fields if f[0] == name][0])
             self._unbound_fields = temp_fields
         return super(OrderedForm, self).__iter__()
+
+#From https://github.com/nandopedrosa/as_mais_lidas
+def getpage(url):
+    """
+    Downloads the html page
+
+    :rtype: tuple
+    :param url: the page address
+    :return: the header response and contents (bytes) of the page
+    """
+    http = httplib2.Http()
+    response, content = http.request(url, headers={'User-agent': 'Mozilla/5.0'})
+    return response, content
+
+#From https://github.com/nandopedrosa/as_mais_lidas
+def parsepage(content,parsetype):
+    """
+    Parses a single page and its contents into a BeautifulSoup object
+
+    :param content: bytearray
+    :return soup: object
+    """
+    soup = BeautifulSoup(content,parsetype)
+    return soup

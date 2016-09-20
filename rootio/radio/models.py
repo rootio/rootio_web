@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
-from coaster.sqlalchemy import BaseMixin
+from coaster.sqlalchemy import BaseMixin, IdMixin
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy_utils import JSONType
 from sqlalchemy.sql import func
 
@@ -11,9 +12,7 @@ from .constants import PRIVACY_TYPE
 from ..utils import STRING_LEN, GENDER_TYPE, id_generator, object_list_to_named_dict
 from ..extensions import db
 
-from ..telephony.models import PhoneNumber
-
-
+from ..telephony import PhoneNumber
 
 class Location(BaseMixin, db.Model):
     "A geographic location"
@@ -74,8 +73,6 @@ class Station(BaseMixin, db.Model):
     "A single radio station"
     __tablename__ = 'radio_station'
 
-    
-
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
     frequency = db.Column(db.Float)
@@ -107,9 +104,11 @@ class Station(BaseMixin, db.Model):
     analytics = db.relationship(u'StationAnalytic', backref=db.backref('station',uselist=False), lazy='dynamic')
     outgoing_gateways = db.relationship(u'Gateway', secondary=u'radio_outgoinggateway', backref=db.backref('stations_using_for_outgoing'))
     incoming_gateways = db.relationship(u'Gateway', secondary=u'radio_incominggateway', backref=db.backref('stations_using_for_incoming'))
-    
+
+    station_has_bots = db.relationship("StationhasBots", backref=db.backref('bot_belongs_to_station'))
+
     whitelist_number = db.relationship(u'PhoneNumber', secondary=u'radio_whitelist', backref=db.backref('stations'))
-   
+
 
     client_update_frequency = db.Column(db.Float) #in seconds
     analytic_update_frequency = db.Column(db.Float) #in seconds
@@ -325,7 +324,7 @@ class ScheduledProgram(BaseMixin, db.Model):
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)
-    
+
     programs = db.relationship(u'Program', backref=db.backref('program'))
 
     @classmethod
@@ -435,7 +434,7 @@ class StationAnalytic(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    battery_level = db.Column(db.Integer) # percentage 0,100 
+    battery_level = db.Column(db.Integer) # percentage 0,100
     gsm_signal = db.Column(db.Integer) # signal strength in db
     wifi_connectivity = db.Column(db.Float) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
@@ -444,10 +443,49 @@ class StationAnalytic(BaseMixin, db.Model):
     gps_lat = db.Column(db.Float) # location of the handset
     gps_lon = db.Column(db.Float) # 
     record_date = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    
+
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
 
+class BotFunctions(IdMixin,db.Model):
+    __tablename__ = u'bot_function'
+    name = db.Column(db.String(STRING_LEN))
+
+    def __unicode__(self):
+        return self.name
+
+class StationhasBots(db.Model):
+    __tablename__ = u'station_has_bots'
+
+    fk_radio_station_id =  db.Column(db.ForeignKey('radio_station.id'), primary_key=True)
+    fk_bot_function_id =  db.Column(db.ForeignKey('bot_function.id'), primary_key=True)
+    state = db.Column(db.Enum('active','inactive',name='state'),nullable=False)
+    next_run = db.Column(db.DateTime(timezone=True), nullable=True)
+    run_frequency = db.Column(db.String(STRING_LEN),nullable=False)
+    source_url = db.Column(db.String(STRING_LEN),nullable=False)
+    local_url = db.Column(db.String(STRING_LEN),nullable=False)
+
+    ###Relations
+    function_of_bots = db.relationship("BotFunctions", backref=db.backref('function_from_bots'))
+    bot_generates_info = db.relationship("Bothasinfo", backref=db.backref('info_has_one_bot'))
+
+
+
+class Bothasinfo(BaseMixin, db.Model):
+    __tablename__ = u'bot_info'
+
+    info = db.Column(db.String,nullable=True )
+    fk_station_has_bots_radio_station_id = db.Column(db.Integer)
+    fk_station_has_bots_bot_function_id = db.Column(db.Integer)
+    __table_args__ = (ForeignKeyConstraint([fk_station_has_bots_radio_station_id, fk_station_has_bots_bot_function_id],
+                                           [StationhasBots.fk_radio_station_id, StationhasBots.fk_bot_function_id]),
+                      {})
+
+t_radioprogramgasinfo = db.Table(
+    u'radio_program_has_info',
+    db.Column(u'fk_bot_info_id', db.ForeignKey('bot_info.id')),
+    db.Column(u'fk_radio_program_id', db.ForeignKey('radio_program.id'))
+)
 
 class ContentType(BaseMixin, db.Model):
     __tablename__ = u'radio_contenttype'
@@ -458,4 +496,4 @@ class ContentType(BaseMixin, db.Model):
 
 
     def __unicode__(self):
-        return self.name    
+        return self.name
