@@ -18,8 +18,8 @@ from flask.ext.babel import gettext as _
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import redirect
 from ..telephony import Message
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType, MediaFiles
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm, MediaForm
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, StationhasBots, Language, ProgramType
+from .forms import StationForm, ProgramForm, BlockForm, StationTelephonyForm, LocationForm, ScheduleProgramForm, PersonForm, AddBotForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data, allowed_audio_file, ALLOWED_AUDIO_EXTENSIONS
@@ -230,6 +230,7 @@ def schedule_program_add_ajax():
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -241,7 +242,8 @@ def schedule_program_add_ajax():
 @login_required
 def delete_program(_id):
     _program = ScheduledProgram.query.get(_id)
-    db.session.delete(_program)
+    _program.deleted = True
+    db.session.add(_program)
     db.session.commit()
     return ""
 
@@ -264,6 +266,7 @@ def schedule_program_edit_ajax():
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -298,11 +301,11 @@ def schedule_recurring_program_ajax():
 
         #parse recurrence rule
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:10]: #TODO: dynamically determine instance limit
+        for instance in r[:30]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
-            
+            scheduled_program.deleted = False
             db.session.add(scheduled_program)
 
         db.session.commit()
@@ -313,22 +316,24 @@ def schedule_recurring_program_ajax():
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
-    if request.args.get('start') and request.args.get('end'):
-        start = dateutil.parser.parse(request.args.get('start'))
-        end = dateutil.parser.parse(request.args.get('end'))
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
-        #TODO: filter by start > start, end < end
-    else:
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status':'error','errors':'scheduledprograms.json requires start and end','status_code':400}
+    start = dateutil.parser.parse(request.args.get('start'))
+    end = dateutil.parser.parse(request.args.get('end'))
+    scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)\
+                                                   .filter(ScheduledProgram.start >= start)\
+                                                   .filter(ScheduledProgram.end <= end)\
+                                                   .filter(ScheduledProgram.deleted == False)
     resp = []
     for s in scheduled_programs:
         d = {'title':s.program.name,
             'start':s.start.isoformat(),
             'end':s.end.isoformat(),
-            'id':s.id}
+            'id':s.id,
+            'status':s.status}
         resp.append(d)
     return resp
 
@@ -377,7 +382,7 @@ def schedule_station(station_id):
     block_list = []
     for block in scheduled_blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
-        for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
+        for instance in r[:30]: #TODO: dynamically determine instance limit from calendar view
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
                 'end':datetime.combine(instance,block.end_time)}
@@ -391,6 +396,52 @@ def schedule_station(station_id):
     return render_template('radio/schedule.html',
         form=form, station=station, block_list=block_list, addable_programs=all_programs,
         active='schedule')
+
+
+
+@radio.route('/telephony/', methods=['GET', 'POST'])
+def telephony():
+    stations = Station.query.all()
+    return render_template('radio/stations_telephony.html', stations=stations)
+
+
+
+@radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
+def telephony_station(station_id):
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationTelephonyForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station updated.'), 'success')
+
+    return render_template('radio/station_telephony.html', station=station, form=form)
+
+
+@radio.route('/telephony/add/', methods=['GET', 'POST'])
+@login_required
+def telephony_add():
+    form = StationTelephonyForm(request.form)
+    station = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('phone_inline',None) #and also inline forms
+        cleaned_data.pop('location_inline',None)
+        station = Station(**cleaned_data) #create new object from data
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/station_telephony.html', station=station, form=form)
 
 @radio.route('/bots/', methods=['GET'])
 def list_bots():
@@ -461,115 +512,6 @@ def bot_edit(radio_id, function_id):
         flash(_('Validation error'), 'error')
 
     return render_template('radio/bot.html', bot=bot, form=form)
-
-@radio.route('/media', methods=['GET', 'POST'])
-@login_required
-def media_files():
-    media = MediaFiles.query.all()
-    return render_template('radio/media.html', media=media)
-
-@radio.route('/media/add', methods=['GET', 'POST'])
-@login_required
-def media_add():
-    form = MediaForm(request.form)
-    media = None
-
-    if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        upload_file = request.files[form.path.name]
-        if upload_file and allowed_audio_file(upload_file.filename):
-            data = upload_file.read()
-            path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
-            open(path_file, 'w').write(data)
-            filename, file_extension = os.path.splitext(path_file)
-            if file_extension == '.wav':
-                import wave
-                import contextlib
-                with contextlib.closing(wave.open(path_file, 'r')) as f:
-                    frames = f.getnframes()
-                    rate = f.getframerate()
-                    duration = unicode(timedelta(seconds=frames / float(rate)))
-            else:
-                audio = mutagen.File(path_file)
-                duration = unicode(timedelta(seconds=audio.info.length))
-            cleaned_data.pop('submit', None)  # remove submit field from list
-            cleaned_data['path'] = path_file
-            cleaned_data['duration'] = duration
-            media = MediaFiles(**cleaned_data)  # create new object from data
-
-            db.session.add(media)
-            db.session.commit()
-            flash(_('Media File added.'), 'success')
-        else:
-            flash("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS), 'error')
-    elif request.method == "POST":
-        flash(_('Validation error'), 'error')
-
-    return render_template('radio/mediaform.html', media=media, form=form)
-
-@radio.route('/media/<int:media_id>', methods=['GET', 'POST'])
-@login_required
-def media_edit(media_id):
-    media = MediaFiles.query.filter_by(id=media_id).first_or_404()
-    form = MediaForm(obj=media, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(media)
-        upload_file = request.files[form.path.name]
-        if upload_file and allowed_audio_file(upload_file.filename):
-            data = upload_file.read()
-            path_file = os.path.join(current_app.config['UPLOAD_FOLDER'], upload_file.filename)
-            open(path_file, 'w').write(data)
-            filename, file_extension = os.path.splitext(path_file)
-            if file_extension == '.wav':
-                import wave
-                import contextlib
-                with contextlib.closing(wave.open(path_file, 'r')) as f:
-                    frames = f.getnframes()
-                    rate = f.getframerate()
-                    duration = unicode(timedelta(seconds=frames / float(rate)))
-            else:
-                audio = mutagen.File(path_file)
-                duration = unicode(timedelta(seconds=audio.info.length))
-            media.path = path_file
-            media.duration = duration
-            db.session.add(media)
-            db.session.commit()
-            flash(_('Media File updated.'), 'success')
-        else:
-            flash("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS), 'error')
-
-    return render_template('radio/mediaform.html', media=media, form=form)
-
-@radio.route('/media/list', methods=['GET', 'POST'])
-@login_required
-def media_list():
-    media = dict()
-    for m in MediaFiles.query.all():
-        media[m.id] = {'media_id': m.id, 'name': m.name, 'description': m.description, 'path': m.path,
-                          'language': unicode(m.language), 'type': m.type,
-                          'duration': m.duration}
-    return json.jsonify(media)
-
-@radio.route('/media/find', methods=['GET', 'POST'])
-@login_required
-def media_find():
-    try:
-        media = MediaFiles.query.filter_by(path=request.form['path'])
-        return media[0].name
-    except:
-        media = MediaFiles.query.filter_by(path=request.form['path[]'])
-        return media[0].name
-
-@radio.route('/sms/', methods=['GET', 'POST'])
-@login_required
-def list_sms():
-    messages = dict()
-    for m in Message.query.all():
-        messages[m.id] = {'message_id':m.id,'message_uuid':m.message_uuid,'sendtime':m.sendtime,
-                         'text': m.text,'from_phonenumber_id':m.from_phonenumber_id,
-                         'to_phonenumber_id':m.to_phonenumber_id,'onairprogram_id': m.onairprogram_id}
-    return json.jsonify(messages)
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
 @login_required

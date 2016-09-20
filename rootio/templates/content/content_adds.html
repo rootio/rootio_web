@@ -1,0 +1,67 @@
+{% extends "content/layout.html" %}
+
+{% block js_btm %}
+    {{ super() }}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $( function() {
+            $( "tbody" ).sortable({
+                axis: 'y',
+                stop: function (event, ui) {
+                    var data = $(this).sortable('toArray').toString();
+                    // POST to server using $.post or $.ajax
+                    $.ajax({
+                        data: 'indexes='+ data,
+                        type: 'POST',
+                        url: 'reorder/',
+                    }); 
+                }
+            });
+        } );
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Adds') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.content_adds_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Track name') }}</th>
+                <th>{{ _('Uploaded date') }}</th>
+                <th>{{ _('Listen') }}</th>
+                <th>{{ _('File name') }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for content_add in content_adds %}
+            <tr id="{{content_add.id}}">
+                <td>{{ content_add.content_tracks.name }}</td>
+                <td>{{ content_add.created_at }}</td>
+                <td>
+                    <audio controls>
+                        <source src="../../media/{{ content_add.uri }}" type="audio/mpeg">
+                        <source src="../../media/{{ content_add.uri }}" type="audio/ogg">
+                        <source src="../../media/{{ content_add.uri }}" type="audio/wav">
+                    </audio>
+                </td>
+                </td>
+                <td>{{ content_add.name }}</td>
+                <td><a href="{{ url_for('content.content_adds_edit', content_adds_id=content_add.id) }}">Edit</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin, IdMixin
 from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy_utils import JSONType
+from sqlalchemy.sql import func
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
@@ -41,7 +42,6 @@ class Language(BaseMixin, db.Model):
 
     #relationships
     programs = db.relationship(u'Program', backref=db.backref('language'))
-    media = db.relationship(u'MediaFiles', backref=db.backref('language'))
 
     def __unicode__(self):
         return self.name
@@ -88,6 +88,8 @@ class Station(BaseMixin, db.Model):
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
     transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
+    #from ..telephony.models import PhoneNumber
+    #circular imports
 
     #relationships
     owner = db.relationship(u'User')
@@ -105,9 +107,13 @@ class Station(BaseMixin, db.Model):
 
     station_has_bots = db.relationship("StationhasBots", backref=db.backref('bot_belongs_to_station'))
 
+    whitelist_number = db.relationship(u'PhoneNumber', secondary=u'radio_whitelist', backref=db.backref('stations'))
+
+
     client_update_frequency = db.Column(db.Float) #in seconds
     analytic_update_frequency = db.Column(db.Float) #in seconds
     broadcast_ip = db.Column(db.String(16))
+    broadcast_port = db.Column(db.String(16))
 
     def init(self):
         #load dummy program
@@ -150,7 +156,7 @@ class Station(BaseMixin, db.Model):
 
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
-            .filter(StationAnalytic.created_at>since_date)
+            .order_by(StationAnalytic.created_at.desc()).limit(10)
 
         if len(analytics_list.all()) == 0:
             #fake a week's worth for the demo
@@ -162,11 +168,10 @@ class Station(BaseMixin, db.Model):
                 a = StationAnalytic()
                 a.battery_level = randint(50,100)
                 a.gsm_signal = randint(0,100)
-                a.wifi_connected = random_boolean(0.8)
+                a.wifi_connectivity = randint(0,100)
                 a.memory_utilization = randint(60,80)
                 a.storage_usage = randint(20,50)
                 a.cpu_load = randint(0,100)
-                a.headphone_plug = random_boolean(0.9)
                 analytics_list.append(a)
 
         #convert to named dict for sparkline display
@@ -222,7 +227,11 @@ t_station_incominggateway = db.Table(
     db.Column(u'station_id', db.ForeignKey('radio_station.id'))
 )
 
-
+t_station_whitelist = db.Table(
+    u'radio_whitelist',
+    db.Column(u'phone_id', db.ForeignKey('telephony_phonenumber.id')),
+    db.Column(u'station_id', db.ForeignKey('radio_station.id'))
+)
 
 class ProgramType(BaseMixin, db.Model):
     """A flexible definition of program dynamics, with python script (definition) for the definition
@@ -245,6 +254,7 @@ class Program(BaseMixin, db.Model):
     name = db.Column(db.String(STRING_LEN),
         nullable=False)
     description = db.Column(db.Text,nullable=True)
+    structure = db.Column(db.Text,nullable=True)
     duration = db.Column(db.Interval)
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
@@ -310,8 +320,12 @@ class ScheduledProgram(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
+    status = db.Column(db.Boolean)
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
+    deleted = db.Column(db.Boolean)
+
+    programs = db.relationship(u'Program', backref=db.backref('program'))
 
     @classmethod
     def after(cls,date):
@@ -365,6 +379,8 @@ class Recording(BaseMixin, db.Model):
 class Person(BaseMixin, db.Model):
     "A person associated with a station or program, but not necessarily a user of Rootio system"
     __tablename__ = 'radio_person'
+    #from ..telephony.models import PhoneNumber
+    #circular imports
 
     title = db.Column(db.String(8))
     firstname = db.Column(db.String(STRING_LEN))
@@ -418,15 +434,15 @@ class StationAnalytic(BaseMixin, db.Model):
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
-    battery_level = db.Column(db.Float) # percentage 0,100 
-    gsm_signal = db.Column(db.Float) # signal strength in db
-    wifi_connected = db.Column(db.Boolean) # boolean 0/1
+    battery_level = db.Column(db.Integer) # percentage 0,100
+    gsm_signal = db.Column(db.Integer) # signal strength in db
+    wifi_connectivity = db.Column(db.Float) # boolean 0/1
     memory_utilization = db.Column(db.Float) # percentage 0,100
     storage_usage = db.Column(db.Float) # percentage 0,100
     cpu_load = db.Column(db.Float) # percentage 0,100
-    headphone_plug = db.Column(db.Boolean) # boolean 0/1
     gps_lat = db.Column(db.Float) # location of the handset
     gps_lon = db.Column(db.Float) # 
+    record_date = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     def __unicode__(self):
         return "%s @ %s" % (self.station.name, self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
@@ -471,13 +487,13 @@ t_radioprogramgasinfo = db.Table(
     db.Column(u'fk_radio_program_id', db.ForeignKey('radio_program.id'))
 )
 
-class MediaFiles(BaseMixin, db.Model):
-    '''Table that stores the media files that could be used during programs'''
-    __tablename__ = u'media_files'
+class ContentType(BaseMixin, db.Model):
+    __tablename__ = u'radio_contenttype'
 
-    name = db.Column(db.String(STRING_LEN), nullable=False)
-    path = db.Column(db.String(STRING_LEN), nullable=False)
-    type = db.Column(db.Enum('Jingle','Interlude','Other',name='type'),nullable=False)
-    description = db.Column(db.String(STRING_LEN))
-    duration = db.Column(db.Interval)
-    language_id = db.Column(db.ForeignKey('radio_language.id'))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(STRING_LEN),nullable=False)
+    description = db.Column(db.Text,nullable=False)
+
+
+    def __unicode__(self):
+        return self.name

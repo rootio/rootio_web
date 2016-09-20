@@ -12,7 +12,7 @@ import pytz
 
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots, MediaFiles
+from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location, BotFunctions, StationhasBots, ContentType
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -44,7 +44,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
         'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone'])
 class StationForm(StationFormBase):
     owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
@@ -55,8 +55,10 @@ class StationForm(StationFormBase):
     submit = SubmitField(_('Save'))
     field_order = ('owner','name','location','timezone','*')
 
-
-StationAnalyticForm = model_form(StationAnalytic, db_session=db.session, base_class=Form)
+StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','network_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port'])
+class StationTelephonyForm(StationTelephonyFormBase):
+    submit = SubmitField(_('Save'))
 
 
 def all_languages():
@@ -72,6 +74,14 @@ ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=
 class ProgramTypeForm(ProgramTypeFormBase):
     definition = JSONField()
     phone_functions = JSONField()
+    submit = SubmitField(_('Save'))
+
+
+
+ContentTypeFormBase = model_form(ContentType, db_session=db.session, base_class=Form, exclude=['created_at','updated_at'])
+class ContentTypeForm(ContentTypeFormBase):
+    name = StringField()
+    description = TextAreaField()
     submit = SubmitField(_('Save'))
 
 
@@ -114,6 +124,11 @@ class ScheduleProgramForm(Form):
     # other options for flexibility?
     submit = SubmitField(_('Save'))
 
+WhitlistsFormBase = model_form(Person, db_session=db.session, base_class=Form)
+class WhitlistsForm(WhitlistsFormBase):
+    submit = SubmitField(_('Save'))
+
+
 def all_bot_functions():
     return BotFunctions.query.all()
 
@@ -144,21 +159,9 @@ class AddBotForm(Form):
         #if
         return True
 
-class MediaForm(Form):
-    multipart = True
-    name = StringField(u'Name',[Required()])
-    description = TextAreaField(u'Description',[Optional()])
-    language = QuerySelectField(u'Language',query_factory=all_languages,allow_blank=False)
-    type = SelectField(u'Type',choices=[(g, g)for g in MediaFiles.type.property.columns[0].type.enums])
-    path = FileField(u'Audio File')
-    submit = SubmitField(_('Save'))
-
-    def validate_audio_file(form, field):
-        if field.data and not allowed_audio_file(field.data.filename):
-            raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AUDIO_EXTENSIONS))
-
 class ProgramForm(Form):
     name = StringField()
+    description = TextAreaField()
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     submit = SubmitField(_('Save'))

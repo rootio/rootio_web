@@ -1,7 +1,4 @@
-{% extends "layouts/base.html" %}
-
-{% set page_title = "Radio Dashboard" %}
-
+{% extends "radio/layout.html" %}
 
 {% block css_style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.css') }}" />
@@ -16,7 +13,6 @@
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
 {% endblock %}
-
 
 {% block body %}
 <!--<div class="container-fluid">-->
@@ -35,7 +31,6 @@
                         <th>{{ _('Memory') }}</th>
                         <th>{{ _('Storage') }}</th>
                         <th>{{ _('CPU ') }}</th>
-                        <th>{{ _('Audio Plug') }}</th>
                     </tr>
                 </thead>
                 {%for station in stations %}
@@ -44,11 +39,10 @@
                     <td>{{station.name}}</td>
                     <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
-                    <td><span class="sparkline" data-type="boolean">{{analytics.wifi_connected}}</span></td>
+                    <td><span class="sparkline" data-type="line">{{analytics.wifi_connected}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
                     <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-                    <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
                 </tr>
                 {%endfor%}
                 </table>
@@ -62,6 +56,3 @@
 <script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
-
-
-
