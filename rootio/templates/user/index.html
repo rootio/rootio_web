@@ -8,6 +8,7 @@
     
     <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
     <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
+    <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
 
     {% if current_user.is_admin() %}
     <li><a href="{{ url_for('radio.emergency') }}">{% trans %} Emergency Broadcast {% endtrans %}</a></li>

@@ -3,14 +3,14 @@
 {% set page_header = _(active|capitalize) %}
 {% set page_title = page_header %}
 
-{% set tab_title = "Radio" %}
+{% set tab_title = "Content" %}
 {% set tabs = [
     (_("Status"), url_for('content.index')), 
     (_("Tracks"), url_for('content.tracks')),
     (_("Uploads"), url_for('content.content_uploads')),
     (_("News"), url_for('content.content_news')), 
-    (_("Adds"), url_for('content.content_adds')),
+    (_("Ads"), url_for('content.content_ads')),
     (_("Streams"), url_for('content.content_streams')),
-    (_("Musics"), url_for('content.content_musics')),  
+    (_("Media"), url_for('content.content_medias')),  
 ]%}
  

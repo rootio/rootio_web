@@ -2,9 +2,24 @@
 
 {% block body %}
 <div class="container">
-    <h2>{{ _('Content Dashboard') }}</h2>
-    <div>
-        {%trans%}System status{%endtrans%}
-    </div>
+    <h2 class="pull-left">{{ _('Content Dashboard') }}</h2>
+    <table id="datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Content Type') }}</th>
+                <th>{{ _('Track') }}</th>
+                <th>{{ _('Uploads') }}</th>
+                <th>{{ _('Subscriptions') }}</th>
+            </tr>
+        </thead>
+        {% for c in content %}
+        <tr>
+            <td>{{ c[2] }} </td>
+            <td>{{ c[1] }}</td>
+            <td>{{ c[3] }}</td>
+            <td>{{ c[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endblock %}
