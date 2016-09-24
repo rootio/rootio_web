@@ -14,7 +14,6 @@ from ..extensions import db
 from ..telephony.models import PhoneNumber
 
 
-
 class Location(BaseMixin, db.Model):
     "A geographic location"
     __tablename__ = u'radio_location'
@@ -55,7 +54,6 @@ class Network(BaseMixin, db.Model):
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
 
-    admins = db.relationship(u'User', secondary=u'radio_networkadmins', backref=db.backref('networks'))
     stations = db.relationship(u'Station', backref=db.backref('network'))
     #networks can have multiple admins
 
@@ -63,8 +61,8 @@ class Network(BaseMixin, db.Model):
         return self.name
 
 
-t_networkadmins = db.Table(
-    u'radio_networkadmins',
+t_networkusers = db.Table(
+    u'radio_networkusers',
     db.Column(u'user_id', db.ForeignKey('user_user.id')),
     db.Column(u'network_id', db.ForeignKey('radio_network.id'))
 )
@@ -73,8 +71,6 @@ t_networkadmins = db.Table(
 class Station(BaseMixin, db.Model):
     "A single radio station"
     __tablename__ = 'radio_station'
-
-    
 
     name = db.Column(db.String(STRING_LEN), nullable=False)
     about = db.Column(db.Text())
@@ -85,7 +81,7 @@ class Station(BaseMixin, db.Model):
     
     #foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))
-    network_id = db.Column(db.ForeignKey('radio_network.id'))
+    network_id = db.Column(db.ForeignKey('radio_network.id'), nullable=False)
     location_id = db.Column(db.ForeignKey('radio_location.id'))
     #gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
     cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
@@ -260,9 +256,9 @@ class Program(BaseMixin, db.Model):
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
-    program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
+    #program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
-    program_type = db.relationship(u'ProgramType')
+    #program_type = db.relationship(u'ProgramType')
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('program',uselist=False))
 
@@ -395,7 +391,7 @@ class Person(BaseMixin, db.Model):
     phone = db.relationship(u'PhoneNumber', backref=db.backref('person',uselist=False))
     role = db.relationship(u'Role', backref=db.backref('person'))
     languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person',uselist=False))
-
+    #networks = db.relationship(u'Network', secondary=u'radio_networkusers', backref=db.backref('networkusers'))
     gender_code = db.Column(db.Integer)
     @property
     def gender(self):

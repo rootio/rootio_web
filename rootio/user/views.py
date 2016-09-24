@@ -2,13 +2,13 @@
 
 import os
 
-from flask import Blueprint, render_template, send_from_directory, abort
+from flask import current_app, request, flash, Blueprint, render_template, send_from_directory, abort
 from flask import current_app as APP
 from flask.ext.login import login_required, current_user
 
 from .models import User, UserDetail
 from rootio.decorators import admin_required
-from rootio.settings.forms import ProfileCreateForm
+from rootio.user.forms import ProfileForm
 from ..extensions import db
 
 
@@ -24,7 +24,7 @@ def index():
 
 
 @user.route('/<int:user_id>/profile')
-def profile(user_id):
+def profile1(user_id):
     user = User.get_by_id(user_id)
     return render_template('user/profile.html', user=user)
 
@@ -57,3 +57,61 @@ def add_user():
         db.session.add(_user)
         db.session.commit()
     return render_template('user/user.html', active="profile", form=form)
+
+
+@user.route('/profile', methods=['GET', 'POST'], defaults={'user_id': None})
+@user.route('/profile/<int:user_id>/edit', methods=['GET', 'POST'])
+@login_required
+def profile(user_id):
+    if user_id:
+        edit = True
+        user = User.query.get(user_id)
+    else:
+        edit = False
+        user = User.query.filter_by(name=current_user.name).first_or_404()
+    if not user.user_detail:
+        user.user_detail = UserDetail()
+    form = ProfileForm(obj=user.user_detail,
+                       email=user.email,
+                       name=user.name,
+                       networks=user.networks,
+                       role_code=user.role_code,
+                       status_code=user.status_code,
+                       next=request.args.get('next'))
+    form.set_edit(edit)
+    if form.validate_on_submit():
+
+        if form.avatar_file.data:
+            upload_file = request.files[form.avatar_file.name]
+            if upload_file and allowed_file(upload_file.filename):
+                # Don't trust any input, we use a random string as filename.
+                # or use secure_filename:
+                # http://flask.pocoo.org/docs/patterns/fileuploads/
+
+                user_upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], "user_%s" % user.id)
+                current_app.logger.debug(user_upload_dir)
+
+                make_dir(user_upload_dir)
+                root, ext = os.path.splitext(upload_file.filename)
+                today = datetime.now().strftime('_%Y-%m-%d')
+                # Hash file content as filename.
+                hash_filename = hashlib.sha1(upload_file.read()).hexdigest() + "_" + today + ext
+                user.avatar = hash_filename
+
+                avatar_ab_path = os.path.join(user_upload_dir, user.avatar)
+                # Reset file curso since we used read()
+                upload_file.seek(0)
+                upload_file.save(avatar_ab_path)
+
+        form.populate_obj(user)
+        form.populate_obj(user.user_detail)
+        form.populate_obj(user.networks)
+        
+
+        db.session.add(user)
+        db.session.commit()
+
+        flash(form.data, 'success')
+
+    return render_template('user/profile.html', user=user,
+                           active="profile", form=form, edit=edit)

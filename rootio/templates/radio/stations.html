@@ -6,7 +6,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
@@ -14,8 +14,11 @@
                 <th>{{ _('Owner') }}</th>
                 <th>{{ _('Phone Numbers') }}</th>
                 <th>{{ _('Languages') }}</th>
+                <th>{{ _('Edit') }}</th>
+                
             </tr>
         </thead>
+        <tbody>
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
@@ -26,6 +29,7 @@
             <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}
