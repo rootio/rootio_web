@@ -6,7 +6,7 @@
     <div class="pull-right">
         <!--<a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>-->
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
@@ -15,8 +15,10 @@
                 <th>{{ _('Whitelist Numbers') }}</th>
                 <th>{{ _('Outgoing Gateways') }}</th>
                 <th>{{ _('Incoming Gateways') }}</th>
+                <th>{{ _('Edit') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for station in stations %}
         <tr>
             <td>{{ station.name}} </td>
@@ -38,6 +40,7 @@
             <td><a href="{{ url_for('radio.telephony_station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}
