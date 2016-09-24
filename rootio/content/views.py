@@ -22,11 +22,12 @@ content = Blueprint('content', __name__, url_prefix='/content')
 @content.route('/')
 @login_required
 def index():
-    #select ct.id, ct.name "track", rct.name "content type", count(*) "uploads" , (select count(*) from radio_program where structure like '%'||ct.description||'%') "subscriptions" from content_track as ct join radio_contenttype as rct on "ct".content_contenttypeid = rct.id join content_uploads as cu on ct.id = cu.contenttrack_id  group by ct.id, rct.name;
+    #re-write using ORM
+    #Filter by network when Track contains network id, filter by uploader
+    status_query = "select ct.id, ct.name \"track\", rct.name \"content type\", count(*) \"uploads\" , (select count(*) from radio_program where structure like '%'||ct.description||'%') \"subscriptions\" from content_track as ct join radio_contenttype as rct on \"ct\".content_contenttypeid = rct.id join content_uploads as cu on ct.id = cu.contenttrack_id  group by ct.id, rct.name";
+    content = db.session.execute(status_query)
     
-    #tracks = ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all()
-    
-    return render_template('content/index.html')#, tracks=tracks)
+    return render_template('content/index.html', content=content)
 
 
 @content.route('/tracks/')
@@ -108,7 +109,6 @@ def save_uploaded_file(file, directory):
 
 @content.route('/uploads/add/', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
 def content_upload_add():
     form = ContentUploadForm(request.form)
     content_uploads = None
@@ -177,7 +177,6 @@ def content_news_edit(content_news_id):
 
 @content.route('/news/add/', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
 def content_news_add():
     form = ContentNewsForm(request.form)
     content_news = None
@@ -221,18 +220,18 @@ def content_news_add():
     return render_template('content/content_news_edit.html', form=form)   
 
 
-@content.route('/adds/')
+@content.route('/ads/')
 @login_required
-def content_adds():
-    name_content = 'Adds'
+def content_ads():
+    name_content = 'Ads'
     content_type = ContentType.query.filter(ContentType.name=='Adds').first()
     content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
-    return render_template('content/content_adds.html', content_adds=content_adds)  
+    return render_template('content/content_ads.html', content_adds=content_adds)  
 
 
-@content.route('/adds/<int:content_adds_id>', methods=['GET', 'POST'])
+@content.route('/ads/<int:content_adds_id>', methods=['GET', 'POST'])
 @login_required
-def content_adds_edit(content_adds_id):
+def content_ads_edit(content_adds_id):
     content_adds = ContentUploads.query.filter_by(id=content_adds_id).first_or_404()
     form = ContentAddsForm(obj=content_adds, next=request.args.get('next'))
 
@@ -242,13 +241,12 @@ def content_adds_edit(content_adds_id):
         db.session.add(content_adds)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_adds_edit.html', content_adds=content_adds, form=form)
+    return render_template('content/content_ads_edit.html', content_adds=content_adds, form=form)
 
 
-@content.route('/adds/add/', methods=['GET', 'POST'])
+@content.route('/ads/add/', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
-def content_adds_add():
+def content_ads_add():
     form = ContentAddsForm(request.form)
     content_adds = None
     cleaned_data = None
@@ -288,7 +286,7 @@ def content_adds_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_adds_edit.html', form=form) 
+    return render_template('content/content_ads_edit.html', form=form) 
 
 @content.route('/streams/')
 @login_required
@@ -316,7 +314,6 @@ def content_stream(content_streams_id):
 
 @content.route('/streams/add/', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
 def content_streams_add():
     form = ContentStreamsForm(request.form)
     content_streams = None
@@ -342,36 +339,35 @@ def content_streams_add():
     return render_template('content/content_stream.html', form=form) 
 
 
-@content.route('/musics/')
+@content.route('/medias/')
 @login_required
-def content_musics():
-    name_content = 'Musics'
+def content_medias():
+    name_content = 'Media'
     content_type = ContentType.query.filter(ContentType.name=='Musics').first()
-    content_musics = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
-    return render_template('content/content_musics.html', content_musics=content_musics)
+    content_medias = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
+    return render_template('content/content_medias.html', content_medias=content_medias)
 
 
-@content.route('/musics/<int:content_musics_id>', methods=['GET', 'POST'])
+@content.route('/medias/<int:content_media_id>', methods=['GET', 'POST'])
 @login_required
-def content_music(content_musics_id):
-    content_musics = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
-    form = ContentMusicForm(obj=content_musics, next=request.args.get('next'))
+def content_media(content_media_id):
+    content_media = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
+    form = ContentMusicForm(obj=content_media, next=request.args.get('next'))
 
     if form.validate_on_submit():
-        form.populate_obj(content_musics)
+        form.populate_obj(content_media)
 
-        db.session.add(content_musics)
+        db.session.add(content_media)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_music.html', content_musics=content_musics, form=form)
+    return render_template('content/content_media.html', content_media=content_media, form=form)
 
 
-@content.route('/musics/add/', methods=['GET', 'POST'])
+@content.route('/medias/add/', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
-def content_musics_add():
+def content_medias_add():
     form = ContentMusicForm(request.form)
-    content_musics = None
+    content_media = None
     cleaned_data = None
     if request.method == 'POST':
         # check if the post request has the file part
@@ -399,23 +395,23 @@ def content_musics_add():
         uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
              
         cleaned_data['uri'] = uri
-        content_musics = ContentUploads(**cleaned_data) #create new object from data
+        content_media = ContentUploads(**cleaned_data) #create new object from data
        
-        db.session.add(content_musics)
+        db.session.add(content_media)
         db.session.commit()
         
 
-        flash(_('Content added.'), 'success')  
+        flash(_('Media Uploaded'), 'success')  
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_music.html', form=form)  
+    return render_template('content/content_media.html', form=form)  
 
 
-@content.route('/musics/reorder/', methods=['GET', 'POST'])
+@content.route('/medias/reorder/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt
-def musics_reorder():
+def medias_reorder():
     str_indexes = request.form['indexes']
     indexes = str_indexes.split(',')
     indexes = map(int,indexes)
@@ -426,13 +422,13 @@ def musics_reorder():
         i +=1
         db.session.add(music)
     db.session.commit()
-    flash(_('Musics reordered.'), 'success')   
+    flash(_('Media reordered.'), 'success')   
     return str(indexes)  
 
-@content.route('/adds/reorder/', methods=['GET', 'POST'])
+@content.route('/ads/reorder/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt
-def adds_reorder():
+def ads_reorder():
     str_indexes = request.form['indexes']
     indexes = str_indexes.split(',')
     indexes = map(int,indexes)
@@ -443,5 +439,5 @@ def adds_reorder():
         i +=1
         db.session.add(adds)
     db.session.commit()
-    flash(_('Adds reordered.'), 'success')  
+    flash(_('Ads reordered.'), 'success')  
     return str(indexes)  

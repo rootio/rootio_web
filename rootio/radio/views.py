@@ -9,8 +9,9 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
-from .forms import StationForm, StationTelephonyForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
+from ..user.models import User
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
+from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
@@ -22,8 +23,10 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
 def index():
-    stations = Station.query.all()
-    return render_template('radio/index.html',stations=stations)
+    #get the stations in networks that I am associated with
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
+    return render_template('radio/index.html',stations=stations, userid=current_user.id)
 
 
 @radio.route('/emergency/', methods=['GET'])
@@ -37,9 +40,32 @@ def emergency():
     return render_template('radio/emergency.html',stations=stations)
 
 
+@radio.route('/network/add/', methods=['GET', 'POST'])
+@login_required
+def network_add():
+    form = NetworkForm(request.form)
+
+    if form.validate_on_submit():
+        form_data = form.data
+        form_data.pop('submit', None)
+        network = Network(**form_data) #create new object from data
+        
+        #save the Network
+        db.session.add(network)
+
+        #Associate creator with network
+        current_user.networks.append(network)
+        db.session.commit()
+        flash(_('Network Created.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/network.html', program=program, form=form)
+
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -390,8 +416,8 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
-
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.order_by('name').all()
 
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
@@ -424,7 +450,8 @@ def schedule_station(station_id):
 
 @radio.route('/telephony/', methods=['GET', 'POST'])
 def telephony():
-    stations = Station.query.all()
+    #stations = Station.query.all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     return render_template('radio/stations_telephony.html', stations=stations)
 
 
