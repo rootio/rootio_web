@@ -25,7 +25,7 @@ telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPo
 class RadioStation(Station):
  
     def run(self):
-        self.call_handler = CallHandler(self)
+        self.call_handler = CallHandler(self, telephony_server.config)
         self.__program_handler = ProgramHandler(self.db, self)
         self.__program_handler.run()
         while True:

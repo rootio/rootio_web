@@ -9,7 +9,7 @@ from rootio.config import *
 import plivohelper
 import json
 from os import listdir
-from rootio.radiostation.media.community_media import CommunityMedia
+from media.community_media import CommunityMedia
 
 class InterludeAction:
     
