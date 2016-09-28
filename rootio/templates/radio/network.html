@@ -1,0 +1,25 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+    {{ super() }}
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+    {%if network %}
+        <h2>{{ _('Edit') }} {{ _('Network') }}</h2>
+        {{ render_form(url_for('radio.network_add', network_id=network.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('Network') }}</h2>
+        {{ render_form(url_for('radio.network_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}
