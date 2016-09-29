@@ -6,6 +6,7 @@ from wtforms import (HiddenField, TextField,
         FileField, DecimalField)
 from wtforms.validators import (ValidationError, AnyOf, Optional,
         Required, Length, EqualTo, Email, NumberRange, URL)
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from flask_wtf.html5 import URLField, EmailField, TelField
 from flask.ext.login import current_user
 from rootio.radio.models import Network
@@ -42,7 +43,7 @@ class ProfileForm(Form):
 class ProfileCreateForm(Form):
     multipart = True
     next = HiddenField()
-    #netwoks = TextField(current_user.name,[Required()])
+    networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks) #netwoks = (current_user.name,[Required()])
     email = EmailField(u'Email', [Required(), Email()])
     name = TextField(u'Name', [Required(), Length(max=100)])
     password = PasswordField(u'Password', [Required(), Length(max=100)])

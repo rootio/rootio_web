@@ -141,6 +141,9 @@ def signup():
         user = User()
         user.user_detail = UserDetail()
         form.populate_obj(user)
+        
+        #Defaults to Network Admin - Fix this to make it come from constants
+        user.role_code = 1
 
         db.session.add(user)
         db.session.commit()

@@ -15,7 +15,9 @@
                 <th>{{ _('Whitelist Numbers') }}</th>
                 <th>{{ _('Outgoing Gateways') }}</th>
                 <th>{{ _('Incoming Gateways') }}</th>
+                {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
                 <th>{{ _('Edit') }}</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -36,8 +38,9 @@
             {{incoming_gateway.number_bottom}}
             {% endfor %}
             </td>
-            
+            {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
             <td><a href="{{ url_for('radio.telephony_station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
         </tbody>
