@@ -13,11 +13,10 @@ from .utils import simple_serialize_sqlalchemy
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_user.role_code != 0:
+        if current_user.role_code not in [0,1,3]: #Admin, network Admin, content provider Admin. Change these to use named constants
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
-
 
 def returns_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code

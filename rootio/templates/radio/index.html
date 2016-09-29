@@ -18,7 +18,9 @@
 <div class="container">
     <div class="row-fluid">
     <div class="pull-right">
+        {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
         <a class="btn btn-success" href="{{ url_for('radio.network_add') }}"><strong>{{ _('Create Network') }} +</strong></a>
+        {% endif %}
     </div>
         <h2>{% trans %} Stations {% endtrans %}</h2>
         <div id="map" class="span4"></div>

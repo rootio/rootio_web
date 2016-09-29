@@ -7,14 +7,14 @@ from ..user.models import User#, user_user
 
 
 class ContentTrack(BaseMixin, db.Model):
-    "A track record"
+    "A track to which audio content is added"
     __tablename__ = u'content_track'
 
     name = db.Column(db.String(STRING_LEN))
     description = db.Column(db.Text)
     uri = db.Column(db.String(200))
     #add array
-    content_contenttypeid = db.Column(db.ForeignKey('radio_contenttype.id'))
+    type_id = db.Column(db.ForeignKey('content_type.id'))
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     
     content_type = db.relationship(u'ContentType', backref=db.backref('track_content'))
@@ -24,20 +24,20 @@ class ContentTrack(BaseMixin, db.Model):
 
 
 class ContentUploads(BaseMixin, db.Model):
-    "A track record"
+    "An upload to a particular track"
     __tablename__ = u'content_uploads'
 
     name = db.Column(db.String(STRING_LEN))
     uri = db.Column(db.String(200))
-    expiration_date = db.Column(db.DateTime(timezone=True))
+    expiry_date = db.Column(db.DateTime(timezone=True))
     ok_to_play = db.Column(db.Boolean)
     order = db.Column(db.Integer)
 
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
-    contenttrack_id = db.Column(db.ForeignKey('content_track.id'))
-    content_contenttypeid = db.Column(db.ForeignKey('radio_contenttype.id'))
+    track_id = db.Column(db.ForeignKey('content_track.id'))
+    type_id = db.Column(db.ForeignKey('content_type.id'))
     
-    content_tracks = db.relationship(u'ContentTrack', backref=db.backref('uploads_track'))
+    track = db.relationship(u'ContentTrack', backref=db.backref('track_uploads'))
 
     def __unicode__(self):
         return self.name      

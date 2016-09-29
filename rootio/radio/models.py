@@ -446,7 +446,7 @@ class StationAnalytic(BaseMixin, db.Model):
 
 
 class ContentType(BaseMixin, db.Model):
-    __tablename__ = u'radio_contenttype'
+    __tablename__ = u'content_type'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STRING_LEN),nullable=False)

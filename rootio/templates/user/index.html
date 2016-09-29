@@ -2,20 +2,50 @@
 {% set page_title = user.name %}
 
 {% block body %}
-<h2>{% trans %}Hello{% endtrans %}, {{ user.name }}!</h2>
+<h2>{% trans %}Hello{% endtrans %}, {{ user.name }} !</h2>
 
 <ul>
-    
-    <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
-    <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
-    <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+   
+    <!-- Admins -->
+    {% if current_user.role_code==0 %}
+        <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+        <li><a href="{{ url_for('radio.emergency') }}">{% trans %} Emergency Broadcast {% endtrans %}</a></li>
+        <li><a href="{{ url_for('messenger.message_test') }}">{% trans %} Schedule Message Tester {% endtrans %}</a></li>
+        <li><a href="{{ url_for('user.user_dashboard') }}">{% trans %} Manage Users {% endtrans %}</a></li>
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+    {% endif %}
 
-    {% if current_user.is_admin() %}
-    <li><a href="{{ url_for('radio.emergency') }}">{% trans %} Emergency Broadcast {% endtrans %}</a></li>
-    <li><a href="{{ url_for('messenger.message_test') }}">{% trans %} Schedule Message Tester {% endtrans %}</a></li>
-    <li><a href="{{ url_for('user.user_dashboard') }}">{% trans %} Manage Users {% endtrans %}</a></li>
-    <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
-    {%endif%}
+    <!-- Network Admins -->
+    {% if current_user.role_code==1 %}
+        <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+        <li><a href="{{ url_for('user.user_dashboard') }}">{% trans %} Manage Users {% endtrans %}</a></li>
+    {% endif %}
+
+    <!-- Network Users -->
+    {% if current_user.role_code==2 %}
+        <li><a href="{{ url_for('radio.index') }}">{% trans %} Radio Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('telephony.index') }}">{% trans %} Telephony Dashboard {% endtrans %}</a></li>
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+    {% endif %}
+    
+    <!-- Content Provider Admins -->
+    {% if current_user.role_code==3 %}
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+        <li><a href="{{ url_for('user.user_dashboard') }}">{% trans %} Manage Users {% endtrans %}</a></li>
+    {% endif %}
+    
+    <!-- Content Provider Users -->
+    {% if current_user.role_code==4 %}
+        <li><a href="{{ url_for('content.index') }}">{% trans %} Manage Content {% endtrans %}</a></li>
+    {% endif %}
+
+
+
+
 </ul>
 
 

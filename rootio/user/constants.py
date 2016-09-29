@@ -3,13 +3,16 @@
 # User role
 ADMIN = 0 #edit all
 NETWORK_ADMIN = 1
-STAFF = 2 #edit own stations only
-USER = 3 #view only
+NETWORK_USER = 2 #edit own stations only
+CONTENT_ADMIN = 3 #view only
+CONTENT_USER = 4
+
 USER_ROLE = {
     ADMIN: 'admin',
     NETWORK_ADMIN: 'network admin',
-    STAFF: 'staff',
-    USER: 'user',
+    NETWORK_USER: 'network user',
+    CONTENT_ADMIN: 'content admin',
+    CONTENT_USER: 'content user',
 }
 
 # User status
