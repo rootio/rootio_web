@@ -9,7 +9,7 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from ..user.models import User
+from ..user.models import User, RootioUser
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
@@ -46,15 +46,16 @@ def network_add():
     form = NetworkForm(request.form)
 
     if form.validate_on_submit():
-        form_data = form.data
+        form_data = form.data #copy it to remove items, it is immutable
         form_data.pop('submit', None)
         network = Network(**form_data) #create new object from data
-        
-        #save the Network
-        db.session.add(network)
 
-        #Associate creator with network
-        current_user.networks.append(network)
+        #Associate creator with network - Fix this to use current_user, instead of querying new instance
+        user = RootioUser.query.filter(RootioUser.id==current_user.id).first()
+        network.networkusers.append(user)
+
+        #Save the Network
+        db.session.add(network)
         db.session.commit()
         flash(_('Network Created.'), 'success')
     elif request.method == "POST":

@@ -7,7 +7,7 @@ from flask.ext.login import UserMixin
 
 from ..extensions import db
 from ..utils import get_current_time, GENDER_TYPE, STRING_LEN
-from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
+from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
 
 class UserDetail(db.Model):
     __tablename__ = 'user_details'
@@ -45,7 +45,7 @@ class RootioUser(db.Model):
     avatar = Column(db.String(STRING_LEN))
     _password = Column('password', db.String(STRING_LEN*3), nullable=False)
 
-    role_code = Column(db.SmallInteger, default=USER)
+    role_code = Column(db.SmallInteger, default=NETWORK_USER)
     status_code = Column(db.SmallInteger, default=INACTIVE)
     user_detail_id = Column(db.Integer, db.ForeignKey("user_details.id"))
 
@@ -75,7 +75,7 @@ class User(RootioUser, UserMixin):
     @property
     def role(self):
         return USER_ROLE[self.role_code]
-
+    
     def is_admin(self):
         return self.role_code == ADMIN
 

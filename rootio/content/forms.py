@@ -25,19 +25,19 @@ def all_tracks():
 
 def news_tracks():
     content_type = ContentType.query.filter(ContentType.name=='News').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all() 
+    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all() 
 
 def adds_tracks():
-    content_type = ContentType.query.filter(ContentType.name=='Adds').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all()    
+    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
+    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()    
 
 def streams_tracks():
     content_type = ContentType.query.filter(ContentType.name=='Stream').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all() 
+    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all() 
 
 def musics_tracks():
-    content_type = ContentType.query.filter(ContentType.name=='Musics').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.content_contenttypeid==content_type.id).all()  
+    content_type = ContentType.query.filter(ContentType.name=='Media').first()
+    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()  
 
 class ContentUploadForm(Form): 
     multipart = True
@@ -49,27 +49,27 @@ class ContentUploadForm(Form):
 class ContentNewsForm(Form):
     multipart = True 
     file = FileField()
-    contenttrack_id = QuerySelectField('Track name',query_factory=news_tracks,allow_blank=False)
-    expiration_date = DateField('Expiration Date')
+    track_id = QuerySelectField('Track name',query_factory=news_tracks,allow_blank=False)
+    expiry_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))
 
 class ContentAddsForm(Form):
     multipart = True 
-    file = FileField()
-    contenttrack_id = QuerySelectField('Track name',query_factory=adds_tracks,allow_blank=False)
-    expiration_date = DateField('Expiration Date')
+    track_id = QuerySelectField('Track name',query_factory=adds_tracks,allow_blank=False)
+    expiry_date = DateField('Expiration Date')
+    file = FileField('Ad File')
     submit = SubmitField(_('Save'))
 
 class ContentStreamsForm(Form):
     name = StringField('Name of the stream')
+    track = QuerySelectField('Track name',query_factory=streams_tracks,allow_blank=False)
     uri = StringField('URL')
-    contenttrack_id = QuerySelectField('Track name',query_factory=streams_tracks,allow_blank=False)
-    expiration_date = DateField('Expiration Date')
+    expiry_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))
 
 class ContentMusicForm(Form):
     multipart = True 
-    file = FileField()
-    contenttrack_id = QuerySelectField('Track name',query_factory=musics_tracks,allow_blank=False)
-    expiration_date = DateField('Expiration Date')
+    track_id = QuerySelectField('Track name',query_factory=musics_tracks,allow_blank=False)
+    expiry_date = DateField('Expiration Date')
+    file = FileField('File(s)')
     submit = SubmitField(_('Save'))

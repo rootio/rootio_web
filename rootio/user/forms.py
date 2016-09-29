@@ -33,14 +33,42 @@ class UserForm(Form):
     created_time = DateField(_('Created time'))
     submit = SubmitField(_('Save'))
 
-ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form,
-    field_args={
-    }, exclude=['created_time','avatar','user_detail','openid','activation_key','last_accessed','role_code','status_code'])
+ProfileCreateFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
+class ProfileCreateForm(ProfileCreateFormBase):
+    multipart = True
+    next = HiddenField()
+    networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks) #netwoks = (current_user.name,[Required()])
+    email = EmailField(u'Email', [Required(), Email()])
+    name = TextField(u'Name', [Required(), Length(max=100)])
+    password = PasswordField(u'Password', [Required(), Length(max=100)])
+    password1 = PasswordField(u'Retype-password', [Required(), Length(max=100)])
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    # Don't use the same name as model because we are going to use populate_obj().
+    avatar_file = FileField(u"Avatar", [Optional()])
+    gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
+    age = IntegerField(u'Age', [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
+    phone = TelField(u'Phone', [Length(max=64)])
+    url = URLField(u'URL', [Optional(), URL()])
+    location = TextField(u'Location', [Length(max=64)])
+    bio = TextAreaField(u'Bio', [Length(max=1024)])
+    submit = SubmitField(u'Save')
+
+    def validate_avatar_file(form, field):
+        if field.data and not allowed_file(field.data.filename):
+            raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
+
+    def validate_password(self, field):
+        if field.data != self.password1.data:
+            raise ValidationError("The Passwords Don't Match")
+
+
+ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
 class ProfileForm(ProfileFormBase):
     multipart = True
     next = HiddenField()
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])

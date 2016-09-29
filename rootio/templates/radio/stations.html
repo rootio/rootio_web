@@ -4,7 +4,9 @@
 <div class="container">
     <h2 class="pull-left">{{ _('Stations') }}</h2>
     <div class="pull-right">
+        {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
         <a class="btn btn-success" href="{{ url_for('radio.station_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        {% endif %}
     </div>
     <table id="datatable" class='table table-bordered table-hover'>
         <thead>
@@ -14,7 +16,9 @@
                 <th>{{ _('Owner') }}</th>
                 <th>{{ _('Phone Numbers') }}</th>
                 <th>{{ _('Languages') }}</th>
+                {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
                 <th>{{ _('Edit') }}</th>
+                {% endif %}
                 
             </tr>
         </thead>
@@ -26,7 +30,9 @@
             <td>{{ station.owner }}</td>
             <td>{{ station.cloud_phone }}, {{station.transmitter_phone}}</td>
             <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
+            {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
             <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
         </tbody>

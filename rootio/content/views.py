@@ -24,7 +24,7 @@ content = Blueprint('content', __name__, url_prefix='/content')
 def index():
     #re-write using ORM
     #Filter by network when Track contains network id, filter by uploader
-    status_query = "select ct.id, ct.name \"track\", rct.name \"content type\", count(*) \"uploads\" , (select count(*) from radio_program where structure like '%'||ct.description||'%') \"subscriptions\" from content_track as ct join radio_contenttype as rct on \"ct\".content_contenttypeid = rct.id join content_uploads as cu on ct.id = cu.contenttrack_id  group by ct.id, rct.name";
+    status_query = "select ct.id, ct.name \"track\", rct.name \"content type\", count(*) \"uploads\" , (select count(*) from radio_program where structure like '%'||ct.description||'%') \"subscriptions\" from content_track as ct join content_type as rct on \"ct\".type_id = rct.id join content_uploads as cu on ct.id = cu.track_id  group by ct.id, rct.name";
     content = db.session.execute(status_query)
     
     return render_template('content/index.html', content=content)
@@ -156,7 +156,7 @@ def content_upload_add():
 def content_news():
     name_content = 'News'
     content_type = ContentType.query.filter(ContentType.name=='News').first()
-    content_news = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
+    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
     return render_template('content/content_news.html', content_news=content_news)
 
 
@@ -200,11 +200,10 @@ def content_news_add():
         cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
-        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+        cleaned_data['track_id'] = cleaned_data['track_id'].id
 
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
+        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['track_id']))))
              
         cleaned_data['uri'] = uri
         content_news = ContentUploads(**cleaned_data) #create new object from data
@@ -224,8 +223,8 @@ def content_news_add():
 @login_required
 def content_ads():
     name_content = 'Ads'
-    content_type = ContentType.query.filter(ContentType.name=='Adds').first()
-    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
+    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
+    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.type_id==content_type.id).order_by(ContentUploads.order).all()
     return render_template('content/content_ads.html', content_adds=content_adds)  
 
 
@@ -293,23 +292,23 @@ def content_ads_add():
 def content_streams():
     name_content = 'Stream'
     content_type = ContentType.query.filter(ContentType.name=='Stream').first()
-    content_streams = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).all()
+    content_streams = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
     return render_template('content/content_streams.html', content_streams=content_streams) 
 
 
 @content.route('/streams/<int:content_streams_id>', methods=['GET', 'POST'])
 @login_required
 def content_stream(content_streams_id):
-    content_streams = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
-    form = ContentStreamsForm(obj=content_streams, next=request.args.get('next'))
+    content_stream = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
+    form = ContentStreamsForm(obj=content_stream, next=request.args.get('next'))
 
     if form.validate_on_submit():
-        form.populate_obj(content_streams)
-
-        db.session.add(content_streams)
+        form.populate_obj(content_stream)
+        
+        db.session.add(content_stream)
         db.session.commit()
-        flash(_('Content updated.'), 'success')
-    return render_template('content/content_stream.html', content_streams=content_streams, form=form)
+        flash(_('Stream updated'), 'success')
+    return render_template('content/content_stream.html', content_streams=content_stream, form=form)
 
 
 @content.route('/streams/add/', methods=['GET', 'POST'])
@@ -324,8 +323,8 @@ def content_streams_add():
         cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         #cleaned_data['name'] = filename
-        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+        #cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
+        #cleaned_data['track_id'] = cleaned_data['track_id'].id
 
         content_streams = ContentUploads(**cleaned_data) #create new object from data
        
@@ -342,9 +341,8 @@ def content_streams_add():
 @content.route('/medias/')
 @login_required
 def content_medias():
-    name_content = 'Media'
-    content_type = ContentType.query.filter(ContentType.name=='Musics').first()
-    content_medias = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.content_contenttypeid==content_type.id).order_by(ContentUploads.order).all()
+    content_type = ContentType.query.filter(ContentType.name=='Media').first()
+    content_medias = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).order_by(ContentUploads.order).all()
     return render_template('content/content_medias.html', content_medias=content_medias)
 
 
@@ -388,12 +386,13 @@ def content_medias_add():
         cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
-        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+        #cleaned_data['type_id'] = cleaned_data['track_id'].content_contenttypeid
+        #Fix this - Form should automatically go into db
+        cleaned_data['track_id'] = cleaned_data['track_id'].id
+   
 
+        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['track_id']))))
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
-             
         cleaned_data['uri'] = uri
         content_media = ContentUploads(**cleaned_data) #create new object from data
        
