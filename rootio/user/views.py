@@ -8,7 +8,8 @@ from flask.ext.login import login_required, current_user
 
 from .models import User, UserDetail
 from rootio.decorators import admin_required
-from rootio.user.forms import ProfileForm
+from rootio.user.forms import ProfileForm, ProfileCreateForm
+from rootio.radio.models import Network
 from ..extensions import db
 
 
@@ -40,7 +41,8 @@ def avatar(user_id, filename):
 @login_required
 @admin_required
 def user_dashboard():
-    users = User.query.all()
+    #Only the users in my networks
+    users = User.query.join(Network.networkusers).filter(Network.networkusers.contains(current_user)).all()
     return render_template('user/manager.html', user=current_user, users=users)
 
 

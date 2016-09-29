@@ -21,7 +21,7 @@
         </thead>
         {% for content_stream in content_streams %}
         <tr>
-            <td>{{ content_stream.content_tracks.name }}</td>
+            <td>{{ content_stream.track.name }}</td>
             <td>{{ content_stream.created_at }}</td>
             <td><a href="{{ content_stream.uri }}">{{ content_stream.uri }}</td>
             <td>{{ content_stream.name }}</td>

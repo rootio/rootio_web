@@ -2,4 +2,4 @@
 
 from .models import *
 from .views import *
-from .constants import USER_ROLE, ADMIN, USER, USER_STATUS, NEW, ACTIVE
+from .constants import USER_ROLE, ADMIN, NETWORK_USER, USER_STATUS, NEW, ACTIVE

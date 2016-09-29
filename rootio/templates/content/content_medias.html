@@ -47,7 +47,7 @@
         <tbody>
             {% for content_media in content_medias %}
             <tr id="{{ content_media.id }}">
-                <td>{{ content_media.content_tracks.name }}</td>
+                <td>{{ content_media.track.name }}</td>
                 <td>{{ content_media.created_at }}</td>
                 <td>
                     <audio controls>
