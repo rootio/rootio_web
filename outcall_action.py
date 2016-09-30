@@ -35,26 +35,32 @@ class OutcallAction:
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
         self.__hangup_on_complete = hangup_on_complete
-        self.__in_talkshow_setup = True 
 
     def start(self):
+        self.__in_talkshow_setup = True
         self.program.set_running_action(self)
         self.request_host_call()
         self.__scheduler.start()
         self.__community_call_UUIDs = dict()
         self.__call_handler.register_for_incoming_calls(self)
         self.__call_handler.register_for_incoming_dtmf(self, str(self.__argument))
+        self.__call_handler.register_for_host_call(self, str(self.__argument))
     
     def pause(self):
         self.__hold_call()
     
     def stop(self):
         self.hangup_call()
+        #Stop scheduler
+        self.__scheduler.shutdown()
+        #deregister from any triggers
+        self.__call_handler.deregister_for_incoming_calls(self)
+        self.__call_handler.deregister_for_incoming_dtmf(str(self.__argument))
         
     def request_host_call(self):
         self.__in_talkshow_setup = True
         result = self.__call_handler.call(self, self.__argument, None, None, self.duration)
-        print "result of host call is " + result;
+        print "result of host call is " + str(result);
 
     def request_station_call(self): #call the number specified thru plivo
         result = self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play', self.__argument, self.duration)
@@ -63,7 +69,6 @@ class OutcallAction:
     def notify_call_answered(self, answer_info):
         if self.__argument not in self.__available_calls:
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
-            #self.request_station_call() 
             self.__inquire_host_readiness()
         else:#This notification is from answering the host call
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
@@ -91,15 +96,10 @@ class OutcallAction:
     def __inquire_host_readiness(self):
         self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'],'/home/amour/media/inquire_host_readiness.mp3')
 
-    def __hold_call(self): #put ongoing call on hold
-        print "We should be holding now"
-    
     def hangup_call(self):  #hangup the ongoing call
         for available_call in self.__available_calls:
             self.__call_handler.deregister_for_call_hangup(self, available_call)
             self.__call_handler.hangup(self.__available_calls[available_call]['Channel-Call-UUID'])
-            #del self.__available_calls[available_call]
-            #print "result of hangup is " + result
         self.__available_calls = dict() #empty available calls. they all are hung up
         
     def notify_incoming_dtmf(self, dtmf_info):
@@ -146,6 +146,14 @@ class OutcallAction:
         elif dtmf_digit == "7":#Take a 5 min music break
             self.__pause_call()
 
+    def notify_host_call(self, call_info):
+        #hangup the call
+        self.__call_handler.hangup(call_info['Channel-Call-UUID'])
+        #reset program
+        #self.stop()
+        #restart program
+        self.start()
+
     def notify_incoming_call(self, call_info):
         if self.__phone_status == PhoneStatus.ANSWERING: #answer the phone call, join it to the conference
             if len(self.__community_call_UUIDs) == 0:
@@ -156,7 +164,7 @@ class OutcallAction:
             self.__interested_participants.add(call_info['Caller-ANI'])
             self.__call_handler.play(self.__available_calls[self.__argument]['Channel-Call-UUID'], '/home/amour/media/incoming_new_caller.mp3')
             print self.__interested_participants
-            self.__call_handler.hangup(call_info['Channel-Call-UUID']);
+            self.__call_handler.hangup(call_info['Channel-Call-UUID'])
 
         elif self.__phone_status == PhoneStatus.REJECTING: #Hangup the call
             self.__call_handler.hangup(call_info['Channel-Call-UUID']);
@@ -165,7 +173,6 @@ class OutcallAction:
         time_delta = timedelta(seconds=600) #one minutes
         now = datetime.utcnow()
         callback_time = now + time_delta
-        #self.__scheduler.add_date_job(getattr(self,'call_host_number'), callback_time)
         self.__scheduler.add_date_job(getattr(self,'request_host_call'), callback_time)    
 
     def __schedule_warning(self):

@@ -1,7 +1,7 @@
 #/bin/sh
 
 cd /home/amour/test_media
-drive pull -no-prompt -ignore-conflict -ignore-name-clashes RootioNew/Northern\ Uganda\ Pilot/Luo_Recordings/News 
+/home/csik/gopath/bin/drive pull -no-prompt -ignore-conflict -ignore-name-clashes RootioNew/Northern\ Uganda\ Pilot/Luo_Recordings/News 
 latest_file=`ls -t /home/amour/test_media/RootioNew/Northern\ Uganda\ Pilot/Luo_Recordings/News/ | awk '{printf("%s",$0);exit}'`
 echo $latest_file
 extension='${latest_file##*.}'
