@@ -15,16 +15,12 @@ import json
 import time
 from sets import Set
 
-#Define some constants - though these should come from the config
-ESL_SERVER = '127.0.0.1'
-ESL_PORT = 8021
-ESL_AUTHENTICATION = 'ClueCon'
-
 
 class CallHandler:
     
-    def __init__(self, radio_station):
+    def __init__(self, radio_station, config={}):
         self.__radio_station = radio_station
+        self.config = config
         self.__incoming_call_recipients = dict()
         self.__incoming_dtmf_recipients = dict()
         self.__outgoing_call_recipients = dict()
@@ -46,6 +42,13 @@ class CallHandler:
         t = threading.Thread(target=self.__listen_for_ESL_events, args=())
         t.daemon = True
         t.start()
+
+    def create_esl(self):
+        ESL_SERVER = self.config.get('ESL_SERVER', '127.0.0.1')
+        ESL_PORT = self.config.get('ESL_PORT', 8021)
+        ESL_AUTHENTICATION = self.config.get('ESL_AUTHENTICATION', 'ClueCon')
+        print 'ESL config:', ESL_SERVER, ESL_PORT, ESL_AUTHENTICATION
+        return ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
 
     def __load_incoming_gateways(self):
         gws = self.__radio_station.db.session.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(id=self.__radio_station.id).all()
@@ -73,7 +76,7 @@ class CallHandler:
     
     def __do_ESL_command(self, ESL_command):
         self.__radio_station.logger.info("Executing ESL Command: {0}".format(ESL_command))
-        con = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
+        con = self.create_esl()
         #result = self.__ESLConnection.api(ESL_command)
         result = con.api(ESL_command)
         try:
@@ -173,7 +176,7 @@ class CallHandler:
         return self.__do_ESL_command(speak_command) 
         
     def __listen_for_ESL_events(self):
-        ESLConnection = ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
+        ESLConnection = self.create_esl()
         ESLConnection.events("plain", "all")
         while 1:
             e = ESLConnection.recvEvent()
