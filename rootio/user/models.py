@@ -7,7 +7,7 @@ from flask.ext.login import UserMixin
 
 from ..extensions import db
 from ..utils import get_current_time, GENDER_TYPE, STRING_LEN
-from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
+from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
 
 class UserDetail(db.Model):
     __tablename__ = 'user_details'
@@ -21,6 +21,8 @@ class UserDetail(db.Model):
     bio = Column(db.String(STRING_LEN))
 
     gender_code = db.Column(db.Integer)
+    user = db.relationship("User", enable_typechecks=False, uselist=False, backref="user_detail")
+
 
     @property
     def gender(self):
@@ -28,20 +30,28 @@ class UserDetail(db.Model):
 
     created_time = Column(db.DateTime, default=get_current_time)
 
-class User(db.Model, UserMixin):
+
+class RootioUser(db.Model):
     __tablename__ = 'user_user'
 
     id = Column(db.Integer, primary_key=True)
-    name = Column(db.String(STRING_LEN), nullable=False, unique=True)
+    name = Column(db.String(STRING_LEN))
     email = Column(db.String(STRING_LEN), nullable=False, unique=True)
     openid = Column(db.String(STRING_LEN), unique=True)
     activation_key = Column(db.String(STRING_LEN))
     created_time = Column(db.DateTime, default=get_current_time)
     last_accessed = Column(db.DateTime)
-
+    networks = db.relationship(u'Network', secondary=u'radio_networkusers', backref=db.backref('networkusers'))
     avatar = Column(db.String(STRING_LEN))
-
     _password = Column('password', db.String(STRING_LEN*3), nullable=False)
+
+    role_code = Column(db.SmallInteger, default=NETWORK_USER)
+    status_code = Column(db.SmallInteger, default=INACTIVE)
+    user_detail_id = Column(db.Integer, db.ForeignKey("user_details.id"))
+
+
+
+class User(RootioUser, UserMixin):
 
     def __unicode__(self):
         return self.name
@@ -61,29 +71,17 @@ class User(db.Model, UserMixin):
             return False
         return check_password_hash(self.password, password)
 
-    # ================================================================
-    # One-to-many relationship between users and roles.
-    role_code = Column(db.SmallInteger, default=USER)
 
     @property
     def role(self):
         return USER_ROLE[self.role_code]
-
+    
     def is_admin(self):
         return self.role_code == ADMIN
-
-    # ================================================================
-    # One-to-many relationship between users and user_statuses.
-    status_code = Column(db.SmallInteger, default=INACTIVE)
 
     @property
     def status(self):
         return USER_STATUS[self.status_code]
-
-    # ================================================================
-    # One-to-one (uselist=False) relationship between users and user_details.
-    user_detail_id = Column(db.Integer, db.ForeignKey("user_details.id"))
-    user_detail = db.relationship("UserDetail", uselist=False, backref="user")
 
     # ================================================================
     # Class methods

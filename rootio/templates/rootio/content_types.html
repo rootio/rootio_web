@@ -1,0 +1,26 @@
+{% extends "rootio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Content Types') }}</h2>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('rootio.content_type_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Description') }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for content_type in content_types %}
+        <tr>
+            <td>{{ content_type.name }}</td>
+            <td>{{ content_type.description }}</td>
+            <td><a href="{{ url_for('rootio.content_type', content_type_id=content_type.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -9,9 +9,10 @@ from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
 import pytz
 
+from flask.ext.login import current_user
 from .fields import DurationField, InlineFormField, JSONField
 from .validators import HasInlineForm
-from .models import Station, StationAnalytic, Program, ProgramType, ScheduledBlock, Person, Language, Location
+from .models import Station, StationAnalytic, Network, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType
 from .widgets import ChoicesSelect
 
 from ..user.models import User
@@ -28,8 +29,8 @@ class LocationForm(LocationFormBase):
     submit = SubmitField(_('Save'))
 
 
-def all_users():
-    return User.query.all()
+def all_networks():
+    return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
 #define field help text here, instead of in model info
 StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
@@ -43,20 +44,22 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
         'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone'])
 class StationForm(StationFormBase):
-    owner = QuerySelectField(query_factory=all_users,allow_blank=False) #TODO: default this to be the logged in user?
+    network = QuerySelectField(u'Network', [Required()], query_factory=all_networks,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
         #inline form and POST url for phone creation modal
         #ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
     timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
     submit = SubmitField(_('Save'))
-    field_order = ('owner','name','location','timezone','*')
+    field_order = ('network','name','location','timezone','*')
 
-
-StationAnalyticForm = model_form(StationAnalytic, db_session=db.session, base_class=Form)
-
+StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port'])
+class StationTelephonyForm(StationTelephonyFormBase):
+    submit = SubmitField(_('Save'))
+    
 
 def all_languages():
     return Language.query.all()
@@ -66,6 +69,7 @@ class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
     description = TextAreaField()
+    structure = TextAreaField()
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
@@ -83,6 +87,19 @@ class ProgramTypeForm(ProgramTypeFormBase):
     submit = SubmitField(_('Save'))
 
 
+
+ContentTypeFormBase = model_form(ContentType, db_session=db.session, base_class=Form, exclude=['created_at','updated_at'])
+class ContentTypeForm(ContentTypeFormBase):
+    name = StringField()
+    description = TextAreaField()
+    submit = SubmitField(_('Save'))
+
+NetworkFormBase = model_form(Network, db_session=db.session, base_class=Form, exclude=['networkusers','stations','created_at','paddingcontents','updated_at'])
+class NetworkForm(NetworkFormBase):
+    name = TextField(u'Name', [Required()])
+    about = TextAreaField()
+    submit = SubmitField(_('Save'))
+
 PersonFormBase = model_form(Person, db_session=db.session, base_class=Form)
 class PersonForm(PersonFormBase):
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
@@ -98,6 +115,7 @@ class LanguageForm(LanguageFormBase):
 
 def all_stations():
     return Station.query.all()
+
 class BlockForm(Form):
     name = StringField()
     station = QuerySelectField(query_factory=all_stations,allow_blank=False)
@@ -120,3 +138,9 @@ class ScheduleProgramForm(Form):
     #priority = IntegerField(description=_("Ascending values"))
     # other options for flexibility?
     submit = SubmitField(_('Save'))
+
+#added by nuno
+WhitlistsFormBase = model_form(Person, db_session=db.session, base_class=Form)
+class WhitlistsForm(WhitlistsFormBase):
+    submit = SubmitField(_('Save'))
+

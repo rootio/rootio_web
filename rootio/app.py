@@ -18,6 +18,7 @@ from .radio import radio
 from .onair import onair
 from .telephony import telephony
 from .messenger import messenger
+from .content import content
 
 from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
 from .utils import CustomJSONEncoder, read_config
@@ -37,6 +38,7 @@ DEFAULT_BLUEPRINTS = (
     settings,
     api,
     messenger,
+    content,
 )
 
 

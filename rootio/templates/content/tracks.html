@@ -1,0 +1,31 @@
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Tracks') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.track_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Description') }}</th>
+                <th>{{ _('Content Type') }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for track in tracks %}
+        <tr>
+            <td>{{ track.name }}</td>
+            <td>{{ track.description }}</td>
+            <td>{{ track.content_type }}</td>
+            <td><a href="{{ url_for('content.track', track_id=track.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

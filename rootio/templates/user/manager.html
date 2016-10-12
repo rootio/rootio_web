@@ -30,7 +30,7 @@
             <td>{{ u.role }}</td>
             <td>{{ u.last_accessed }}</td>
             <td>{{ u.status }}</td>
-            <td><a href="{{ url_for('settings.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
+            <td><a href="{{ url_for('user.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
     </table>

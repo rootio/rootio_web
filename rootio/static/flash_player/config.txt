@@ -1,0 +1,9 @@
+mp3=test.mp3
+width=300
+height=30
+sliderwidth=60
+sliderheight=16
+buttonwidth=30
+bgcolor=cccc99
+bgcolor1=0000ff
+bgcolor2=ff0000

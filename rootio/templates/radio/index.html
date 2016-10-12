@@ -15,11 +15,14 @@
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
+<div class="container">
     <div class="row-fluid">
-        <h2>{% trans %}Radio Dashboard {% endtrans %}</h2>
-
-        <h3>{% trans %} Stations {% endtrans %}</h3>
+    <div class="pull-right">
+        {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
+        <a class="btn btn-success" href="{{ url_for('radio.network_add') }}"><strong>{{ _('Create Network') }} +</strong></a>
+        {% endif %}
+    </div>
+        <h2>{% trans %} Stations {% endtrans %}</h2>
         <div id="map" class="span4"></div>
 
         <div class="span7">
@@ -33,7 +36,7 @@
                     <th>{{ _('Memory') }}</th>
                     <th>{{ _('Storage') }}</th>
                     <th>{{ _('CPU ') }}</th>
-                    <th>{{ _('Audio Plug') }}</th>
+                    <!--<th>{{ _('Audio Plug') }}</th>-->
                 </tr>
             </thead>
             {%for station in stations %}
@@ -42,11 +45,11 @@
                 <td>{{station.name}}</td>
                 <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.wifi_connected}}</span></td>
+                <td><span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
                 <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>
+                <!--<td><span class="sparkline" data-type="boolean">{{analytics.headphone_plug}}</span></td>-->
             </tr>
             {%endfor%}
             </table>
