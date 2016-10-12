@@ -90,6 +90,30 @@
             {% endwith %}
         {% endblock %}
 
+
+
+    <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
+    <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"><\/script>')</script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-ui.custom.min.js') }}"></script>
+    <script>window.jQuery.ui || document.write('<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"><\/script>')</script>
+    
+    {% block paging_js %}
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#datatable').DataTable({
+               searching: true
+           });
+        });
+    </script>
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    {% block js_btm %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
         {% block container %}
         <div class="container">
 
@@ -129,15 +153,6 @@
         </ul>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
-    <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"><\/script>')</script>
-    <script src="{{ url_for('static', filename='js/vendor/jquery-ui.custom.min.js') }}"></script>
-    <script>window.jQuery.ui || document.write('<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"><\/script>')</script>
-
-    <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
-    {% block js_btm %}{% endblock %}
-    <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 
     {% block ga %}

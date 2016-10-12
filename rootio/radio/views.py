@@ -9,8 +9,9 @@ from flask import g, current_app, Blueprint, render_template, request, flash, Re
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person
-from .forms import StationForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
+from ..user.models import User, RootioUser
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
+from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
@@ -22,8 +23,10 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
 def index():
-    stations = Station.query.all()
-    return render_template('radio/index.html',stations=stations)
+    #get the stations in networks that I am associated with
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
+    return render_template('radio/index.html',stations=stations, userid=current_user.id)
 
 
 @radio.route('/emergency/', methods=['GET'])
@@ -37,9 +40,33 @@ def emergency():
     return render_template('radio/emergency.html',stations=stations)
 
 
+@radio.route('/network/add/', methods=['GET', 'POST'])
+@login_required
+def network_add():
+    form = NetworkForm(request.form)
+
+    if form.validate_on_submit():
+        form_data = form.data #copy it to remove items, it is immutable
+        form_data.pop('submit', None)
+        network = Network(**form_data) #create new object from data
+
+        #Associate creator with network - Fix this to use current_user, instead of querying new instance
+        user = RootioUser.query.filter(RootioUser.id==current_user.id).first()
+        network.networkusers.append(user)
+
+        #Save the Network
+        db.session.add(network)
+        db.session.commit()
+        flash(_('Network Created.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/network.html', program=program, form=form)
+
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
@@ -252,6 +279,7 @@ def schedule_program_add_ajax():
     scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -259,11 +287,13 @@ def schedule_program_add_ajax():
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
+
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
 def delete_program(_id):
     _program = ScheduledProgram.query.get(_id)
-    db.session.delete(_program)
+    _program.deleted = True
+    db.session.add(_program)
     db.session.commit()
     return ""
 
@@ -286,6 +316,7 @@ def schedule_program_edit_ajax():
     scheduled_program.start = dateutil.parser.parse(data['start'])
     program = scheduled_program.program
     scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
@@ -320,11 +351,11 @@ def schedule_recurring_program_ajax():
 
         #parse recurrence rule
         r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:10]: #TODO: dynamically determine instance limit
+        for instance in r[:30]: #TODO: dynamically determine instance limit
             scheduled_program = ScheduledProgram(program=program, station=station)
             scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
             scheduled_program.end = scheduled_program.start + program.duration
-            
+            scheduled_program.deleted = False
             db.session.add(scheduled_program)
 
         db.session.commit()
@@ -335,22 +366,24 @@ def schedule_recurring_program_ajax():
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET'])
+@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
-    if request.args.get('start') and request.args.get('end'):
-        start = dateutil.parser.parse(request.args.get('start'))
-        end = dateutil.parser.parse(request.args.get('end'))
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
-        #TODO: filter by start > start, end < end
-    else:
-        scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status':'error','errors':'scheduledprograms.json requires start and end','status_code':400}
+    start = dateutil.parser.parse(request.args.get('start'))
+    end = dateutil.parser.parse(request.args.get('end'))
+    scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)\
+                                                   .filter(ScheduledProgram.start >= start)\
+                                                   .filter(ScheduledProgram.end <= end)\
+                                                   .filter(ScheduledProgram.deleted == False)
     resp = []
     for s in scheduled_programs:
         d = {'title':s.program.name,
             'start':s.start.isoformat(),
             'end':s.end.isoformat(),
-            'id':s.id}
+            'id':s.id,
+            'status':s.status}
         resp.append(d)
     return resp
 
@@ -384,8 +417,8 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
-
-    stations = Station.query.order_by('name').all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    #stations = Station.query.order_by('name').all()
 
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
@@ -399,7 +432,7 @@ def schedule_station(station_id):
     block_list = []
     for block in scheduled_blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
-        for instance in r[:10]: #TODO: dynamically determine instance limit from calendar view
+        for instance in r[:30]: #TODO: dynamically determine instance limit from calendar view
             d = {'title':block.name,
                 'start':datetime.combine(instance,block.start_time),
                 'end':datetime.combine(instance,block.end_time)}
@@ -413,3 +446,50 @@ def schedule_station(station_id):
     return render_template('radio/schedule.html',
         form=form, station=station, block_list=block_list, addable_programs=all_programs,
         active='schedule')
+
+
+
+@radio.route('/telephony/', methods=['GET', 'POST'])
+def telephony():
+    #stations = Station.query.all()
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('radio/stations_telephony.html', stations=stations)
+
+
+
+@radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
+def telephony_station(station_id):
+    
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationTelephonyForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station updated.'), 'success')
+
+    return render_template('radio/station_telephony.html', station=station, form=form)
+
+
+@radio.route('/telephony/add/', methods=['GET', 'POST'])
+@login_required
+def telephony_add():
+    form = StationTelephonyForm(request.form)
+    station = None
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('phone_inline',None) #and also inline forms
+        cleaned_data.pop('location_inline',None)
+        station = Station(**cleaned_data) #create new object from data
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Station added.'), 'success') 
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/station_telephony.html', station=station, form=form)

@@ -7,8 +7,11 @@
 {% set tabs = [
     (_("Status"), url_for('radio.index')), 
     (_("Stations"), url_for('radio.stations')),
-    (_("People"), url_for('radio.people')),
+    (_("Stations Telephony"), url_for('radio.telephony')),
     (_("Programs"), url_for('radio.programs')),
-    (_("Blocks"), url_for('radio.scheduled_blocks')),
-    (_("Schedule"), url_for('radio.schedule')),
+    (_("Schedule"), url_for('radio.schedule')),  
 ]%}
+
+{% block paging_js %}
+    {{ super() }}
+{% endblock %}

@@ -6,7 +6,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('telephony.phonenumber_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Type') }}</th>
@@ -16,6 +16,7 @@
                 <th></th>
             </tr>
         </thead>
+        <tbody>
         {% for phonenumber in phonenumbers %}
         <tr>
             <td>{{ phonenumber.type }}</td>
@@ -25,6 +26,7 @@
             <td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=phonenumber.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}

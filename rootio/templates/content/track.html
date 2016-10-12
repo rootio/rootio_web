@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if tracks%}
+        <h2>{{ _('Edit') }} {{ _('Track') }}</h2>
+        {{ render_form(url_for('content.track', track_id=tracks.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('Track') }}</h2>
+        {{ render_form(url_for('content.track_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "radio/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if station%}
+        <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
+        {{ render_form(url_for('radio.telephony_station', station_id=station.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('Station') }}</h2>
+        {{ render_form(url_for('radio.telephony_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@
 <div class="container">
     <h2 class="pull-left">{{ _('Calls') }}</h2>
 
-    <table class='table table-bordered table-hover'>
+    <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('UUID') }}</th>
@@ -12,8 +12,10 @@
                 <th>{{ _('End') }}</th>
                 <th>{{ _('From') }}</th>
                 <th>{{ _('To') }}</th>
+                <th>{{ _('Station') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for call in calls %}
         <tr>
             <td>{{ call.call_uuid }}</td>
@@ -21,11 +23,10 @@
             <td>{{ call.end_time }}</td>
             <td>{{ call.from_phonenumber }}</td>
             <td>{{ call.to_phonenumber }}</td>
-	    {#todo: fix linking below#}
-            {#<td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.from_phonenumber.id) }}">{{ call.from_phonenumber }}</a></td>#}
-            {#<td><a href="{{ url_for('telephony.phonenumber', phonenumber_id=call.to_phonenumber.id) }}">{{ call.to_phonenumber }}</a></td>#}
+	        <td>{{ call.station_id }}</td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}

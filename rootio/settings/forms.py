@@ -2,18 +2,19 @@
 
 from flask.ext.wtf import Form
 from wtforms import (HiddenField, TextField,
-        PasswordField, SubmitField, TextAreaField, IntegerField, RadioField,
+        PasswordField, SubmitField,SelectField, TextAreaField, IntegerField, RadioField,
         FileField, DecimalField)
 from wtforms.validators import (ValidationError, AnyOf, Optional,
         Required, Length, EqualTo, Email, NumberRange, URL)
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from flask_wtf.html5 import URLField, EmailField, TelField
 from flask.ext.login import current_user
-
+from rootio.radio.models import Network
 from ..user import User
 from ..utils import PASSWORD_LEN_MIN, PASSWORD_LEN_MAX, AGE_MIN, AGE_MAX
 from ..utils import allowed_file, ALLOWED_AVATAR_EXTENSIONS
 from ..utils import GENDER_TYPE
-
+from ..extensions import db
 
 class ProfileForm(Form):
     multipart = True
@@ -42,6 +43,7 @@ class ProfileForm(Form):
 class ProfileCreateForm(Form):
     multipart = True
     next = HiddenField()
+    networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks) #netwoks = (current_user.name,[Required()])
     email = EmailField(u'Email', [Required(), Email()])
     name = TextField(u'Name', [Required(), Length(max=100)])
     password = PasswordField(u'Password', [Required(), Length(max=100)])
