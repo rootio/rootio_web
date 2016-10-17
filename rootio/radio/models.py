@@ -322,7 +322,6 @@ class ScheduledProgram(BaseMixin, db.Model):
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)
     
-    programs = db.relationship(u'Program', backref=db.backref('program'))
 
     @classmethod
     def after(cls,date):

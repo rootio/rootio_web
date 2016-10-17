@@ -33,7 +33,7 @@ def upgrade():
     op.create_table('radio_recording',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('url', sa.String(length=160), nullable=True),
-    sa.Column('local_file', sa.FileField(), nullable=True),
+    sa.Column('local_file', sa.String(length=160), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
