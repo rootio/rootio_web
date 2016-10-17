@@ -71,8 +71,8 @@ class ProgramForm(Form):
     description = TextAreaField()
     structure = TextAreaField()
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
-    language = QuerySelectField(query_factory=all_languages,allow_blank=False)
-    program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
+    #language = QuerySelectField(query_factory=all_languages,allow_blank=False)
+    #program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     submit = SubmitField(_('Save'))
 
 
@@ -130,7 +130,8 @@ def all_programs():
 def all_blocks():
     return ScheduledBlock.query.all()
 class ScheduleProgramForm(Form):
-    station = QuerySelectField(query_factory=all_stations,allow_blank=False)
+    #station = QuerySelectField(query_factory=all_stations,allow_blank=False)
+    station = TextField(u'Station')
     program = QuerySelectField(query_factory=all_programs,allow_blank=True,blank_text='- select program -')
     #block = QuerySelectField(query_factory=all_blocks,allow_blank=False) #let user select block?
     air_time = TimeField(description=_("Time to begin airing"))

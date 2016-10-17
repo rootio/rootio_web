@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('description', sa.Text(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.drop_table(u'radio_content_type')
+    #op.drop_table(u'radio_content_type')
     op.drop_column(u'content_track', u'content_id')
     op.drop_column(u'content_track', u'uploaded_by')
     op.drop_column(u'content_track', u'description')

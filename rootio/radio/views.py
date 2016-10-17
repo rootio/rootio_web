@@ -271,20 +271,25 @@ def schedule_program_add_ajax():
         return {'status':'error','errors':'station required','status_code':400}
 
     #lookup objects from ids
-    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
-    if fk_errors:
-        return fk_errors
+    #fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    #if fk_errors:
+    #    return fk_errors
 
-    program = data['program']
-    scheduled_program = ScheduledProgram(program=data['program'], station=data['station'])
+    #Fix this. use form elements
+
+    program = Program.query.filter(Program.id==data['program']).first()
+    scheduled_program = ScheduledProgram()
+    scheduled_program.station_id = data['station']
+    scheduled_program.program_id = data['program']
     scheduled_program.start = dateutil.parser.parse(data['start'])
     scheduled_program.end = scheduled_program.start + program.duration
     scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
     db.session.commit()
-    
-    return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
+   
+    return {'status':data,'result':1,'status_code':200} 
+    #return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
 
 
@@ -332,9 +337,9 @@ def schedule_recurring_program_ajax():
     data = json.loads(request.data)
 
     #ensure specified foreign key ids are valid
-    fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
-    if fk_errors:
-        return fk_errors
+    #fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
+    #if fk_errors:
+     #   return fk_errors
 
     form = ScheduleProgramForm(None, **data)
 
@@ -344,25 +349,24 @@ def schedule_recurring_program_ajax():
         response = {'status':'error','errors':{'air_time':'Invalid time'},'status_code':400}
         return response
 
-    if form.validate_on_submit():
-        #save refs to form objects
-        program = form.data['program']
-        station = form.data['station']
+    #if form.validate_on_submit():
+    #save refs to form objects
+    program = Program.query.filter(Program.id==form.data['program']).first()
+    station = Station.query.filter(Station.id==form.data['station']).first()
 
-        #parse recurrence rule
-        r = dateutil.rrule.rrulestr(form.data['recurrence'])
-        for instance in r[:30]: #TODO: dynamically determine instance limit
-            scheduled_program = ScheduledProgram(program=program, station=station)
-            scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
-            scheduled_program.end = scheduled_program.start + program.duration
-            scheduled_program.deleted = False
-            db.session.add(scheduled_program)
-
-        db.session.commit()
+    #parse recurrence rule
+    r = dateutil.rrule.rrulestr(form.data['recurrence'])
+    for instance in r[:30]: #TODO: dynamically determine instance limit
+        scheduled_program = ScheduledProgram(program=program, station=station)
+        scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
+        scheduled_program.end = scheduled_program.start + program.duration
+        scheduled_program.deleted = False
+        db.session.add(scheduled_program)
+    db.session.commit()
         
-        response = {'status':'success','result':{},'status_code':200}
-    elif request.method == "POST":
-        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+    response = {'status':'success','result':{},'status_code':200}
+    #elif request.method == "POST":
+    #response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
 
