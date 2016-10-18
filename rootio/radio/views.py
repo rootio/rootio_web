@@ -3,6 +3,7 @@
 import os
 from datetime import datetime
 import time
+from pytz import timezone
 import dateutil.rrule, dateutil.parser
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
@@ -278,10 +279,11 @@ def schedule_program_add_ajax():
     #Fix this. use form elements
 
     program = Program.query.filter(Program.id==data['program']).first()
+    station = Station.query.filter(Station.id==data['station']).first()
     scheduled_program = ScheduledProgram()
     scheduled_program.station_id = data['station']
     scheduled_program.program_id = data['program']
-    scheduled_program.start = dateutil.parser.parse(data['start'])
+    scheduled_program.start = timezone(station.timezone).localize(dateutil.parser.parse(data['start']).replace(tzinfo=None)) #Otherwise everything assumes UTC
     scheduled_program.end = scheduled_program.start + program.duration
     scheduled_program.deleted = False
 
@@ -296,7 +298,7 @@ def schedule_program_add_ajax():
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
 def delete_program(_id):
-    _program = ScheduledProgram.query.get(_id)
+    _program = ScheduledProgram.query.filter(ScheduledProgram.id==_id).first()
     _program.deleted = True
     db.session.add(_program)
     db.session.commit()
