@@ -5,7 +5,7 @@
 __author__="HP Envy"
 __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
-import pytz
+import dateutil.tz
 import json
 from news_action import NewsAction
 from outcall_action import OutcallAction
@@ -14,7 +14,7 @@ from media_action import MediaAction
 from interlude_action import InterludeAction
 from datetime import datetime, timedelta
 from apscheduler.scheduler import Scheduler
-from rootio_mailer.rootio_mail_message import RootIOMailMessage
+#from rootio_mailer.rootio_mail_message import RootIOMailMessage
 from rootio.content.models import ContentTrack
 
 class RadioProgram:
@@ -28,7 +28,7 @@ class RadioProgram:
         self.radio_station = radio_station
         self.__scheduler = Scheduler()
         self.__running_action = None
-        self.__rootio_mail_message = RootIOMailMessage()
+        #self.__rootio_mail_message = RootIOMailMessage()
         return
         
     '''
@@ -89,8 +89,9 @@ class RadioProgram:
         self.__running_action = running_action
 
     def log_program_activity(self, program_activity):
-        self.__rootio_mail_message.append_to_body('%s %s' % (datetime.now().strftime('%y-%m-%d %H:%M:%S'),program_activity))
-
+        #self.__rootio_mail_message.append_to_body('%s %s' % (datetime.now().strftime('%y-%m-%d %H:%M:%S'),program_activity))
+        pass
+       
     def notify_program_action_stopped(self, program_action):
         if program_action in self.__program_actions:
             self.__program_actions.remove(program_action)
@@ -98,17 +99,18 @@ class RadioProgram:
                 self.__send_program_summary()
 
     def __send_program_summary(self):
-        self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.__program.program.name))
-        self.__rootio_mail_message.set_from('RootIO')#This will come from DB in future
-        self.__rootio_mail_message.add_to_address('jude19love@gmail.com')#this wil come from DB in future
-        self.__rootio_mail_message.add_to_address('choowilly@gmail.com')#This will also come from DB
-        self.__rootio_mail_message.send_message()
+        pass
+        #self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.__program.program.name))
+        #self.__rootio_mail_message.set_from('RootIO')#This will come from DB in future
+        #self.__rootio_mail_message.add_to_address('jude19love@gmail.com')#this wil come from DB in future
+        #self.__rootio_mail_message.add_to_address('choowilly@gmail.com')#This will also come from DB
+        #self.__rootio_mail_message.send_message()
 
     '''
     Get the time at which to schedule the program action to start
     '''        
     def __get_start_datetime(self, time_part):
-        now  = pytz.utc.localize(datetime.utcnow())
+        now  = datetime.now(dateutil.tz.tzlocal())
         t = datetime.strptime(time_part, "%H:%M:%S")
         time_delta = timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
         return now + time_delta + timedelta(seconds=2) #2 second scheduling allowance

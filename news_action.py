@@ -6,7 +6,6 @@ __author__="HP Envy"
 __date__ ="$Nov 20, 2014 3:29:19 PM$"
 
 from rootio.config import *
-import plivohelper
 import json
 from rootio.content.models import ContentTrack
 

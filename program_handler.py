@@ -7,6 +7,7 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 2:17:51 PM$"
 
 from rootio.radio.models import ScheduledProgram, Program
+import dateutil.tz
 from datetime import datetime, timedelta
 from radio_program import RadioProgram
 import pytz
@@ -52,7 +53,7 @@ class ProgramHandler:
         return
     
     def __load_programs(self):
-        self.__scheduled_programs = self.__db.session.query(ScheduledProgram).filter(ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start) = current_date")).all()
+        self.__scheduled_programs = self.__db.query(ScheduledProgram).filter(ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start) = current_date")).filter(ScheduledProgram.deleted==False).all()
         self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.station.name))
     
     """
@@ -72,7 +73,7 @@ class ProgramHandler:
         return (scheduled_program.start + scheduled_program.program.duration) < (now + timedelta(minutes=1))
 
     def __get_program_start_time(self, scheduled_program):
-        now  = pytz.utc.localize(datetime.utcnow())
+        now  = datetime.now(dateutil.tz.tzlocal())
         if scheduled_program.start < now: #Time at which program begins is already past
             return now + timedelta(seconds=5) #5 second scheduling allowance
         else:

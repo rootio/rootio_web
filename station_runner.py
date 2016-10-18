@@ -5,21 +5,19 @@
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
-from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import threading
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
 import sys
-sys.path.append('/home/vagrant/rootio/rootio_web')
+sys.path.append('/usr/local/rootio_web')
 
 from radio_station import RadioStation
 from rootio.radio.models import Station
-telephony_server = Flask("ResponseServer")
-telephony_server.debug = True
-telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost/rootio'
+uri = 'postgresql://postgres:NLPog1986@localhost/rootio'
 
 
 
@@ -34,11 +32,12 @@ if __name__ == "__main__":
     app_logger.addHandler(hdlr)
     app_logger.setLevel(logging.DEBUG)    
 
-    db = SQLAlchemy(telephony_server)
-    stations = db.session.query(Station).all()
+    engine = create_engine(uri)
+    session = sessionmaker(bind=engine)()
+    stations = session.query(Station).all()
     for station in stations:
     #    if station.id == 15:
-            radio_station = RadioStation(station.id, app_logger)
+            radio_station = RadioStation(station.id, session, app_logger)
             app_logger.info('launching station : {0}'.format(station.id))
             t = threading.Thread(target=radio_station.run, args=())
             t.start()

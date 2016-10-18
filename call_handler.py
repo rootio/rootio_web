@@ -5,11 +5,10 @@
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 2:15:22 PM$"
 
-from ESL import *
+from freeswitchESL.ESL import *
 from rootio.config import *
 from rootio.telephony import *
 from rootio.telephony.models import Gateway
-import plivohelper
 import threading
 import json
 import time
@@ -51,7 +50,7 @@ class CallHandler:
         return ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
 
     def __load_incoming_gateways(self):
-        gws = self.__radio_station.db.session.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(id=self.__radio_station.id).all()
+        gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(id=self.__radio_station.id).all()
         self.__incoming_gateways = dict()
         self.__available_incoming_gateways = []
         for gw in gws:
@@ -63,7 +62,7 @@ class CallHandler:
             #self.__available_gateways.reverse()
     
     def __load_outgoing_gateways(self):
-        gws = self.__radio_station.db.session.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(id=self.__radio_station.id).all()
+        gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(id=self.__radio_station.id).all()
         self.__outgoing_gateways = dict()
         self.__available_outgoing_gateways = []
         for gw in gws:
