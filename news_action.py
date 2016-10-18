@@ -56,7 +56,7 @@ class NewsAction:
             self.__listen_for_media_play_stop()
             
             #Always play the last file for news
-            result = self.__call_handler.play(call_UUID, "/home/amour/test_media/{0}".format(self.__track.track_uploads[len(self.__track.track_uploads) -1].uri))
+            result = self.__call_handler.play(call_UUID, os.path.join(DefaultConfig.CONTENT_DIR,self.__track.track_uploads[len(self.__track.track_uploads) -1].uri))
             self.program.log_program_activity('result of play is ' + result)
     
     def __pause_media(self): #pause the media in the array
@@ -75,7 +75,7 @@ class NewsAction:
         #self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
         if self.__hangup_on_complete:
             self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-            if media_stop_info["Media-Bug-Target"] == "/home/amour/test_media/{0}".format(self.__track.track_uploads[len(self.__track.track_uploads) -1].uri): 
+            if media_stop_info["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[len(self.__track.track_uploads) -1].uri): 
                 self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}".format(self.program.name))
                 self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
                 self.program.notify_program_action_stopped(self)

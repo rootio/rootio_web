@@ -45,7 +45,7 @@ class RadioProgram:
     '''
     def __load_program_actions(self):
         print self.__program.program.description
-        data = json.loads(self.__program.program.description) 
+        data = json.loads(self.__program.program.structure) 
         for category in data:
             if category == "Jingle":
                 for action in data[category]:
@@ -67,7 +67,7 @@ class RadioProgram:
                 print "This would have started here"
             if category == "News":
                 for action in data[category]:
-                    track = self.__db.session.query(ContentTrack).filter(ContentTrack.id == action["argument"]).first()
+                    track = self.__db.query(ContentTrack).filter(ContentTrack.id == action["argument"]).first()
                     self.__program_actions.append(NewsAction(track, action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
                     print "News Scheduled to start at " + str(action["start_time"])
             if category == "Outcall":
