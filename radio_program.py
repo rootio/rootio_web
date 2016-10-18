@@ -22,9 +22,9 @@ class RadioProgram:
     def __init__(self, db, program, radio_station):
         self.__program_actions = []
         self.id = program.id
-        self.__db = db
+        self.db = db
         self.name = program.id
-        self.__program = program
+        self.scheduled_program = program
         self.radio_station = radio_station
         self.__scheduler = Scheduler()
         self.__running_action = None
@@ -44,8 +44,8 @@ class RadioProgram:
     Load the definition of components of the program from a JSON definition
     '''
     def __load_program_actions(self):
-        print self.__program.program.description
-        data = json.loads(self.__program.program.structure) 
+        print self.scheduled_program.program.description
+        data = json.loads(self.scheduled_program.program.structure) 
         for category in data:
             if category == "Jingle":
                 for action in data[category]:
@@ -67,7 +67,7 @@ class RadioProgram:
                 print "This would have started here"
             if category == "News":
                 for action in data[category]:
-                    track = self.__db.query(ContentTrack).filter(ContentTrack.id == action["argument"]).first()
+                    track = self.db.query(ContentTrack).filter(ContentTrack.id == action["argument"]).first()
                     self.__program_actions.append(NewsAction(track, action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
                     print "News Scheduled to start at " + str(action["start_time"])
             if category == "Outcall":
@@ -99,11 +99,18 @@ class RadioProgram:
                 self.__send_program_summary()
 
     def __send_program_summary(self):
-        self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.__program.program.name))
+        self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.scheduled_program.program.name))
         self.__rootio_mail_message.set_from('RootIO')#This will come from DB in future
-        self.__rootio_mail_message.add_to_address('jude19love@gmail.com')#this wil come from DB in future
-        self.__rootio_mail_message.add_to_address('choowilly@gmail.com')#This will also come from DB
+        users = self.__get_network_users()
+        for user in users:
+            self.__rootio_mail_message.add_to_address(user.email)
         self.__rootio_mail_message.send_message()
+ 
+    def __get_network_users(self):
+        station_users = self.radio_station.station.network.networkusers
+        return station_users
+     
+
 
     '''
     Get the time at which to schedule the program action to start

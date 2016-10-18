@@ -11,7 +11,7 @@ from rootio.content.models import ContentTrack
 
 class NewsAction:
     
-    def __init__(self, track,start_time, duration, is_streamed, program, hangup_on_complete=False):
+    def __init__(self, track, start_time, duration, is_streamed, program, hangup_on_complete=False):
         self.__track = track
         self.__is_valid = True
         self.start_time = start_time
@@ -34,13 +34,19 @@ class NewsAction:
     def pause(self):
         self.__pause_media()
     
-    def stop(self):
+    def stop(self, graceful=True):
         self.__stop_media()
+        #Fix this - clash of names btn programs and scheduled instances
         self.program.notify_program_action_stopped(self)
+        self.program.scheduled_program.status = graceful
+        self.program.db._model_changes = {}
+        self.program.db.add(self.program.scheduled_program)
+        self.program.db.commit()
      
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity("Received call answer notification for Media action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-10:])
         self.__play_media(self.__call_answer_info['Channel-Call-UUID'])
         self.__listen_for_media_play_stop()
 
@@ -69,6 +75,11 @@ class NewsAction:
         except Exception, e:
             self.program.radio_station.logger.error(str(e))
             return  
+
+    def notify_call_hangup(self, event_json):
+        self.program.log_program_activity('Call hangup before end of program!')
+        self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:]) 
+        self.stop(False)
      
     def notify_media_play_stop(self, media_stop_info):
         self.program.radio_station.logger.info("Played all media, stopping media play in Media action for {0}".format(self.program.name))
