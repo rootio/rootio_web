@@ -15,14 +15,14 @@ class BaseConfig(object):
     DEBUG = True
     TESTING = False
 
-    ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
+    ADMINS = ['admin@rootio.org','robotic@gmail.com']
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
     SECRET_KEY = os.environ.get("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
 
-    LOG_FOLDER = "/home/vagrant/rootio/rootio_web/instance/logs/" #os.path.join(INSTANCE_FOLDER_PATH, 'logs')
+    LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
     #make_dir(LOG_FOLDER)
 
     # File upload, should override in production.
@@ -37,7 +37,7 @@ class BaseConfig(object):
     WTF_CSRF_SECRET_KEY = 'a random string'
     CSRF_SESSION_KEY = "02090298402394okajsdflkaslfkj02934" 
 
-    CONTENT_DIR = "/home/amour/test_media"
+    CONTENT_DIR = "/var/content"
 
 
 class DefaultConfig(BaseConfig):

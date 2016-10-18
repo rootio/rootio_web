@@ -8,6 +8,7 @@ from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 
 from ..radio.models import ContentType
+from ..config import DefaultConfig
 from .models import ContentTrack, ContentUploads 
 from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm
 
@@ -134,7 +135,7 @@ def content_upload_add():
         cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
         cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
+        uri = "{0}/{1}/{2}".format("media",str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,str(current_user.id),str(cleaned_data['contenttrack_id']))))
              
         cleaned_data['uri'] = uri
         content_uploads = ContentUploads(**cleaned_data) #create new object from data
@@ -203,7 +204,7 @@ def content_news_add():
         cleaned_data['track_id'] = cleaned_data['track_id'].id
 
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['track_id']))))
+        uri = "{0}/{1}/{2}".format("news",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"news",str(cleaned_data['track_id']))))
              
         cleaned_data['uri'] = uri
         content_news = ContentUploads(**cleaned_data) #create new object from data
@@ -222,8 +223,7 @@ def content_news_add():
 @content.route('/ads/')
 @login_required
 def content_ads():
-    name_content = 'Ads'
-    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
+    content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
     content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.type_id==content_type.id).order_by(ContentUploads.order).all()
     return render_template('content/content_ads.html', content_adds=content_adds)  
 
@@ -242,7 +242,7 @@ def content_ads_edit(content_adds_id):
         flash(_('Content updated.'), 'success')
     return render_template('content/content_ads_edit.html', content_adds=content_adds, form=form)
 
-
+DefaultConfig.CONTENT_DIR
 @content.route('/ads/add/', methods=['GET', 'POST'])
 @login_required
 def content_ads_add():
@@ -252,7 +252,7 @@ def content_ads_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file parfrom .config import DefaultConfigt')
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
@@ -272,7 +272,7 @@ def content_ads_add():
         cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
 
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['contenttrack_id']))))
+        uri = "{0}/{1}/{2}".format("ads",str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,str(current_user.id),str(cleaned_data['contenttrack_id']))))
              
         cleaned_data['uri'] = uri
         content_adds = ContentUploads(**cleaned_data) #create new object from data
@@ -290,8 +290,7 @@ def content_ads_add():
 @content.route('/streams/')
 @login_required
 def content_streams():
-    name_content = 'Stream'
-    content_type = ContentType.query.filter(ContentType.name=='Stream').first()
+    content_type = ContentType.query.filter(ContentType.name=='Streams').first()
     content_streams = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
     return render_template('content/content_streams.html', content_streams=content_streams) 
 
@@ -320,6 +319,7 @@ def content_streams_add():
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('file',None)
+
         cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         #cleaned_data['name'] = filename
@@ -391,7 +391,7 @@ def content_medias_add():
         cleaned_data['track_id'] = cleaned_data['track_id'].id
    
 
-        uri = "{0}/{1}/{2}".format(str(current_user.id),str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join("/home/amour/test_media",str(current_user.id),str(cleaned_data['track_id']))))
+        uri = "{0}/{1}/{2}".format("media",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,str(current_user.id),str(cleaned_data['track_id']))))
 
         cleaned_data['uri'] = uri
         content_media = ContentUploads(**cleaned_data) #create new object from data

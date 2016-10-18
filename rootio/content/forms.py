@@ -14,7 +14,7 @@ from .models import ContentTrack, ContentUploads
 
 from ..extensions import db
 
-ContentTrackFormBase = model_form(ContentTrack, db_session=db.session, base_class=Form, exclude=['created_at','updated_at','uploads_track', 'uploaded_by', 'uri'])
+ContentTrackFormBase = model_form(ContentTrack, db_session=db.session, base_class=Form, exclude=['created_at','updated_at','track_uploads', 'uploaded_by', 'uri'])
 class ContentTrackForm(ContentTrackFormBase):
     name = StringField()
     description = TextAreaField()

@@ -24,7 +24,7 @@ def datetime_formatter(view, context, model, name):
 
 class AdminView(MyModelView):
     column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
-    form_excluded_columns = ('created_at', 'updated_at')
+    form_excluded_columns = ('created_at', 'updated_at','station_cloud','station_transmitter','stations','number_type','person')
     
     def scaffold_form(self):
         form_class = super(AdminView, self).scaffold_form()
