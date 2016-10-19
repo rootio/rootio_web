@@ -391,7 +391,7 @@ def content_medias_add():
         cleaned_data['track_id'] = cleaned_data['track_id'].id
    
 
-        uri = "{0}/{1}/{2}".format("media",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,str(current_user.id),str(cleaned_data['track_id']))))
+        uri = "{0}/{1}/{2}".format("media",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"media",str(cleaned_data['track_id']))))
 
         cleaned_data['uri'] = uri
         content_media = ContentUploads(**cleaned_data) #create new object from data
