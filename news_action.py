@@ -29,7 +29,7 @@ class NewsAction:
             call_result = self.__request_call()
             if call_result != True: #!!
                 print "call_result is not true!!"
-                self.stop()
+                self.stop(False)
     
     def pause(self):
         self.__pause_media()
@@ -81,15 +81,16 @@ class NewsAction:
         self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:]) 
         self.stop(False)
      
-    def notify_media_play_stop(self, media_stop_info):
+    def notify_media_play_stop(self, event_json):
         self.program.radio_station.logger.info("Played all media, stopping media play in Media action for {0}".format(self.program.name))
         #self.__call_handler.deregister_for_media_playback_stop(self,self.__call_answer_info['Caller-Destination-Number'])
         if self.__hangup_on_complete:
             self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-            if media_stop_info["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[len(self.__track.track_uploads) -1].uri): 
+            if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[len(self.__track.track_uploads) -1].uri): 
                 self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}".format(self.program.name))
+                self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:])
                 self.__call_handler.hangup(self.__call_answer_info['Channel-Call-UUID'])
-                self.program.notify_program_action_stopped(self)
+                self.stop() #program.notify_program_action_stopped(self)
             self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
