@@ -28,7 +28,7 @@ class BaseConfig(object):
     # File upload, should override in production.
     # Limited the maximum allowed payload to 16 megabytes.
     # http://flask.pocoo.org/docs/patterns/fileuploads/#improving-uploads
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024
     UPLOAD_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'uploads')
     make_dir(UPLOAD_FOLDER)
 
@@ -66,13 +66,13 @@ class DefaultConfig(BaseConfig):
     # Flask-mail: http://pythonhosted.org/flask-mail/
     # https://bitbucket.org/danjac/flask-mail/issue/3/problem-with-gmails-smtp-server
     MAIL_DEBUG = DEBUG
-    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_SERVER = ''
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME",'gmail_username')
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD",'gmail_password')
-    DEFAULT_MAIL_SENDER = '%s@gmail.com' % MAIL_USERNAME
+    DEFAULT_MAIL_SENDER = MAIL_USERNAME
 
     # Flask-openid: http://pythonhosted.org/Flask-OpenID/
     OPENID_FS_STORE_PATH = os.path.join(INSTANCE_FOLDER_PATH, 'openid')
