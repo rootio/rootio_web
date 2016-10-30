@@ -46,6 +46,12 @@ def run():
     app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8080)
 
 @manager.command
+def waitress(bind_address='127.0.0.1', port=8080):
+    """Run with waitress for production."""
+    import waitress
+    waitress.serve(app.wsgi_app, host=bind_address, port=port)
+
+@manager.command
 def alembic():
     """Run in local machine."""
     subprocess.call(["venv/bin/alembic", "init", "alembic"])
