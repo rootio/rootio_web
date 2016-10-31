@@ -28,7 +28,7 @@ def news_tracks():
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all() 
 
 def adds_tracks():
-    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
+    content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()    
 
 def streams_tracks():

@@ -5,11 +5,11 @@
 {% block body %}
 <div class="container">
     {%if content_adds%}
-        <h2>{{ _('Edit') }} {{ _('Adds Uploads') }}</h2>
-        {{ render_form(url_for('content.content_adds_edit', content_adds_id=content_adds.id), form) }}
+        <h2>{{ _('Edit Advertisement') }}</h2>
+        {{ render_form(url_for('content.content_ads_edit', ad_id=ad.id), form) }}
     {%else%}
-        <h2>{{ _('Add') }} {{ _('Adds Uploads') }}</h2>
-        {{ render_form(url_for('content.content_adds_add'), form) }}
+        <h2>{{ _('Upload Avertisement') }}</h2>
+        {{ render_form(url_for('content.content_ads_add'), form) }}
     {%endif%}
 </div>
 {% endblock %}
