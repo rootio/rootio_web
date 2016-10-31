@@ -63,7 +63,6 @@ def track_add():
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data.pop('submit',None) #remove submit field from list
         tracks = ContentTrack(**cleaned_data) #create new object from data
-
         db.session.add(tracks)
         db.session.commit()
         flash(_('Track added.'), 'success') 
@@ -224,23 +223,23 @@ def content_news_add():
 @login_required
 def content_ads():
     content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
-    content_adds = ContentUploads.query.filter_by(uploaded_by=current_user.id).filter(ContentUploads.type_id==content_type.id).order_by(ContentUploads.order).all()
-    return render_template('content/content_ads.html', content_adds=content_adds)  
+    ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
+    return render_template('content/content_ads.html', ads=ads)  
 
 
-@content.route('/ads/<int:content_adds_id>', methods=['GET', 'POST'])
+@content.route('/ads/<int:ad_id>', methods=['GET', 'POST'])
 @login_required
-def content_ads_edit(content_adds_id):
-    content_adds = ContentUploads.query.filter_by(id=content_adds_id).first_or_404()
-    form = ContentAddsForm(obj=content_adds, next=request.args.get('next'))
+def content_ads_edit(ad_id):
+    ad = ContentUploads.query.filter_by(id=ad_id).first_or_404()
+    form = ContentAddsForm(obj=ad, next=request.args.get('next'))
 
     if form.validate_on_submit():
-        form.populate_obj(content_adds)
+        form.populate_obj(ad)
 
-        db.session.add(content_adds)
+        db.session.add(ad)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_ads_edit.html', content_adds=content_adds, form=form)
+    return render_template('content/content_ads_edit.html', ad=ad, form=form)
 
 DefaultConfig.CONTENT_DIR
 @content.route('/ads/add/', methods=['GET', 'POST'])
@@ -252,7 +251,7 @@ def content_ads_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file parfrom .config import DefaultConfigt')
+            flash('No file selected')
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
@@ -260,19 +259,21 @@ def content_ads_add():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+        if not file or not allowed_file(file.filename):
+            flash('Invalid file format')
+            return redirect(request.url)   
     if form.validate_on_submit():
+        filename = secure_filename(file.filename)
         cleaned_data = form.data #make a copy
         cleaned_data.pop('file',None)
         cleaned_data.pop('submit',None) #remove submit field from list  
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
-        cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-        cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
+        #cleaned_data['content_contenttypeid'] = cleaned_data['track_id'].content_contenttypeid
+        cleaned_data['track_id'] = cleaned_data['track_id'].id
 
 
-        uri = "{0}/{1}/{2}".format("ads",str(cleaned_data['contenttrack_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,str(current_user.id),str(cleaned_data['contenttrack_id']))))
+        uri = "{0}/{1}/{2}".format("ads",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"ads", str(cleaned_data['track_id']))))
              
         cleaned_data['uri'] = uri
         content_adds = ContentUploads(**cleaned_data) #create new object from data
@@ -281,7 +282,7 @@ def content_ads_add():
         db.session.commit()
         
 
-        flash(_('Content added.'), 'success')  
+        flash(_('Advertisement uploaded.'), 'success')  
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
@@ -342,8 +343,8 @@ def content_streams_add():
 @login_required
 def content_medias():
     content_type = ContentType.query.filter(ContentType.name=='Media').first()
-    content_medias = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).order_by(ContentUploads.order).all()
-    return render_template('content/content_medias.html', content_medias=content_medias)
+    medias = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).order_by(ContentUploads.order).all()
+    return render_template('content/content_medias.html', medias=medias)
 
 
 @content.route('/medias/<int:content_media_id>', methods=['GET', 'POST'])

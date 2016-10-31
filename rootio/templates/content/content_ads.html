@@ -45,20 +45,20 @@
             </tr>
         </thead>
         <tbody>
-            {% for content_ad in content_adds %}
-            <tr id="{{content_ad.id}}">
-                <td>{{ content_ad.content_tracks.name }}</td>
-                <td>{{ content_ad.created_at }}</td>
+            {% for ad in ads %}
+            <tr id="{{ ad.id}}">
+                <td>{{ ad.track.name }}</td>
+                <td>{{ ad.created_at }}</td>
                 <td>
                     <audio controls>
-                        <source src="../../media/{{ content_add.uri }}" type="audio/mpeg">
-                        <source src="../../media/{{ content_add.uri }}" type="audio/ogg">
-                        <source src="../../media/{{ content_add.uri }}" type="audio/wav">
+                        <source src="../../audio-content/{{ ad.uri }}" type="audio/mpeg">
+                        <source src="../../audio-content/{{ ad.uri }}" type="audio/ogg">
+                        <source src="../../audio-content/{{ ad.uri }}" type="audio/wav">
                     </audio>
                 </td>
                 </td>
-                <td>{{ content_add.name }}</td>
-                <td><a href="{{ url_for('content.content_ads_edit', content_adds_id=content_add.id) }}">Edit</a></td>
+                <td>{{ ad.name }}</td>
+                <td><a href="{{ url_for('content.content_ads_edit', ad_id=ad.id) }}">Edit</a></td>
             </tr>
             {% endfor %}
         </tbody>
