@@ -7,7 +7,9 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 
-from ..radio.models import ContentType
+from ..radio.models import ContentType, Person, Network
+from ..user.models import User
+from ..radio.forms import PersonForm
 from ..config import DefaultConfig
 from .models import ContentTrack, ContentUploads 
 from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm
@@ -441,3 +443,59 @@ def ads_reorder():
     db.session.commit()
     flash(_('Ads reordered.'), 'success')  
     return str(indexes)  
+
+
+@content.route('/hosts/')
+@login_required
+def hosts():
+    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('content/content_hosts.html', hosts=hosts)
+
+@content.route('/hosts/add/', methods=['GET', 'POST'] )
+@login_required
+def hosts_add():
+    form = PersonForm(request.form)
+    del form.created_at
+    del form.updated_at
+    del form.role
+    del form.title
+    del form.additionalcontact
+    del form.privacy_code
+
+    host = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('phone_inline')
+        host = Person(**cleaned_data) #create new object from data
+        db.session.add(host)
+        db.session.commit()
+        flash(_('Host added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+    return render_template('content/content_host.html', host=host, form=form)
+
+@content.route('/hosts/<int:host_id>/', methods=['GET', 'POST'] )
+@login_required
+def host_edit(host_id):
+    host = Person.query.filter(Person.id==host_id).first()
+    form = PersonForm(obj=host)
+    del form.created_at
+    del form.updated_at
+    del form.role
+    del form.title
+    del form.additionalcontact
+    del form.privacy_code
+
+    if form.validate_on_submit():
+        form.populate_obj(host)
+        cleaned_data = form.data #make a copy
+        #cleaned_data.pop('submit',None) #remove submit field from list
+        #cleaned_data.pop('phone_inline')
+        #host = Person(**cleaned_data) #create new object from data
+        db.session.add(host)
+        db.session.commit()
+        flash(_('Host edited.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+    return render_template('content/content_host.html', host=host, form=form)

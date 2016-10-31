@@ -73,3 +73,4 @@ class ContentMusicForm(Form):
     expiry_date = DateField('Expiration Date')
     file = FileField('File(s)')
     submit = SubmitField(_('Save'))
+

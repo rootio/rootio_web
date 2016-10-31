@@ -100,10 +100,11 @@ class NetworkForm(NetworkFormBase):
     about = TextAreaField()
     submit = SubmitField(_('Save'))
 
-PersonFormBase = model_form(Person, db_session=db.session, base_class=Form)
+PersonFormBase = model_form(Person, db_session=db.session, base_class=Form, field_args={'phone':{'validators':[HasInlineForm,]}})
 class PersonForm(PersonFormBase):
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
             choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
+    phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
     submit = SubmitField(_('Save'))
 
 
