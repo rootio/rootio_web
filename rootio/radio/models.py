@@ -46,6 +46,9 @@ class Language(BaseMixin, db.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
 
 class Network(BaseMixin, db.Model):
     "A network of radio stations"
@@ -237,8 +240,8 @@ class ProgramType(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN),nullable=False)
     description = db.Column(db.Text,nullable=False)
-    definition = db.Column(JSONType,nullable=False)
-    phone_functions = db.Column(JSONType,nullable=False)
+    definition = db.Column(db.Text,nullable=False)
+    phone_functions = db.Column(db.Text,nullable=False)
 
     def __unicode__(self):
         return self.name
@@ -390,8 +393,10 @@ class Person(BaseMixin, db.Model):
     phone = db.relationship(u'PhoneNumber', backref=db.backref('person',uselist=False))
     role = db.relationship(u'Role', backref=db.backref('person'))
     languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person',uselist=False))
-    #networks = db.relationship(u'Network', secondary=u'radio_networkusers', backref=db.backref('networkusers'))
+    #network_id = db.Column(db.ForeignKey('radio_network.id'))
+    networks = db.relationship(u'Network', secondary=u'radio_personnetwork', backref=db.backref('people'))
     gender_code = db.Column(db.Integer)
+    
     @property
     def gender(self):
         return GENDER_TYPE.get(self.gender_code)
@@ -406,13 +411,19 @@ class Person(BaseMixin, db.Model):
     
     #TODO: fk to user_id?
 
+t_personnetwork = db.Table(
+    u'radio_personnetwork',
+    db.Column(u'network_id', db.ForeignKey('radio_network.id')),
+    db.Column(u'person_id', db.ForeignKey('radio_person.id'))
+)
+
+
 
 t_personlanguage = db.Table(
     u'radio_personlanguage',
     db.Column(u'language_id', db.ForeignKey('radio_language.id')),
     db.Column(u'person_id', db.ForeignKey('radio_person.id'))
 )
-
 
 class Role(BaseMixin, db.Model):
     "A role for a person at a particular station"

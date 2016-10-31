@@ -1,0 +1,42 @@
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Program Hosts') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.hosts_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Phone Number') }}</th>
+                <th>{{ _('Gender') }}</th>
+                <th>{{ _('Email') }}</th>
+                <th>{{ _('Languages') }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for host in hosts %}
+        <tr>
+            <td>{{ host }}</td>
+            <td>{{ host.phone }}</td>
+            <td>{{ host.gender }}</td>
+            <td>{{ host.email }}</td>
+            <td>
+                 {% for language in host.languages %}
+                     {{ language.name }}
+                     {% if not loop.last %}
+                        ,
+                     {% endif %}
+                 {% endfor %}
+            </td>
+            <td><a href="{{ url_for('content.host_edit', host_id=host.id) }}">Edit</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
