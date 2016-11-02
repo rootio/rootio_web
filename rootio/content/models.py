@@ -41,3 +41,32 @@ class ContentUploads(BaseMixin, db.Model):
 
     def __unicode__(self):
         return self.name      
+
+class CommunityMenu(BaseMixin, db.Model):
+    "An IVR menu for communities to record ads, announcements and greetings"
+    __tablename__ = u"content_communitymenu"
+ 
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    welcome_message = db.Column(db.String(200))
+    no_input_message = db.Column(db.String(200))
+    days_prompt = db.Column(db.String(200))
+    record_prompt = db.Column(db.String(200))
+    message_type_prompt = db.Column(db.String(200))
+    finalization_prompt = db.Column(db.String(200))
+    goodbye_message = db.Column(db.String(200))
+    
+    station = db.relationship(u'Station', backref=db.backref('community_menu'))
+    
+class CommunityContent(BaseMixin, db.Model):
+    "A message left by a member of the community (ad, greeting, announcement)"
+    __tablename__ = u"content_communitycontent"
+    
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    originator = db.Column(db.String(20))
+    message = db.Column(db.String(100)) 
+    duration = db.Column(db.Integer)
+    date_created = db.Column(db.DateTime(timezone=True))
+    type_code = db.Column(db.Integer)
+    valid_until = db.Column(db.DateTime(timezone=True))
+
+    station = db.relationship(u'Station', backref=db.backref('community_content'))
