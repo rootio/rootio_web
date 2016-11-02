@@ -1,0 +1,69 @@
+{% extends "content/layout.html" %}
+
+{% block js_btm %}
+    {{ super() }}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $( function() {
+            $( "tbody" ).sortable({
+                axis: 'y',
+                stop: function (event, ui) {
+                    var data = $(this).sortable('toArray').toString();
+                    // POST to server using $.post or $.ajax
+                    $.ajax({
+                        data: 'indexes='+ data,
+                        type: 'POST',
+                        url: 'reorder/',
+                    }); 
+                }
+            });
+        } );
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Media') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.content_medias_add') }}"><strong>Configure</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Originator') }}</th>
+                <th>{{ _('Date Recorded') }}</th>
+                <th>{{ _('Listen') }}</th>
+                <th>{{ _('Duration') }}</th>
+                <th>{{ _('Message Type') }}</th>
+                <th>{{ _('Valid until') }}</th>
+                <th>{{ _('Station') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for community_content in community_contents %}
+            <tr id="{{ community_content.originator }}">
+                <td>{{ community_content.upload_date }}</td>
+                <td>
+                    <audio controls>
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                    </audio>
+                </td>
+                <td>{{ community_content.duration }}</td>
+                <td>{{ community_content.message_type }}</td>
+                <td>{{ community_content.valid_until }}</td>
+                <td>{{ community_content.station }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

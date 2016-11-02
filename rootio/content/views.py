@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-welcome_message_file = FileField('Welcome message')
 
 import os
 
@@ -7,12 +7,12 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 
-from ..radio.models import ContentType, Person, Network
+from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
 from ..radio.forms import PersonForm
 from ..config import DefaultConfig
-from .models import ContentTrack, ContentUploads 
-from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm
+from .models import ContentTrack, ContentUploads, CommunityMenu, CommunityContent
+from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
 
 from ..extensions import db, csrf
 from datetime import datetime
@@ -499,3 +499,10 @@ def host_edit(host_id):
     elif request.method == "POST":
         flash(_('Validation error'),'error')
     return render_template('content/content_host.html', host=host, form=form)
+
+
+@content.route('/community_content/', methods=['GET', 'POST'] )
+@login_required
+def community_content():
+    community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('content/community_content.html', community_contents=community_contents)

@@ -39,6 +39,9 @@ def musics_tracks():
     content_type = ContentType.query.filter(ContentType.name=='Media').first()
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()  
 
+def stations():
+    return Station.query.join(Network).join(Network.networkusers, User).filter_by(User.id==current_user.id).all()
+
 class ContentUploadForm(Form): 
     multipart = True
     file = FileField()
@@ -74,3 +77,12 @@ class ContentMusicForm(Form):
     file = FileField('File(s)')
     submit = SubmitField(_('Save'))
 
+class CommunityMenuForm(Form):
+    multipart = True
+    station = QuerySelectField('Station',query_factory=stations,allow_blank=False)
+    welcome_message_file = FileField('Welcome message')
+    days_prompt_file = FileField('Days prompt')
+    message_type_prompt_file = FileField('Message type')
+    finalization_prompt_file = FileField('Finalization prompt')
+    Goodbye_message_file = FileField('Goodbye message')
+    submit = SubmitField(_('Save'))
