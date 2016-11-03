@@ -5,22 +5,13 @@
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 1:50:35 PM$"
 
-#from rootio.config import *
 from rootio.radio.models import Station
 from call_handler import CallHandler
 from program_handler import ProgramHandler
-#from flask import Flask
-#from flask.ext.sqlalchemy import SQLAlchemy
 import time
 import threading
 import json
 import logging
-#from rootio.extensions import db
-
-#telephony_server = Flask("ResponseServer")
-#telephony_server.debug = True
-#telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost/rootio'
-
 
 class RadioStation(Station):
  
