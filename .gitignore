@@ -1,3 +1,6 @@
+#configs
+rootio/config.py
+
 *.py[cod]
 .venv/
 venv/
