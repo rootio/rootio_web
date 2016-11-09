@@ -1,25 +1,148 @@
-{% from "macros/_form.html" import render_form %}
-
 {% extends "radio/layout.html" %}
+{% from "macros/_form.html" import render_input %}
+{% from "macros/_form.html" import render_form %}
+{% from "macros/_calendar.js" import render_duration_to_seconds %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  
 {% endblock %}
+
 
 {% block js_btm %}
-    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
     {{ super() }}
-{% endblock %}
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script>
+
+        $(document ).ready(function(){
+            $( "#program_structure" ).addClass('ui-widget-header')
+            $( "#program_structure" ).attr('readonly','readonly')
+            $( "#structure" ).hide()
+        }); 
+
+        $(document).on('dblclick',"#program_structure",function(e){
+            $( "#program_structure" ).html("")
+            $( "#structure" ).html("")
+            }
+        ); 
+             
+        $( function() {
+            $( "#draggable" ).draggable();
+            $( "#program_structure" ).droppable({
+                accept: "#draggable",
+                drop: function( event, ui ) {
+                    names = $( this ).html() + "," + ui.draggable.attr('data-name')
+                    $( this ).html(names.replace(/(^,)|(,$)/g,""))
+                    current_text = document.getElementById("structure" ).innerHTML.replace(/(^\[)|(\]$)/g,"") 
+                    document.getElementById("structure" ).innerHTML = "[" + (current_text + ","+ ui.draggable.attr('data-json')).replace(new RegExp("^[,]+"),"") + "]"
+               }   
+           });
+        } );
+  </script>
+{% endblock %}
 
 {% block body %}
 <div class="container">
-    {%if program%}
+
+        <div class="pull-right" style="width:50%;">
+        <div style="flow:v-flow">
+            <div id='addable-programs' class="addables-holder">
+              <h4>{{ _('Hosts') }}</h4>
+               <ul>
+               {% for host in hosts %}
+                <li id="draggable" class='external-event'
+                  data-name="{{host}}"
+                  data-host-phone="{{host.phonenumber}}"
+                  data-json='{"name":"{{host}}","type":"Outcall","host_id":{{host.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                   {{host}}
+                </li>
+               {%endfor%}
+             </ul>
+           </div>
+              <div id='addable-programs' class="addables-holder">
+              <h4>{{ _('News') }}</h4>
+              <ul>
+               {% for new in news %}
+                <li id="draggable" class='external-event'
+                  data-new-id="{{new.id}}"
+                  data-name="{{new.name}}"
+                  data-json='{"name":"{{new.name}}","type":"News","track_id":{{new.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  {{new.name}}
+                </li>
+               {%endfor%}
+             </ul>
+            </div>
+            <div id='addable-programs' class="addables-holder">
+             <h4>{{ _('Ads') }}</h4>
+             <ul>
+               {% for ad in ads %}
+                <li id="draggable" class='external-event'
+                  data-new-id="{{ad.id}}"
+                  data-name="{{ad.name}}"
+                  data-json='{"name":"{{ad.name}}","type":"Advertisements","track_id":{{ad.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>{{ad.name}}
+                </li>
+               {%endfor%}
+             </ul>
+            </div>
+             <div id='addable-programs' class="addables-holder">
+             <h4>{{ _('Media') }}</h4>
+             <ul>
+               {% for media in medias %}
+                <li id="draggable" class='external-event'
+                  data-new-id="{{media.id}}"
+                  data-name="{{media.name}}"
+                  data-json='{"name":"{{media.name}}","type":"Media","track_id":{{media.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  {{media.name}}
+                </li>
+               {%endfor%}
+             </ul>
+             </div>
+             <div id='addable-programs' class="addables-holder">
+             <h4>{{ _('Commmunity') }}</h4>
+             <ul>
+               {% for community_content in community_contents %}
+                <li id="draggable" class='external-event'
+                  data-name="{{community_content}}"
+                  data-json='{"name":"{{ community_content }}","type":"Community", "category_id":"{{community_content}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  {{community_content}}
+                </li>
+               {%endfor%}
+             </ul>
+            </div>
+
+        </div>
+      </div>
+<div style="float:left; width:50%">
+{%if program%}
         <h2>{{ _('Edit') }} {{ _('Program') }}</h2>
+
         {{ render_form(url_for('radio.program', program_id=program.id), form) }}
+        {{ form.hidden_tag() }}
+
     {%else%}
-        <h2>{{ _('Add') }} {{ _('Program') }}</h2>
+
+         <h2>{{ _('Add') }} {{ _('Program') }}</h2>
         {{ render_form(url_for('radio.program_add'), form) }}
+        {{ form.hidden_tag() }}
     {%endif%}
+</div>
 </div>
 {% endblock %}

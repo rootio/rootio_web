@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from datetime import datetime
 import time
 from pytz import timezone
@@ -11,6 +12,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
+from ..content.models import ContentTrack
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
@@ -117,8 +119,23 @@ def programs():
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
 def program(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
-    form = ProgramForm(obj=program, next=request.args.get('next'))
+    #form = ProgramForm(obj=program, program_structure="test", next=request.args.get('next'))
 
+    hosts = Person.query.all()
+    news = ContentTrack.query.all()
+    ads = ContentTrack.query.all()
+    medias = ContentTrack.query.all()
+    community_contents = ['ads','announcements','greetings']
+    
+    #render the program structure
+    action_names = []
+    program_json = json.loads(program.structure)
+    for action in program_json:
+        action_names.append(action['name'])
+
+    program_actions = ",".join(action_names)
+    
+    form = ProgramForm(obj=program, program_structure=program_actions, next=request.args.get('next')) 
     if form.validate_on_submit():
         form.populate_obj(program)
 
@@ -126,7 +143,7 @@ def program(program_id):
         db.session.commit()
         flash(_('Program updated.'), 'success')
 
-    return render_template('radio/program.html', program=program, form=form)
+    return render_template('radio/program.html', program=program, hosts=hosts,news=news, ads=ads, medias=medias, community_contents=community_contents,form=form)
 
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
@@ -134,10 +151,16 @@ def program(program_id):
 def program_add():
     form = ProgramForm(request.form)
     program = None
+    hosts = Person.query.all()
+    news = ContentTrack.query.all()
+    ads = ContentTrack.query.all()
+    medias = ContentTrack.query.all()
+    community_contents = ['ads','announcements','greetings']   
 
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('program_structure')
         program = Program(**cleaned_data) #create new object from data
         
         db.session.add(program)
@@ -146,7 +169,7 @@ def program_add():
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
-    return render_template('radio/program.html', program=program, form=form)
+    return render_template('radio/program.html', program=program,hosts=hosts,news=news, ads=ads, medias=medias, community_contents=community_contents, form=form)
 
 @radio.route('/people/', methods=['GET'])
 def people():
