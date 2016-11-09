@@ -65,16 +65,17 @@ def all_languages():
     return Language.query.all()
 def all_program_types():
     return ProgramType.query.all()
+
 class ProgramForm(Form):
     #can't use model_form, because we want to use a custom field for time duration
     name = StringField()
     description = TextAreaField()
-    structure = TextAreaField()
+    program_structure = TextAreaField(description=_("Drag content here in desired order, double click to reset"))
+    structure = TextAreaField(u'')
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     #language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     #program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     submit = SubmitField(_('Save'))
-
 
 ProgramTypeFormBase = model_form(ProgramType, db_session=db.session, base_class=Form,
     field_args={
