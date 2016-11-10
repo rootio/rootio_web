@@ -1,5 +1,5 @@
 from flask import g, Blueprint, render_template, request, flash, Response, json
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from .models import PhoneNumber, Message, Call, Gateway
@@ -100,6 +100,12 @@ def messages():
 
 @telephony.route('/gateways/', methods=['GET'])
 def gateways():
-    gateways = Gateway.query.all()
+    #Fix this: Why cant these be imported at beginning of script???
+    from ..user.models import User
+    from ..radio.models import Station, Network 
+    #incoming gateways associated to stations in my networks
+    incoming_gateways = Gateway.query.with_entities(Gateway, Station.name).join(Gateway.stations_using_for_incoming).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all() 
+    outgoing_gateways = Gateway.query.with_entities(Gateway, Station.name).join(Gateway.stations_using_for_outgoing).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
+    q = outgoing_gateways[0][1]
 
-    return render_template('telephony/gateways.html', active='gateways', gateways=gateways)
+    return render_template('telephony/gateways.html', active='gateways', incoming_gateways=incoming_gateways, outgoing_gateways=outgoing_gateways, q=q)
