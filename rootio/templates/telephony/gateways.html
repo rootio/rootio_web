@@ -7,18 +7,32 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
+                <th>{{ _('Direction') }}</th>
+                <th>{{ _('Station') }}</th>
                 <th>{{ _('Number') }}</th>
                 <th>{{ _('String') }}</th>
             </tr>
         </thead>
         <tbody>
-        {% for gateway in gateways %}
+        {% for gateway in incoming_gateways %}
         <tr>
-            <td>{{ gateway.name }}</td>
-            <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
-            <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
+            <td>{{ gateway[0].name }}</td>
+            <td>{{ _('Incoming') }}</td>
+            <td>{{ gateway[1] }}</td>
+            <td>{{ gateway[0].number_top }} / {{ gateway[0].number_bottom }}</td>
+            <td>{{ gateway[0].sofia_string }} {{ gateway[0].extra_string }}</td>
         </tr>
         {% endfor %}
+        {% for gateway in outgoing_gateways %}
+        <tr>
+            <td>{{ gateway[0].name }}</td>
+            <td>{{ _('Outgoing') }}</td>
+            <td>{{ gateway[1] }}</td>
+            <td>{{ gateway[0].number_top }} / {{ gateway[0].number_bottom }}</td>
+            <td>{{ gateway[0].sofia_string }} {{ gateway[0].extra_string }}</td>
+        </tr>
+        {% endfor %}
+
         </tbody>
     </table>
 </div>
