@@ -56,7 +56,7 @@ class StationForm(StationFormBase):
     field_order = ('network','name','location','timezone','*')
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port','community_content','community_menu'])
 class StationTelephonyForm(StationTelephonyFormBase):
     submit = SubmitField(_('Save'))
     
