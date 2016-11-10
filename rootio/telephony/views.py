@@ -14,13 +14,10 @@ telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])
 def index():
-    from rootio.radio.models import Station
-    #ugh, circular imports...
-
-    stations = Station.query.all()
-    #TODO, limit to currently logged in user's view
-
-    return render_template('telephony/index.html',stations=stations)
+    #Fix this: Re-write this using ORM
+    summary_query = 'select radio_station.name "station", count(telephony_message) "messages", count(telephony_call) "calls", count(radio_incominggateway) "incoming_gateways", count(radio_outgoinggateway) "outgoing_gateways" from radio_station left outer join telephony_message on radio_station.id = telephony_message.id left outer join telephony_call on radio_station.id = telephony_call.station_id left outer join radio_incominggateway on radio_station.id = radio_incominggateway.station_id left outer join radio_outgoinggateway on radio_station.id = radio_outgoinggateway.station_id join radio_network on radio_station.network_id = radio_network.id join radio_networkusers on radio_network.id = radio_networkusers.network_id join user_user on radio_networkusers.user_id = user_user.id group by "station"'
+    station_summary = db.session.execute(summary_query)
+    return render_template('telephony/index.html',station_summary=station_summary)
 
 
 @telephony.route('/phonenumber/', methods=['GET'])
