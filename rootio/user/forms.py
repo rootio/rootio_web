@@ -61,14 +61,13 @@ class ProfileCreateForm(ProfileCreateFormBase):
         if field.data != self.password1.data:
             raise ValidationError("The Passwords Don't Match")
 
-
 ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
 class ProfileForm(ProfileFormBase):
     multipart = True
     next = HiddenField()
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
-    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    #role_code = RadioField(_("Role")) #, [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in role_codes().items()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
@@ -79,8 +78,15 @@ class ProfileForm(ProfileFormBase):
     bio = TextAreaField(u'Bio', [Length(max=1024)])
     submit = SubmitField(u'Save')
 
-    def set_edit(self, is_edit):
-        self.is_edit = is_edit
+    def get_role_codes(self, role_code):
+        if role_code == 0:
+            roles = USER_ROLE
+        elif role_code == 3:
+            roles = {k: v for k, v in USER_ROLE.items() if k in ('2','3')}
+        elif role_code == 1:
+            roles = USER_ROLE[1:2]
+        self.role_code = RadioField(_("Role"), [AnyOf([str(val) for val in roles.keys()])], choices=[(str(val), label) for val, label in roles.items()])
+
 
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
