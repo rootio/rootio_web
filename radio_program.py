@@ -21,6 +21,7 @@ class RadioProgram:
     
     def __init__(self, db, program, radio_station):
         self.__program_actions = []
+        self.__status = True
         self.id = program.id
         self.db = db
         self.name = program.id
@@ -34,46 +35,45 @@ class RadioProgram:
     '''
     Starts a station program and does the necessary preparations
     '''
+    '''
     def start(self):
         self.__load_program_actions()
         self.__schedule_program_actions()
         self.__scheduler.start()
         return
+    '''
     
+    def start(self):
+        self.__load_program_actions()
+        self.__run_program_action() #will call the next one when done 
+        return
+    
+
+
+ 
     '''
     Load the definition of components of the program from a JSON definition
     '''
     def __load_program_actions(self):
         print self.scheduled_program.program.description
         data = json.loads(self.scheduled_program.program.structure) 
-        for category in data:
-            if category == "Jingle":
-                for action in data[category]:
-                    self.__program_actions.append(JingleAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
-                    print "Jingle scheduled to start at " + str(record["start_time"])
-            if category == "Media":
-                for action in data[category]:
-                    self.__program_actions.append(MediaAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
-                    print "Media Scheduled to start at " + str(action["start_time"])
-            if category == "Interlude":
-                for action in data[category]:
-                    self.__program_actions.append(InterludeAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
-                    print "Interlude Scheduled to start at " + str(action["start_time"])
-            if category == "Stream":
-                #self.__program_actions.add(JingleAction(j['argument']))
+        for action in data:
+            if action['type'] == "Jingle":
+                self.__program_actions.append(JingleAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
+            if action['type'] == "Media":
+                self.__program_actions.append(MediaAction(action["track_id"], action["start_time"], action["duration"], self))
+            if action['type'] == "Community":
+                self.__program_actions.append(InterludeAction(action["category_id"], action["start_time"], action["duration"], self))
+            if action['type'] == "Stream":
                 print "Stream would have started here"
-            if category == "Music":
-                #self.__program_actions.add(MediaAction(j['argument']))
+            if action['type'] == "Music":
                 print "This would have started here"
-            if category == "News":
-                for action in data[category]:
-                    track = self.db.query(ContentTrack).filter(ContentTrack.id == action["argument"]).first()
-                    self.__program_actions.append(NewsAction(track, action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
-                    print "News Scheduled to start at " + str(action["start_time"])
-            if category == "Outcall":
-                for action in data[category]:
-                    print "Call to host scheduled to start at " + str(action["start_time"])
-                    self.__program_actions.append(OutcallAction(action['argument'],action["start_time"], action['duration'], action['is_streamed'], action['warning_time'],self, action["hangup_on_complete"]) )    
+            if action['type'] == "News":
+                self.__program_actions.append(NewsAction(action["track_id"], action["start_time"], action["duration"], self))
+                print "News Scheduled to start at " + str(action["start_time"])
+            if action['type'] == "Outcall":
+                print "Call to host scheduled to start at " + str(action["start_time"])
+                self.__program_actions.append(OutcallAction(action['host_id'],action["start_time"], action['duration'], self))    
         return
     
     '''
@@ -82,7 +82,8 @@ class RadioProgram:
     def __schedule_program_actions(self):
         for program_action in self.__program_actions:
             self.__scheduler.add_date_job(getattr(program_action,'start'), self.__get_start_datetime(program_action.start_time).replace(tzinfo=None), misfire_grace_time=program_action.duration)
-         
+    
+    
     def set_running_action(self, running_action):
         if not self.__running_action == None:
             self.__running_action.stop()#clean up any stuff that is not necessary anymore
@@ -91,12 +92,19 @@ class RadioProgram:
     def log_program_activity(self, program_activity):
         self.__rootio_mail_message.append_to_body('%s %s' % (datetime.now().strftime('%y-%m-%d %H:%M:%S'),program_activity))
         pass
+
+    def __run_program_action(self):
+       self.__program_actions.pop().start() 
        
-    def notify_program_action_stopped(self, program_action):
-        if program_action in self.__program_actions:
-            self.__program_actions.remove(program_action)
-            if len(self.__program_actions) == 0: #all program actions have run
-                self.__send_program_summary()
+    def notify_program_action_stopped(self, played_successfully, call_uuid): #the next action might need the call.
+        self.__status = self.__status and played_successfully
+        if len(self.__program_actions) == 0: #all program actions have run
+            if call_uuid != None:
+                self.radio_station.call_handler.hangup(call_uuid) 
+            self.__log_program_status()
+            self.__send_program_summary()
+        else:
+            self.__run_program_action()
 
     def __send_program_summary(self):
         self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.scheduled_program.program.name))
@@ -105,7 +113,13 @@ class RadioProgram:
         for user in users:
             self.__rootio_mail_message.add_to_address(user.email)
         self.__rootio_mail_message.send_message()
- 
+
+    def __log_program_status(self):
+        self.db._model_changes = {}
+        self.scheduled_program.status = self.__status
+        self.db.add(self.scheduled_program)
+        self.db.commit() 
+
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
         return station_users

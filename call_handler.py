@@ -126,7 +126,7 @@ class CallHandler:
     def call(self, program_action, to_number, action, argument, time_limit):
         if to_number in self.__available_calls.keys():
             self.__radio_station.logger.info("Existing call to {0} requested for action on argument '{1}, being returned".format(to_number, argument))
-            #program_action.notify_call_answered(self.__available_calls[to_number])
+            program_action.notify_call_answered(self.__available_calls[to_number])
             return True
         else:
             self.__radio_station.logger.info("GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
