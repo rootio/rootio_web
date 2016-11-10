@@ -6,11 +6,14 @@ from flask import current_app, request, flash, Blueprint, render_template, send_
 from flask import current_app as APP
 from flask.ext.login import login_required, current_user
 
+from wtforms.validators import AnyOf
+from wtforms import RadioField
 from .models import User, UserDetail
 from rootio.decorators import admin_required
 from rootio.user.forms import ProfileForm, ProfileCreateForm
 from rootio.radio.models import Network
 from ..extensions import db
+from .constants import USER_ROLE
 
 
 user = Blueprint('user', __name__, url_prefix='/user')
@@ -80,7 +83,8 @@ def profile(user_id):
                        role_code=user.role_code,
                        status_code=user.status_code,
                        next=request.args.get('next'))
-    form.set_edit(edit)
+    form.role_code = RadioField("Role" , [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    #form.get_role_codes(3)
     if form.validate_on_submit():
 
         if form.avatar_file.data:
