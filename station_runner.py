@@ -12,12 +12,10 @@ import threading
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-import sys
-sys.path.append('/usr/local/rootio_web')
 
 from radio_station import RadioStation
 from rootio.radio.models import Station
-uri = 'postgresql://postgres:NLPog1986@localhost/rootio'
+from rootio.config import DefaultConfig
 
 
 
@@ -32,7 +30,7 @@ if __name__ == "__main__":
     app_logger.addHandler(hdlr)
     app_logger.setLevel(logging.DEBUG)    
 
-    engine = create_engine(uri)
+    engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
     session = sessionmaker(bind=engine)()
     stations = session.query(Station).all()
     for station in stations:
