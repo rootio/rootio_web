@@ -11,8 +11,8 @@ from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
 from ..radio.forms import PersonForm
 from ..config import DefaultConfig
-from .models import ContentTrack, ContentUploads, CommunityMenu, CommunityContent
-from .forms import ContentTrackForm, ContentUploadForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
+from .models import ContentTrack, ContentUploads, ContentPodcast, ContentPodcastDownload, CommunityMenu, CommunityContent
+from .forms import ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
 
 from ..extensions import db, csrf
 from datetime import datetime
@@ -534,4 +534,50 @@ def community_menu():
         flash(_(form.errors.items()),'error')
 
     return render_template('content/community_menu.html', community_menu=community_menu, form=form)
+
+@content.route('/podcasts/')
+@login_required
+def content_podcasts():
+    #Podcasts in my network
+    content_podcasts = ContentPodcast.query.all()
+    return render_template('content/content_podcasts.html', content_podcasts=content_podcasts)
+
+
+@content.route('/podcasts/<int:content_podcast_id>', methods=['GET', 'POST'])
+@login_required
+def content_podcast(content_podcast_id):
+    content_podcast = ContentPodcast.query.filter_by(id=content_podcast_id).first_or_404()
+    form = ContentPodcastForm(obj=content_podcast, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_podcast)
+
+        db.session.add(content_podcast)
+        db.session.commit()
+        flash(_('Podcast updated'), 'success')
+    return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form)
+
+
+@content.route('/podcasts/add/', methods=['GET', 'POST'])
+@login_required
+def content_podcast_add():
+    form = ContentPodcastForm(request.form)
+    content_podcast = None
+    cleaned_data = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        cleaned_data['created_by'] = current_user.id
+
+        content_podcast = ContentPodcast(**cleaned_data) #create new object from data
+
+        db.session.add(content_podcast)
+        db.session.commit()
+
+        flash(_('Podcastt added.'), 'success')
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+
+    return render_template('content/content_podcast.html', form=form)
 

@@ -1,5 +1,5 @@
 from coaster.sqlalchemy import BaseMixin
-
+from sqlalchemy.sql import func
 from ..utils import STRING_LEN
 from ..extensions import db
 from ..radio import ContentType
@@ -70,3 +70,27 @@ class CommunityContent(BaseMixin, db.Model):
     valid_until = db.Column(db.DateTime(timezone=True))
 
     station = db.relationship(u'Station', backref=db.backref('community_content'))
+
+class ContentPodcast(BaseMixin, db.Model):
+    "Definition of a podcast"
+    __tablename__ = u'content_podcast'
+
+    name = db.Column(db.String(STRING_LEN))
+    uri = db.Column(db.String(200))
+    description = db.Column(db.String(STRING_LEN))
+    ok_to_play = db.Column(db.Boolean)
+    created_by = db.Column(db.ForeignKey('user_user.id'))
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
+class ContentPodcastDownload(BaseMixin, db.Model):
+    "Download of a podcast file"
+    __tablename__ = u'content_podcastdownload'
+
+    file_name = db.Column(db.String(STRING_LEN))
+    duration = db.Column(db.String(10))
+    title = db.Column(db.String(STRING_LEN))
+    summary = db.Column(db.String(STRING_LEN))
+    podcast_id = db.Column(db.ForeignKey('content_podcast.id'))
+    date_downloaded = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
