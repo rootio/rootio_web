@@ -32,24 +32,10 @@ class RadioProgram:
         self.__rootio_mail_message = RootIOMailMessage()
         return
         
-    '''
-    Starts a station program and does the necessary preparations
-    '''
-    '''
-    def start(self):
-        self.__load_program_actions()
-        self.__schedule_program_actions()
-        self.__scheduler.start()
-        return
-    '''
-    
     def start(self):
         self.__load_program_actions()
         self.__run_program_action() #will call the next one when done 
         return
-    
-
-
  
     '''
     Load the definition of components of the program from a JSON definition
@@ -96,11 +82,11 @@ class RadioProgram:
     def __run_program_action(self):
        self.__program_actions.pop().start() 
        
-    def notify_program_action_stopped(self, played_successfully, call_uuid): #the next action might need the call.
+    def notify_program_action_stopped(self, played_successfully, call_info): #the next action might need the call.
         self.__status = self.__status and played_successfully
         if len(self.__program_actions) == 0: #all program actions have run
-            if call_uuid != None:
-                self.radio_station.call_handler.hangup(call_uuid) 
+            if call_info != None:
+                self.radio_station.call_handler.hangup(call_info['Channel-Call-UUID']) 
             self.__log_program_status()
             self.__send_program_summary()
         else:
