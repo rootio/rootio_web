@@ -7,6 +7,7 @@ __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
 import dateutil.tz
 import json
+from podcast_action import PodcastAction
 from news_action import NewsAction
 from outcall_action import OutcallAction
 from jingle_action import JingleAction
@@ -50,8 +51,8 @@ class RadioProgram:
                 self.__program_actions.append(MediaAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Community":
                 self.__program_actions.append(InterludeAction(action["category_id"], action["start_time"], action["duration"], self))
-            if action['type'] == "Stream":
-                print "Stream would have started here"
+            if action['type'] == "Podcast":
+                self.__program_actions.append(PodcastAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Music":
                 print "This would have started here"
             if action['type'] == "News":
