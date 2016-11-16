@@ -41,7 +41,7 @@ class OutcallAction:
         self.__host = self.__get_host(self.__host_id)
         #self.program.set_running_action(self)
         self.request_host_call()
-        self.__scheduler.start()
+        #self.__scheduler.sptart()
         self.__community_call_UUIDs = dict()
         self.__call_handler.register_for_incoming_calls(self)
         self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
@@ -76,6 +76,7 @@ class OutcallAction:
         if self.__host.phone.raw_number not in self.__available_calls:
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
             self.__inquire_host_readiness()
+            print "host call has been answered"
         else:#This notification is from answering the host call
             self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
             result1 = self.__schedule_warning()
@@ -85,7 +86,7 @@ class OutcallAction:
     def warn_number(self): 
         seconds = self.duration - self.__warning_time
         if self.__host.phone.raw_number in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[self.__host.phone.raw_number]:
-            result = self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/amour/media/call_warning.mp3')
+            result = self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/call_warning.mp3')
             print "result of warning is " + result;
     
     def __pause_call(self):#hangup and schedule to call later
@@ -101,7 +102,7 @@ class OutcallAction:
             #self.hangup_call() #clean this later
 
     def __inquire_host_readiness(self):
-        self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/amour/media/inquire_host_readiness.mp3')
+        self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/jude/inquire_host_readiness.mp3')
 
     def hangup_call(self):  #hangup the ongoing call
         for available_call in self.__available_calls:
@@ -123,18 +124,18 @@ class OutcallAction:
         elif dtmf_digit == "3":#put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/amour/media/incoming_auto_answer.mp3')
+                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/jude/incoming_auto_answer.mp3')
             else:
                 self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/amour/media/incoming_reject.mp3')
+                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/incoming_reject.mp3')
 
         elif dtmf_digit == "4":#disable auto answer, reject and record all incoming calls
             if self.__phone_status != PhoneStatus.QUEUING:
                 self.__phone_status = PhoneStatus.QUEUING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/amour/media/incoming_queued.mp3')
+                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/incoming_queued.mp3')
             else:
                 self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/amour/media/incoming_reject.mp3')
+                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/incoming_reject.mp3')
 
         elif dtmf_digit == "5":#dequeue and call from queue of calls that were rejected
             for caller in self.__interested_participants:  
@@ -169,7 +170,7 @@ class OutcallAction:
                 self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
         elif self.__phone_status == PhoneStatus.QUEUING: #Hangup the phone, call back later
             self.__interested_participants.add(call_info['Caller-ANI'])
-            self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/amour/media/incoming_new_caller.mp3')
+            self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/incoming_new_caller.mp3')
             print self.__interested_participants
             self.__call_handler.hangup(call_info['Channel-Call-UUID'])
 

@@ -13,16 +13,13 @@ from media.community_media import CommunityMedia
 
 class InterludeAction:
     
-    def __init__(self, argument, start_time, duration, is_streamed, program, hangup_on_complete):
-        self.__argument = argument
+    def __init__(self, category_id, duration, program):
+        self.__category_id = category_id
         self.program = program
-        self.start_time = start_time
-        self.duration = duration
         self.__media = []
         self.__media_index = 0
         self.__media_expected_to_stop = False
         self.__call_handler = self.program.radio_station.call_handler
-        self.__hangup_on_complete = hangup_on_complete
         self.program.radio_station.logger.info("Done initning Interlude action for program") 
         
     def start(self):
@@ -32,9 +29,6 @@ class InterludeAction:
             self.__request_call()
         else:
             self.program.radio_station.logger.info("Interlude has 0 actions, station wont be called")
-    
-    def pause(self):
-        self.__pause_media()
     
     def stop(self):
         self.__media_expected_to_stop = True
@@ -59,9 +53,6 @@ class InterludeAction:
         self.program.radio_station.logger.info("Playing media {0} at position {1}".format(self.__media[logical_index], media_index))
         result = self.__call_handler.play(call_UUID, self.__media[logical_index])
         print 'result of play ' + self.__media[logical_index] + ' is ' + result
-    
-    def __pause_media(self): #pause the media in the array
-        pass
     
     def __stop_media(self):  #stop the media being played by the player
         result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__media_index)

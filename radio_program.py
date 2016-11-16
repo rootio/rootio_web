@@ -7,6 +7,7 @@ __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
 import dateutil.tz
 import json
+from community_action import CommunityAction
 from podcast_action import PodcastAction
 from news_action import NewsAction
 from outcall_action import OutcallAction
@@ -50,7 +51,7 @@ class RadioProgram:
             if action['type'] == "Media":
                 self.__program_actions.append(MediaAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Community":
-                self.__program_actions.append(InterludeAction(action["category_id"], action["start_time"], action["duration"], self))
+                self.__program_actions.append(CommunityAction(action["category_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Podcast":
                 self.__program_actions.append(PodcastAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Music":
@@ -81,7 +82,10 @@ class RadioProgram:
         pass
 
     def __run_program_action(self):
-       self.__program_actions.pop().start() 
+       #self.__program_actions.pop().start() 
+       self.__program_actions[0].start()
+       if len(self.__program_actions) > 0:
+           del self.__program_actions[0]
        
     def notify_program_action_stopped(self, played_successfully, call_info): #the next action might need the call.
         self.__status = self.__status and played_successfully

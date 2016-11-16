@@ -3,7 +3,7 @@
 import string
 import sys
 from optparse import OptionParser
-from ESL import *
+from freeswitchESL.ESL import *
 
 def main(argv):
 	
