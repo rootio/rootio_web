@@ -7,6 +7,7 @@ __date__ ="$Nov 20, 2014 3:01:00 PM$"
 
 import dateutil.tz
 import json
+from advertisement_action import AdvertisementAction
 from community_action import CommunityAction
 from podcast_action import PodcastAction
 from news_action import NewsAction
@@ -46,22 +47,20 @@ class RadioProgram:
         print self.scheduled_program.program.description
         data = json.loads(self.scheduled_program.program.structure) 
         for action in data:
-            if action['type'] == "Jingle":
-                self.__program_actions.append(JingleAction(action["argument"], action["start_time"], action["duration"], action["is_streamed"], self, action["hangup_on_complete"]))
+            if action['type'] == "Advertisements":
+                self.__program_actions.insert(0, AdvertisementAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Media":
-                self.__program_actions.append(MediaAction(action["track_id"], action["start_time"], action["duration"], self))
+                self.__program_actions.insert(0, MediaAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Community":
-                self.__program_actions.append(CommunityAction(action["category_id"], action["start_time"], action["duration"], self))
+                self.__program_actions.insert(0, CommunityAction(action["category_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Podcast":
-                self.__program_actions.append(PodcastAction(action["track_id"], action["start_time"], action["duration"], self))
+                self.__program_actions.insert(0, PodcastAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Music":
                 print "This would have started here"
             if action['type'] == "News":
-                self.__program_actions.append(NewsAction(action["track_id"], action["start_time"], action["duration"], self))
-                print "News Scheduled to start at " + str(action["start_time"])
+                self.__program_actions.insert(0, NewsAction(action["track_id"], action["start_time"], action["duration"], self))
             if action['type'] == "Outcall":
-                print "Call to host scheduled to start at " + str(action["start_time"])
-                self.__program_actions.append(OutcallAction(action['host_id'],action["start_time"], action['duration'], self))    
+                self.__program_actions.insert(0, OutcallAction(action['host_id'],action["start_time"], action['duration'], self))    
         return
     
     '''
@@ -82,10 +81,7 @@ class RadioProgram:
         pass
 
     def __run_program_action(self):
-       #self.__program_actions.pop().start() 
-       self.__program_actions[0].start()
-       if len(self.__program_actions) > 0:
-           del self.__program_actions[0]
+       self.__program_actions.pop().start() 
        
     def notify_program_action_stopped(self, played_successfully, call_info): #the next action might need the call.
         self.__status = self.__status and played_successfully
