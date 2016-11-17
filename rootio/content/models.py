@@ -90,7 +90,9 @@ class ContentPodcastDownload(BaseMixin, db.Model):
     file_name = db.Column(db.String(STRING_LEN))
     duration = db.Column(db.String(10))
     title = db.Column(db.String(STRING_LEN))
-    summary = db.Column(db.String(STRING_LEN))
+    summary = db.Column(db.Text())
     podcast_id = db.Column(db.ForeignKey('content_podcast.id'))
+    date_created = db.Column(db.DateTime(timezone=True))
     date_downloaded = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
+    podcast = db.relationship(u'ContentPodcast', backref=db.backref('podcast_downloads'))

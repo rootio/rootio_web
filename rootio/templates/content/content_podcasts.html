@@ -1,0 +1,100 @@
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+    
+    
+    $('#podcastDownloadCount').click(function(e) {
+        var audio_path = '../../audio-content/podcast/' + $(e.target).attr('data-podcast-id')  + '/'
+        var api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
+        $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
+        $.getJSON(api).done(function(data) {
+        $.each( data['objects'], function( key, val ) {
+        $( '#podcastDownloadsTable tr:last').after( "<tr><td>" + val.file_name + "</td><td>" + val.summary + '</td><td><audio controls><source src="'+ audio_path + val.file_name +'" type="audio/mpeg"><source src="'+ audio_path + val.file_name +'" type="audio/ogg"><source src="'+ audio_path + val.file_name +'" type="audio/wav"></audio></td><td>' + val.date_created + '</td></tr>')
+     });
+    });  
+ });
+});
+    </script>
+{% endblock %}
+
+
+{% block body %}
+
+  <div class="modal fade" id="podcastDownloads-modal" tabindex="-1" role="dialog" aria-labelledby="podcastDownloads" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog inline-form" data-url="/radio/scheduleprogram/add/recurring_ajax/" data-prefix="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="podcastDownloadsTitle">{{ _('Add Recurring Program to Schedule') }}</h4>
+        </div>
+        <div class="modal-body">
+          <table id="podcastDownloadsTable" class='table table-bordered table-hover'>
+          <thead>
+            <tr>
+                <th>{{ _('Title') }}</th>
+                <th>{{ _('Summary') }}</th>
+                <th>{{ _('Listen') }}</th>
+                <th>{{ _('Date Created') }}</th>
+            </tr>
+          </thead>
+         </table>
+        </div>
+
+            <div class="modal-footer">
+            </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+<div class="container-fluid">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Podcasts') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.content_podcast_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Podcast name') }}</th>
+                <th>{{ _('Description') }}</th>
+                <th>{{ _('URL') }}</th>
+                <th>{{ _('Downloads') }}</th>
+                <th>{{ _('Edit') }}</th>
+            </tr>
+        </thead>
+        {% for content_podcast in content_podcasts %}
+        <tr>
+            <td>{{ content_podcast.name }}</td>
+            <td>{{ content_podcast.description }}</td>
+            <td>{{ content_podcast.uri }}</td>
+            <td><a href="#" id="podcastDownloadCount" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
+            <td><a href="{{ url_for('content.content_podcast', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td> 
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
