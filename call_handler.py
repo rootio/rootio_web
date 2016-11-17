@@ -157,7 +157,6 @@ class CallHandler:
         self.__radio_station.logger.info("preparing hangup for call with UUID {0}".format(call_UUID))
         hangup_command = 'uuid_kill {}'.format(call_UUID)
         self.__radio_station.logger.info("ordering hangup for call with UUID {0}".format(call_UUID))
-        #self.__ESLConnection.api(hangup_command)
         self.__do_ESL_command(hangup_command) #possibly segfaults
            
     
@@ -238,6 +237,7 @@ class CallHandler:
 
     def __release_gateway(self, event_json):
         #if it was an incoming call
+        print "attempting to release {0} from gateways {1}".format(event_json['Caller-ANI'][-9:], self.__outgoing_gateways.keys())
         if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'][:-9] in self.__outgoing_gateways.keys():
             self.__radio_station.logger.info("Putting back gateway {0} to available gateways {1}".format(event_json['Caller-Destination-Number'][:-9], self.__outgoing_gateways))
             self.__available_outgoing_gateways.append(event_json['Caller-Destination-Number'])
