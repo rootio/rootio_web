@@ -12,7 +12,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
-from ..content.models import ContentTrack
+from ..content.models import ContentTrack, ContentType, ContentPodcast
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
@@ -121,11 +121,13 @@ def program(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
     #form = ProgramForm(obj=program, program_structure="test", next=request.args.get('next'))
 
-    hosts = Person.query.all()
-    news = ContentTrack.query.all()
-    ads = ContentTrack.query.all()
-    medias = ContentTrack.query.all()
-    community_contents = ['ads','announcements','greetings']
+    #hosts in my network
+    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    news = ContentTrack.query.join(ContentType).filter(ContentType.name=="News").all()
+    ads = ContentTrack.query.join(ContentType).filter(ContentType.name=="Advertisements").all()
+    medias = ContentTrack.query.join(ContentType).filter(ContentType.name=="Media").all()
+    podcasts = ContentPodcast.query.all()
+    community_contents = {"data":[{"type":"Ads", "category_id":"1"},{"type":"Announcements", "category_id":"2"},{"type":"Greetings", "category_id":"3"}]}
     
     #render the program structure
     action_names = []
@@ -143,7 +145,7 @@ def program(program_id):
         db.session.commit()
         flash(_('Program updated.'), 'success')
 
-    return render_template('radio/program.html', program=program, hosts=hosts,news=news, ads=ads, medias=medias, community_contents=community_contents,form=form)
+    return render_template('radio/program.html', program=program, hosts=hosts,news=news,podcasts=podcasts, ads=ads, medias=medias, community_contents=community_contents["data"],form=form)
 
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
@@ -151,11 +153,14 @@ def program(program_id):
 def program_add():
     form = ProgramForm(request.form)
     program = None
-    hosts = Person.query.all()
-    news = ContentTrack.query.all()
-    ads = ContentTrack.query.all()
-    medias = ContentTrack.query.all()
-    community_contents = ['ads','announcements','greetings']   
+    
+    #hosts in my network
+    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    news = ContentTrack.query.join(ContentType).filter(ContentType.name=="News").all()
+    ads = ContentTrack.query.join(ContentType).filter(ContentType.name=="Advertisements").all()
+    medias = ContentTrack.query.join(ContentType).filter(ContentType.name=="Media").all()
+    podcasts = ContentPodcast.query.all()
+    community_contents = {"data":[{"type":"Ads", "category_id":"1"},{"type":"Announcements", "category_id":"2"},{"type":"Greetings", "category_id":"3"}]}
 
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
@@ -169,7 +174,7 @@ def program_add():
     elif request.method == "POST":
         flash(_('Validation error'),'error')
 
-    return render_template('radio/program.html', program=program,hosts=hosts,news=news, ads=ads, medias=medias, community_contents=community_contents, form=form)
+    return render_template('radio/program.html', program=program,hosts=hosts,news=news,podcasts=podcasts, ads=ads, medias=medias, community_contents=community_contents["data"], form=form)
 
 @radio.route('/people/', methods=['GET'])
 def people():

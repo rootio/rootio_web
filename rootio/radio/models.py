@@ -393,7 +393,7 @@ class Person(BaseMixin, db.Model):
     phone = db.relationship(u'PhoneNumber', backref=db.backref('person',uselist=False))
     role = db.relationship(u'Role', backref=db.backref('person'))
     languages = db.relationship(u'Language', secondary=u'radio_personlanguage', backref=db.backref('person'))
-    #network_id = db.Column(db.ForeignKey('radio_network.id'))
+    network_id = db.Column(db.ForeignKey('radio_network.id'))
     networks = db.relationship(u'Network', secondary=u'radio_personnetwork', backref=db.backref('people'))
     gender_code = db.Column(db.Integer)
     
