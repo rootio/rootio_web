@@ -8,12 +8,12 @@ __date__ ="$Nov 19, 2014 2:15:22 PM$"
 from freeswitchESL.ESL import *
 from rootio.config import *
 from rootio.telephony import *
-from rootio.telephony.models import Gateway
+from rootio.telephony.models import Gateway, Call
 import threading
 import json
 import time
 from sets import Set
-
+from datetime import datetime
 
 class CallHandler:
     
@@ -46,7 +46,6 @@ class CallHandler:
         ESL_SERVER = self.config.get('ESL_SERVER', '127.0.0.1')
         ESL_PORT = self.config.get('ESL_PORT', 8021)
         ESL_AUTHENTICATION = self.config.get('ESL_AUTHENTICATION', 'ClueCon')
-        print 'ESL config:', ESL_SERVER, ESL_PORT, ESL_AUTHENTICATION
         return ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
 
     def __load_incoming_gateways(self):
@@ -59,7 +58,6 @@ class CallHandler:
             self.__available_incoming_gateways.append(gw.number_bottom)
             self.__available_incoming_gateways.sort()
             self.__radio_station.logger.info("Got incoming gateways for {0} {1}".format(self.__radio_station.station.name, str(self.__available_incoming_gateways)))
-            #self.__available_gateways.reverse()
     
     def __load_outgoing_gateways(self):
         gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(id=self.__radio_station.id).all()
@@ -71,12 +69,10 @@ class CallHandler:
             self.__available_outgoing_gateways.append(gw.number_bottom)
             self.__available_outgoing_gateways.sort()
             self.__radio_station.logger.info("Got outgoing gateways for {0} {1}".format(self.__radio_station.station.name, str(self.__available_outgoing_gateways)))
-            #self.__available_gateways.reverse()
     
     def __do_ESL_command(self, ESL_command):
         self.__radio_station.logger.info("Executing ESL Command: {0}".format(ESL_command))
         con = self.create_esl()
-        #result = self.__ESLConnection.api(ESL_command)
         result = con.api(ESL_command)
         try:
             con.disconnect()
@@ -199,15 +195,22 @@ class CallHandler:
                         self.__incoming_dtmf_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_incoming_dtmf(event_json)
     
                 elif event_name == "CHANNEL_HANGUP":
-                    if 'Caller-Destination-Number' in event_json and str(event_json['Caller-Destination-Number'])[-10:] in self.__call_hangup_recipients:
-                        print 'notifying recipient for {0} in {1}'.format(str(event_json['Caller-Destination-Number'])[-10:], str(event_json['Caller-Destination-Number'])[-10:])
-                        self.__call_hangup_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_call_hangup(event_json)
-                    #remove the call from the list of available calls
-                    if 'Caller-Destination-Number' in event_json and str(event_json['Caller-Destination-Number'])[-10:] in self.__available_calls:
-                        self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(str(event_json['Caller-Destination-Number'])[-10:],  self.__available_calls.keys()))
-                        del self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]]
-                        self.__release_gateway(event_json)
-                    if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
+                    loggable = False
+                    if 'Caller-Destination-Number' in event_json:
+                        if str(event_json['Caller-Destination-Number'])[-10:] in self.__call_hangup_recipients:
+                            self.__call_hangup_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_call_hangup(event_json)
+                            loggable = True
+                        #remove the call from the list of available calls
+                        if str(event_json['Caller-Destination-Number'])[-10:] in self.__available_calls:
+                            self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(str(event_json['Caller-Destination-Number'])[-10:],  self.__available_calls.keys()))
+                            del self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]]
+                            self.__release_gateway(event_json)
+                            loggable = True
+                        #log the call
+                        if loggable:
+                            self.__log_call(event_json)            
+       
+                    if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
                         del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
               
                 elif event_name == "CHANNEL_PARK":
@@ -234,6 +237,18 @@ class CallHandler:
         record_command = "uuid_record {0} start '/home/amour/test_media/RootioNew/Northern Uganda Pilot/Luo_Recordings/Call_Recordings/{1}_{2}_{3}_recording.wav'".format(call_UUID, from_number, destination_number, time.strftime("%Y_%m_%d_%H_%M_%S"))
         self.__radio_station.logger.info("setting up recording for call with UUID {0}".format(call_UUID))
         result = self.__do_ESL_command(record_command)
+
+    def __log_call(self, event_json):
+        call = Call()
+        call.call_uuid = event_json['Channel-Call-UUID']
+        call.start_time = datetime.fromtimestamp(float(event_json['Caller-Channel-Answered-Time'][0:-6]))
+        call.duration = (datetime.fromtimestamp(float(event_json['Event-Date-Timestamp'][0:-6])) - call.start_time).seconds
+        call.from_phonenumber = event_json['Caller-ANI']
+        call.to_phonenumber = event_json['Caller-Destination-Number']
+        call.station_id = self.__radio_station.station.id
+        self.__radio_station.db._model_changes = {}
+        self.__radio_station.db.add(call)
+        self.__radio_station.db.commit()
 
     def __release_gateway(self, event_json):
         #if it was an incoming call
