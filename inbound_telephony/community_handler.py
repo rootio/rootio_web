@@ -3,7 +3,7 @@ import os
 from rootio.config import DefaultConfig
 from rootio.content.models import CommunityMenu, CommunityContent
 from rootio.radio.models import Station
-from rootio.telephony.models import PhoneNumber
+from rootio.telephony.models import PhoneNumber, Call
 from freeswitch import *
 from datetime import datetime, timedelta
 from ofs.local import PTOFS
@@ -59,12 +59,11 @@ def get_filename(from_number):
 def confirmation(session, prompt, filename,duration, validity, station_id, category, db):
     action = confirm_action(session, prompt)
     if action == None or action == '':
-        session.hangup()
         return
     #Listening to the message
     if action == '1':
         play_back_recording(session, filename, station_id, category)
-        confirmation(session, prompt, filename, validity, station_id, category, db)
+        confirmation(session, prompt, filename, duration, validity, station_id, category, db)
     #saving the message
     elif action == '2':
         content = CommunityContent()
@@ -86,10 +85,25 @@ def get_db_connection():
     engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
     return sessionmaker(bind=engine)()
 
+def log_call(start_time, db, session, station_id):
+    call = Call()
+    call.call_uuid = session.getVariable('uuid')
+    call.start_time = start_time
+    call.duration = (datetime.utcnow() - start_time).seconds
+    call.from_phonenumber = session.getVariable('caller_id_number')
+    call.to_phonenumber = session.getVariable('destination_number')
+    call.station_id = station_id
+    db._model_changes = {}
+    db.add(call)
+    db.commit()
+
+def finish(answer_time, db, session, station_id):
+    log_call(answer_time, db, session, station_id)
+    session.hangup()
 
 def handler(session, args):
     session.answer()
-    session.consoleLog("info", DefaultConfig.SQLALCHEMY_DATABASE_URI)
+    answer_time = datetime.utcnow()
     session.set_tts_params("flite", "kal")
     
     db = get_db_connection()
@@ -102,15 +116,16 @@ def handler(session, args):
     session.consoleLog("info", str(community_menu.message_type_prompt))
     message_category = get_message_category(session, community_menu.message_type_prompt)
     if message_category == None or message_category == '':
-        session.hangup()
+        finish(answer_time, db, session, station.id)
         return
     if message_category == '3': #greetings have a duration of one day
         validity_days = '1'
     else:     
         validity_days = get_validity(session, community_menu.days_prompt)
     if validity_days == None or validity_days == '':
-        session.hangup()
+        finish(answer_time, db, session, station.id)
         return
     filename = get_filename(session.getVariable('caller_id_number'))
     duration = record_message(session, community_menu.record_prompt, filename, community_menu.station_id, message_category)
     confirmation(session, community_menu.finalization_prompt, filename, duration, validity_days, community_menu.station_id,  message_category, db) 
+    finish(answer_time, db, session, station.id)
