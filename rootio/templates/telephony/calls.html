@@ -8,8 +8,8 @@
         <thead>
             <tr>
                 <th>{{ _('UUID') }}</th>
-                <th>{{ _('Start') }}</th>
-                <th>{{ _('End') }}</th>
+                <th>{{ _('Start Time') }}</th>
+                <th>{{ _('Duration') }}</th>
                 <th>{{ _('From') }}</th>
                 <th>{{ _('To') }}</th>
                 <th>{{ _('Station') }}</th>
@@ -18,12 +18,12 @@
         <tbody>
         {% for call in calls %}
         <tr>
-            <td>{{ call.call_uuid }}</td>
-            <td>{{ call.start_time }}</td>
-            <td>{{ call.end_time }}</td>
-            <td>{{ call.from_phonenumber }}</td>
-            <td>{{ call.to_phonenumber }}</td>
-	        <td>{{ call.station_id }}</td>
+            <td>{{ call[0].call_uuid }}</td>
+            <td>{{ call[0].start_time }}</td>
+            <td>{{ call[0].duration }} {{_('Secs.') }}</td>
+            <td>{{ call[0].from_phonenumber }}</td>
+            <td>{{ call[0].to_phonenumber }}</td>
+	        <td>{{ call[1] }}</td>
         </tr>
         {% endfor %}
         </tbody>
