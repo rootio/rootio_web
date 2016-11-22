@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 from pytz import timezone
 import dateutil.rrule, dateutil.parser
+from sqlalchemy import select
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
 from flask.ext.login import login_required, current_user
