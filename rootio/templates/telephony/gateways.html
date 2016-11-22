@@ -89,7 +89,9 @@
             <td>{{ gateway[1] }}</td>
             <td>{{ gateway[0].number_top }} / {{ gateway[0].number_bottom }}</td>
             <td>{{ gateway[0].sofia_string }} {{ gateway[0].extra_string }}</td>
-            <td><a href="#" id="creditCheckLink{{ gateway[0].id }}" data-gateway-data="{{ gateway[0].number_bottom }}" data-gateway-id="{{ gateway[0].id }}" data-toggle="modal" data-target="#creditCheck-modal">{{ _('Check credit') }}</a></td>
+            <td>
+              {% if gateway[0].is_goip %}
+                <a href="#" id="creditCheckLink{{ gateway[0].id }}" data-gateway-data="{{ gateway[0].number_bottom }}" data-gateway-id="{{ gateway[0].id }}" data-toggle="modal" data-target="#creditCheck-modal">{{ _('Check credit') }}{% endif %}</a></td>
         </tr>
         {% endfor %}
 
