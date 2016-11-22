@@ -1,4 +1,4 @@
-{% extends "radio/layout.html" %}
+{% extends "content/layout.html" %}
 
 {% block css_style %}
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
@@ -25,14 +25,18 @@
     $(document).ready(function() {
     
     
-    $('#podcastDownloadCount').click(function(e) {
+    $('[id^=podcastDownloadCount]').click(function(e) {
         var audio_path = '../../audio-content/podcast/' + $(e.target).attr('data-podcast-id')  + '/'
         var api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
         $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
+        $( '#podcasts tbody').html('')
         $.getJSON(api).done(function(data) {
         $.each( data['objects'], function( key, val ) {
-        $( '#podcastDownloadsTable tr:last').after( "<tr><td>" + val.file_name + "</td><td>" + val.summary + '</td><td><audio controls><source src="'+ audio_path + val.file_name +'" type="audio/mpeg"><source src="'+ audio_path + val.file_name +'" type="audio/ogg"><source src="'+ audio_path + val.file_name +'" type="audio/wav"></audio></td><td>' + val.date_created + '</td></tr>')
-     });
+        $( '#podcasts tbody').html($( '#podcasts tbody').html() + "<tr><td>" + val.file_name + "</td><td>" + val.summary + '</td><td><audio controls><source src="'+ audio_path + val.file_name +'" type="audio/mpeg"><source src="'+ audio_path + val.file_name +'" type="audio/ogg"><source src="'+ audio_path + val.file_name +'" type="audio/wav"></audio></td><td>' + val.date_created + '</td></tr>')
+         });
+        $('#podcasts').DataTable({
+               searching: true, bRetrieve: true
+      });
     });  
  });
 });
@@ -49,8 +53,8 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title" id="podcastDownloadsTitle">{{ _('Add Recurring Program to Schedule') }}</h4>
         </div>
-        <div class="modal-body">
-          <table id="podcastDownloadsTable" class='table table-bordered table-hover'>
+        <div class="modal-body" style="font-size:12px;">
+          <table id="podcasts" class='table table-bordered table-hover'>
           <thead>
             <tr>
                 <th>{{ _('Title') }}</th>
@@ -59,6 +63,8 @@
                 <th>{{ _('Date Created') }}</th>
             </tr>
           </thead>
+          <tbody>
+          </tbody>
          </table>
         </div>
 
@@ -91,7 +97,7 @@
             <td>{{ content_podcast.name }}</td>
             <td>{{ content_podcast.description }}</td>
             <td>{{ content_podcast.uri }}</td>
-            <td><a href="#" id="podcastDownloadCount" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
+            <td><a href="#" id="podcastDownloadCount{{ content_podcast.id }}" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
             <td><a href="{{ url_for('content.content_podcast', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td> 
         </tr>
         {% endfor %}
