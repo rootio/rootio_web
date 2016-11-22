@@ -120,6 +120,18 @@ class Station(BaseMixin, db.Model):
         #init state machine
         return "init() stub"
 
+    def successful_scheduled_programs(self):
+        now = datetime.utcnow()
+        return ScheduledProgram.before(now).filter(ScheduledProgram.station_id==self.id).filter(ScheduledProgram.status==True).filter(ScheduledProgram.deleted==False).all()
+  
+    def unsuccessful_scheduled_programs(self):
+        now = datetime.utcnow()
+        return ScheduledProgram.before(now).filter(ScheduledProgram.station_id==self.id).filter(ScheduledProgram.status==False).filter(ScheduledProgram.deleted==False).all()
+
+    def scheduled_programs(self):
+        now = datetime.utcnow()
+        return ScheduledProgram.after(now).filter(ScheduledProgram.deleted==False).all()
+
     def current_program(self):
         now = datetime.utcnow()
         programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
@@ -128,7 +140,13 @@ class Station(BaseMixin, db.Model):
 
     def next_program(self):
         now = datetime.utcnow()
-        upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id)
+        upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id).order_by(ScheduledProgram.start.asc())
+        #TODO, how to resolve overlaps?
+        return upcoming_programs.first()
+
+    def previous_program(self):
+        now = datetime.utcnow()
+        upcoming_programs = ScheduledProgram.before(now).filter_by(station_id=self.id).order_by(ScheduledProgram.start.desc())
         #TODO, how to resolve overlaps?
         return upcoming_programs.first()
 
@@ -267,6 +285,10 @@ class Program(BaseMixin, db.Model):
 
     def __unicode__(self):
         return self.name
+
+    def episodes_aired(self):
+        now = datetime.utcnow()
+        return ScheduledProgram.before(now).filter(ScheduledProgram.program_id==self.id).filter(ScheduledProgram.status==True).filter(ScheduledProgram.deleted==False).all()
 
 
 class Episode(BaseMixin, db.Model):

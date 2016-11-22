@@ -13,7 +13,7 @@
                 <th>{{ _('Name') }}</th>
                 <th>{{ _('Duration') }}</th>
                 <th>{{ _('Language') }}</th>
-                <th>{{ _('Last Episode') }}</th>
+                <th>{{ _('Episodes Aired') }}</th>
                 <th>{{ _('Edit') }}</th>
             </tr>
         </thead>
@@ -23,7 +23,7 @@
             <td>{{ program.name }}</td>
             <td>{{ program.duration }}</td>
             <td>{{ program.language }}</td>
-            <td>{{ program.last_episode }}</td>
+            <td>{{ program.episodes_aired()|length }}</td>
             <td><a href="{{ url_for('radio.program',program_id=program.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
