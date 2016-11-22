@@ -7,7 +7,7 @@
     <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>{{ _('UUID') }}</th>
+                <th>{{ _('Station') }}</th>
                 <th>{{ _('Sendtime') }}</th>
                 <th>{{ _('Text') }}</th>
                 <th>{{ _('From') }}</th>
@@ -17,11 +17,11 @@
         <tbody>
         {% for message in messages %}
         <tr>
-            <td>{{ message.message_uuid }}</td>
-            <td>{{ message.sendtime }}</td>
-            <td>{{ message.text }}</td>
-            <td>{{ message.from_phonenumber }}</td>
-            <td>{{ message.to_phonenumber }}</td>
+            <td>{{ message[1] }}</td>
+            <td>{{ message[0].sendtime }}</td>
+            <td>{{ message[0].text }}</td>
+            <td>{{ message[0].from_phonenumber }}</td>
+            <td>{{ message[0].to_phonenumber }}</td>
         </tr>
         {% endfor %}
         </tbody>

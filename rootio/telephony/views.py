@@ -85,16 +85,16 @@ def phonenumber_add_inline():
 @telephony.route('/calls/', methods=['GET'])
 def calls():
     from ..radio.models import Station, Network
-    recent_calls = Call.query.join(Station).with_entities(Call, Station.name).all()
+    recent_calls = Call.query.with_entities(Call, Station.name).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
     #todo, paginate?
 
     return render_template('telephony/calls.html', active='calls', calls=recent_calls)
 
 @telephony.route('/messages/', methods=['GET'])
 def messages():
-    recent_messages = Message.query.all()
-    #todo, paginate?
-
+    from ..user.models import User
+    from ..radio.models import Station, Network
+    recent_messages = Message.query.with_entities(Message, Station.name).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
     return render_template('telephony/messages.html', active='messages', messages=recent_messages)
 
 @telephony.route('/gateways/', methods=['GET'])
