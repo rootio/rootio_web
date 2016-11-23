@@ -6,7 +6,6 @@ from ..extensions import db
 from .constants import PHONE_NUMBER_TYPE
 from ..utils import STRING_LEN
 
-#from ..radio.models import Station
     
 
 from coaster.sqlalchemy import BaseMixin
@@ -42,7 +41,7 @@ class Call(BaseMixin, db.Model):
     Defined here for easy readability by the web server, but should not be written to in this process."""
     __tablename__ = u'telephony_call'
     #import Station
-    #from ..radio.models import Station
+    #from rootio.radio.models import Station
     # circular imports...
     
     call_uuid = db.Column(db.String(100))
@@ -56,7 +55,7 @@ class Call(BaseMixin, db.Model):
     onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
     
     #todo: add station relationship
-    #station = db.relationship(u'Station')
+    #station = db.relationship(u'rootio.radio.models.Station')
    
 
 

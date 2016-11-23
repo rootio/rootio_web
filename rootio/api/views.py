@@ -8,6 +8,7 @@ from .utils import parse_datetime
 from ..extensions import db, rest, csrf
 
 from ..user import User
+from ..content import ContentPodcast
 from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
@@ -346,3 +347,12 @@ def program_episodes(program_id):
             abort(make_response(message, 400)) 
     else:
         return episodes.all()
+
+@api.route('/podcast/<int:podcast_id>/downloads', methods=['GET', 'POST'])
+@api_key_or_auth_required
+@returns_json
+def podcast_downloads(podcast_id):
+    """API method to get all episodes currently available for a program"""
+    podcast = ContentPodcast.query.filter_by(id=podcast_id).first_or_404()
+    downloads = podcast.podcast_downloads
+    return downloads

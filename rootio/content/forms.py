@@ -33,7 +33,7 @@ def adds_tracks():
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()    
 
 def streams_tracks():
-    content_type = ContentType.query.filter(ContentType.name=='Stream').first()
+    content_type = ContentType.query.filter(ContentType.name=='Streams').first()
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all() 
 
 def musics_tracks():
@@ -88,3 +88,10 @@ class CommunityMenuForm(Form):
     finalization_prompt = FileField('Finalization prompt')
     goodbye_message = FileField('Goodbye message')
     submit = SubmitField(_('Save'))
+
+class ContentPodcastForm(Form):
+    name = StringField('Name of the stream')
+    uri = StringField('URL')
+    description = TextAreaField('Description')
+    submit = SubmitField(_('Save'))
+
