@@ -4,7 +4,7 @@ import json
 import flask
 import pytz
 from .user.models import User
-from .radio.models import Station, Program, ScheduledProgram
+from .radio.models import Network, Station, Program, ScheduledProgram
 from .telephony.models import PhoneNumber, Gateway
 from .telephony.constants import MOBILE
 
@@ -13,6 +13,7 @@ MEDIA_PREFIX = Path(app.config['MEDIA_PREFIX'])
 
 PHONE_NUMBER = '1007'
 GATEWAY_NAME = 'Internal 4000'
+NETWORK_NAME = "Testy network"
 STATION_NAME = "Testy sounds"
 PROGRAM_NAME = "BBC Africa Today"
 PROGRAM_DURATION = 40
@@ -53,12 +54,19 @@ def setup(db, schedule):
         )
         db.session.add(gateway)
 
+    network = Network.query.filter_by(name=NETWORK_NAME).first()
+    if network is None:
+        network = Network(
+            name=NETWORK_NAME,
+        )
+
     station = Station.query.filter_by(name=STATION_NAME).first()
     if station is None:
         station = Station(
             name=STATION_NAME,
             about="This is a station used only for test purposes",
             frequency='103.8',
+            network=network,
             timezone='Africa/Abidjan',
             owner=admin,
             transmitter_phone=phone,
