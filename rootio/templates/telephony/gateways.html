@@ -1,24 +1,100 @@
 {% extends "telephony/layout.html" %}
 
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+    
+    
+    $('[id^=creditCheckLink]').click(function(e) {
+        $('#credit').html('<img id="theImg" src="/static/img/loading-bar.gif" />')
+        var api = '/telephony/check_credit/' + $(e.target).attr('data-gateway-id')
+        $('#creditCheckTitle').html('Credit on line '+ $(e.target).attr('data-gateway-data'))
+        $.get(api).done(function(data) {
+        $( '#credit').html(data)
+    });  
+ });
+});
+    </script>
+{% endblock %}
+
+
 {% block body %}
+
+  <div class="modal fade" id="creditCheck-modal" tabindex="-1" role="dialog" aria-labelledby="creditCheck" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog inline-form" data-url="/radio/scheduleprogram/add/recurring_ajax/" data-prefix="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="creditCheckTitle">{{ _('Add Recurring Program to Schedule') }}</h4>
+        </div>
+        <div class="modal-body" style="font-size:12px;">
+          <span id="credit">
+         </span>
+        </div>
+
+            <div class="modal-footer">
+            </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+                                
+
 <div class="container">
     <h2 class="pull-left">{{ _('Gateways') }}</h2>
     <table id="datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
+                <th>{{ _('Direction') }}</th>
+                <th>{{ _('Station') }}</th>
                 <th>{{ _('Number') }}</th>
                 <th>{{ _('String') }}</th>
+                <th>{{ _('Check credit') }}</th>
             </tr>
         </thead>
         <tbody>
-        {% for gateway in gateways %}
+        {% for gateway in incoming_gateways %}
         <tr>
-            <td>{{ gateway.name }}</td>
-            <td>{{ gateway.number_top }} / {{ gateway.number_bottom }}</td>
-            <td>{{ gateway.sofia_string }} {{ gateway.extra_string }}</td>
+            <td>{{ gateway[0].name }}</td>
+            <td>{{ _('Incoming') }}</td>
+            <td>{{ gateway[1] }}</td>
+            <td>{{ gateway[0].number_top }} / {{ gateway[0].number_bottom }}</td>
+            <td>{{ gateway[0].sofia_string }} {{ gateway[0].extra_string }}</td>
         </tr>
         {% endfor %}
+        {% for gateway in outgoing_gateways %}
+        <tr>
+            <td>{{ gateway[0].name }}</td>
+            <td>{{ _('Outgoing') }}</td>
+            <td>{{ gateway[1] }}</td>
+            <td>{{ gateway[0].number_top }} / {{ gateway[0].number_bottom }}</td>
+            <td>{{ gateway[0].sofia_string }} {{ gateway[0].extra_string }}</td>
+            <td>
+              {% if gateway[0].is_goip %}
+                <a href="#" id="creditCheckLink{{ gateway[0].id }}" data-gateway-data="{{ gateway[0].number_bottom }}" data-gateway-id="{{ gateway[0].id }}" data-toggle="modal" data-target="#creditCheck-modal">{{ _('Check credit') }}{% endif %}</a></td>
+        </tr>
+        {% endfor %}
+
         </tbody>
     </table>
 </div>

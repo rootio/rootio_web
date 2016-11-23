@@ -84,7 +84,7 @@
                 <li id="draggable" class='external-event'
                   data-new-id="{{new.id}}"
                   data-name="{{new.name}}"
-                  data-json='{"name":"{{new.name}}","type":"News","track_id":{{new.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  data-json='{"name":"{{new.name}}","type":"News","track_id":{{new.id}}, "start_time":"00:00:02","duration": 1200 }'>
                   {{new.name}}
                 </li>
                {%endfor%}
@@ -97,7 +97,7 @@
                 <li id="draggable" class='external-event'
                   data-new-id="{{ad.id}}"
                   data-name="{{ad.name}}"
-                  data-json='{"name":"{{ad.name}}","type":"Advertisements","track_id":{{ad.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>{{ad.name}}
+                  data-json='{"name":"{{ad.name}}","type":"Advertisements","track_id":{{ad.id}}, "start_time":"00:00:02","duration": 1200 }'>{{ad.name}}
                 </li>
                {%endfor%}
              </ul>
@@ -109,20 +109,36 @@
                 <li id="draggable" class='external-event'
                   data-new-id="{{media.id}}"
                   data-name="{{media.name}}"
-                  data-json='{"name":"{{media.name}}","type":"Media","track_id":{{media.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  data-json='{"name":"{{media.name}}","type":"Media","track_id":{{media.id}}, "start_time":"00:00:02","duration": 1200 }'>
                   {{media.name}}
                 </li>
                {%endfor%}
              </ul>
              </div>
+
+             <div id='addable-programs' class="addables-holder">
+             <h4>{{ _('Podcasts') }}</h4>
+             <ul>
+               {% for podcast in podcasts %}
+                <li id="draggable" class='external-event'
+                  data-new-id="{{podcast.id}}"
+                  data-name="{{podcast.name}}"
+                  data-json='{"name":"{{podcast.name}}","type":"Podcast","track_id":{{podcast.id}}, "start_time":"00:00:02","duration": 1200 }'>
+                  {{podcast.name}}
+                </li>
+               {%endfor%}
+             </ul>
+             </div>
+
+
              <div id='addable-programs' class="addables-holder">
              <h4>{{ _('Commmunity') }}</h4>
              <ul>
                {% for community_content in community_contents %}
                 <li id="draggable" class='external-event'
-                  data-name="{{community_content}}"
-                  data-json='{"name":"{{ community_content }}","type":"Community", "category_id":"{{community_content}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
-                  {{community_content}}
+                  data-name="{{community_content.type}}"
+                  data-json='{"name":"{{ community_content.type }}","type":"Community", "category_id":"{{community_content.category_id}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  {{community_content.type}}
                 </li>
                {%endfor%}
              </ul>

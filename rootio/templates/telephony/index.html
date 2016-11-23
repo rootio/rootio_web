@@ -9,26 +9,20 @@
             <table class='table table-bordered table-hover'>
             <thead>
                 <tr>
-                    <th>{{ _('Name') }}</th>
-                    <th>{{ _('SIM') }}</th>
-                    <th>{{ _('GSM') }}</th>
-                    <th>{{ _('VOIP ') }}</th>
-                    <th>{{ _('Credits') }}</th>
-                    <th>{{ _('Messages') }}</th>
+                    <th>{{ _('Station') }}</th>
                     <th>{{ _('Calls') }}</th>
+                    <th>{{ _('Messages') }}</th>
+                    <th>{{ _('Incoming Gateways') }}</th>
+                    <th>{{ _('Outgoing gateways') }}</th>
                 </tr>
             </thead>
-            {%for station in stations %}
-            {% set analytics = station.recent_telephony() %}
+            {%for station in station_summary %}
             <tr>
-                <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.sim}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.gsm}}</span></td>
-                <td><span class="sparkline" data-type="boolean">{{analytics.voip}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.credits}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.messages}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.calls}}</span></td>
-                <td><a href="#">More</a></td>
+                <td>{{station.station}}</td>
+                <td>{{station.calls}}</td>
+                <td>{{station.messages}}</td>
+                <td>{{station.incoming_gateways}}</td>
+                <td>{{station.outgoing_gateways}}</td>
             </tr>
             {%endfor%}
             </table>
@@ -38,6 +32,4 @@
 {% endblock %}
 
 {% block js_btm %}
-<script src="{{ url_for('static', filename='js/vendor/jquery.sparkline.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
