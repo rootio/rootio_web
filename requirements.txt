@@ -90,7 +90,7 @@ Pygments==1.6
 
 python-dateutil==2.1
 
-#python-ESL==1.4.18
+FreeSWITCH-ESL-Python==1.2
 
 python-openid==2.2.5
 
