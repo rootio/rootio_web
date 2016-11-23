@@ -95,6 +95,7 @@ def setup(db, schedule):
             program=program,
             start=start,
             end=start + timedelta(minutes=PROGRAM_DURATION),
+            deleted=False,
         )
         db.session.add(scheduled_program)
 
