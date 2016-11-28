@@ -100,11 +100,12 @@ def setup(db, schedule):
         db.session.add(program)
 
     if schedule:
-        station.scheduled_programs.delete()
+        db.session.flush()
+        ScheduledProgram.query.filter_by(station_id=station.id).delete()
         now = pytz.utc.localize(datetime.utcnow())
         start = now + timedelta(seconds=schedule)
         scheduled_program = ScheduledProgram(
-            station=station,
+            station_id=station.id,
             program=program,
             start=start,
             end=start + timedelta(minutes=PROGRAM_DURATION),
