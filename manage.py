@@ -76,14 +76,15 @@ def stamp(revision):
     command.stamp(alembic_cfg, revision)
 
 @manager.command
-def reset_db():
+def reset_db(noinput=False):
     """Reset database"""
 
-    print "WARNING: This will reset the database and may cause data loss."
-    response = raw_input("Are you sure you want to continue? (Yes/No) ")
-    if not response == "Yes":
-        print "Aborted."
-        sys.exit()
+    if not noinput:
+        print "WARNING: This will reset the database and may cause data loss."
+        response = raw_input("Are you sure you want to continue? (Yes/No) ")
+        if not response == "Yes":
+            print "Aborted."
+            sys.exit()
 
     db.drop_all()
     db.create_all()
