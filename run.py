@@ -25,7 +25,7 @@ def run():
 
     stations = db.session.query(Station)
     for station in stations.all():
-        radio_station = radio_station.RadioStation(station.id, logger)
+        radio_station = radio_station.RadioStation(station.id, db.session, logger)
         logger.info('launching station : {0}'.format(station.id))
         t = threading.Thread(target=radio_station.run, args=())
         t.start()
