@@ -6,14 +6,15 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
+from sqlalchemy import MetaData
 
 from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
 from ..radio.forms import PersonForm
 from ..config import DefaultConfig
-from .models import ContentTrack, ContentUploads, ContentPodcast, ContentPodcastDownload, CommunityMenu, CommunityContent
-from .forms import ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
-
+from .models import ContentMusicPlaylistItem, ContentMusic, ContentMusicPlaylist, ContentMusicAlbum, ContentMusicArtist, ContentTrack, ContentUploads, ContentPodcast, ContentPodcastDownload, CommunityMenu, CommunityContent
+from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
+from ..decorators import returns_json
 from ..extensions import db, csrf
 from datetime import datetime
 
@@ -575,9 +576,117 @@ def content_podcast_add():
         db.session.add(content_podcast)
         db.session.commit()
 
-        flash(_('Podcastt added.'), 'success')
+        flash(_('Podcast added.'), 'success')
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
 
     return render_template('content/content_podcast.html', form=form)
 
+@content.route('/playlist/')
+@login_required
+def content_musicplaylists():
+    playlists_query = 'select content_musicplaylist.id, content_musicplaylist.title "playlist",content_musicplaylist.description "description", radio_station.name "station", (select count(*) from content_musicplaylistitem where playlist_item_type_id = 1 and content_musicplaylistitem.playlist_id = content_musicplaylist.id and not deleted) "songs", (select count(*) from content_musicplaylistitem where playlist_item_type_id = 2 and content_musicplaylistitem.playlist_id = content_musicplaylist.id and not deleted) "albums", (select count(*) from content_musicplaylistitem where playlist_item_type_id = 3 and content_musicplaylistitem.playlist_id = content_musicplaylist.id and not deleted) "artists" from content_musicplaylist join radio_station on content_musicplaylist.station_id = radio_station.id join radio_network on radio_station.network_id = radio_network.id join radio_networkusers on radio_network.id = radio_networkusers.network_id join user_user on radio_networkusers.user_id = user_user.id where user_user.id = :user_id'
+    params = { 'user_id':current_user.id }
+    content_musicplaylists = db.session.execute(playlists_query, params)
+    return render_template('content/content_playlists.html', content_musicplaylists=content_musicplaylists)
+
+
+@content.route('/playlist/<int:playlist_id>', methods=['GET', 'POST'])
+@login_required
+def content_musicplaylist(playlist_id):
+    content_musicplaylist = ContentMusicPlaylist.query.filter_by(id=playlist_id).first_or_404()
+    form = None #ContentMusicPlaylistForm(obj=content_musicplaylist, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_musicplaylist)
+
+        db.session.add(content_musicplaylist)
+        db.session.commit()
+        flash(_('Content updated.'), 'success')
+    return render_template('content/content_musicplaylist.html', content_musicplaylist=content_musicplaylist, form=form)
+
+
+@content.route('/playlist/<int:playlist_id>/albums', methods=['GET', 'POST'])
+@login_required
+@returns_json
+def content_musicplaylist_albums(playlist_id):
+    albums_query = 'select content_musicalbum.id "id", content_musicalbum.title  "item", (select count(*) from content_music where album_id = content_musicalbum.id) "songs", playlist.title "playlist", case when playlist.title is not null then true else false end "is_included" from content_musicalbum left outer join (select * from content_musicplaylistitem where playlist_item_type_id = 2 and not deleted) playlistitems on content_musicalbum.id = playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id'
+    
+    content_musicplaylist_albums = db.session.execute(albums_query, { 'playlist_id': playlist_id })
+    response = json.dumps([(dict(row.items())) for row in content_musicplaylist_albums])    
+    return response
+
+@content.route('/playlist/<int:playlist_id>/songs', methods=['GET', 'POST'])
+@login_required
+@returns_json
+def content_musicplaylist_songs(playlist_id):
+    songs_query = 'select content_music.id "id", content_music.title  "item", playlist.title "playlist", case when playlist.title is not null then true else false end "is_included" from content_music left outer join (select * from content_musicplaylistitem where playlist_item_type_id = 1 and not deleted) playlistitems on content_music.id = playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id'
+
+    content_musicplaylist_songs = db.session.execute(songs_query, { 'playlist_id': playlist_id })
+    response = json.dumps([(dict(row.items())) for row in content_musicplaylist_songs])
+    return response
+
+@content.route('/playlist/<int:playlist_id>/artists', methods=['GET', 'POST'])
+@login_required
+@returns_json
+def content_musicplaylist_artists(playlist_id):
+    artists_query = 'select content_musicartist.id "id", content_musicartist.title  "item", (select count(*) from content_music_musicartist where artist_id = content_musicartist.id) "songs", playlist.title "playlist", case when playlist.title is not null then true else false end "is_included" from content_musicartist left outer join (select * from content_musicplaylistitem where playlist_item_type_id = 3 and not deleted) playlistitems on content_musicartist.id = playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id'
+
+    content_musicplaylist_artists = db.session.execute(artists_query, { 'playlist_id': playlist_id })
+    response = json.dumps([(dict(row.items())) for row in content_musicplaylist_artists])
+    return response
+
+@content.route('/playlist/<int:playlist_id>/action', methods=['GET', 'POST'])
+@login_required
+def content_musicplaylist_action(playlist_id):
+    content_musicplaylist_songs = ContentMusicPlaylist.query.filter_by(id=playlist_id).all()
+    return content_musicplaylist_albums
+
+@content.route('/playlist/add/', methods=['GET', 'POST'])
+@login_required
+def content_musicplaylist_add():
+    form = ContentMusicPlaylistForm(request.form)
+    content_musicplaylist = None
+    cleaned_data = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        content_musicplaylist = ContentMusicPlaylist(**cleaned_data) #create new object from data
+
+        db.session.add(content_musicplaylist)
+        db.session.commit()
+
+        flash(_('Playlist added.'), 'success')
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+
+    return render_template('content/content_playlist.html', form=form)
+
+
+@content.route('/playlist/<int:playlist_id>/add/<string:item_type>/<int:item_id>', methods=['GET', 'POST'])
+@login_required
+def content_musicplaylist_add_item(playlist_id, item_type, item_id):
+    types = { "songs":1,"albums":2, "artists":3 }
+    dt = dict()
+    dt['playlist_id'] = playlist_id
+    dt['playlist_item_id'] = item_id
+    dt['playlist_item_type_id'] = types[item_type]
+    dt['deleted'] = False
+    tb = ContentMusicPlaylistItem(**dt)
+    db.session.add(tb)  
+    db.session.commit()
+    
+    return '{"result": "ok" }'
+
+@content.route('/playlist/<int:playlist_id>/remove/<string:item_type>/<int:item_id>', methods=['GET', 'POST'])
+@login_required
+def content_musicplaylist_remove_item(playlist_id, item_type, item_id):
+    types = { "songs":1,"albums":2, "artists":3 }
+    cmplis = ContentMusicPlaylistItem.query.filter(ContentMusicPlaylistItem.playlist_id==playlist_id).filter(ContentMusicPlaylistItem.playlist_item_type_id==types[item_type]).filter(ContentMusicPlaylistItem.playlist_item_id==item_id).all()
+    for cmpli in cmplis:
+        cmpli.deleted = True
+        db.session.add(cmpli)
+    db.session.commit()
+
+    return '{"result": "ok" }'

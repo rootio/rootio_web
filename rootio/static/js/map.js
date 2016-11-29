@@ -1,4 +1,4 @@
-map = L.map('map').setView([1.1975, 32.223], 6); //centered on uganda
+map = L.map(document.getElementById('map')).setView([1.1975, 32.223], 6); //centered on uganda
 
 var Stamen_TonerLite = L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
     attribution: 'Tiles <a href="http://stamen.com">Stamen</a> | Data <a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC</a>',
@@ -99,6 +99,7 @@ function drawStations(stations) {
         pointToLayer: stationsToLayer
     }).addTo(map);
 }
+
 
 $(document).ready(function() {
     $('ul#station-list a#all').on('click',

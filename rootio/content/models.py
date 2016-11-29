@@ -1,10 +1,11 @@
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy.sql import func
+from sqlalchemy import MetaData
 from ..utils import STRING_LEN
 from ..extensions import db
 from ..radio import ContentType
 from ..user.models import User#, user_user
-
+from rootio.config import *
 
 class ContentTrack(BaseMixin, db.Model):
     "A track to which audio content is added"
@@ -96,3 +97,64 @@ class ContentPodcastDownload(BaseMixin, db.Model):
     date_downloaded = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     podcast = db.relationship(u'ContentPodcast', backref=db.backref('podcast_downloads'))
+
+class ContentMusic(BaseMixin, db.Model):
+    "Music files on the phone of a station"
+    __tablename__ = u'content_music'
+
+    title = db.Column(db.String(STRING_LEN))
+    album_id = db.Column(db.ForeignKey('content_musicalbum.id'))
+    duration = db.Column(db.Integer)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    
+    station = db.relationship(u'Station', backref=db.backref('music'))
+    artists = db.relationship(u'ContentMusicArtist', secondary=u'content_music_musicartist', backref=db.backref('music'))
+
+class ContentMusicAlbum(BaseMixin, db.Model):
+    "Albums of Music files on the phone of a station"
+    __tablename__ = u'content_musicalbum'
+
+    title = db.Column(db.String(STRING_LEN))
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    station = db.relationship(u'Station', backref=db.backref('albums'))
+
+class ContentMusicArtist(BaseMixin, db.Model):
+    "Artists for the media on phones"
+    __tablename__ = u'content_musicartist'
+    
+    title = db.Column(db.String(STRING_LEN))
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+
+    station = db.relationship(u'Station', backref=db.backref('artists'))
+
+class ContentMusicPlaylist(BaseMixin, db.Model):
+    "Playlist of the music files on a station"
+    __tablename__ = u'content_musicplaylist'
+    
+    title = db.Column(db.String(STRING_LEN))
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    description = db.Column(db.Text)
+
+    station = db.relationship(u'Station', backref=db.backref('playlists'))
+
+class ContentMusicPlayListItemType(BaseMixin, db.Model):
+    "Type of Items in a playlist mapping to media - " 
+    __tablename__ = u'content_musicplaylistitemtype'
+
+    title = db.Column(db.String(STRING_LEN))
+    
+t_musicartist = db.Table(
+    u'content_music_musicartist',
+    db.Column(u'music_id', db.ForeignKey('content_music.id')),
+    db.Column(u'artist_id', db.ForeignKey('content_musicartist.id'))
+)
+
+class ContentMusicPlaylistItem(BaseMixin, db.Model):
+    __tablename__ = 'content_musicplaylistitem'
+    playlist_id = db.Column(db.ForeignKey('content_musicplaylist.id'))
+    playlist_item_id = db.Column(db.Integer)
+    playlist_item_type_id = db.Column(db.ForeignKey('content_musicplaylistitemtype.id'))
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    deleted = db.Column(db.Boolean, default=False)
