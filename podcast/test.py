@@ -1,4 +1,4 @@
 from podcast_downloader import PodcastDownloader
 
-pd = PodcastDownloader(1)
+pd = PodcastDownloader(2)
 pd.download()

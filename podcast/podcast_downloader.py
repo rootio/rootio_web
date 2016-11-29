@@ -51,8 +51,8 @@ class PodcastDownloader():
             print podcast
             for link in podcast.links:
                 if link.type == u'audio/mpeg':
-                    urllib.urlretrieve(link.href, os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id), podcast.title + ".mp3"))
-                    self.__log_podcast_download(podcast.title, podcast.itunes_duration, podcast.title + ".mp3", podcast.summary, datetime.fromtimestamp(mktime(podcast.published_parsed)))
+                    urllib.urlretrieve(link.href, os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id), podcast.title[0:50] + ".mp3"))
+                    self.__log_podcast_download(podcast.title, podcast.itunes_duration, podcast.title[0:50] + ".mp3", podcast.summary, datetime.fromtimestamp(mktime(podcast.published_parsed)))
         
 
     def __log_podcast_download(self, title, duration, file_name, summary, date_created):
