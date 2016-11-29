@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if content_musicplaylist%}
+        <h2>{{ _('Edit') }} {{ _('Music Playlist') }}</h2>
+        {{ render_form(url_for('content.content_musicplaylist', content_musicplaylist_id=content_musicplaylist.id), form) }}
+    {%else%}
+        <h2>{{ _('Add') }} {{ _('Music Playlist') }}</h2>
+        {{ render_form(url_for('content.content_musicplaylist_add'), form) }}
+    {%endif%}
+</div>
+{% endblock %}

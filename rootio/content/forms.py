@@ -95,3 +95,8 @@ class ContentPodcastForm(Form):
     description = TextAreaField('Description')
     submit = SubmitField(_('Save'))
 
+class ContentMusicPlaylistForm(Form):
+    title = StringField('Name of the playlist')
+    station = QuerySelectField('Station',query_factory=stations,allow_blank=False)
+    description = TextAreaField('Description')
+    submit = SubmitField(_('Save'))

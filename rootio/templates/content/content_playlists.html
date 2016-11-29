@@ -1,0 +1,119 @@
+{% extends "content/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+    
+    
+    $('[id^=playlistCount]').click(function(e) {
+        $('#playlist tbody').html('')
+        var api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
+        $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
+        $.getJSON(api).done(function(myData) {
+        data = JSON.parse(myData)
+        $.each(data, function(key, val) {
+            $( '#playlist tbody').html($( '#playlist tbody').html() + "<tr><td>" + val.item + "</td><td>" + val.songs + '</td><td><input type="checkbox" ' + (val.is_included ? 'checked':'') +
+            ' id="'+ $(e.target).attr('data-item-type') + val.id +' data-item-type="'+ $(e.target).attr('data-item-type') +'" data-playlist-id="' + $(e.target).attr('data-playlist-id') +
+            '" data-item-id="'+ val.id +'" /></td></tr>')
+            });
+            $('#playlist').DataTable({
+               searching: true, bRetrieve: true
+            });
+            //Give an event handler to the checkboxes
+            $('[id^='+ $(e.target).attr('data-item-type') +']').change(function(f){
+            var url = '/content/playlist/'+ $(f.target).attr('data-playlist-id')+'/'+(this.checked ? 'add' : 'remove')+'/'+ $(e.target).attr('data-item-type')+'/'+ $(f.target).attr('data-item-id') 
+            $.getJSON(url).done(function(myData) {
+                
+               
+            });
+          });
+       });
+    });  
+ });
+//TO-DO
+//1) what to do with 'songs' on songs?
+    </script>
+{% endblock %}
+
+
+{% block body %}
+
+  <div class="modal fade" id="playlists-modal" tabindex="-1" role="dialog" aria-labelledby="playlist" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog inline-form" data-url="/radio/scheduleprogram/add/recurring_ajax/" data-prefix="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="playlistTitle">{{ _('Add Recurring Program to Schedule') }}</h4>
+        </div>
+        <div class="modal-body" style="font-size:12px;">
+          <table id="playlist" class='table table-bordered table-hover'>
+          <thead>
+            <tr>
+                <th>{{ _('Album') }}</th>
+                <th>{{ _('Songs') }}</th>
+                <th>{{ _('Is included') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+         </table>
+        </div>
+
+            <div class="modal-footer">
+            </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+<div class="container-fluid">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Playlists') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.content_musicplaylist_add') }}"><strong>Add +</strong></a>
+    </div>
+    <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('Playlist') }}</th>
+                <th>{{ _('Description') }}</th>
+                <th>{{ _('Songs') }}</th>
+                <th>{{ _('Albums') }}</th>
+                <th>{{ _('Artists') }}</th>
+            </tr>
+        </thead>
+        {% for content_musicplaylist in content_musicplaylists %}
+        <tr>
+            <td>{{ content_musicplaylist.station }}</td>
+            <td>{{ content_musicplaylist.playlist }}</td>
+            <td>{{ content_musicplaylist.description }}</td>
+            <td><a href="#" id="playlistCountSongs{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="songs" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.songs }} {{ _('Songs') }}</a></td>
+            <td><a href="#" id="playlistCountAlbums{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="albums" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.albums }} {{ _('Albums') }}</a></td>
+            <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
