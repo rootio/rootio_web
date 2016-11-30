@@ -67,6 +67,7 @@
                 <li class='external-event'
                     data-program-id="{{p.id}}"
                     data-station-id="{{station.id}}"
+                    data-program-type-id="{{ p.program_type_id }}"
                     data-duration-sec="{{render_duration_to_seconds(p.duration)}}">{{p.name}}</li>
             {%endfor%}
                 <li class="recurring-button">
