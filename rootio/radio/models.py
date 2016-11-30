@@ -277,9 +277,9 @@ class Program(BaseMixin, db.Model):
     update_recurrence = db.Column(db.Text()) #when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
-    #program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
+    program_type_id = db.Column(db.ForeignKey('radio_programtype.id'))
 
-    #program_type = db.relationship(u'ProgramType')
+    program_type = db.relationship(u'ProgramType')
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('program',uselist=False))
 

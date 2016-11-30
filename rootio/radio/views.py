@@ -13,7 +13,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
-from ..content.models import ContentTrack, ContentType, ContentPodcast
+from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 
@@ -113,7 +113,7 @@ def station_add():
 
 @radio.route('/program/', methods=['GET'])
 def programs():
-    programs = Program.query.all()
+    programs = Program.query.filter(Program.program_type_id!=2).all()
     return render_template('radio/programs.html', programs=programs, active='programs')
 
 
@@ -167,6 +167,7 @@ def program_add():
         cleaned_data = form.data #make a copy
         cleaned_data.pop('submit',None) #remove submit field from list
         cleaned_data.pop('program_structure')
+        cleaned_data['program_type_id'] = 1
         program = Program(**cleaned_data) #create new object from data
         
         db.session.add(program)
@@ -176,6 +177,61 @@ def program_add():
         flash(_('Validation error'),'error')
 
     return render_template('radio/program.html', program=program,hosts=hosts,news=news,podcasts=podcasts, ads=ads, medias=medias, community_contents=community_contents["data"], form=form)
+
+@radio.route('/music_program/', methods=['GET'])
+def music_programs():
+    music_programs = Program.query.filter(Program.program_type_id==2).all()
+    return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
+
+@radio.route('/music_program/add/', methods=['GET', 'POST'])
+@login_required
+def music_program_add():
+    form = ProgramForm(request.form)
+    program = None
+
+    #hosts in my network
+    playlists = ContentMusicPlaylist.query.all()
+
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+        cleaned_data.pop('submit',None) #remove submit field from list
+        cleaned_data.pop('program_structure')
+        cleaned_data['program_type_id'] = 2
+        program = Program(**cleaned_data) #create new object from data
+
+        db.session.add(program)
+        db.session.commit()
+        flash(_('Program added.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'),'error')
+
+    return render_template('radio/music_program.html', program=program, playlists=playlists, form=form)
+
+@radio.route('/music_program/<int:music_program_id>', methods=['GET', 'POST'])
+def music_program(music_program_id):
+    music_program = Program.query.filter_by(id=music_program_id).first_or_404()
+
+    community_contents = {"data":[{"type":"Ads", "category_id":"1"},{"type":"Announcements", "category_id":"2"},{"type":"Greetings", "category_id":"3"}]}
+    
+    playlists = ContentMusicPlaylist.query.all()
+    #render the program structure
+    action_names = []
+    program_json = json.loads(music_program.structure)
+    for action in program_json:
+        action_names.append(action['name'])
+
+    program_actions = ",".join(action_names)
+
+    form = ProgramForm(obj=music_program, program_structure=program_actions, next=request.args.get('next'))
+    if form.validate_on_submit():
+        form.populate_obj(music_program)
+
+        db.session.add(music_program)
+        db.session.commit()
+        flash(_('Music Program updated.'), 'success')
+
+    return render_template('radio/music_program.html', music_program=music_program, playlists=playlists, form=form)
+
 
 @radio.route('/people/', methods=['GET'])
 def people():
