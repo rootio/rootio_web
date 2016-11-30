@@ -4736,8 +4736,8 @@ function AgendaEventRenderer() {
 						.remove();
 				}
 				trigger('eventAfterRender', event, event, eventElement);
-				eventElement[0].style.backgroundColor = event.status == undefined? event.program_type_id == 2 ? eventElement[0].style.backgroundColor : event.status? '#008000' : '#e60000' : '#ffcc00';
-				eventElement[0].style.borderColor = event.status == undefined? event.program_type_id == 2 ? eventElement[0].style.borderColor: event.status? '#004000' : '#b20000' : '#bb9900';
+				eventElement[0].style.backgroundColor = event.status == undefined? (event.program_type_id == 2 ? eventElement[0].style.backgroundColor : '#ffcc00') : event.status? '#008000' : '#e60000';
+				eventElement[0].style.borderColor = event.status == undefined? (event.program_type_id == 2 ? eventElement[0].style.borderColor: '#bb9900') : event.status? '#004000' : '#b20000';
 			}
 		}
 					

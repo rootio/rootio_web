@@ -115,6 +115,7 @@ $(document).ready(function() {
             //pull data from DOM
             newEvent.program = $(this).data('program-id');
             newEvent.station = $(this).data('station-id');
+            newEvent.program_type_id = $(this).data('program-type-id');
             duration = $(this).data('duration-sec'); //in seconds
             newEvent.end = moment(date).add('seconds', duration); //create new js moment
             newEvent.edited = 'added'; //set edited flag
