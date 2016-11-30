@@ -474,6 +474,7 @@ def scheduled_programs_json(station_id):
             'start':s.start.isoformat(),
             'end':s.end.isoformat(),
             'id':s.id,
+            'program_type_id':s.program.program_type_id,
             'status':s.status}
         resp.append(d)
     return resp
