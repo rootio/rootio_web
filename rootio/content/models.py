@@ -106,9 +106,9 @@ class ContentMusic(BaseMixin, db.Model):
     album_id = db.Column(db.ForeignKey('content_musicalbum.id'))
     duration = db.Column(db.Integer)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-    
+    artist_id = db.Column(db.ForeignKey('content_musicartist.id'))
     station = db.relationship(u'Station', backref=db.backref('music'))
-    artists = db.relationship(u'ContentMusicArtist', secondary=u'content_music_musicartist', backref=db.backref('music'))
+    artist = db.relationship(u'ContentMusicArtist', backref=db.backref('music'))
 
 class ContentMusicAlbum(BaseMixin, db.Model):
     "Albums of Music files on the phone of a station"

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
 
@@ -8,8 +8,8 @@ from .utils import parse_datetime
 from ..extensions import db, rest, csrf
 
 from ..user import User
-from ..content import ContentPodcast
-from ..radio import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentPodcast
+from ..radio.models import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
@@ -88,19 +88,22 @@ def restless_routes():
 #protect with decorator
 
 
-@api.route('/station/<int:station_id>/information', methods=['GET'])
-@api_key_or_auth_required
+@api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@csrf.exempt
 @returns_json
-def station_information(station_id):
+def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
+    location = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
    
-    response = {"name" : station.name, "frequency" : station.frequency, "location" : station.location, "telephone" : station.cloud_phone, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
-    responses= {"station" : response}
+    response = {"name" : station.name, "frequency" : station.frequency, "location" : location, "telephone" : station.cloud_phone.raw_number, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
+    responses = dict()
+    responses["station"] =  response
     return responses
 
 
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def current_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -108,7 +111,7 @@ def current_program(station_id):
 
 
 @api.route('/station/<int:station_id>/on_air', methods=['GET'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def on_air(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -121,7 +124,7 @@ def on_air(station_id):
 
 
 @api.route('/station/<int:station_id>/next_program', methods=['GET'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def next_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -129,7 +132,7 @@ def next_program(station_id):
 
 
 @api.route('/station/<int:station_id>/current_block', methods=['GET'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def current_block(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -138,7 +141,7 @@ def current_block(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/schedule', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
@@ -180,7 +183,7 @@ def station_schedule(station_id):
 
 
 @api.route('/station/<int:station_id>/programs', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
@@ -210,7 +213,7 @@ def station_programs(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_analytics(station_id):
     """API method to get or post analytics for a station"""
@@ -241,7 +244,7 @@ def station_analytics(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/whitelist', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def station_whitelist(station_id):
     """API method to get whitelist for a station"""
@@ -258,7 +261,7 @@ def station_whitelist(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/frequency_update', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def frequency_update(station_id):
     """API method to get the frequency of updates for a station"""  
@@ -272,7 +275,7 @@ def frequency_update(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/call', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def call_data(station_id):
     """API method to get or post analytics for a station"""
@@ -302,7 +305,7 @@ def call_data(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/message', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def message_data(station_id):
     """API method to get or post analytics for a station"""
@@ -331,7 +334,7 @@ def message_data(station_id):
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def program_episodes(program_id):
     """API method to get all episodes currently available for a program"""
@@ -349,10 +352,34 @@ def program_episodes(program_id):
         return episodes.all()
 
 @api.route('/podcast/<int:podcast_id>/downloads', methods=['GET', 'POST'])
-@api_key_or_auth_required
+#@api_key_or_auth_required
 @returns_json
 def podcast_downloads(podcast_id):
     """API method to get all episodes currently available for a program"""
     podcast = ContentPodcast.query.filter_by(id=podcast_id).first_or_404()
     downloads = podcast.podcast_downloads
     return downloads
+
+@api.route('/station/<int:station_id>/music', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@csrf.exempt
+@returns_json
+def music_sync(station_id):
+    """API method to grab music from the phone and  store it online"""
+    data = json.loads(request.data)    
+    for artist in data:
+        #persist the artist
+        music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
+        db.session.add(music_artist)
+
+        for album in data[artist]:
+            #persist the album
+            music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
+            db.session.add(music_album)
+            
+            for song in data[artist][album]['songs']:
+                music_song = ContentMusic(**{'title':song['title'], 'duration': song['duration'], 'station_id':station_id, 'album_id':music_album.id, 'artist_id':music_artist.id})
+                db.session.add(music_song)
+    db.session.commit()
+    return { 'status':True}
+
