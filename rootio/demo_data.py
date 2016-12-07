@@ -2,7 +2,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import json
 import pytz
-from .user.models import User
+from .user.models import User, RootioUser
 from .radio.models import Network, Station, Program, ScheduledProgram
 from .telephony.models import PhoneNumber, Gateway
 from .telephony.constants import MOBILE
@@ -20,6 +20,7 @@ PROGRAM_DURATION = 40
 
 def setup(db, schedule):
     admin = User.query.get(1)
+    rootio_admin = RootioUser.query.get(admin.id)
 
     phone = PhoneNumber.query.filter_by(number=PHONE_NUMBER).first()
     if phone is None:
@@ -49,8 +50,10 @@ def setup(db, schedule):
     if network is None:
         network = Network(
             name=NETWORK_NAME,
-            #networkusers=[admin],
+            networkusers=[rootio_admin],
         )
+        db.session.add(network)
+        db.session.flush()
 
     station = Station.query.filter_by(name=STATION_NAME).first()
     if station is None:
