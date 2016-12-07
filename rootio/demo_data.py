@@ -39,6 +39,7 @@ def setup(db, schedule):
             number_type=MOBILE,
         )
         db.session.add(phone)
+        db.session.flush()
 
     gateway = Gateway.query.filter_by(name=GATEWAY_NAME).first()
     if gateway is None:
@@ -76,6 +77,7 @@ def setup(db, schedule):
             outgoing_gateways=[gateway],
         )
         db.session.add(station)
+        db.session.flush()
 
     program = Program.query.filter_by(name=PROGRAM_NAME).first()
     if program is None:
@@ -85,6 +87,7 @@ def setup(db, schedule):
             duration=timedelta(minutes=PROGRAM_DURATION),
         )
         db.session.add(program)
+        db.session.flush()
 
     if schedule:
         station.scheduled_programs.delete()
@@ -97,5 +100,6 @@ def setup(db, schedule):
             end=start + timedelta(minutes=PROGRAM_DURATION),
         )
         db.session.add(scheduled_program)
+        db.session.flush()
 
     db.session.commit()
