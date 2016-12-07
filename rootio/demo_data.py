@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import json
 import pytz
 from .user.models import User, RootioUser
-from .radio.models import Network, Station, Program, ScheduledProgram
+from .radio.models import Location, Network, Station, Program, ScheduledProgram
 from .telephony.models import PhoneNumber, Gateway
 from .telephony.constants import MOBILE
 from .content.models import ContentTrack, ContentUploads
@@ -11,9 +11,11 @@ from .content.models import ContentTrack, ContentUploads
 from .config import DefaultConfig
 DEMO_MEDIA_PREFIX = Path(DefaultConfig.DEMO_MEDIA_PREFIX)
 
-PHONE_NUMBER = '1007'
+TRANSMITTER_PHONE_NUMBER = '1007'
+CLOUD_PHONE_NUMBER = '1006'
 GATEWAY_NAME = 'Internal 4000'
 NETWORK_NAME = "Testy network"
+LOCATION_NAME = "Testy location"
 STATION_NAME = "Testy sounds"
 PROGRAM_NAME = "BBC Africa Today"
 PROGRAM_DURATION = 40
@@ -22,13 +24,24 @@ def setup(db, schedule):
     admin = User.query.get(1)
     rootio_admin = RootioUser.query.get(admin.id)
 
-    phone = PhoneNumber.query.filter_by(number=PHONE_NUMBER).first()
-    if phone is None:
-        phone = PhoneNumber(
-            number=PHONE_NUMBER,
+    transmitter_phone = (PhoneNumber.query
+        .filter_by(number=TRANSMITTER_PHONE_NUMBER).first())
+    if transmitter_phone is None:
+        transmitter_phone = PhoneNumber(
+            number=TRANSMITTER_PHONE_NUMBER,
             number_type=MOBILE,
         )
-        db.session.add(phone)
+        db.session.add(transmitter_phone)
+        db.session.flush()
+
+    cloud_phone = (PhoneNumber.query
+        .filter_by(number=CLOUD_PHONE_NUMBER).first())
+    if cloud_phone is None:
+        cloud_phone = PhoneNumber(
+            number=CLOUD_PHONE_NUMBER,
+            number_type=MOBILE,
+        )
+        db.session.add(cloud_phone)
         db.session.flush()
 
     gateway = Gateway.query.filter_by(name=GATEWAY_NAME).first()
@@ -55,6 +68,14 @@ def setup(db, schedule):
         db.session.add(network)
         db.session.flush()
 
+    location = Location.query.filter_by(name=LOCATION_NAME).first()
+    if location is None:
+        location = Location(
+            name=LOCATION_NAME,
+        )
+        db.session.add(location)
+        db.session.flush()
+
     station = Station.query.filter_by(name=STATION_NAME).first()
     if station is None:
         station = Station(
@@ -64,11 +85,14 @@ def setup(db, schedule):
             network=network,
             timezone='Africa/Abidjan',
             owner=admin,
-            transmitter_phone=phone,
+            transmitter_phone=transmitter_phone,
+            cloud_phone=cloud_phone,
             client_update_frequency=30,
             analytic_update_frequency=30,
             broadcast_ip='230.255.255.257',
             outgoing_gateways=[gateway],
+            location=location,
+            api_key='TESTAPIKEY',
         )
         db.session.add(station)
         db.session.flush()
