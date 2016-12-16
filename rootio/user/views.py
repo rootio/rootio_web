@@ -83,7 +83,7 @@ def profile(user_id):
                        role_code=user.role_code,
                        status_code=user.status_code,
                        next=request.args.get('next'))
-    form.role_code = RadioField("Role" , [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    form.role_code.choices = [(str(val), label) for val, label in USER_ROLE.items()]
     #form.get_role_codes(3)
     if form.validate_on_submit():
 
