@@ -4,7 +4,7 @@ from flask.ext.babel import gettext as _
 import socket
 from .models import PhoneNumber, Message, Call, Gateway
 from .forms import PhoneNumberForm
-
+#from ..user.models import User
 #from rootio.radio.models import Station
 from ..utils import error_dict
 from ..decorators import returns_json
@@ -84,6 +84,7 @@ def phonenumber_add_inline():
 
 @telephony.route('/calls/', methods=['GET'])
 def calls():
+    from ..user.models import User
     from ..radio.models import Station, Network
     recent_calls = Call.query.with_entities(Call, Station.name).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
     #todo, paginate?

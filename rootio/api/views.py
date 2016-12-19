@@ -360,26 +360,48 @@ def podcast_downloads(podcast_id):
     downloads = podcast.podcast_downloads
     return downloads
 
+def get_dict_from_rows(rows):
+    result = dict()
+    for row in rows:
+        result[row.title] = row
+    return result
+
 @api.route('/station/<int:station_id>/music', methods=['GET', 'POST'])
 #@api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
+    songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
+    artists_in_db = get_dict_from_rows(ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
+    albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
+
     data = json.loads(request.data)    
     for artist in data:
-        #persist the artist
-        music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
-        db.session.add(music_artist)
+        if artist in artists_in_db:
+            music_artist = artists_in_db[artist]
+        else:
+            #persist the artist
+            music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
+            artists_in_db[artist] = music_artist
+            db.session.add(music_artist)
 
         for album in data[artist]:
-            #persist the album
-            music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
-            db.session.add(music_album)
+            if album in albums_in_db:
+                music_album = albums_in_db[album]
+            else:
+                #persist the album
+                music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
+                albums_in_db[album] = music_album
+                db.session.add(music_album)
             
             for song in data[artist][album]['songs']:
-                music_song = ContentMusic(**{'title':song['title'], 'duration': song['duration'], 'station_id':station_id, 'album_id':music_album.id, 'artist_id':music_artist.id})
-                db.session.add(music_song)
+                if song['title'] in songs_in_db:
+                    music_song = songs_in_db[song['title']]
+                else:
+                    music_song = ContentMusic(**{'title':song['title'], 'duration': song['duration'], 'station_id':station_id, 'album_id':music_album.id, 'artist_id':music_artist.id})
+                    songs_in_db[song['title']] = music_song
+                    db.session.add(music_song)
     db.session.commit()
     return { 'status':True}
 
