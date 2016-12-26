@@ -17,5 +17,5 @@ class TestConfig(BaseConfig):
 
 ## Running the test suite
 ```shell
-python -m tests
+pytest
 ```
