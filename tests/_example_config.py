@@ -11,6 +11,7 @@ class BaseConfig(object):
     SECRET_KEY = 'some random key'
     CONTENT_DIR = "/var/content"
     LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
+    make_dir(LOG_FOLDER)
     ZMQ_BIND_ADDR = "tcp://127.0.0.1:55777"
     ZMQ_SOCKET_TYPE = "PUB"
     ACCEPT_LANGUAGES = {'en':'English'}
