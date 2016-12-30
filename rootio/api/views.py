@@ -8,7 +8,7 @@ from .utils import parse_datetime
 from ..extensions import db, rest, csrf
 
 from ..user import User
-from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentPodcast
+from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, ContentMusicPlaylistItem, ContentPodcast
 from ..radio.models import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
@@ -96,7 +96,7 @@ def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     location = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
    
-    response = {"name" : station.name, "frequency" : station.frequency, "location" : location, "telephone" : station.cloud_phone.raw_number, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
+    response = {"name" : station.name, "frequency" : station.frequency, "location" : location, "network":station.network.name, "telephone" : station.cloud_phone.raw_number, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
     responses = dict()
     responses["station"] =  response
     return responses
@@ -184,6 +184,7 @@ def station_schedule(station_id):
 
 @api.route('/station/<int:station_id>/programs', methods=['GET', 'POST'])
 #@api_key_or_auth_required
+@csrf.exempt
 @returns_json
 def station_programs(station_id):
     """API method to get all programs currently scheduled on the station"""
@@ -202,8 +203,10 @@ def station_programs(station_id):
         response=dict()
         response['name'] = program.Program.name
         response['scheduled_program_id'] = program.ScheduledProgram.id
+        response['program_type_id'] = program.Program.program_type_id
         response['start'] = program.ScheduledProgram.start
         response['end'] = program.ScheduledProgram.end
+        response['updated_at'] = program.ScheduledProgram.updated_at
         response['deleted'] = program.ScheduledProgram.deleted
         response['structure'] = program.Program.structure
         responses.append(response)        
@@ -385,6 +388,7 @@ def music_sync(station_id):
             music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
             artists_in_db[artist] = music_artist
             db.session.add(music_artist)
+            db.session.commit()
 
         for album in data[artist]:
             if album in albums_in_db:
@@ -394,6 +398,7 @@ def music_sync(station_id):
                 music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
                 albums_in_db[album] = music_album
                 db.session.add(music_album)
+                db.session.commit()
             
             for song in data[artist][album]['songs']:
                 if song['title'] in songs_in_db:
@@ -405,3 +410,29 @@ def music_sync(station_id):
     db.session.commit()
     return { 'status':True}
 
+@api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@csrf.exempt
+@returns_json
+def music_playlist(station_id):
+    playlists = ContentMusicPlaylist.query.filter(ContentMusicPlaylist.station_id == station_id).all()
+    play_list = []
+
+    for playlist in playlists:
+        pl = dict()
+        pl['title'] = playlist.title
+        #get the songs
+        songs = ContentMusic.query.join(ContentMusicPlaylistItem,ContentMusicPlaylistItem.playlist_item_id==ContentMusic.id).with_entities(ContentMusic.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusic.station_id == station_id).all()
+        pl['songs'] = songs
+        
+        #get the artists
+        artists = ContentMusicArtist.query.join(ContentMusicPlaylistItem, ContentMusicPlaylistItem.playlist_item_id==ContentMusicArtist.id).with_entities(ContentMusicArtist.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 3).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusicArtist.station_id == station_id).all()
+        pl['artists'] = artists
+
+        #get the albums
+        albums = ContentMusicAlbum.query.join(ContentMusicPlaylistItem, ContentMusicPlaylistItem.playlist_item_id==ContentMusicAlbum.id).with_entities(ContentMusicAlbum.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 2).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusicAlbum.station_id == station_id).all()
+        pl['albums'] = albums
+        
+        play_list.append(pl)
+
+    return play_list
