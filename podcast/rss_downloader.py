@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from rootio.config import *
 from rootio.content.models import ContentPodcast, ContentPodcastDownload
 
-class PodcastDownloader():
+class RSSDownloader():
 
     def __init__(self, podcast_id):
         self.__podcast_id = podcast_id
@@ -17,7 +17,6 @@ class PodcastDownloader():
 
     def download(self):
         base_date = self.__get_last_publish_date()
-        print base_date
         podcast_list = self.__get_podcast_list(base_date)
         self.__download_podcasts(podcast_list)      
   
@@ -48,7 +47,6 @@ class PodcastDownloader():
         for podcast in podcasts:
             if not os.path.exists(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id))):
                 os.makedirs(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id)))
-            print podcast
             for link in podcast.links:
                 if link.type == u'audio/mpeg':
                     urllib.urlretrieve(link.href, os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id), podcast.title[0:50] + ".mp3"))
