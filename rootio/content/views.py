@@ -225,7 +225,7 @@ def content_news_add():
 @content.route('/ads/')
 @login_required
 def content_ads():
-    content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
+    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
     ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
     return render_template('content/content_ads.html', ads=ads)  
 
