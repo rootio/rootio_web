@@ -106,6 +106,7 @@ class PersonForm(PersonFormBase):
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
             choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
+    networks = QuerySelectField(query_factory=all_networks,allow_blank=False)
     submit = SubmitField(_('Save'))
 
 
