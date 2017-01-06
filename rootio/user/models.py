@@ -69,7 +69,7 @@ class User(RootioUser, UserMixin):
     def check_password(self, password):
         if self.password is None:
             return False
-        return check_password_hash(self.password, password)
+        return check_password_hash(self.password.encode('latin-1'), password)
 
 
     @property

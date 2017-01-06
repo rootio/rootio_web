@@ -10,7 +10,7 @@ from wtforms.validators import (ValidationError, AnyOf, Optional,
         Required, Length, EqualTo, Email, NumberRange, URL)
 from flask_wtf.html5 import DateField, URLField, EmailField, TelField
 from flask.ext.login import current_user
-from rootio.radio.models import Network
+from ..radio.models import Network
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.ext.sqlalchemy.orm import model_form
