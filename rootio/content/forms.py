@@ -4,7 +4,7 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from wtforms.ext.sqlalchemy.orm import model_form
-from wtforms.ext.sqlalchemy.fields import QuerySelectField#, DateField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.fields.html5 import DateField
 from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, FileField
 from wtforms.validators import Required, AnyOf
