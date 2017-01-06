@@ -7,10 +7,10 @@
     Ref: http://packages.python.org/Flask-Testing/
 """
 
-from flask.ext.testing import TestCase as Base, Twill
+from flask.ext.testing import TestCase as Base
 
 from rootio import create_app
-from rootio.user import User, UserDetail, ADMIN, USER, ACTIVE
+from rootio.user import User, UserDetail, ADMIN, NETWORK_USER, ACTIVE
 from rootio.config import TestConfig
 from rootio.extensions import db
 from rootio.utils import MALE
@@ -23,7 +23,6 @@ class TestCase(Base):
         """Create and return a testing flask app."""
 
         app = create_app(TestConfig)
-        self.twill = Twill(app, port=3000)
         return app
 
     def init_data(self):
@@ -32,13 +31,11 @@ class TestCase(Base):
                 name=u'demo',
                 email=u'demo@example.com',
                 password=u'123456',
-                role_code=USER,
+                role_code=NETWORK_USER,
                 status_code=ACTIVE,
                 user_detail=UserDetail(
-                    sex_code=MALE,
                     age=10,
                     url=u'http://demo.example.com',
-                    deposit=100.00,
                     location=u'Hangzhou',
                     bio=u'admin Guy is ... hmm ... just a demo guy.'))
         admin = User(
@@ -48,10 +45,8 @@ class TestCase(Base):
                 role_code=ADMIN,
                 status_code=ACTIVE,
                 user_detail=UserDetail(
-                    sex_code=MALE,
                     age=10,
                     url=u'http://admin.example.com',
-                    deposit=100.00,
                     location=u'Hangzhou',
                     bio=u'admin Guy is ... hmm ... just a admin guy.'))
         db.session.add(demo)

@@ -4,7 +4,7 @@ from flask.ext.babel import gettext as _
 import socket
 from .models import PhoneNumber, Message, Call, Gateway
 from .forms import PhoneNumberForm
-
+#from ..user.models import User
 #from rootio.radio.models import Station
 from ..utils import error_dict
 from ..decorators import returns_json
