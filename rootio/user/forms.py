@@ -67,6 +67,7 @@ class ProfileForm(ProfileFormBase):
     next = HiddenField()
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
+    networks = QuerySelectMultipleField('Networks',[Required()], query_factory=lambda: current_user.networks)
     #role_code = RadioField(_("Role")) #, [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in role_codes().items()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
