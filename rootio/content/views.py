@@ -462,7 +462,8 @@ def hosts_add():
     del form.title
     del form.additionalcontact
     del form.privacy_code
-
+    del form.network_id
+   
     host = None
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
@@ -487,6 +488,7 @@ def host_edit(host_id):
     del form.title
     del form.additionalcontact
     del form.privacy_code
+    del form.network_id
 
     if form.validate_on_submit():
         form.populate_obj(host)
