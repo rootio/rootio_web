@@ -53,34 +53,34 @@ class ContentUploadForm(Form):
 class ContentNewsForm(Form):
     multipart = True 
     file = FileField()
-    track_id = QuerySelectField('Track name',query_factory=news_tracks,allow_blank=False)
+    track_id = QuerySelectField('Track name',[Required()],query_factory=news_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))
 
 class ContentAddsForm(Form):
     multipart = True 
-    track_id = QuerySelectField('Track name',query_factory=adds_tracks,allow_blank=False)
+    track_id = QuerySelectField('Track name',[Required()], query_factory=adds_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     file = FileField('Ad File')
     submit = SubmitField(_('Save'))
 
 class ContentStreamsForm(Form):
     name = StringField('Name of the stream',[Required()])
-    track = QuerySelectField('Track name',query_factory=streams_tracks,allow_blank=False)
+    track = QuerySelectField('Track name',[Required()], query_factory=streams_tracks,allow_blank=False)
     uri = StringField('URL')
     expiry_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))
 
 class ContentMusicForm(Form):
     multipart = True 
-    track_id = QuerySelectField('Track name',query_factory=musics_tracks,allow_blank=False)
+    track_id = QuerySelectField('Track name',[Required()], query_factory=musics_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     file = FileField('File(s)')
     submit = SubmitField(_('Save'))
 
 class CommunityMenuForm(Form):
     multipart = True
-    station = QuerySelectField('Station',query_factory=stations,allow_blank=False)
+    station = QuerySelectField('Station',[Required()],query_factory=stations,allow_blank=False)
     welcome_message = FileField('Welcome message',[Required()])
     days_prompt = FileField('Days prompt',[Required()])
     message_type_prompt = FileField('Message type',[Required()])
@@ -91,12 +91,12 @@ class CommunityMenuForm(Form):
 
 class ContentPodcastForm(Form):
     name = StringField('Name of the stream',[Required()])
-    uri = StringField('URL')
+    uri = StringField('URL', [Required()])
     description = TextAreaField('Description')
     submit = SubmitField(_('Save'))
 
 class ContentMusicPlaylistForm(Form):
     title = StringField('Name of the playlist',[Required()])
-    station = QuerySelectField('Station',query_factory=stations,allow_blank=False)
+    station = QuerySelectField('Station',[Required()],query_factory=stations,allow_blank=False)
     description = TextAreaField('Description')
     submit = SubmitField(_('Save'))
