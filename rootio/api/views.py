@@ -94,9 +94,16 @@ def restless_routes():
 @returns_json
 def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
-    location = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
-   
-    response = {"name" : station.name, "frequency" : station.frequency, "location" : location, "telephone" : station.cloud_phone.raw_number, "multicast_IP" : station.broadcast_ip, "multicast_port" : station.broadcast_port}
+    response = dict()
+    if station != None:
+        response["name"] = station.name
+        response["frequency"] = station.frequency
+        if station.location != None:
+            response["location"] = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
+        if station.cloud_phone != None:
+            response["telephone"] = station.cloud_phone.raw_number
+        response["multicast_IP"] = station.broadcast_ip
+        response["multicast_port"] = station.broadcast_port
     responses = dict()
     responses["station"] =  response
     return responses

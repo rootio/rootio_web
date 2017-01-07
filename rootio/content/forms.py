@@ -41,7 +41,7 @@ def musics_tracks():
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(ContentTrack.type_id==content_type.id).all()  
 
 def stations():
-    return Station.query.join(Network).join(User).filter(User.id==current_user.id).all()
+    return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
 class ContentUploadForm(Form): 
     multipart = True
