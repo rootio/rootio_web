@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#activate the venv to use
+source /usr/local/station-telephony/venv/bin/activate
+
+#cd to the station telephony dir
+cd /usr/local/station-telephony/
+
+#run as a package
+python -m podcast.rss_download_runner "$1"

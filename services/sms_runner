@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#activate the venv you want to use
+source /usr/local/station-telephony/venv/bin/activate
+
+#cd to the station telephony dir
+cd /usr/local/station-telephony
+
+#run as a package
+python -m sms_server.sms_runner "$1"
