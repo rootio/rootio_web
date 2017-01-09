@@ -69,8 +69,7 @@ def network_add():
 
 @radio.route('/station/', methods=['GET'])
 def stations():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    #stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
+    stations = auth.edit_stations().all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
 
