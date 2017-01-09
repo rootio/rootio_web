@@ -16,6 +16,7 @@ from .models import Station, StationAnalytic, Network, Program, ProgramType, Sch
 from .widgets import ChoicesSelect
 
 from ..user.models import User
+from ..user import auth
 from ..telephony.forms import PhoneNumberForm
 
 from ..utils import OrderedForm, GENDER_TYPE
@@ -30,7 +31,7 @@ class LocationForm(LocationFormBase):
 
 
 def all_networks():
-    return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return auth.edit_networks().all()
 
 #define field help text here, instead of in model info
 StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
