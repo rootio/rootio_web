@@ -13,6 +13,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
+from ..user import auth
 from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
@@ -76,6 +77,9 @@ def stations():
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
 def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
+    if not auth.can_edit_station(station):
+        auth.deny()
+
     form = StationForm(obj=station, next=request.args.get('next'))
 
     if form.validate_on_submit():
