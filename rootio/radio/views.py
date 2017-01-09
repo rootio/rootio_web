@@ -355,6 +355,12 @@ def scheduled_block_add():
 def schedule_program_add_ajax():
     data = json.loads(request.data)
 
+    program = Program.query.filter(Program.id==data['program']).first()
+    station = Station.query.filter(Station.id==data['station']).first()
+
+    if not auth.can_edit_station(station):
+        auth.deny()
+
     if not 'program' in data:
         return {'status':'error','errors':'program required','status_code':400}
     if not 'station' in data:
@@ -367,8 +373,6 @@ def schedule_program_add_ajax():
 
     #Fix this. use form elements
 
-    program = Program.query.filter(Program.id==data['program']).first()
-    station = Station.query.filter(Station.id==data['station']).first()
     scheduled_program = ScheduledProgram()
     scheduled_program.station_id = data['station']
     scheduled_program.program_id = data['program']
@@ -424,6 +428,12 @@ def schedule_recurring_program_ajax():
     "Schedule a recurring program"
     data = json.loads(request.data)
 
+    program = Program.query.filter(Program.id==form.data['program']).first()
+    station = Station.query.filter(Station.id==form.data['station']).first()
+
+    if not auth.can_edit_station(station):
+        auth.deny()
+
     #ensure specified foreign key ids are valid
     #fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
     #if fk_errors:
@@ -439,8 +449,6 @@ def schedule_recurring_program_ajax():
 
     #if form.validate_on_submit():
     #save refs to form objects
-    program = Program.query.filter(Program.id==form.data['program']).first()
-    station = Station.query.filter(Station.id==form.data['station']).first()
 
     #parse recurrence rule
     r = dateutil.rrule.rrulestr(form.data['recurrence'])
@@ -461,14 +469,21 @@ def schedule_recurring_program_ajax():
 @radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
 @returns_flat_json
 def scheduled_programs_json(station_id):
+    station = Station.query.get_or_404(station_id)
+    if not auth.can_edit_station(station):
+        auth.deny()
+
     if not ('start' in request.args and 'end' in request.args):
         return {'status':'error','errors':'scheduledprograms.json requires start and end','status_code':400}
     start = dateutil.parser.parse(request.args.get('start'))
     end = dateutil.parser.parse(request.args.get('end'))
-    scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id)\
-                                                   .filter(ScheduledProgram.start >= start)\
-                                                   .filter(ScheduledProgram.end <= end)\
-                                                   .filter(ScheduledProgram.deleted == False)
+    scheduled_programs = (
+        station.scheduled_programs
+        .filter(ScheduledProgram.start >= start)
+        .filter(ScheduledProgram.end <= end)
+        .filter(ScheduledProgram.deleted == False)
+    )
+
     resp = []
     for s in scheduled_programs:
         d = {'title':s.program.name,
@@ -484,7 +499,9 @@ def scheduled_programs_json(station_id):
 @radio.route('/station/<int:station_id>/scheduledblocks.json', methods=['GET'])
 @returns_flat_json
 def scheduled_block_json(station_id):
-    scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station_id)
+    station = Station.query.get_or_404(station_id)
+    if not auth.can_edit_station(station):
+        auth.deny()
 
     if not ('start' in request.args and 'end' in request.args):
         return {'status':'error','errors':'scheduledblocks.json requires start and end','status_code':400}
@@ -494,7 +511,7 @@ def scheduled_block_json(station_id):
     end = dateutil.parser.parse(request.args.get('end'))
 
     resp = []
-    for block in scheduled_blocks:
+    for block in station.blocks:
         r = dateutil.rrule.rrulestr(block.recurrence)
         for instance in r.between(start,end):
             d = {'title':block.name,
@@ -510,8 +527,7 @@ def scheduled_block_json(station_id):
 @radio.route('/schedule/', methods=['GET'])
 def schedule():
     #TODO, if user is authorized to view only one station, redirect them there
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    #stations = Station.query.order_by('name').all()
+    stations = auth.edit_stations().all()
 
     return render_template('radio/schedules.html',
         stations=stations, active='schedule')
@@ -519,6 +535,8 @@ def schedule():
 @radio.route('/schedule/<int:station_id>/', methods=['GET'])
 def schedule_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
+    if not auth.can_edit_station(station):
+        auth.deny()
 
     #TODO: move this logic to an ajax call, like scheduled_block_json
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
