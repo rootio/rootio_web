@@ -68,6 +68,16 @@ def test_permissions(db):
     db.session.add(station_1)
     db.session.flush()
 
+    assert auth.can_edit_network(network_1, admin)
+    assert auth.can_edit_network(network_1, net_admin_1)
+    assert not auth.can_edit_network(network_1, net_admin_2)
+    assert not auth.can_edit_network(network_1, demo)
+
+    assert auth.can_edit_network(network_2, admin)
+    assert auth.can_edit_network(network_2, net_admin_2)
+    assert not auth.can_edit_network(network_2, net_admin_1)
+    assert not auth.can_edit_network(network_2, demo)
+
     assert auth.can_edit_station(station_1, admin)
     assert auth.can_edit_station(station_1, net_admin_1)
     assert not auth.can_edit_station(station_1, net_admin_2)
