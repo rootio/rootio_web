@@ -9,7 +9,7 @@ import dateutil.rrule, dateutil.parser
 from sqlalchemy import select
 
 from flask import g, current_app, Blueprint, render_template, request, flash, Response, json
-from flask.ext.login import login_required, current_user
+from flask.ext.login import current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
@@ -25,6 +25,11 @@ from ..extensions import db
 from ..messenger import messages
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
+
+@radio.before_request
+def require_login():
+    if not auth.is_logged_in():
+        auth.deny()
 
 @radio.route('/', methods=['GET'])
 def index():
@@ -45,7 +50,6 @@ def emergency():
 
 
 @radio.route('/network/add/', methods=['GET', 'POST'])
-@login_required
 def network_add():
     if not auth.can_admin():
         auth.deny()
@@ -95,7 +99,6 @@ def station(station_id):
 
 
 @radio.route('/station/add/', methods=['GET', 'POST'])
-@login_required
 def station_add():
     form = StationForm(request.form)
     station = None
@@ -155,7 +158,6 @@ def program(program_id):
 
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
-@login_required
 def program_add():
     form = ProgramForm(request.form)
     program = None
@@ -189,7 +191,6 @@ def music_programs():
     return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
 
 @radio.route('/music_program/add/', methods=['GET', 'POST'])
-@login_required
 def music_program_add():
     form = ProgramForm(request.form)
     program = None
@@ -262,7 +263,6 @@ def person(person_id):
 
 
 @radio.route('/people/add/', methods=['GET', 'POST'])
-@login_required
 def person_add():
     form = PersonForm(request.form)
     person = None
@@ -282,7 +282,6 @@ def person_add():
 
 
 @radio.route('/location/add/ajax/', methods=['POST'])
-@login_required
 @returns_json
 def location_add_ajax():
     data = json.loads(request.data)
@@ -333,7 +332,6 @@ def scheduled_block(block_id):
 
 
 @radio.route('/block/add/', methods=['GET', 'POST'])
-@login_required
 def scheduled_block_add():
     form = BlockForm(request.form)
     block = None
@@ -353,7 +351,6 @@ def scheduled_block_add():
 
 
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
-@login_required
 @returns_json
 def schedule_program_add_ajax():
     data = json.loads(request.data)
@@ -388,7 +385,6 @@ def schedule_program_add_ajax():
 
 
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
-@login_required
 def delete_program(_id):
     _program = ScheduledProgram.query.filter(ScheduledProgram.id==_id).first()
     _program.deleted = True
@@ -398,7 +394,6 @@ def delete_program(_id):
 
 
 @radio.route('/scheduleprogram/edit/ajax/', methods=['POST'])
-@login_required
 @returns_json
 def schedule_program_edit_ajax():
     data = json.loads(request.data)
@@ -424,7 +419,6 @@ def schedule_program_edit_ajax():
 
 
 @radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
-@login_required
 @returns_json
 def schedule_recurring_program_ajax():
     "Schedule a recurring program"
@@ -574,7 +568,6 @@ def telephony_station(station_id):
 
 
 @radio.route('/telephony/add/', methods=['GET', 'POST'])
-@login_required
 def telephony_add():
     if not auth.can_admin():
         auth.deny()

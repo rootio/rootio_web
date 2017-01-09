@@ -4,6 +4,9 @@ from . import constants
 from .models import User
 from ..radio.models import Station, Network
 
+def is_logged_in(user=current_user):
+    return user.is_authenticated()
+
 def edit_networks(user=current_user):
     """ A query of networks that the current user can edit """
 
