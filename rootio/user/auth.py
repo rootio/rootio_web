@@ -45,5 +45,12 @@ def edit_stations(user=current_user):
 def can_edit_station(station, user=current_user):
     return station in edit_stations(user)
 
+def can_admin(user=current_user):
+    if user.is_authenticated():
+        if user.role_code == constants.ADMIN:
+            return True
+
+    return False
+
 def deny():
     flask.abort(403)

@@ -82,3 +82,7 @@ def test_permissions(db):
     assert auth.can_edit_station(station_1, net_admin_1)
     assert not auth.can_edit_station(station_1, net_admin_2)
     assert not auth.can_edit_station(station_1, demo)
+
+    assert auth.can_admin(admin)
+    assert not auth.can_admin(net_admin_1)
+    assert not auth.can_admin(demo)
