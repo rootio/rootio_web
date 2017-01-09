@@ -547,16 +547,17 @@ def schedule_station(station_id):
 
 @radio.route('/telephony/', methods=['GET', 'POST'])
 def telephony():
-    #stations = Station.query.all()
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = auth.edit_stations().all()
     return render_template('radio/stations_telephony.html', stations=stations)
 
 
 
 @radio.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
 def telephony_station(station_id):
-    
     station = Station.query.filter_by(id=station_id).first_or_404()
+    if not auth.can_edit_station(station):
+        auth.deny()
+
     form = StationTelephonyForm(obj=station, next=request.args.get('next'))
 
     if form.validate_on_submit():
