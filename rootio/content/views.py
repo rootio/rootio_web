@@ -7,6 +7,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 from sqlalchemy import MetaData
+from flask_paginate import Pagination
 
 from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
@@ -154,13 +155,19 @@ def content_upload_add():
     return render_template('content/content_upload.html', content_uploads=content_uploads, form=form) 
 
 
+@content.route('/news/', defaults={'page': 1})
 @content.route('/news/')
 @login_required
 def content_news():
     name_content = 'News'
+    page= request.args.get('page', type=int, default=1)
+    per_page = 2
     content_type = ContentType.query.filter(ContentType.name=='News').first()
-    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
-    return render_template('content/content_news.html', content_news=content_news)
+    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id) #.slice(0, per_page).all()
+
+    pagination = Pagination(page=page, per_page=per_page, search='', total=5, record_name='records')
+    return render_template('content/content_news.html', content_news=content_news.slice((page - 1) * per_page, per_page).all(), pagination=pagination, )
+    #return render_template('content/content_news.html', content_news=content_news)
 
 
 @content.route('/news/<int:content_news_id>', methods=['GET', 'POST'])
@@ -620,7 +627,7 @@ def content_musicplaylist_albums(playlist_id):
 @login_required
 @returns_json
 def content_musicplaylist_songs(playlist_id):
-    songs_query = 'select content_music.id "id", content_music.title  "item", playlist.title "playlist", case when playlist.title is not null then true else false end "is_included" from content_music left outer join (select * from content_musicplaylistitem where playlist_item_type_id = 1 and not deleted) playlistitems on content_music.id = playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id'
+    songs_query = 'select content_music.id "id", content_music.title  "item", playlist.title "playlist", case when playlist.title is not null then true else false end "is_included", (content_music.duration/1000)/60||\':\'||(content_music.duration/1000)%60 "songs" from content_music left outer join (select * from content_musicplaylistitem where playlist_item_type_id = 1 and not deleted) playlistitems on content_music.id = playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id'
 
     content_musicplaylist_songs = db.session.execute(songs_query, { 'playlist_id': playlist_id })
     response = json.dumps([(dict(row.items())) for row in content_musicplaylist_songs])

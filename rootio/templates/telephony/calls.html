@@ -4,7 +4,7 @@
 <div class="container">
     <h2 class="pull-left">{{ _('Calls') }}</h2>
 
-    <table id="datatable" class='table table-bordered table-hover'>
+    <table id="datatable" class='table table-bordered table-hover' data-url="records">
         <thead>
             <tr>
                 <th>{{ _('Station') }}</th>
@@ -15,18 +15,16 @@
                 <th>{{ _('To') }}</th>
             </tr>
         </thead>
-        <tbody>
-        {% for call in calls %}
-        <tr>
-            <td>{{ call[1] }}</td>
-            <td>{{ call[0].call_uuid }}</td>
-            <td>{{ call[0].start_time }}</td>
-            <td>{{ call[0].duration }} {{_('Secs.') }}</td>
-            <td>{{ call[0].from_phonenumber }}</td>
-            <td>{{ call[0].to_phonenumber }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
+        <tfoot>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('UUID') }}</th>
+                <th>{{ _('Start Time') }}</th>
+                <th>{{ _('Duration') }}</th>
+                <th>{{ _('From') }}</th>
+                <th>{{ _('To') }}</th>
+            </tr>
+        </tfoot>
     </table>
 </div>
 {% endblock %}

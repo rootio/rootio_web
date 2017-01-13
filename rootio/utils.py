@@ -13,6 +13,7 @@ from datetime import datetime, time, timedelta
 from flask import Flask
 from flask import json
 from flask.ext.wtf import Form
+from sqlalchemy import or_
 
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -211,3 +212,36 @@ class OrderedForm(Form):
                     temp_fields.append([f for f in self._unbound_fields if f[0] == name][0])
             self._unbound_fields = temp_fields
         return super(OrderedForm, self).__iter__()
+
+#Poor man's paging
+class Paginator():
+    def get_json_datatable(self, processed_query):
+        datatable = dict()
+        datatable['columns'] = []
+        for column_description in processed_query.column_descriptions:
+            datatable['columns'].append(column_description['name'])
+        datatable['data'] = []
+        results = processed_query.all()
+        for row in results:
+            datatable['data'].append(list(row))
+        datatable['recordsFiltered'] = len(results)
+        return datatable
+
+    def get_records(self, base_query, searchable_columns, request):
+        #sorting
+        base_query = base_query.order_by('{0} {1}'.format(base_query.column_descriptions[int(request.args['order[0][column]'])]['name'], request.args['order[0][dir]']))
+
+        #searching
+        filters = []
+        for col in searchable_columns:
+            filters.append(col.ilike('%{0}%'.format(request.args['search[value]'])))
+        base_query = base_query.filter(or_(*filters))
+
+        #paging
+        datatable = self.get_json_datatable(base_query.slice(int(request.args['start']),int(request.args['start']) + int(request.args['length'])))
+        datatable['recordsTotal'] = 45 #base_query.count()
+        return datatable
+
+
+#paginator
+jquery_dt_paginator = Paginator()

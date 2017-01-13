@@ -1,14 +1,16 @@
 {% extends "content/layout.html" %}
 
 {% block body %}
-<div class="container">
-    <h2>{{ _('Content Dashboard') }}</h2>
+    <h2>{{ _('News') }}</h2>
     <div class="pull-left">
-        <h3>{{ _('News') }}</h3>
+       <p>{{ pagination.info }}</p>
     </div>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.content_news_add') }}"><strong>Add +</strong></a>
     </div>
+    <br/>
+    <div class="container">
+
     <table class='table table-bordered table-hover'>
         <thead>
             <tr>
@@ -35,5 +37,6 @@
         </tr>
         {% endfor %}
     </table>
+    {{ pagination.links }}
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import g, Blueprint, render_template, request, flash, Response, json
+from flask import g, Blueprint, render_template, request, flash, Response, json, jsonify
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 import socket
@@ -6,19 +6,20 @@ from .models import PhoneNumber, Message, Call, Gateway
 from .forms import PhoneNumberForm
 #from ..user.models import User
 #from rootio.radio.models import Station
-from ..utils import error_dict
+from ..utils import error_dict, jquery_dt_paginator
 from ..decorators import returns_json
 from ..extensions import db
+from sqlalchemy import text, or_
 
 telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])
-def index():
+def index(*kwargs):
     #Fix this: Re-write this using ORM
     summary_query = 'select radio_station.name "station", (select count(*) from telephony_message where telephony_message.station_id = radio_station.id) "messages", (select count(*) from telephony_call where telephony_call.station_id = radio_station.id) "calls", (select count(*) from radio_incominggateway where radio_incominggateway.station_id = radio_station.id) "incoming_gateways", (select count(*) from radio_outgoinggateway where radio_outgoinggateway.station_id = radio_station.id)  "outgoing_gateways" from radio_station  join radio_network on radio_station.network_id = radio_network.id join radio_networkusers on radio_network.id = radio_networkusers.network_id join user_user on radio_networkusers.user_id = user_user.id where user_user.id = :user_id group by "station", radio_station.id'
     query_params  = {'user_id':current_user.id}
     station_summary = db.session.execute(summary_query, query_params)
-    return render_template('telephony/index.html',station_summary=station_summary)
+    return render_template('telephony/index.html',station_summary=station_summary,kwargs=sort_dir)
 
 
 @telephony.route('/phonenumber/', methods=['GET'])
@@ -81,22 +82,35 @@ def phonenumber_add_inline():
         response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
-
-@telephony.route('/calls/', methods=['GET'])
-def calls():
+@telephony.route('/calls/records', methods=['GET'])
+#@returns_json
+def call_records(**kwargs):
     from ..user.models import User
     from ..radio.models import Station, Network
-    recent_calls = Call.query.with_entities(Call, Station.name).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
-    #todo, paginate?
+    cols = [Call.call_uuid, Call.start_time, Call.duration, Call.from_phonenumber, Call.to_phonenumber, Station.name]
+    recent_calls = Call.query.with_entities(*cols).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id)
+    
+    records = jquery_dt_paginator.get_records(recent_calls, [Call.call_uuid, Call.from_phonenumber, Call.to_phonenumber, Station.name], request)
+    return jsonify(records)
 
-    return render_template('telephony/calls.html', active='calls', calls=recent_calls)
+@telephony.route('/calls/', methods=['GET'])
+def calls(**kwargs):
+    return render_template('telephony/calls.html', active='calls')
 
 @telephony.route('/messages/', methods=['GET'])
 def messages():
+    return render_template('telephony/messages.html', active='messages')
+
+@telephony.route('/messages/records', methods=['GET'])
+def message_records():
     from ..user.models import User
     from ..radio.models import Station, Network
-    recent_messages = Message.query.with_entities(Message, Station.name).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id).all()
-    return render_template('telephony/messages.html', active='messages', messages=recent_messages)
+    cols = [Station.name, Message.sendtime, Message.text, Message.from_phonenumber, Message.to_phonenumber]
+    recent_messages = Message.query.with_entities(*cols).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id)
+    
+    records = jquery_dt_paginator.get_records(recent_messages, cols, request)
+    return jsonify(records)
+
 
 @telephony.route('/gateways/', methods=['GET'])
 def gateways():
