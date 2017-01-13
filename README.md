@@ -17,6 +17,7 @@ Complete list of packages in [requirements.txt](https://github.com/rootio/rootio
 * [Architecture](docs/architecture.md)
 * [Database](docs/database.md)
 * [API](docs/api.md)
+* [Testing](docs/testing.md)
 
 ## LICENSE
 

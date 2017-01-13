@@ -232,7 +232,7 @@ def content_news_add():
 @content.route('/ads/')
 @login_required
 def content_ads():
-    content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
+    content_type = ContentType.query.filter(ContentType.name=='Ads').first()
     ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
     return render_template('content/content_ads.html', ads=ads)  
 
@@ -469,7 +469,8 @@ def hosts_add():
     del form.title
     del form.additionalcontact
     del form.privacy_code
-
+    del form.network_id
+   
     host = None
     if form.validate_on_submit():
         cleaned_data = form.data #make a copy
@@ -494,6 +495,7 @@ def host_edit(host_id):
     del form.title
     del form.additionalcontact
     del form.privacy_code
+    del form.network_id
 
     if form.validate_on_submit():
         form.populate_obj(host)

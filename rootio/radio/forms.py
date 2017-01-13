@@ -3,7 +3,7 @@
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from wtforms.ext.sqlalchemy.orm import model_form
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms import StringField, SelectField, SubmitField, FormField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
 from wtforms_components.fields import TimeField
 from wtforms.validators import Required, AnyOf
@@ -106,6 +106,7 @@ class PersonForm(PersonFormBase):
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
             choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
+    networks = QuerySelectMultipleField('Networks', [Required()], query_factory=all_networks)
     submit = SubmitField(_('Save'))
 
 
