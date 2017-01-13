@@ -82,7 +82,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.content_podcast_add') }}"><strong>Add +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Podcast name') }}</th>
@@ -92,6 +92,7 @@
                 <th>{{ _('Edit') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for content_podcast in content_podcasts %}
         <tr>
             <td>{{ content_podcast.name }}</td>
@@ -101,6 +102,7 @@
             <td><a href="{{ url_for('content.content_podcast', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td> 
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 {% endblock %}

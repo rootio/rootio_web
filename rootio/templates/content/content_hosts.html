@@ -9,7 +9,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.hosts_add') }}"><strong>Add +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
@@ -20,6 +20,7 @@
                 <th></th>
             </tr>
         </thead>
+        <tbody>
         {% for host in hosts %}
         <tr>
             <td>{{ host }}</td>
@@ -37,6 +38,7 @@
             <td><a href="{{ url_for('content.host_edit', host_id=host.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 {% endblock %}
