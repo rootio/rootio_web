@@ -216,10 +216,12 @@ def music_program(music_program_id):
     playlists = ContentMusicPlaylist.query.all()
     #render the program structure
     action_names = []
-    program_json = json.loads(music_program.structure)
-    for action in program_json:
-        action_names.append(action['name'])
-
+    try:
+        program_json = json.loads(music_program.structure)
+        for action in program_json:
+            action_names.append(action['name'])
+    except Exception:
+        pass
     program_actions = ",".join(action_names)
 
     form = ProgramForm(obj=music_program, program_structure=program_actions, next=request.args.get('next'))

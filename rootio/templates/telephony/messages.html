@@ -4,7 +4,7 @@
 <div class="container">
     <h2 class="pull-left">{{ _('Messages') }}</h2>
 
-    <table id="datatable" class='table table-bordered table-hover'>
+    <table id="datatable" data-url="records" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Station') }}</th>
@@ -15,15 +15,6 @@
             </tr>
         </thead>
         <tbody>
-        {% for message in messages %}
-        <tr>
-            <td>{{ message[1] }}</td>
-            <td>{{ message[0].sendtime }}</td>
-            <td>{{ message[0].text }}</td>
-            <td>{{ message[0].from_phonenumber }}</td>
-            <td>{{ message[0].to_phonenumber }}</td>
-        </tr>
-        {% endfor %}
         </tbody>
     </table>
 </div>

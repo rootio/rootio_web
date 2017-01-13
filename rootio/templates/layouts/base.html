@@ -103,7 +103,9 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('#datatable').DataTable({
-               searching: true
+               serverSide: true,
+               ajax: $('#datatable').attr('data-url'),
+               searching: true,
            });
         });
     </script>
