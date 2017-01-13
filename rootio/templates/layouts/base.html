@@ -107,6 +107,11 @@
                ajax: $('#datatable').attr('data-url'),
                searching: true,
            });
+
+            $('#offline_datatable').DataTable({
+               searching: true,
+           });
+
         });
     </script>
     {% endblock %}
