@@ -67,6 +67,7 @@ class ProfileForm(ProfileFormBase):
     next = HiddenField()
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
+    networks = QuerySelectMultipleField('Networks',[Required()], query_factory=lambda: current_user.networks)
     role_code = RadioField(u"Role", choices=[])
     #role_code = RadioField(_("Role")) #, [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in role_codes().items()])
     # Don't use the same name as model because we are going to use populate_obj().
@@ -81,13 +82,11 @@ class ProfileForm(ProfileFormBase):
 
     def get_role_codes(self, role_code):
         if role_code == 0:
-            roles = USER_ROLE
+            return USER_ROLE
         elif role_code == 3:
-            roles = {k: v for k, v in USER_ROLE.items() if k in ('2','3')}
+            return [(k, v) for k, v in USER_ROLE.items() if k in (3,4)]
         elif role_code == 1:
-            roles = USER_ROLE[1:2]
-        self.role_code = RadioField(_("Role"), [AnyOf([str(val) for val in roles.keys()])], choices=[(str(val), label) for val, label in roles.items()])
-
+            return [(k, v) for k, v in USER_ROLE.items() if k in (1,2)]
 
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
