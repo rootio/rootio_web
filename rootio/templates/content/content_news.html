@@ -1,17 +1,18 @@
 {% extends "content/layout.html" %}
 
 {% block body %}
-    <h2>{{ _('News') }}</h2>
+
+     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
-       <p>{{ pagination.info }}</p>
+        <h3>{{ _('News') }}</h3>
     </div>
+
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.content_news_add') }}"><strong>Add +</strong></a>
     </div>
-    <br/>
     <div class="container">
 
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Track name') }}</th>
@@ -21,6 +22,7 @@
                 <th></th>
             </tr>
         </thead>
+        <tbody>
         {% for content_upload in content_news %}
         <tr>
             <td>{{ content_upload.track.name }}</td>
@@ -36,7 +38,7 @@
             <td><a href="{{ url_for('content.content_news_edit', content_news_id=content_upload.id) }}">Edit</a></td>
         </tr>
         {% endfor %}
+       </tbody>
     </table>
-    {{ pagination.links }}
 </div>
 {% endblock %}

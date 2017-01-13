@@ -93,7 +93,7 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.content_musicplaylist_add') }}"><strong>Add +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Station') }}</th>
@@ -104,6 +104,7 @@
                 <th>{{ _('Artists') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for content_musicplaylist in content_musicplaylists %}
         <tr>
             <td>{{ content_musicplaylist.station }}</td>
@@ -114,6 +115,7 @@
             <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 {% endblock %}

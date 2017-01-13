@@ -3,7 +3,7 @@
 {% block body %}
 <div class="container">
     <h2 class="pull-left">{{ _('Station Schedules') }}</h2>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
@@ -11,8 +11,10 @@
                 <th>{{ _('Previous Program') }}</th>
                 <th>{{ _('Current Program') }}</th>
                 <th>{{ _('Next Program') }}</th>
+                <th>{{ _('Schedule') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
@@ -23,6 +25,7 @@
             <td><a href="{{ url_for('radio.schedule_station', station_id=station.id) }}">{{ _('Schedule') }}</a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}

@@ -2,11 +2,15 @@
 
 {% block body %}
 <div class="container">
-    <h2 class="pull-left">{{ _('Manage Users') }}</h2>
+ <h2>{{ _('Manage Users') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Users') }}</h3>
+    </div>
+
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('user.add_user') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
@@ -20,6 +24,7 @@
                 <th>{{ _('Edit') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for u in users %}
         <tr>
             <td>{{ u }} </td>
@@ -33,6 +38,7 @@
             <td><a href="{{ url_for('user.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 {% endblock %}
