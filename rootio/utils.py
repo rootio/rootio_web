@@ -7,7 +7,7 @@ import string
 import random
 import os
 import re
-
+import sys
 from datetime import datetime, time, timedelta
 
 from flask import Flask
@@ -221,7 +221,7 @@ class Paginator():
         results = processed_query.all()
         for row in results:
             datatable['data'].append(list(row))
-        datatable['recordsFiltered'] = len(results)
+        #datatable['recordsFiltered'] = len(results)
         return datatable
 
     def get_records(self, base_query, searchable_columns, request):
@@ -231,12 +231,13 @@ class Paginator():
         #searching
         filters = []
         for col in searchable_columns:
-            filters.append(col.ilike('%{0}%'.format(request.args['search[value]'])))
+           filters.append(col.ilike('%{0}%'.format(request.args['search[value]'])))
         base_query = base_query.filter(or_(*filters))
 
         #paging
         datatable = self.get_json_datatable(base_query.slice(int(request.args['start']),int(request.args['start']) + int(request.args['length'])))
-        datatable['recordsTotal'] = 45 #base_query.count()
+        #sys.setrecursionlimit(10000)
+        datatable['recordsTotal'] = datatable['recordsFiltered'] = len(base_query.all()) #base_query.count() should be used instead, but results in recursion depth error. This implementation hits the db again, and retrieves the entire dataset just to count rows!!
         return datatable
 
 
