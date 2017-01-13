@@ -14,12 +14,12 @@ from sqlalchemy import text, or_
 telephony = Blueprint('telephony', __name__, url_prefix='/telephony')
 
 @telephony.route('/', methods=['GET'])
-def index(*kwargs):
+def index():
     #Fix this: Re-write this using ORM
     summary_query = 'select radio_station.name "station", (select count(*) from telephony_message where telephony_message.station_id = radio_station.id) "messages", (select count(*) from telephony_call where telephony_call.station_id = radio_station.id) "calls", (select count(*) from radio_incominggateway where radio_incominggateway.station_id = radio_station.id) "incoming_gateways", (select count(*) from radio_outgoinggateway where radio_outgoinggateway.station_id = radio_station.id)  "outgoing_gateways" from radio_station  join radio_network on radio_station.network_id = radio_network.id join radio_networkusers on radio_network.id = radio_networkusers.network_id join user_user on radio_networkusers.user_id = user_user.id where user_user.id = :user_id group by "station", radio_station.id'
     query_params  = {'user_id':current_user.id}
     station_summary = db.session.execute(summary_query, query_params)
-    return render_template('telephony/index.html',station_summary=station_summary,kwargs=sort_dir)
+    return render_template('telephony/index.html',station_summary=station_summary)
 
 
 @telephony.route('/phonenumber/', methods=['GET'])
@@ -105,10 +105,10 @@ def messages():
 def message_records():
     from ..user.models import User
     from ..radio.models import Station, Network
-    cols = [Station.name, Message.sendtime, Message.text, Message.from_phonenumber, Message.to_phonenumber]
+    cols = [Message.sendtime, Message.text, Message.from_phonenumber, Message.to_phonenumber, Station.name]
     recent_messages = Message.query.with_entities(*cols).join(Station).join(Network).join(User,Network.networkusers).filter(User.id==current_user.id)
     
-    records = jquery_dt_paginator.get_records(recent_messages, cols, request)
+    records = jquery_dt_paginator.get_records(recent_messages, [Message.text, Message.from_phonenumber, Message.to_phonenumber, Station.name], request)
     return jsonify(records)
 
 
