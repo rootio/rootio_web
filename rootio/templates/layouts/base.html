@@ -116,11 +116,6 @@
     </script>
     {% endblock %}
 
-    <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
-    {% block js_btm %}{% endblock %}
-    <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
         {% block container %}
         <div class="container">
 
@@ -160,6 +155,10 @@
         </ul>
     </footer>
 
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    {% block js_btm %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 
     {% block ga %}
