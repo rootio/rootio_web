@@ -159,14 +159,10 @@ def content_upload_add():
 @login_required
 def content_news():
     name_content = 'News'
-    page= request.args.get('page', type=int, default=1)
-    per_page = 2
     content_type = ContentType.query.filter(ContentType.name=='News').first()
-    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id) #.slice(0, per_page).all()
+    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
 
-    pagination = Pagination(page=page, per_page=per_page, search='', total=5, record_name='records')
-    return render_template('content/content_news.html', content_news=content_news.slice((page - 1) * per_page, per_page).all(), pagination=pagination, )
-    #return render_template('content/content_news.html', content_news=content_news)
+    return render_template('content/content_news.html', content_news=content_news)
 
 
 @content.route('/news/<int:content_news_id>', methods=['GET', 'POST'])
