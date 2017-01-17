@@ -1,4 +1,4 @@
-map = L.map(document.getElementById('map')).setView([1.1975, 32.223], 6); //centered on uganda
+map = L.map(document.getElementById('map')) //.setView([1.1975, 32.223], 6); //centered on uganda
 
 var Stamen_TonerLite = L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
     attribution: 'Tiles <a href="http://stamen.com">Stamen</a> | Data <a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC</a>',
@@ -13,6 +13,7 @@ var OSM = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 });
 
 Stamen_TonerLite.addTo(map);
+minLat = maxLat =  minLng = maxLng =0;
 
 $.ajax({
     type: "GET",
@@ -22,6 +23,21 @@ $.ajax({
         stations = [];
         for (var i=0; i < response.num_results; i++) {
             var station = response.objects[i];
+            if(i == 0)
+            {
+                minLat = maxLat = station.location.latitude;
+                minLng = maxLng = station.location.longitude;
+            }
+
+            else
+            {
+                //try and get mins and maxs
+                minLat = station.location.latitude < minLat ? station.location.latitude : minLat;
+                minLng = station.location.longitude < minLng ? station.location.latitude : minLng;
+
+                maxLat = station.location.latitude > maxLat ? station.location.latitude : maxLat;
+                maxLng = station.location.longitude > maxLng ? station.location.latitude : maxLng;        
+            }
             //extract geo fields from api response
             var geojson = {
                 "type": "Feature",
@@ -42,6 +58,8 @@ $.ajax({
         drawStations(stations);
     }
 });
+
+map.setView([(minLat + maxLat)/2, (minLng + maxLng)/2], 6)
 
 function stationsToLayer(feature, latlng) {
     var status_color, icon_name;
