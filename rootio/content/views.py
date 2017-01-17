@@ -7,7 +7,6 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 from werkzeug.utils import secure_filename
 from sqlalchemy import MetaData
-from flask_paginate import Pagination
 
 from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
