@@ -44,7 +44,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
         'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone', 'community_menu','community_content'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone', 'community_menu','community_content', 'music','albums','playlists','artists'])
 class StationForm(StationFormBase):
     network = QuerySelectField(u'Network', [Required()], query_factory=all_networks,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
