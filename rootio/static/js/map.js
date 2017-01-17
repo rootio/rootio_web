@@ -13,7 +13,7 @@ var OSM = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 });
 
 Stamen_TonerLite.addTo(map);
-minLat = maxLat =  minLng = maxLng =0;
+var minLat = maxLat =  minLng = maxLng = 20;
 
 $.ajax({
     type: "GET",
@@ -56,10 +56,10 @@ $.ajax({
             stations.push(geojson);
         }
         drawStations(stations);
+        map.setView([(minLat + maxLat)/2, (minLng + maxLng)/2], 6)
     }
 });
 
-map.setView([(minLat + maxLat)/2, (minLng + maxLng)/2], 6)
 
 function stationsToLayer(feature, latlng) {
     var status_color, icon_name;
