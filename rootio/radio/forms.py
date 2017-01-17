@@ -95,7 +95,7 @@ class ContentTypeForm(ContentTypeFormBase):
     description = TextAreaField()
     submit = SubmitField(_('Save'))
 
-NetworkFormBase = model_form(Network, db_session=db.session, base_class=Form, exclude=['networkusers','stations','created_at','paddingcontents','updated_at'])
+NetworkFormBase = model_form(Network, db_session=db.session, base_class=Form, exclude=['people','networkusers','stations','created_at','paddingcontents','updated_at'])
 class NetworkForm(NetworkFormBase):
     name = TextField(u'Name', [Required()])
     about = TextAreaField()
