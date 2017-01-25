@@ -29,7 +29,7 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 @radio.before_request
 def require_login():
     if not auth.is_logged_in():
-        auth.deny()
+        return auth.deny()
 
 @radio.route('/', methods=['GET'])
 def index():
@@ -52,7 +52,7 @@ def emergency():
 @radio.route('/network/add/', methods=['GET', 'POST'])
 def network_add():
     if not auth.can_admin():
-        auth.deny()
+        return auth.deny()
 
     form = NetworkForm(request.form)
 
@@ -84,7 +84,7 @@ def stations():
 def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     form = StationForm(obj=station, next=request.args.get('next'))
 
@@ -359,7 +359,7 @@ def schedule_program_add_ajax():
     station = Station.query.filter(Station.id==data['station']).first()
 
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     if not 'program' in data:
         return {'status':'error','errors':'program required','status_code':400}
@@ -432,7 +432,7 @@ def schedule_recurring_program_ajax():
     station = Station.query.filter(Station.id==form.data['station']).first()
 
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     #ensure specified foreign key ids are valid
     #fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
@@ -471,7 +471,7 @@ def schedule_recurring_program_ajax():
 def scheduled_programs_json(station_id):
     station = Station.query.get_or_404(station_id)
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     if not ('start' in request.args and 'end' in request.args):
         return {'status':'error','errors':'scheduledprograms.json requires start and end','status_code':400}
@@ -501,7 +501,7 @@ def scheduled_programs_json(station_id):
 def scheduled_block_json(station_id):
     station = Station.query.get_or_404(station_id)
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     if not ('start' in request.args and 'end' in request.args):
         return {'status':'error','errors':'scheduledblocks.json requires start and end','status_code':400}
@@ -536,7 +536,7 @@ def schedule():
 def schedule_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     #TODO: move this logic to an ajax call, like scheduled_block_json
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
@@ -571,7 +571,7 @@ def telephony():
 def telephony_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     if not auth.can_edit_station(station):
-        auth.deny()
+        return auth.deny()
 
     form = StationTelephonyForm(obj=station, next=request.args.get('next'))
 
@@ -588,7 +588,7 @@ def telephony_station(station_id):
 @radio.route('/telephony/add/', methods=['GET', 'POST'])
 def telephony_add():
     if not auth.can_admin():
-        auth.deny()
+        return auth.deny()
 
     form = StationTelephonyForm(request.form)
     station = None

@@ -56,4 +56,7 @@ def can_admin(user=current_user):
     return False
 
 def deny():
-    flask.abort(403)
+    if is_logged_in():
+        flask.abort(403)
+    else:
+        return flask.current_app.login_manager.unauthorized()
