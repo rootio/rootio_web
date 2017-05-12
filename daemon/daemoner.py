@@ -51,10 +51,12 @@ class Daemon:
                 si = file(self.stdin, 'r')
                 so = file(self.stdout, 'a+')
                 se = file(self.stderr, 'a+', 0)
-                os.dup2(si.fileno(), sys.stdin.fileno())
-                os.dup2(so.fileno(), sys.stdout.fileno())
-                os.dup2(se.fileno(), sys.stderr.fileno())
-       
+                
+                #TODO: fix these calls. they are blocking on debian, but seem to work fine on Ubuntu
+                #os.dup2(si.fileno(), sys.stdin.fileno())
+                #os.dup2(so.fileno(), sys.stdout.fileno())
+                #os.dup2(se.fileno(), sys.stderr.fileno())
+                 
                 # write pidfile
                 atexit.register(self.delpid)
                 pid = str(os.getpid())
@@ -69,16 +71,16 @@ class Daemon:
                 """
                 # Check for a pidfile to see if the daemon already runs
                 try:
-                        pf = file(self.pidfile,'r')
-                        pid = int(pf.read().strip())
-                        pf.close()
+                    pf = file(self.pidfile,'r')
+                    pid = int(pf.read().strip())
+                    pf.close()
                 except IOError:
-                        pid = None
+                       pid = None
        
                 if pid:
-                        message = "pidfile %s already exist. Daemon already running?\n"
-                        sys.stderr.write(message % self.pidfile)
-                        sys.exit(1)
+                       message = "pidfile %s already exist. Daemon already running?\n"
+                       sys.stderr.write(message % self.pidfile)
+                       sys.exit(1)
                
                 # Start the daemon
                 self.daemonize()

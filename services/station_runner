@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/local/rootio_web/venv/bin/activate
+source /usr/local/station-telephony/venv-telephony/bin/activate
 cd /usr/local/station-telephony
 
 python -m daemon.station_runner "$1"

@@ -6,11 +6,10 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
 import sys
-#sys.path.append('/home/amour/RootIO_Web_Old/'
 from rootio.config import *
 from rootio.radio.models import Station
-from rootio.radiostation.call_handler import CallHandler
-from rootio.radiostation.radio_station import RadioStation
+from call_handler import CallHandler
+from radio_station import RadioStation
 from daemoner import Daemon
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -19,6 +18,9 @@ import threading
 import logging
 from logging.handlers import TimedRotatingFileHandler 
 from rootio.extensions import db
+import zmq
+import socket
+import json 
 
 telephony_server = Flask("ResponseServer")
 telephony_server.debug = True
@@ -27,22 +29,53 @@ telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPo
 class StationRunner(Daemon):
 
     def run(self):
-        app_logger = logging.getLogger('station_runner')
+        self.__logger = logging.getLogger('station_runner')
         hdlr = TimedRotatingFileHandler('/var/log/rootio/stations.log',when='midnight',interval=1)
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         hdlr.setFormatter(formatter)
-        app_logger.addHandler(hdlr)
-        app_logger.setLevel(logging.DEBUG)
+        self.__logger.addHandler(hdlr)
+        self.__logger.setLevel(logging.DEBUG)
+
+        #set up scheduling 
+        lst_thr = threading.Thread(target=self.__start_listener, args=())
+        lst_thr.start()       
 
         db = SQLAlchemy(telephony_server)
         stations = db.session.query(Station).all()
         for station in stations:
-            radio_station = RadioStation(station.id, app_logger)
-            app_logger.info('launching station : {0}'.format(station.id))
+            radio_station = RadioStation(station.id, db.session, self.__logger)
+            self.__logger.info('launching station : {0}'.format(station.id))
             t = threading.Thread(target=radio_station.run, args=())
             t.start()
         print "================ service started at {0} ==============".format(datetime.utcnow())
 
+    def __start_listener(self):
+        self.__station_sockets = dict()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
+        s.listen(0)
+        self.__logger.info("Started TCP listener on port {0}".format(DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
+
+        while 1:
+            cli, adr = s.accept()
+            thrd = threading.Thread(target=self.__handle_tcp_connection, args=(cli,))
+            thrd.daemon = True
+            thrd.start()
+
+        
+    def __handle_tcp_connection(self, sck): #TODO: handle json errors, else server will break due to rogue connection        
+        while True:
+            data = sck.recv(1024)
+            print data
+            event = json.loads(data)
+            if event["action"] == "register": #A station socket is registering
+                self.__station_sockets[event["station"]] = sck
+                self.__logger.info("Station {0} has registered for schedule change events".format(event["station"]))
+            elif event["action"] in ["add","delete","update"]: #The schedule is alerting us of a change
+                if event["station"] in self.__station_sockets:
+                    self.__station_sockets[event["station"]].send(data)
+                    self.__logger.info("Event of type {0} sent to station {1} on scheduled program {2}".format(event["action"], event["station"], event["id"]))
+        
 
 
 if __name__ == "__main__":
