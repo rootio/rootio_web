@@ -2,6 +2,7 @@
 
 import os
 import json
+import socket
 from datetime import datetime
 import time
 from pytz import timezone
@@ -16,7 +17,7 @@ from ..user.models import User, RootioUser
 from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
-
+from ..config import DefaultConfig
 from ..decorators import returns_json, returns_flat_json
 from ..utils import error_dict, fk_lookup_form_data
 from ..extensions import db
@@ -345,6 +346,12 @@ def scheduled_block_add():
 
     return render_template('radio/scheduled_block.html', block=block, form=form)
 
+def send_scheduling_event(message):
+    sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
+    sck.send(message)
+    sck.recv(1024)
+    sck.close()
 
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
@@ -375,7 +382,10 @@ def schedule_program_add_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
-   
+
+    #TODO: Add a send event for addition
+    send_scheduling_event(json.dumps({"action":"add","id":scheduled_program.id,"station":int(data['station'])}))
+
     return {'status':data,'result':1,'status_code':200} 
     #return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
@@ -384,10 +394,13 @@ def schedule_program_add_ajax():
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
 def delete_program(_id):
-    _program = ScheduledProgram.query.filter(ScheduledProgram.id==_id).first()
-    _program.deleted = True
-    db.session.add(_program)
+    scheduled_program = ScheduledProgram.query.filter(ScheduledProgram.id==_id).first()
+    
+    scheduled_program.deleted = True
+    db.session.add(scheduled_program)
     db.session.commit()
+    #TODO: Add a delete event send
+    send_scheduling_event(json.dumps({"action":"delete","id":scheduled_program.id,"station":scheduled_program.station_id}))
     return ""
 
 
@@ -413,6 +426,9 @@ def schedule_program_edit_ajax():
 
     db.session.add(scheduled_program)
     db.session.commit()
+    
+    #TODO: Add an edit event broadcast (stn, progid, actionTypeId)
+    send_scheduling_event(json.dumps({"action":"update","id":scheduled_program.id,"station":scheduled_program.station_id}))
 
     return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
