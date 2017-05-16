@@ -22,34 +22,31 @@
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
 
     <script type="text/javascript">
-    $(document).ready(function() {
     
+    $(document).ready(function() {
+      var api = ""
+      var datatable = $('#playlist').DataTable({
+               serverSide: true, searching: true, ajax: api,
+               "aoColumnDefs": [{
+                   "aTargets": [2], "mRender": function (data, type, full) {
+                          return '<input type="checkbox"' + (data ? 'checked' : '') + '/>'
+                    }
+               }]
+      });
+ 
     
     $('[id^=playlistCount]').click(function(e) {
-        $('#playlist tbody').html('')
-        var api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
         $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
-        $.getJSON(api).done(function(myData) {
-        data = JSON.parse(myData)
-        $.each(data, function(key, val) {
-            $( '#playlist tbody').html($( '#playlist tbody').html() + "<tr><td>" + val.item + "</td><td>" + val.songs + '</td><td><input type="checkbox" ' + (val.is_included ? 'checked':'') +
-            ' id="'+ $(e.target).attr('data-item-type') + val.id +' data-item-type="'+ $(e.target).attr('data-item-type') +'" data-playlist-id="' + $(e.target).attr('data-playlist-id') +
-            '" data-item-id="'+ val.id +'" /></td></tr>')
-            });
-            $('#playlist').DataTable({
-               searching: true, bRetrieve: true
-            });
-            //Give an event handler to the checkboxes
-            $('[id^='+ $(e.target).attr('data-item-type') +']').change(function(f){
+        api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
+        datatable.ajax.url(api).load()
+        $('[id^='+ $(e.target).attr('data-item-type') +']').change(function(f){
             var url = '/content/playlist/'+ $(f.target).attr('data-playlist-id')+'/'+(this.checked ? 'add' : 'remove')+'/'+ $(e.target).attr('data-item-type')+'/'+ $(f.target).attr('data-item-id') 
             $.getJSON(url).done(function(myData) {
-                
-               
+             //in future display success message  
             });
           });
-       });
-    });  
- });
+        });  
+    });
 //TO-DO
 //1) what to do with 'songs' on songs?
     </script>
@@ -69,9 +66,10 @@
           <table id="playlist" class='table table-bordered table-hover'>
           <thead>
             <tr>
-                <th>{{ _('Album') }}</th>
+                <th>{{ _('ID') }}</th>
+                <th>{{ _('Title') }}</th>
+                <th>{{ _('Is Included') }}</th>
                 <th>{{ _('Songs/Duration') }}</th>
-                <th>{{ _('Is included') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -110,7 +108,7 @@
             <td>{{ content_musicplaylist.station }}</td>
             <td>{{ content_musicplaylist.playlist }}</td>
             <td>{{ content_musicplaylist.description }}</td>
-            <td><a href="#" id="playlistCountSongs{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="songs" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.songs }} {{ _('Songs') }}</a></td>
+            <td><a href="#" id="playlistCount" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="songs" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.songs }} {{ _('Songs') }}</a></td>
             <td><a href="#" id="playlistCountAlbums{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="albums" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.albums }} {{ _('Albums') }}</a></td>
             <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
         </tr>

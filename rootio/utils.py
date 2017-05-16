@@ -212,14 +212,18 @@ class OrderedForm(Form):
 
 #Poor man's paging
 class Paginator():
-    def get_json_datatable(self, processed_query):
+    def get_json_datatable(self, processed_query, result_set, columns=None):
         datatable = dict()
-        datatable['columns'] = []
-        for column_description in processed_query.column_descriptions:
-            datatable['columns'].append(column_description['name'])
+        if columns == None:
+            datatable['columns'] = []
+            for column_description in processed_query.column_descriptions:
+                datatable['columns'].append(column_description['name'])
+        else:
+            datatable['columns'] = columns
+
         datatable['data'] = []
-        results = processed_query.all()
-        for row in results:
+        #results = processed_query.all()
+        for row in result_set:
             datatable['data'].append(list(row))
         #datatable['recordsFiltered'] = len(results)
         return datatable
@@ -235,11 +239,17 @@ class Paginator():
         base_query = base_query.filter(or_(*filters))
 
         #paging
-        datatable = self.get_json_datatable(base_query.slice(int(request.args['start']),int(request.args['start']) + int(request.args['length'])))
+        result_set = base_query.slice(int(request.args['start']),int(request.args['start']) + int(request.args['length'])) 
+        datatable = self.get_json_datatable(base_query, result_set)
         #sys.setrecursionlimit(10000)
         datatable['recordsTotal'] = datatable['recordsFiltered'] = len(base_query.all()) #base_query.count() should be used instead, but results in recursion depth error. This implementation hits the db again, and retrieves the entire dataset just to count rows!!
         return datatable
 
+    def get_records_from_query(self, query, request, columns):
+        result_set = query.fetchall() 
+        datatable = self.get_json_datatable(query, result_set[int(request.args['start']) : int(request.args['start']) + int(request.args['length'])], columns) #wasteful, gets all records and just returns a small size equal to the window
+        datatable['recordsTotal'] = datatable['recordsFiltered'] = len(result_set)
+        return datatable
 
 #paginator
 jquery_dt_paginator = Paginator()
