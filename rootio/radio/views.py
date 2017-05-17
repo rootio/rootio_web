@@ -347,11 +347,14 @@ def scheduled_block_add():
     return render_template('radio/scheduled_block.html', block=block, form=form)
 
 def send_scheduling_event(message):
-    sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
-    sck.send(message)
-    sck.recv(1024)
-    sck.close()
+    try:
+        sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
+        sck.send(message)
+        sck.recv(1024)
+        sck.close()
+    except: #Socket errors, maybe service is not running
+        return
 
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
