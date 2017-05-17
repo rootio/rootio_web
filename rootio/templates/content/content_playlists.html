@@ -25,26 +25,33 @@
     
     $(document).ready(function() {
       var api = ""
+      var list_type = ""
+      var playlist_id = 0 
       var datatable = $('#playlist').DataTable({
                serverSide: true, searching: true, ajax: api,
                "aoColumnDefs": [{
-                   "aTargets": [2], "mRender": function (data, type, full) {
-                          return '<input type="checkbox"' + (data ? 'checked' : '') + '/>'
+                   "aTargets": [2], "mRender": function (data, type, row) {
+                          return '<input id="' + list_type + row[0] + '" data-item-type="'+list_type+'" data-item-id="'+ row[0] +'" type="checkbox"' + (data ? 'checked' : '') + '/>'
                     }
-               }]
+               }],
+               "drawCallback": function(e, o){
+                   $('[id^='+ list_type +']').change(function(f){
+                   var url = '/content/playlist/'+ playlist_id +'/'+(this.checked ? 'add' : 'remove')+'/'+ list_type+'/'+ $(f.target).attr('data-item-id') 
+                   $.getJSON(url).done(function(myData) {
+                   //in future display success message  
+                  });
+                });
+             }
       });
  
+    $.fn.dataTableExt.errMode = 'ignore'
     
     $('[id^=playlistCount]').click(function(e) {
         $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
+        list_type = $(e.target).attr('data-item-type')
+        playlist_id = $(e.target).attr('data-playlist-id')
         api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
         datatable.ajax.url(api).load()
-        $('[id^='+ $(e.target).attr('data-item-type') +']').change(function(f){
-            var url = '/content/playlist/'+ $(f.target).attr('data-playlist-id')+'/'+(this.checked ? 'add' : 'remove')+'/'+ $(e.target).attr('data-item-type')+'/'+ $(f.target).attr('data-item-id') 
-            $.getJSON(url).done(function(myData) {
-             //in future display success message  
-            });
-          });
         });  
     });
 //TO-DO
