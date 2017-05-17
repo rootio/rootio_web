@@ -102,7 +102,7 @@ class ContentMusic(BaseMixin, db.Model):
     "Music files on the phone of a station"
     __tablename__ = u'content_music'
 
-    title = db.Column(db.String(STRING_LEN))
+    title = db.Column(db.String(255))
     album_id = db.Column(db.ForeignKey('content_musicalbum.id'))
     duration = db.Column(db.Integer)
     station_id = db.Column(db.ForeignKey('radio_station.id'))
