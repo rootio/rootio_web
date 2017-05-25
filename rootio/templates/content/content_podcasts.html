@@ -23,23 +23,32 @@
 
     <script type="text/javascript">
     $(document).ready(function() {
-    
+       
+        var api = ''
+        var podcast_id = "0"
+        var datatable = $('#podcasts').DataTable({
+               serverSide: true, searching: true, ajax: api,
+                "aoColumnDefs": [{
+                   "aTargets": [2], "mRender": function (data, type, row) {
+                          var audio_path = '../../audio-content/podcast/' + podcast_id + '/'+ data
+                          return '<audio controls><source src="' +audio_path + '" type="audio/mpeg"><source src="' +audio_path + '" type="audio/ogg"><source src="' +audio_path + '" type="audio/wav"></audio>'
+                    }
+               }],
+
+        });
+   
+        $.fn.dataTableExt.errMode = 'ignore'   
     
     $('[id^=podcastDownloadCount]').click(function(e) {
-        var audio_path = '../../audio-content/podcast/' + $(e.target).attr('data-podcast-id')  + '/'
-        var api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
+        podcast_id = $(e.target).attr('data-podcast-id')
+        api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
         $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
-        $( '#podcasts tbody').html('')
-        $.getJSON(api).done(function(data) {
-        $.each( data['objects'], function( key, val ) {
-        $( '#podcasts tbody').html($( '#podcasts tbody').html() + "<tr><td>" + val.file_name + "</td><td>" + val.summary + '</td><td><audio controls><source src="'+ audio_path + val.file_name +'" type="audio/mpeg"><source src="'+ audio_path + val.file_name +'" type="audio/ogg"><source src="'+ audio_path + val.file_name +'" type="audio/wav"></audio></td><td>' + val.date_created + '</td></tr>')
-         });
-        $('#podcasts').DataTable({
-               searching: true, bRetrieve: true
-      });
+        datatable.ajax.url(api).load()
+        
+       });
     });  
- });
-});
+ 
+
     </script>
 {% endblock %}
 
@@ -57,10 +66,9 @@
           <table id="podcasts" class='table table-bordered table-hover'>
           <thead>
             <tr>
-                <th>{{ _('Title') }}</th>
+                <th>{{ _('Date Created') }}</th>
                 <th>{{ _('Summary') }}</th>
                 <th>{{ _('Listen') }}</th>
-                <th>{{ _('Date Created') }}</th>
             </tr>
           </thead>
           <tbody>

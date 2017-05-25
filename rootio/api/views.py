@@ -4,11 +4,12 @@ from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
 
 from .utils import parse_datetime
+from ..utils import jquery_dt_paginator
 
 from ..extensions import db, rest, csrf
 
 from ..user import User
-from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, ContentMusicPlaylistItem, ContentPodcast
+from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
 from ..radio.models import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
@@ -363,12 +364,17 @@ def program_episodes(program_id):
 
 @api.route('/podcast/<int:podcast_id>/downloads', methods=['GET', 'POST'])
 #@api_key_or_auth_required
-@returns_json
+#@returns_json
+@csrf.exempt
 def podcast_downloads(podcast_id):
     """API method to get all episodes currently available for a program"""
-    podcast = ContentPodcast.query.filter_by(id=podcast_id).first_or_404()
-    downloads = podcast.podcast_downloads
-    return downloads
+
+    cols = [ContentPodcastDownload.date_downloaded, ContentPodcastDownload.summary, ContentPodcastDownload.file_name]
+    downloads = ContentPodcastDownload.query.with_entities(*cols).join(ContentPodcast).filter(ContentPodcast.id==podcast_id)
+
+    records = jquery_dt_paginator.get_records(downloads, [ContentPodcastDownload.file_name, ContentPodcastDownload.summary], request)
+    return jsonify(records)
+
 
 def get_dict_from_rows(rows):
     result = dict()
