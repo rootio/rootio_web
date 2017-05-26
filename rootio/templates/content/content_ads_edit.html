@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="container">
-    {%if content_adds%}
+    {%if ad %}
         <h2>{{ _('Edit Advertisement') }}</h2>
         {{ render_form(url_for('content.content_ads_edit', ad_id=ad.id), form) }}
     {%else%}

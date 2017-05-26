@@ -53,13 +53,13 @@ class ContentUploadForm(Form):
 class ContentNewsForm(Form):
     multipart = True 
     file = FileField()
-    track_id = QuerySelectField('Track name',[Required()],query_factory=news_tracks,allow_blank=False)
+    track = QuerySelectField('Track name',[Required()],query_factory=news_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     submit = SubmitField(_('Save'))
 
 class ContentAddsForm(Form):
     multipart = True 
-    track_id = QuerySelectField('Track name',[Required()], query_factory=adds_tracks,allow_blank=False)
+    track = QuerySelectField('Track name',[Required()], query_factory=adds_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     file = FileField('Ad File')
     submit = SubmitField(_('Save'))
@@ -73,7 +73,7 @@ class ContentStreamsForm(Form):
 
 class ContentMusicForm(Form):
     multipart = True 
-    track_id = QuerySelectField('Track name',[Required()], query_factory=musics_tracks,allow_blank=False)
+    track = QuerySelectField('Track name',[Required()], query_factory=musics_tracks,allow_blank=False)
     expiry_date = DateField('Expiration Date')
     file = FileField('File(s)')
     submit = SubmitField(_('Save'))

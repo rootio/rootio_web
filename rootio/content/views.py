@@ -174,6 +174,11 @@ def content_news_edit(content_news_id):
 
     if form.validate_on_submit():
         form.populate_obj(content_news)
+        
+        #Save the uploaded file
+        uri = "{0}/{1}/{2}".format("news",str(form.data['track'].id), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"news",str(form.data['track'].id))))
+        content_news.uri = uri
+        content_news.name = secure_filename(request.files['file'].filename)
 
         db.session.add(content_news)
         db.session.commit()
@@ -241,6 +246,11 @@ def content_ads_edit(ad_id):
 
     if form.validate_on_submit():
         form.populate_obj(ad)
+
+        #Save the uploaded file
+        uri = "{0}/{1}/{2}".format("ads",str(form.data['track'].id), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"ads",str(form.data['track'].id))))
+        ad.uri = uri
+        ad.name = secure_filename(request.files['file'].filename)
 
         db.session.add(ad)
         db.session.commit()
@@ -356,11 +366,16 @@ def content_medias():
 @content.route('/medias/<int:content_media_id>', methods=['GET', 'POST'])
 @login_required
 def content_media(content_media_id):
-    content_media = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
+    content_media = ContentUploads.query.filter_by(id=content_media_id).first_or_404()
     form = ContentMusicForm(obj=content_media, next=request.args.get('next'))
 
     if form.validate_on_submit():
         form.populate_obj(content_media)
+
+        #Save the uploaded file
+        uri = "{0}/{1}/{2}".format("media",str(form.data['track'].id), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"media",str(form.data['track'].id))))
+        content_media.uri = uri
+        content_media.name = secure_filename(request.files['file'].filename)
 
         db.session.add(content_media)
         db.session.commit()
