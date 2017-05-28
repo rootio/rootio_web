@@ -1,5 +1,5 @@
 import smtplib
-from instance.config import *
+from rootio.config import *
 
 class RootIOMailMessage:
 
