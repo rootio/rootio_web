@@ -69,7 +69,7 @@ class PodcastAction:
         try:
             self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}".format(self.program.name))
             self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:])
-            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__track.id)
+            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR,'podcast', str(self.__podcast.id), last_podcast_download.file_name))
             self.program.log_program_activity('result of stop play is ' + result )    
         except Exception, e:
             self.program.radio_station.logger.error(str(e))

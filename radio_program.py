@@ -104,8 +104,8 @@ class RadioProgram:
     def __log_program_status(self):
         self.db._model_changes = {}
         self.scheduled_program.status = self.__status
-        self.db.add(self.scheduled_program)
-        self.db.commit() 
+        self.radio_station.db.add(self.scheduled_program)
+        self.radio_station.db.commit() 
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers

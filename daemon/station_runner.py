@@ -6,25 +6,24 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
 import sys
-from rootio.config import *
-from rootio.radio.models import Station
-from call_handler import CallHandler
-from radio_station import RadioStation
-from daemoner import Daemon
-from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 import threading
 import logging
-from logging.handlers import TimedRotatingFileHandler 
-from rootio.extensions import db
+from logging.handlers import TimedRotatingFileHandler
+
+
+from radio_station import RadioStation
+from rootio.radio.models import Station
+from rootio.config import DefaultConfig
+
+
+from daemoner import Daemon
+from datetime import datetime
 import zmq
 import socket
 import json 
 
-telephony_server = Flask("ResponseServer")
-telephony_server.debug = True
-telephony_server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:NLPog1986@localhost/rootio'
 
 class StationRunner(Daemon):
 
@@ -40,10 +39,12 @@ class StationRunner(Daemon):
         lst_thr = threading.Thread(target=self.__start_listener, args=())
         lst_thr.start()       
 
-        db = SQLAlchemy(telephony_server)
-        stations = db.session.query(Station).all()
+        engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+        session = sessionmaker(bind=engine)()
+        stations = session.query(Station).all()
+
         for station in stations:
-            radio_station = RadioStation(station.id, db.session, self.__logger)
+            radio_station = RadioStation(station.id, session, self.__logger)
             self.__logger.info('launching station : {0}'.format(station.id))
             t = threading.Thread(target=radio_station.run, args=())
             t.start()

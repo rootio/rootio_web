@@ -46,7 +46,7 @@ class ProgramHandler:
                     self.__radio_station.logger.info("Delay seconds is {0}".format(int(scheduled_program.program.duration.total_seconds())))
                     #scheduled_job = self.__scheduler.add_date_job(getattr(program,'start'), self.__get_program_start_time(scheduled_program).replace(tzinfo=None))
                     #self.__scheduled_jobs[scheduled_program.id] = scheduled_job
-                    self.__add_scheduled_job(program)
+                    self.__add_scheduled_job(scheduled_program)
                     self.__radio_station.logger.info("Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name, self.__radio_station.station.name, scheduled_program.start))
                 except Exception, e:
                     self.__radio_station.logger.info(str(e))
