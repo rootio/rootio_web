@@ -9,9 +9,9 @@ import sys
 #sys.path.append('/home/amour/RootIO_Web_Old/'
 from rootio.config import *
 from rootio.radio.models import Station
-from rootio.radiostation.call_handler import CallHandler
-from rootio.radiostation.radio_station import RadioStation
-from rootio.radiostation.daemon.daemoner import Daemon
+from call_handler import CallHandler
+from radio_station import RadioStation
+from daemon.daemoner import Daemon
 from sms_server import SMSServer
 from datetime import datetime
 import threading
