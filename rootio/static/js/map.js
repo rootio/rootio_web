@@ -13,7 +13,7 @@ var OSM = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 });
 
 Stamen_TonerLite.addTo(map);
-var minLat = maxLat =  minLng = maxLng = 20;
+var minLat = maxLat =  minLng = maxLng = 0;
 
 $.ajax({
     type: "GET",
@@ -21,50 +21,27 @@ $.ajax({
     dataType: 'json',
     success: function (response) {
         stations = [];
-        for (var i=0; i < response.num_results; i++) {
-            var station = response.objects[i];
-            if(i == 0)
-            {
-                minLat = maxLat = station.location.latitude;
-                minLng = maxLng = station.location.longitude;
-            }
 
-            else
-            {
-                //try and get mins and maxs
-                minLat = station.location.latitude < minLat ? station.location.latitude : minLat;
-                minLng = station.location.longitude < minLng ? station.location.latitude : minLng;
-
-                maxLat = station.location.latitude > maxLat ? station.location.latitude : maxLat;
-                maxLng = station.location.longitude > maxLng ? station.location.latitude : maxLng;        
+        try{
+        for (var i=0; i < response.objects.length; i++) {
+                var station = response.objects[i];
+                stations.push(stationsToLayer(station.name, 'on',[station.latitude,station.longitude]));
             }
-            //extract geo fields from api response
-            var geojson = {
-                "type": "Feature",
-                "properties": {
-                    "name": station.name,
-                    "languages": station.languages,
-                    "current_program": "tbd",
-                    "owner": "",
-                    "status": station.status
-                },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [station.location.longitude,station.location.latitude]
-                }
-            };
-            stations.push(geojson);
-        }
+           }
+           catch(err)
+               {alert(err)}
+        
+        var stationGroup = L.featureGroup(stations);
+        map.fitBounds(stationGroup.getBounds());
         drawStations(stations);
-        map.setView([(minLat + maxLat)/2, (minLng + maxLng)/2], 6)
     }
 });
 
 
-function stationsToLayer(feature, latlng) {
+function stationsToLayer(station_name, status, latlng) {
     var status_color, icon_name;
     //marker color and name of the glyphicon to display
-    switch(feature.properties.status) {
+    switch(status) {
         case 'on':
             status_color = 'blue';
             icon_name = "ok-sign";
@@ -85,7 +62,11 @@ function stationsToLayer(feature, latlng) {
     return L.marker(latlng, {
             icon: L.AwesomeMarkers.icon({
                 icon: icon_name,
-                color: status_color
+                color: status_color,
+                title: 'station_name',
+                alt: 'station_name',
+                riseOnHover: true
+ 
             })
         });
 }
@@ -112,10 +93,10 @@ function stationPopup(feature, layer) {
 }
 
 function drawStations(stations) {
-    L.geoJson(stations,{
-        onEachFeature: stationPopup,
-        pointToLayer: stationsToLayer
-    }).addTo(map);
+    for(var i = 0; i < stations.length; i++)
+       {
+            stations[i].addTo(map);
+       }
 }
 
 

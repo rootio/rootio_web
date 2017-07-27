@@ -10,7 +10,7 @@ from ..extensions import db, rest, csrf
 
 from ..user import User
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
-from ..radio.models import Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..radio.models import Network, Location, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..onair import OnAirProgram
 
@@ -54,10 +54,10 @@ def restless_routes():
         exclude_columns=['_password'],
         preprocessors=restless_preprocessors)
 
-    rest.create_api(Station, collection_name='station', methods=['GET'],
-        exclude_columns=['owner','api_key','scheduled_programs','analytics','blocks'],
-        preprocessors=restless_preprocessors,
-        postprocessors=restless_postprocessors)
+    #rest.create_api(Station, collection_name='station', methods=['GET'],
+     #  exclude_columns=['owner','api_key','scheduled_programs','analytics','blocks']) #,
+        #preprocessors=restless_preprocessors,
+        #postprocessors=restless_postprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
         exclude_columns=['scheduled_programs',],
         preprocessors=restless_preprocessors)
@@ -87,6 +87,13 @@ def restless_routes():
 
 #non CRUD-routes
 #protect with decorator
+
+@api.route('/station', methods=['GET'])
+@returns_json
+def stations():
+    stations = Station.query.join(Network).join(Location).with_entities(Location).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return stations
+
 
 
 @api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
