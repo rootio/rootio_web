@@ -100,7 +100,7 @@ def login():
                 flash(_("Logged in"), 'success')
             return redirect(form.next.data or url_for('user.index'))
         else:
-            flash(form.data, 'error')#_('Sorry, invalid login'), 'error')
+            flash(_('Sorry, invalid login'), 'error')
 
     return render_template('frontend/login.html', form=form)
 
