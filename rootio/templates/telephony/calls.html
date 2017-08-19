@@ -7,24 +7,14 @@
     <table id="datatable" class='table table-bordered table-hover' data-url="records">
         <thead>
             <tr>
-                <th>{{ _('Station') }}</th>
-                <th>{{ _('UUID') }}</th>
+                <th>{{ _('id') }}</th>
                 <th>{{ _('Start Time') }}</th>
-                <th>{{ _('Duration') }}</th>
+                <th>{{ _('Duration (Secs.)') }}</th>
                 <th>{{ _('From') }}</th>
                 <th>{{ _('To') }}</th>
+                <th>{{ _('Station') }}</th>
             </tr>
         </thead>
-        <tfoot>
-            <tr>
-                <th>{{ _('Station') }}</th>
-                <th>{{ _('UUID') }}</th>
-                <th>{{ _('Start Time') }}</th>
-                <th>{{ _('Duration') }}</th>
-                <th>{{ _('From') }}</th>
-                <th>{{ _('To') }}</th>
-            </tr>
-        </tfoot>
     </table>
 </div>
 {% endblock %}

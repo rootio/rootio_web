@@ -78,7 +78,7 @@ class ContentPodcast(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN))
     uri = db.Column(db.String(200))
-    description = db.Column(db.String(STRING_LEN))
+    description = db.Column(db.String(1000))
     ok_to_play = db.Column(db.Boolean)
     created_by = db.Column(db.ForeignKey('user_user.id'))
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
