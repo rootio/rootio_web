@@ -87,8 +87,8 @@ class Station(BaseMixin, db.Model):
     network_id = db.Column(db.ForeignKey('radio_network.id'), nullable=False)
     location_id = db.Column(db.ForeignKey('radio_location.id'))
     #gateway_id = db.Column(db.ForeignKey('telephony_gateway.id'))
-    cloud_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
-    transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+    primary_transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
+    secondary_transmitter_phone_id = db.Column(db.ForeignKey('telephony_phonenumber.id'))
 
     #from ..telephony.models import PhoneNumber
     #circular imports
@@ -96,8 +96,8 @@ class Station(BaseMixin, db.Model):
     #relationships
     owner = db.relationship(u'User')
     location = db.relationship(u'Location')
-    cloud_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_cloud',uselist=False), foreign_keys=[cloud_phone_id])
-    transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_transmitter',uselist=False), foreign_keys=[transmitter_phone_id])
+    primary_transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_primary_transmitter_phone',uselist=False), foreign_keys=[primary_transmitter_phone_id])
+    secondary_transmitter_phone = db.relationship(u'PhoneNumber', backref=db.backref('station_secondary_transmitter_phone',uselist=False), foreign_keys=[secondary_transmitter_phone_id])
     #TODO, create m2m here for all whitelisted phone numbers?
 
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
