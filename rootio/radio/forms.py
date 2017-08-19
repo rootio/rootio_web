@@ -44,7 +44,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
         'client_update_frequency':{'description':_("How frequently the transmitter should check for updates, in seconds")},
         'broadcast_ip':{'description':_("IP address of the transmitter on the local network. Should start with 230.")},
     },
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','cloud_phone_id','cloud_phone','transmitter_phone_id','transmitter_phone', 'community_menu','community_content', 'music','albums','playlists','artists'])
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'whitelist_number','outgoing_gateways', 'incoming_gateways','primary_transmitter_phone_id','primary_transmitter_phone','secondary_transmitter_phone_id','secondary_transmitter_phone', 'community_menu','community_content', 'music','albums','playlists','artists'])
 class StationForm(StationFormBase):
     network = QuerySelectField(u'Network', [Required()], query_factory=all_networks,allow_blank=False) #TODO: default this to be the logged in user?
     phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
@@ -56,13 +56,18 @@ class StationForm(StationFormBase):
     field_order = ('network','name','location','timezone','*')
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
-    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port','community_content','community_menu','music','playlists','artists','albums'])
+    field_args={
+          'primary_transmitter_phone':{'validators':[HasInlineForm,]},'secondary_transmitter_phone':{'validators':[HasInlineForm,]} },
+    exclude=['scheduled_programs','blocks','created_at','updated_at','analytics', 'name','about', 'frequency','api_key','timezone','owner_id','location_id','owner','location','languages','client_update_frequency','analytic_update_frequency','broadcast_ip','broadcast_port','community_content','community_menu','music','playlists','artists','albums','network'])
 class StationTelephonyForm(StationTelephonyFormBase):
+    primary_transmitter_phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
+    secondary_transmitter_phone_inline = InlineFormField(PhoneNumberForm,description='/telephony/phonenumber/add/ajax/')
     submit = SubmitField(_('Save'))
     
 
 def all_languages():
     return Language.query.all()
+
 def all_program_types():
     return ProgramType.query.all()
 

@@ -108,8 +108,10 @@ def station(station_id):
         response["frequency"] = station.frequency
         if station.location != None:
             response["location"] = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
-        if station.cloud_phone != None:
-            response["telephone"] = station.cloud_phone.raw_number
+        if station.primary_transmitter_phone != None:
+            response["primary_transmitter_telephone"] = station.primary_transmitter_phone.raw_number
+        if station.secondary_transmitter_phone != None:
+            response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
         response["multicast_IP"] = station.broadcast_ip
         response["multicast_port"] = station.broadcast_port
     responses = dict()
@@ -266,14 +268,17 @@ def station_analytics(station_id):
 @returns_json
 def station_whitelist(station_id):
     """API method to get whitelist for a station"""
-    
+    #whitelist is a concatenation of outgoing gateways and 
     station = Station.query.filter_by(id=station_id).first_or_404()
     whitelists = station.whitelist_number
-    responses=[]
+    whitelist_numbers=[]
     for number in whitelists:
-        response = number.number
-        responses.append(response)
-    allresponses= {"whitelist" : responses}
+        whitelist_number = number.number
+        whitelist_numbers.append(whitelist_number)
+    #add the gateways
+    for gw in station.outgoing_gateways:
+        whitelist_numbers.append(str(gw.number_bottom))
+    allresponses= {"whitelist" : whitelist_numbers}
     return allresponses
 
 
