@@ -413,7 +413,10 @@ def music_sync(station_id):
             music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
             artists_in_db[artist] = music_artist
             db.session.add(music_artist)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except Exception as e:
+                continue
 
         for album in data[artist]:
             if album in albums_in_db:
@@ -423,7 +426,10 @@ def music_sync(station_id):
                 music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
                 albums_in_db[album] = music_album
                 db.session.add(music_album)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except Exception:
+                    continue
             
             for song in data[artist][album]['songs']:
                 if song['title'] in songs_in_db:
@@ -432,7 +438,11 @@ def music_sync(station_id):
                     music_song = ContentMusic(**{'title':song['title'], 'duration': song['duration'], 'station_id':station_id, 'album_id':music_album.id, 'artist_id':music_artist.id})
                     songs_in_db[song['title']] = music_song
                     db.session.add(music_song)
-    db.session.commit()
+                    try:
+                        db.session.commit()
+                    except Exception:
+                        continue
+
     return { 'status':True}
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])
