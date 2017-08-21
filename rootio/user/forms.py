@@ -43,6 +43,7 @@ class ProfileCreateForm(ProfileCreateFormBase):
     password = PasswordField(u'Password', [Required(), Length(max=100)])
     password1 = PasswordField(u'Retype-password', [Required(), Length(max=100)])
     role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    #role_code = RadioField(_("Role"), choices=[(str(val), label) for val, label in USER_ROLE.items()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
@@ -68,7 +69,8 @@ class ProfileForm(ProfileFormBase):
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
     networks = QuerySelectMultipleField('Networks',[Required()], query_factory=lambda: current_user.networks)
-    role_code = RadioField(u"Role", choices=[])
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    #role_code = RadioField(u"Role", choices=[])
     #role_code = RadioField(_("Role")) #, [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in role_codes().items()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
@@ -100,6 +102,7 @@ class EditProfileForm(Form):
     networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks)
     email = EmailField(u'Email', [Required(), Email()])
     # Don't use the same name as model because we are going to use populate_obj().
+    role_code = RadioField(_("Role"), choices=[(str(val), label) for val, label in USER_ROLE.items()])
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     age = IntegerField(u'Age', [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
