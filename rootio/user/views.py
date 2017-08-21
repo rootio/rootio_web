@@ -83,7 +83,7 @@ def profile(user_id):
                        role_code=user.role_code,
                        status_code=user.status_code,
                        next=request.args.get('next'))
-    form.role_code.choices = form.get_role_codes(current_user.role_code) #= choices=[(str(val), label) for val, label in USER_ROLE.items()]
+    #form.role_code.choices = form.get_role_codes(current_user.role_code) #= choices=[(str(val), label) for val, label in USER_ROLE.items()]
     if form.validate_on_submit():
 
         if form.avatar_file.data:
@@ -116,7 +116,7 @@ def profile(user_id):
         db.session.add(user)
         db.session.commit()
 
-        flash(form.data, 'success')
+        flash('User profile successfully edited', 'success')
 
     return render_template('user/profile.html', user=user,
                            active="profile", form=form, edit=edit)
