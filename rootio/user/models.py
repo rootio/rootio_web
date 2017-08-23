@@ -92,10 +92,12 @@ class User(RootioUser, UserMixin):
 
         if user:
             authenticated = user.check_password(password)
+            activated = user.status_code == 1
         else:
+            activated = False
             authenticated = False
 
-        return user, authenticated
+        return user, authenticated, activated
 
     @classmethod
     def search(cls, keywords):
