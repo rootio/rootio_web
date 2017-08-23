@@ -158,7 +158,7 @@ def signup():
         message.set_subject("Your RootIO platform account")
         message.set_body("Welcome to the RootIO platform!\n")
         message.append_to_body("Your username is %s " % user.email)
-        message.append_to_body("Please click this link to activate your account: http://105.27.244.10/activate/%s/%s" % user.activation_key, user.id)
+        message.append_to_body("Please click this link to activate your account: http://105.27.244.10/activate/%s/%d" % (user.activation_key, user.id))
         message.append_to_body("\n\nThanks,\nThe RootIO team")
         message.set_from("mailer@rootio.org")
         message.add_to_address(user.email)
