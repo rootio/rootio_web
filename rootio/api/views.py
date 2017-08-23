@@ -381,7 +381,7 @@ def program_episodes(program_id):
 def podcast_downloads(podcast_id):
     """API method to get all episodes currently available for a program"""
 
-    cols = [ContentPodcastDownload.date_createed, ContentPodcastDownload.summary, ContentPodcastDownload.file_name]
+    cols = [ContentPodcastDownload.date_published, ContentPodcastDownload.summary, ContentPodcastDownload.file_name]
     downloads = ContentPodcastDownload.query.with_entities(*cols).join(ContentPodcast).filter(ContentPodcast.id==podcast_id)
 
     records = jquery_dt_paginator.get_records(downloads, [ContentPodcastDownload.file_name, ContentPodcastDownload.summary], request)
