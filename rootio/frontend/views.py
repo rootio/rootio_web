@@ -169,6 +169,9 @@ def signup():
         flash(_('Your account was created. Please click on the link sent to your email to validate it'), 'success')
     return render_template('frontend/signup.html', form=form)
 
+@frontend.route('/terms')
+def terms():
+    return render_template('frontend/terms.html')
 
 @frontend.route('/activate/<string:key>/<int:user_id>', methods=['GET'])
 def activate(key,user_id):
