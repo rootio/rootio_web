@@ -37,6 +37,8 @@ class ContentUploads(BaseMixin, db.Model):
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     track_id = db.Column(db.ForeignKey('content_track.id'))
     type_id = db.Column(db.ForeignKey('content_type.id'))
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     track = db.relationship(u'ContentTrack', backref=db.backref('track_uploads'))
 
@@ -55,7 +57,8 @@ class CommunityMenu(BaseMixin, db.Model):
     message_type_prompt = db.Column(db.String(200))
     finalization_prompt = db.Column(db.String(200))
     goodbye_message = db.Column(db.String(200))
-    
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())    
     station = db.relationship(u'Station', backref=db.backref('community_menu'))
     
 class CommunityContent(BaseMixin, db.Model):
@@ -66,7 +69,7 @@ class CommunityContent(BaseMixin, db.Model):
     originator = db.Column(db.String(20))
     message = db.Column(db.String(100)) 
     duration = db.Column(db.Integer)
-    date_created = db.Column(db.DateTime(timezone=True))
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     type_code = db.Column(db.Integer)
     valid_until = db.Column(db.DateTime(timezone=True))
 
@@ -81,8 +84,8 @@ class ContentPodcast(BaseMixin, db.Model):
     description = db.Column(db.String(1000))
     ok_to_play = db.Column(db.Boolean)
     created_by = db.Column(db.ForeignKey('user_user.id'))
-    date_created = db.Column(db.DateTime(timezone=True), server_default="now()")
-    updated_at = db.Column(db.DateTime(timezone=True), server_default="now()")
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
 class ContentPodcastDownload(BaseMixin, db.Model):
     "Download of a podcast file"
@@ -94,7 +97,7 @@ class ContentPodcastDownload(BaseMixin, db.Model):
     summary = db.Column(db.Text(None,convert_unicode=True))
     podcast_id = db.Column(db.ForeignKey('content_podcast.id'))
     date_created = db.Column(db.DateTime(timezone=True))
-    date_downloaded = db.Column(db.DateTime(timezone=True), server_default="now()")
+    date_downloaded = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     podcast = db.relationship(u'ContentPodcast', backref=db.backref('podcast_downloads'))
 
@@ -109,6 +112,7 @@ class ContentMusic(BaseMixin, db.Model):
     artist_id = db.Column(db.ForeignKey('content_musicartist.id'))
     station = db.relationship(u'Station', backref=db.backref('music'))
     artist = db.relationship(u'ContentMusicArtist', backref=db.backref('music'))
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
 class ContentMusicAlbum(BaseMixin, db.Model):
     "Albums of Music files on the phone of a station"
@@ -116,7 +120,7 @@ class ContentMusicAlbum(BaseMixin, db.Model):
 
     title = db.Column(db.String(255,convert_unicode=True))
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('albums'))
 
 class ContentMusicArtist(BaseMixin, db.Model):
@@ -125,7 +129,7 @@ class ContentMusicArtist(BaseMixin, db.Model):
     
     title = db.Column(db.String(255,convert_unicode=True))
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('artists'))
 
 class ContentMusicPlaylist(BaseMixin, db.Model):
@@ -135,7 +139,7 @@ class ContentMusicPlaylist(BaseMixin, db.Model):
     title = db.Column(db.String(STRING_LEN))
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     description = db.Column(db.Text)
-
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('playlists'))
 
 class ContentMusicPlayListItemType(BaseMixin, db.Model):
