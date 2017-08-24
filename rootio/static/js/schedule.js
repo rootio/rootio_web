@@ -1,4 +1,7 @@
 $(document).ready(function() {
+    //lock to prevent rapid save button click resulting in multiple processing
+    var is_saving = false;
+
     //set up recurrence presets
     $('input[name=preset-recurrence]').change(function(event) {
         var value = $(event.target).val();
@@ -196,11 +199,20 @@ $(document).ready(function() {
 
 
     $('button#save-schedule').click(function() {
+        //make sure no edit is ongoing already - rapid double tap on save button results in multiple saves esp if link is slow
+        if(is_saving)
+         { 
+         }
+        else
+        { 
+        is_saving = true;
+
         //query clientside events by edited flag
         editedEvents = $('#calendar').fullCalendar('clientEvents',function(event) {
             if (event.edited !== undefined && event.saved !== true ) { return true; }
         });
-
+        
+        num_events = editedEvents.size;
         for (var key in editedEvents) {
             var event = editedEvents[key];
 
@@ -210,6 +222,7 @@ $(document).ready(function() {
                 station:event.station,
                 start:event.start}; //moment json-ifies to iso8601 natively
             action_url = '/radio/scheduleprogram/add/ajax/';
+            
 
             if (event.edited === 'edited') {
                 //there's already an existing ScheduledProgram in the db
@@ -223,20 +236,21 @@ $(document).ready(function() {
                     data: JSON.stringify(cleaned_data, null, '\t'),
                     dataType: 'json',
                     contentType: 'application/json;charset=UTF-8',
-                    context: this
+                    context: this, async: false
                 }).success(function(data) {
                     event.saved = true;
                 });
-
         }
-
+        
+    
         //clear editlog
         $('#addable-programs #schedule-edit-log').empty();
         $('#addable-programs #unsaved-changes').hide();
 
         //rerender the calendar
         $('#calendar').fullCalendar('refresh');
-    });
+        is_saving = false;
+    }});
 });
 function remove_from_log(elem){
     $(elem).closest('li').remove();
