@@ -31,7 +31,7 @@
                 <td>{{ community_content.originator }}</td>
                 <td>{{ community_content.date_created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>
-                    <audio controls>
+                    <audio preload="metadata" controls>
                         <source src="../../audio-content/community-content/{{community_content.station_id}}/{{community_content.type_code}}/{{community_content.message}}" type="audio/mpeg">
                         <source src="../../audio-content/community-content/{{community_content.station_id}}/{{community_content.type_code}}/{{community_content.message}}" type="audio/ogg">
                         <source src="../../audio-content/community-content/{{community_content.station_id}}/{{community_content.type_code}}/{{community_content.message}}" type="audio/wav">
