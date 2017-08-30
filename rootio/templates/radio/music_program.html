@@ -80,7 +80,25 @@
 
 
         </div>
+        <div style="flow:v-flow">
+
+            <div id='addable-programs' class="addables-holder">
+             <h4>{{ _('Streams') }}</h4>
+             <ul>
+               {% for stream in streams %}
+                <li id="draggable" class='external-event'
+                  data-name="{{stream.name}}"
+                  data-json='{"name":"{{ stream.name }}","type":"Stream", "stream_url":"{{ stream.uri}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
+                  {{ stream.name}} 
+                </li>
+               {%endfor%}
+             </ul>
+            </div>
+
+
+        </div>
       </div>
+
 <div style="float:left; width:50%">
 {%if music_program%}
         <h2>{{ _('Edit') }} {{ _('Music Program') }}</h2>
