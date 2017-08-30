@@ -162,3 +162,15 @@ class ContentMusicPlaylistItem(BaseMixin, db.Model):
     updated_at = db.Column(db.DateTime(), server_default=func.now())
     created_at = db.Column(db.DateTime(), server_default=func.now())
     deleted = db.Column(db.Boolean, default=False)
+
+class ContentStream(BaseMixin, db.Model):
+    "Definition of a podcast"
+    __tablename__ = u'content_stream'
+
+    name = db.Column(db.String(STRING_LEN))
+    uri = db.Column(db.String(200))
+    description = db.Column(db.String(1000))
+    ok_to_play = db.Column(db.Boolean)
+    created_by = db.Column(db.ForeignKey('user_user.id'))
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
