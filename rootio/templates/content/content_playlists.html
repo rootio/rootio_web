@@ -27,8 +27,18 @@
       var api = ""
       var list_type = ""
       var playlist_id = 0 
+
+      $('#offline_datatable').on('click', function(e) {
+        $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
+        list_type = $(e.target).attr('data-item-type')
+        playlist_id = $(e.target).attr('data-playlist-id')
+        api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
+        datatable.ajax.url(api).load()
+        });
+
+
       var datatable = $('#playlist').DataTable({
-               serverSide: true, searching: true, ajax: api,
+               serverSide: true, searching: true, ajax: api, 
                "aoColumnDefs": [{
                    "aTargets": [2], "mRender": function (data, type, row) {
                           return '<input id="' + list_type + row[0] + '" data-item-type="'+list_type+'" data-item-id="'+ row[0] +'" type="checkbox"' + (data ? 'checked' : '') + '/>'
@@ -46,13 +56,6 @@
  
     $.fn.dataTableExt.errMode = 'ignore'
     
-    $('[id^=playlistCount]').click(function(e) {
-        $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
-        list_type = $(e.target).attr('data-item-type')
-        playlist_id = $(e.target).attr('data-playlist-id')
-        api = '/content/playlist/'+ $(e.target).attr('data-playlist-id') + '/' + $(e.target).attr('data-item-type')
-        datatable.ajax.url(api).load()
-        });  
     });
 //TO-DO
 //1) what to do with 'songs' on songs?

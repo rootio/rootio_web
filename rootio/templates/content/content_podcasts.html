@@ -26,6 +26,16 @@
        
         var api = ''
         var podcast_id = "0"
+
+        $('#offline_datatable').on('click','a', function(e) {
+        podcast_id = $(e.target).attr('data-podcast-id')
+        api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
+        $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
+        datatable.ajax.url(api).load()
+
+       });
+    
+
         var datatable = $('#podcasts').DataTable({
                serverSide: true, searching: true, ajax: api,
                 "aoColumnDefs": [{
@@ -38,14 +48,6 @@
         });
    
         $.fn.dataTableExt.errMode = 'ignore'   
-    
-    $('[id^=podcastDownloadCount]').click(function(e) {
-        podcast_id = $(e.target).attr('data-podcast-id')
-        api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
-        $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
-        datatable.ajax.url(api).load()
-        
-       });
     });  
  
 
