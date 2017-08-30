@@ -227,42 +227,42 @@ def content_news_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_news_edit.html', form=form)   
+    return render_template('content/content_news_edit.html', content_news=content_news, form=form)   
 
 
 @content.route('/ads/')
 @login_required
 def content_ads():
     content_type = ContentType.query.filter(ContentType.name=='Advertisements').first()
-    ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
-    return render_template('content/content_ads.html', ads=ads)  
+    content_ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
+    return render_template('content/content_ads.html', ads=content_ads)  
 
 
 @content.route('/ads/<int:ad_id>', methods=['GET', 'POST'])
 @login_required
 def content_ads_edit(ad_id):
-    ad = ContentUploads.query.filter_by(id=ad_id).first_or_404()
+    content_ad = ContentUploads.query.filter_by(id=ad_id).first_or_404()
     form = ContentAddsForm(obj=ad, next=request.args.get('next'))
 
     if form.validate_on_submit():
-        form.populate_obj(ad)
+        form.populate_obj(content_ad)
 
         #Save the uploaded file
         uri = "{0}/{1}/{2}".format("ads",str(form.data['track'].id), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"ads",str(form.data['track'].id))))
-        ad.uri = uri
-        ad.name = secure_filename(request.files['file'].filename)
+        content_ad.uri = uri
+        content_ad.name = secure_filename(request.files['file'].filename)
 
-        db.session.add(ad)
+        db.session.add(content_ad)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_ads_edit.html', ad=ad, form=form)
+    return render_template('content/content_ads_edit.html', ad=content_ad, form=form)
 
 DefaultConfig.CONTENT_DIR
 @content.route('/ads/add/', methods=['GET', 'POST'])
 @login_required
 def content_ads_add():
     form = ContentAddsForm(request.form)
-    content_adds = None
+    content_ad = None
     cleaned_data = None
     if request.method == 'POST':
         # check if the post request has the file part
@@ -292,9 +292,9 @@ def content_ads_add():
         uri = "{0}/{1}/{2}".format("ads",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"ads", str(cleaned_data['track_id']))))
              
         cleaned_data['uri'] = uri
-        content_adds = ContentUploads(**cleaned_data) #create new object from data
+        content_ad = ContentUploads(**cleaned_data) #create new object from data
        
-        db.session.add(content_adds)
+        db.session.add(content_ad)
         db.session.commit()
         
 
@@ -302,60 +302,7 @@ def content_ads_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_ads_edit.html', form=form) 
-
-#@content.route('/streams/')
-#@login_required
-#def content_streams():
-#    content_type = ContentType.query.filter(ContentType.name=='Streams').first()
-#    content_streams = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
-#    return render_template('content/content_streams.html', content_streams=content_streams) 
-
-
-#@content.route('/streams/<int:content_streams_id>', methods=['GET', 'POST'])
-#@login_required
-#def content_stream(content_streams_id):
-#    content_stream = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
-#    form = ContentStreamsForm(obj=content_stream, next=request.args.get('next'))
-#
-#    if form.validate_on_submit():
-#        form.populate_obj(content_stream)
-#        
-#        db.session.add(content_stream)
-#        db.session.commit()
-#        flash(_('Stream updated'), 'success')
-#    return render_template('content/content_stream.html', content_streams=content_stream, form=form)
-#
-#
-#@content.route('/streams/add/', methods=['GET', 'POST'])
-#@login_required
-#def content_streams_add():
-#    form = ContentStreamsForm(request.form)
-#    content_streams = None
-#    cleaned_data = None
-#    if form.validate_on_submit():
-#        cleaned_data = form.data #make a copy
-#        cleaned_data.pop('file',None)
-##
-#        cleaned_data.pop('submit',None) #remove submit field from list  
-#
-#
-#
-#        cleaned_data['uploaded_by'] = current_user.id
-#        #cleaned_data['name'] = filename
-#        #cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-#        #cleaned_data['track_id'] = cleaned_data['track_id'].id
-#
-#        content_streams = ContentUploads(**cleaned_data) #create new object from data
-#       
-#        db.session.add(content_streams)
-#        db.session.commit()
-#        
-#        flash(_('Content added.'), 'success')  
-#    elif request.method == "POST":
-#         flash(_(form.errors.items()),'error')
-#   
-#    return render_template('content/content_stream.html', form=form) 
+    return render_template('content/content_ads_edit.html', ad=content_ad,form=form) 
 
 
 @content.route('/medias/')
@@ -429,7 +376,7 @@ def content_medias_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
     
-    return render_template('content/content_media.html', form=form)  
+    return render_template('content/content_media.html', content_media=content_media, form=form)  
 
 
 @content.route('/medias/reorder/', methods=['GET', 'POST'])
@@ -603,7 +550,7 @@ def content_podcast_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
 
-    return render_template('content/content_podcast.html', form=form)
+    return render_template('content/content_podcast.html', content_podcast=content_podcast,form=form)
 
 
 @content.route('/streams/')
@@ -650,7 +597,7 @@ def content_stream_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
 
-    return render_template('content/content_stream.html', form=form)
+    return render_template('content/content_stream.html', content_stream=content_stream, form=form)
 
 
 @content.route('/playlist/')
@@ -662,11 +609,11 @@ def content_musicplaylists():
     return render_template('content/content_playlists.html', content_musicplaylists=content_musicplaylists)
 
 
-@content.route('/playlist/<int:playlist_id>', methods=['GET', 'POST'])
+@content.route('/playlist/<int:content_musicplaylist_id>', methods=['GET', 'POST'])
 @login_required
-def content_musicplaylist(playlist_id):
-    content_musicplaylist = ContentMusicPlaylist.query.filter_by(id=playlist_id).first_or_404()
-    form = None #ContentMusicPlaylistForm(obj=content_musicplaylist, next=request.args.get('next'))
+def content_musicplaylist(content_musicplaylist_id):
+    content_musicplaylist = ContentMusicPlaylist.query.filter_by(id=content_musicplaylist_id).first_or_404()
+    form = ContentMusicPlaylistForm(obj=content_musicplaylist, next=request.args.get('next'))
 
     if form.validate_on_submit():
         form.populate_obj(content_musicplaylist)
@@ -674,7 +621,7 @@ def content_musicplaylist(playlist_id):
         db.session.add(content_musicplaylist)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_musicplaylist.html', content_musicplaylist=content_musicplaylist, form=form)
+    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form)
 
 
 @content.route('/playlist/<int:playlist_id>/albums', methods=['GET', 'POST'])
@@ -747,7 +694,7 @@ def content_musicplaylist_add():
     elif request.method == "POST":
          flash(_(form.errors.items()),'error')
 
-    return render_template('content/content_playlist.html', form=form)
+    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form)
 
 
 @content.route('/playlist/<int:playlist_id>/add/<string:item_type>/<int:item_id>', methods=['GET', 'POST'])
