@@ -28,7 +28,7 @@
             <td>{{ content_upload.track.name }}</td>
             <td>{{ content_upload.created_at }}</td>
             <td>
-                 <audio controls>
+                 <audio preload="metadata" controls>
                     <source src="../../audio-content/{{ content_upload.uri }}" type="audio/mpeg">
                     <source src="../../audio-content/{{ content_upload.uri }}" type="audio/ogg">
                     <source src="../../audio-content/{{ content_upload.uri }}" type="audio/wav">
