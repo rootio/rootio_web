@@ -416,6 +416,7 @@ def music_sync(station_id):
             try:
                 db.session.commit()
             except Exception as e:
+                db.session.rollback()
                 continue
 
         for album in data[artist]:
@@ -429,6 +430,7 @@ def music_sync(station_id):
                 try:
                     db.session.commit()
                 except Exception:
+                    db.session.rollback()
                     continue
             
             for song in data[artist][album]['songs']:
@@ -441,6 +443,7 @@ def music_sync(station_id):
                     try:
                         db.session.commit()
                     except Exception:
+                        db.session.rollback()
                         continue
 
     return { 'status':True}

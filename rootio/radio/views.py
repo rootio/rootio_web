@@ -14,7 +14,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
 from ..user.models import User, RootioUser
-from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast
+from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast, ContentStream
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from .forms import StationForm, StationTelephonyForm,NetworkForm, ProgramForm, BlockForm, LocationForm, ScheduleProgramForm, PersonForm
 from ..config import DefaultConfig
@@ -211,9 +211,10 @@ def music_program_add():
 def music_program(music_program_id):
     music_program = Program.query.filter_by(id=music_program_id).first_or_404()
 
-    community_contents = {"data":[{"type":"Ads", "category_id":"1"},{"type":"Announcements", "category_id":"2"},{"type":"Greetings", "category_id":"3"}]}
-    
+    #TODO: Filter these by network
     playlists = ContentMusicPlaylist.query.all()
+    streams = ContentStream.query.all()
+    
     #render the program structure
     action_names = []
     try:
@@ -232,7 +233,7 @@ def music_program(music_program_id):
         db.session.commit()
         flash(_('Music Program updated.'), 'success')
 
-    return render_template('radio/music_program.html', music_program=music_program, playlists=playlists, form=form)
+    return render_template('radio/music_program.html', music_program=music_program, playlists=playlists,streams=streams, form=form)
 
 
 @radio.route('/people/', methods=['GET'])
