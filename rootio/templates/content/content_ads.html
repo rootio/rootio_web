@@ -45,7 +45,7 @@
                 <td>{{ ad.track.name }}</td>
                 <td>{{ ad.created_at }}</td>
                 <td>
-                    <audio controls>
+                    <audio preload="metadata" controls>
                         <source src="../../audio-content/{{ ad.uri }}" type="audio/mpeg">
                         <source src="../../audio-content/{{ ad.uri }}" type="audio/ogg">
                         <source src="../../audio-content/{{ ad.uri }}" type="audio/wav">
