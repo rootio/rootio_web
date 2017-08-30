@@ -4,12 +4,12 @@
 
 {% block body %}
 <div class="container">
-    {%if content_streams%}
-        <h2>{{ _('Edit') }} {{ _('Content Streams') }}</h2>
-        {{ render_form(url_for('content.content_stream', content_streams_id=content_streams.id), form) }}
+    {%if content_stream%}
+        <h2>{{ _('Edit') }} {{ _('Content Stream') }}</h2>
+        {{ render_form(url_for('content.content_stream', content_stream_id=content_stream.id), form) }}
     {%else%}
-        <h2>{{ _('Add') }} {{ _('Content Streams') }}</h2>
-        {{ render_form(url_for('content.content_streams_add'), form) }}
+        <h2>{{ _('Add') }} {{ _('Content Stream') }}</h2>
+        {{ render_form(url_for('content.content_stream_add'), form) }}
     {%endif%}
 </div>
 {% endblock %}

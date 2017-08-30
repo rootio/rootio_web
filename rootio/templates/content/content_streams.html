@@ -1,33 +1,67 @@
 {% extends "content/layout.html" %}
 
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+
+{% endblock %}
+
+
 {% block body %}
-<div class="container">
+
+
+<div class="container-fluid">
     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
         <h3>{{ _('Streams') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_streams_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_stream_add') }}"><strong>Add +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
-                <th>{{ _('Track name') }}</th>
-                <th>{{ _('Uploaded date') }}</th>
+                <th>{{ _('Stream name') }}</th>
+                <th>{{ _('Description') }}</th>
                 <th>{{ _('URL') }}</th>
-                <th>{{ _('File name') }}</th>
-                <th></th>   
+                <th>{{ _('Listen') }}</th>
+                <th>{{ _('Edit') }}</th>
             </tr>
         </thead>
+        <tbody>
         {% for content_stream in content_streams %}
         <tr>
-            <td>{{ content_stream.track.name }}</td>
-            <td>{{ content_stream.created_at }}</td>
-            <td><a href="{{ content_stream.uri }}">{{ content_stream.uri }}</td>
             <td>{{ content_stream.name }}</td>
-            <td><a href="{{ url_for('content.content_stream', content_streams_id=content_stream.id) }}">Edit</a></td> 
+            <td>{{ content_stream.description }}</td>
+            <td>{{ content_stream.uri }}</td>
+            <td>
+                <audio controls>
+                    <source src="{{ content_stream.uri }}" type="audio/mpeg">
+                    <source src="{{ content_stream.uri }}" type="audio/ogg">
+                    <source src="{{ content_stream.uri }}" type="audio/wav">
+                </audio>
+            </td>
+            <td><a href="{{ url_for('content.content_stream', content_stream_id=content_stream.id) }}">{{ _('Edit') }}</a></td> 
         </tr>
         {% endfor %}
+      </tbody>
     </table>
 </div>
 {% endblock %}

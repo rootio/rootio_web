@@ -13,8 +13,8 @@ from ..user.models import User
 from ..radio.forms import PersonForm
 from ..config import DefaultConfig
 from ..utils import jquery_dt_paginator
-from .models import ContentMusicPlaylistItem, ContentMusic, ContentMusicPlaylist, ContentMusicAlbum, ContentMusicArtist, ContentTrack, ContentUploads, ContentPodcast, ContentPodcastDownload, CommunityMenu, CommunityContent
-from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm , ContentAddsForm, ContentStreamsForm, ContentMusicForm, CommunityMenuForm
+from .models import ContentMusicPlaylistItem, ContentMusic, ContentMusicPlaylist, ContentMusicAlbum, ContentMusicArtist, ContentTrack, ContentUploads, ContentStream, ContentPodcast, ContentPodcastDownload, CommunityMenu, CommunityContent
+from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm , ContentAddsForm, ContentStreamForm, ContentMusicForm, CommunityMenuForm
 from ..decorators import returns_json
 from ..extensions import db, csrf
 from datetime import datetime
@@ -304,55 +304,58 @@ def content_ads_add():
     
     return render_template('content/content_ads_edit.html', form=form) 
 
-@content.route('/streams/')
-@login_required
-def content_streams():
-    content_type = ContentType.query.filter(ContentType.name=='Streams').first()
-    content_streams = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
-    return render_template('content/content_streams.html', content_streams=content_streams) 
+#@content.route('/streams/')
+#@login_required
+#def content_streams():
+#    content_type = ContentType.query.filter(ContentType.name=='Streams').first()
+#    content_streams = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by==current_user.id).filter(ContentTrack.type_id==content_type.id).all()
+#    return render_template('content/content_streams.html', content_streams=content_streams) 
 
 
-@content.route('/streams/<int:content_streams_id>', methods=['GET', 'POST'])
-@login_required
-def content_stream(content_streams_id):
-    content_stream = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
-    form = ContentStreamsForm(obj=content_stream, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(content_stream)
-        
-        db.session.add(content_stream)
-        db.session.commit()
-        flash(_('Stream updated'), 'success')
-    return render_template('content/content_stream.html', content_streams=content_stream, form=form)
-
-
-@content.route('/streams/add/', methods=['GET', 'POST'])
-@login_required
-def content_streams_add():
-    form = ContentStreamsForm(request.form)
-    content_streams = None
-    cleaned_data = None
-    if form.validate_on_submit():
-        cleaned_data = form.data #make a copy
-        cleaned_data.pop('file',None)
-
-        cleaned_data.pop('submit',None) #remove submit field from list  
-        cleaned_data['uploaded_by'] = current_user.id
-        #cleaned_data['name'] = filename
-        #cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
-        #cleaned_data['track_id'] = cleaned_data['track_id'].id
-
-        content_streams = ContentUploads(**cleaned_data) #create new object from data
-       
-        db.session.add(content_streams)
-        db.session.commit()
-        
-        flash(_('Content added.'), 'success')  
-    elif request.method == "POST":
-         flash(_(form.errors.items()),'error')
-    
-    return render_template('content/content_stream.html', form=form) 
+#@content.route('/streams/<int:content_streams_id>', methods=['GET', 'POST'])
+#@login_required
+#def content_stream(content_streams_id):
+#    content_stream = ContentUploads.query.filter_by(id=content_streams_id).first_or_404()
+#    form = ContentStreamsForm(obj=content_stream, next=request.args.get('next'))
+#
+#    if form.validate_on_submit():
+#        form.populate_obj(content_stream)
+#        
+#        db.session.add(content_stream)
+#        db.session.commit()
+#        flash(_('Stream updated'), 'success')
+#    return render_template('content/content_stream.html', content_streams=content_stream, form=form)
+#
+#
+#@content.route('/streams/add/', methods=['GET', 'POST'])
+#@login_required
+#def content_streams_add():
+#    form = ContentStreamsForm(request.form)
+#    content_streams = None
+#    cleaned_data = None
+#    if form.validate_on_submit():
+#        cleaned_data = form.data #make a copy
+#        cleaned_data.pop('file',None)
+##
+#        cleaned_data.pop('submit',None) #remove submit field from list  
+#
+#
+#
+#        cleaned_data['uploaded_by'] = current_user.id
+#        #cleaned_data['name'] = filename
+#        #cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
+#        #cleaned_data['track_id'] = cleaned_data['track_id'].id
+#
+#        content_streams = ContentUploads(**cleaned_data) #create new object from data
+#       
+#        db.session.add(content_streams)
+#        db.session.commit()
+#        
+#        flash(_('Content added.'), 'success')  
+#    elif request.method == "POST":
+#         flash(_(form.errors.items()),'error')
+#   
+#    return render_template('content/content_stream.html', form=form) 
 
 
 @content.route('/medias/')
@@ -601,6 +604,54 @@ def content_podcast_add():
          flash(_(form.errors.items()),'error')
 
     return render_template('content/content_podcast.html', form=form)
+
+
+@content.route('/streams/')
+@login_required
+def content_streams():
+    #streams in my network
+    content_streams = ContentStream.query.all()
+    return render_template('content/content_streams.html', content_streams=content_streams)
+
+
+@content.route('/streams/<int:content_stream_id>', methods=['GET', 'POST'])
+@login_required
+def content_stream(content_stream_id):
+    content_stream = ContentStream.query.filter_by(id=content_stream_id).first_or_404()
+    form = ContentStreamForm(obj=content_stream, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(content_stream)
+
+        db.session.add(content_stream)
+        db.session.commit()
+        flash(_('Stream updated'), 'success')
+    return render_template('content/content_stream.html', content_stream=content_stream, form=form)
+
+
+@content.route('/streams/add/', methods=['GET', 'POST'])
+@login_required
+def content_stream_add():
+    form = ContentStreamForm(request.form)
+    content_stream = None
+    cleaned_data = None
+    if form.validate_on_submit():
+        cleaned_data = form.data #make a copy
+
+        cleaned_data.pop('submit',None) #remove submit field from list  
+        cleaned_data['created_by'] = current_user.id
+
+        content_stream = ContentStream(**cleaned_data) #create new object from data
+
+        db.session.add(content_stream)
+        db.session.commit()
+
+        flash(_('Stream added.'), 'success')
+    elif request.method == "POST":
+         flash(_(form.errors.items()),'error')
+
+    return render_template('content/content_stream.html', form=form)
+
 
 @content.route('/playlist/')
 @login_required

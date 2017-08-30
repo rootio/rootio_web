@@ -90,7 +90,7 @@ class CommunityMenuForm(Form):
     submit = SubmitField(_('Save'))
 
 class ContentPodcastForm(Form):
-    name = StringField('Name of the stream',[Required()])
+    name = StringField('Name of the podcast',[Required()])
     uri = StringField('URL', [Required()])
     description = TextAreaField('Description')
     submit = SubmitField(_('Save'))
@@ -98,5 +98,11 @@ class ContentPodcastForm(Form):
 class ContentMusicPlaylistForm(Form):
     title = StringField('Name of the playlist',[Required()])
     station = QuerySelectField('Station',[Required()],query_factory=stations,allow_blank=False)
+    description = TextAreaField('Description')
+    submit = SubmitField(_('Save'))
+
+class ContentStreamForm(Form):
+    name = StringField('Name of the stream',[Required()])
+    uri = StringField('URL', [Required()])
     description = TextAreaField('Description')
     submit = SubmitField(_('Save'))
