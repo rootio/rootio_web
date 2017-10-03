@@ -465,10 +465,12 @@ def schedule_recurring_program_ajax():
     #parse recurrence rule
     r = dateutil.rrule.rrulestr(form.data['recurrence'])
     for instance in r[:30]: #TODO: dynamically determine instance limit
-        scheduled_program = ScheduledProgram(program=program, station=station)
+        scheduled_program = ScheduledProgram()
+        scheduled_program.station_id = data['station']
+        scheduled_program.program_id = data['program']
+        scheduled_program.deleted = False
         scheduled_program.start = datetime.combine(instance,air_time) #combine instance day and air_time time
         scheduled_program.end = scheduled_program.start + program.duration
-        scheduled_program.deleted = False
         db.session.add(scheduled_program)
     db.session.commit()
         
