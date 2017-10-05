@@ -25,11 +25,13 @@ $.ajax({
         try{
         for (var i=0; i < response.objects.length; i++) {
                 var station = response.objects[i];
-                stations.push(stationsToLayer(station.name, 'on',[station.latitude,station.longitude]));
+                stations.push(stationsToLayer(station.network_id, station.name, 'on',[station.location.latitude,station.location.longitude]));
             }
            }
            catch(err)
-               {alert(err)}
+               {
+               alert(err)
+           }
         
         var stationGroup = L.featureGroup(stations);
         map.fitBounds(stationGroup.getBounds());
@@ -38,38 +40,38 @@ $.ajax({
 });
 
 
-function stationsToLayer(station_name, status, latlng) {
+function stationsToLayer(network_id, station_name, status, latlng) {
     var status_color, icon_name;
     //marker color and name of the glyphicon to display
+    status_color = getStationNetworkColor(network_id);
     switch(status) {
         case 'on':
-            status_color = 'blue';
             icon_name = "ok-sign";
             break;
         case 'off':
-            status_color = 'red';
             icon_name = 'remove-sign';
             break;
         case 'unknown':
-            status_color = 'orange';
             icon_name = 'question-sign';
             break;
         default:
-            status_color = 'grey';
             icon_name = '';
             break;
     }
     return L.marker(latlng, {
-            icon: L.AwesomeMarkers.icon({
-                icon: icon_name,
-                color: status_color,
-                title: 'station_name',
-                alt: 'station_name',
-                riseOnHover: true
- 
-            })
+            icon: L.AwesomeMarkers.icon({color:status_color,  icon:'info', markerColor: 'green', iconColor: 'orange' }), 
+            title: station_name,
+            color: status_color,
+            riseOnHover: true
+           
         });
 }
+
+function getStationNetworkColor(network_id) {
+    var colors = ['black','blue','red','green','purple','orange','darkred','darkblue','cadetblue','darkpurple','darkgreen']
+    return colors[network_id % colors.length]
+}
+
 
 function stationPopup(feature, layer) {
     if (feature.properties) {

@@ -91,9 +91,26 @@ def restless_routes():
 @api.route('/station', methods=['GET'])
 @returns_json
 def stations():
-    stations = Station.query.join(Network).join(Location).with_entities(Location).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return stations
-
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    resps = []
+    for station in stations:
+        response = dict()
+        if station != None:
+            response["name"] = station.name
+            response["frequency"] = station.frequency
+            response["network_id"] = station.network_id
+            if station.location != None:
+                response["location"] = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
+            if station.primary_transmitter_phone != None:
+                response["primary_transmitter_telephone"] = station.primary_transmitter_phone.raw_number
+            if station.secondary_transmitter_phone != None:
+                response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
+            response["multicast_IP"] = station.broadcast_ip
+            response["multicast_port"] = station.broadcast_port
+        resps.append(response)
+    responses = dict()
+    responses["objects"] =  resps
+    return responses
 
 
 @api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
