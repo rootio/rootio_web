@@ -352,7 +352,7 @@ def send_scheduling_event(message):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
         sck.send(message)
-        sck.recv(1024)
+        #sck.recv(1024)
         sck.close()
     except: #Socket errors, maybe service is not running
         return
@@ -364,9 +364,9 @@ def schedule_program_add_ajax():
     data = json.loads(request.data)
 
     if not 'program' in data:
-        return {'status':'error','errors':'program required','status_code':400}
+        return {'status':'error','errors':'program required','status_code':200}
     if not 'station' in data:
-        return {'status':'error','errors':'station required','status_code':400}
+        return {'status':'error','errors':'station required','status_code':200}
 
     #lookup objects from ids
     #fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
