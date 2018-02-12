@@ -16,14 +16,14 @@ class BaseConfig(object):
     DEBUG = True
     TESTING = False
 
-    ADMINS = ['admin@rootio.org','robotic@gmail.com','josh@levinger.net']
+    ADMINS = []
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
 
     # http://flask.pocoo.org/docs/quickstart/#sessions
-    SECRET_KEY = os.environ.get("SECRET_KEY","SeekritKey__ChangeMe!!!oneoneone")
+    SECRET_KEY = os.environ.get("SECRET_KEY","")
 
-    LOG_FOLDER = "/home/vagrant/rootio/rootio_web/instance/logs/" #os.path.join(INSTANCE_FOLDER_PATH, 'logs')
+    LOG_FOLDER = "/var/log/rootio/" #os.path.join(INSTANCE_FOLDER_PATH, 'logs')
     #make_dir(LOG_FOLDER)
 
     # File upload, should override in production.
@@ -48,7 +48,7 @@ class DefaultConfig(BaseConfig):
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
     # Postgres for production.
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:NLPog1986@localhost/rootio'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://username:password@host/db_name'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
     ACCEPT_LANGUAGES = {#'ach':'Acholi',
@@ -67,7 +67,7 @@ class DefaultConfig(BaseConfig):
     # Flask-mail: http://pythonhosted.org/flask-mail/
     # https://bitbucket.org/danjac/flask-mail/issue/3/problem-with-gmails-smtp-server
     MAIL_DEBUG = DEBUG
-    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_SERVER = ''
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
