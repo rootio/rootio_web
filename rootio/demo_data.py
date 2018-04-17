@@ -9,7 +9,6 @@ from .telephony.constants import MOBILE
 from .content.models import ContentTrack, ContentUploads
 
 from .config import DefaultConfig
-DEMO_MEDIA_PREFIX = Path(DefaultConfig.DEMO_MEDIA_PREFIX)
 
 TRANSMITTER_PHONE_NUMBER = '1007'
 CLOUD_PHONE_NUMBER = '1006'
@@ -85,8 +84,8 @@ def setup(db, schedule):
             network=network,
             timezone='Africa/Abidjan',
             owner=admin,
-            transmitter_phone=transmitter_phone,
-            cloud_phone=cloud_phone,
+            #transmitter_phone=transmitter_phone,
+            #cloud_phone=cloud_phone,
             client_update_frequency=30,
             analytic_update_frequency=30,
             broadcast_ip='230.255.255.257',
