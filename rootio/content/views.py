@@ -360,7 +360,7 @@ def content_medias_add():
         cleaned_data['name'] = filename
         #cleaned_data['type_id'] = cleaned_data['track_id'].content_contenttypeid
         #Fix this - Form should automatically go into db
-        cleaned_data['track_id'] = cleaned_data['track_id'].id
+        cleaned_data['track_id'] = cleaned_data['track'].id
    
 
         uri = "{0}/{1}/{2}".format("media",str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],os.path.join(DefaultConfig.CONTENT_DIR,"media",str(cleaned_data['track_id']))))
