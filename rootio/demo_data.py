@@ -33,6 +33,7 @@ def setup(db, schedule):
         )
         db.session.add(transmitter_phone)
         db.session.flush()
+    print transmitter_phone
 
     cloud_phone = (PhoneNumber.query
         .filter_by(number=CLOUD_PHONE_NUMBER).first())
@@ -43,6 +44,7 @@ def setup(db, schedule):
         )
         db.session.add(cloud_phone)
         db.session.flush()
+    print cloud_phone
 
     gateway = Gateway.query.filter_by(name=GATEWAY_NAME).first()
     if gateway is None:
@@ -58,6 +60,7 @@ def setup(db, schedule):
         )
         db.session.add(gateway)
         db.session.flush()
+    print gateway
 
     network = Network.query.filter_by(name=NETWORK_NAME).first()
     if network is None:
@@ -67,6 +70,7 @@ def setup(db, schedule):
         )
         db.session.add(network)
         db.session.flush()
+    print network
 
     location = Location.query.filter_by(name=LOCATION_NAME).first()
     if location is None:
@@ -75,6 +79,7 @@ def setup(db, schedule):
         )
         db.session.add(location)
         db.session.flush()
+    print location
 
     station = Station.query.filter_by(name=STATION_NAME).first()
     if station is None:
@@ -96,15 +101,17 @@ def setup(db, schedule):
         )
         db.session.add(station)
         db.session.flush()
+    print station
 
     TRACK_NAME = 'testdata-bbc-track'
-    track = ContentTrack.query.filter_by(name=TRACK_NAME)
+    track = ContentTrack.query.filter_by(name=TRACK_NAME).first()
     if track is None:
         track = ContentTrack(
             name=TRACK_NAME,
         )
         db.session.add(track)
         db.session.flush()
+    print track
 
     UPLOAD_NAME = 'testdata-bbc-upload'
     upload = ContentUploads.query.filter_by(name=UPLOAD_NAME).first()
@@ -115,6 +122,7 @@ def setup(db, schedule):
         )
         db.session.add(upload)
         db.session.flush()
+    print upload
 
     program = Program.query.filter_by(name=PROGRAM_NAME).first()
     if program is None:
@@ -133,6 +141,7 @@ def setup(db, schedule):
         )
         db.session.add(program)
         db.session.flush()
+    print program
 
     if schedule:
         now = pytz.utc.localize(datetime.utcnow())
@@ -147,6 +156,7 @@ def setup(db, schedule):
         )
         db.session.add(scheduled_program)
         db.session.flush()
+        print scheduled_program
 
     content_type_media = ContentType.query.filter_by(name='Media').first()
     if content_type_media is None:
@@ -156,6 +166,7 @@ def setup(db, schedule):
         )
         db.session.add(content_type_media)
         db.session.flush()
+    print content_type_media
 
     content_type_news = ContentType.query.filter_by(name='News').first()
     if content_type_news is None:
