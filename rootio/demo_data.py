@@ -180,7 +180,7 @@ def setup(db, schedule):
 
     program_type_talkshow = ProgramType.query.filter_by(name='Talk Show').first()
     if program_type_talkshow is None:
-        program_type_talkshow = ContentType(
+        program_type_talkshow = ProgramType(
             name='Talk Show',
             description='',
             definition='',
