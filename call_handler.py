@@ -9,6 +9,7 @@ from freeswitchESL.ESL import *
 from rootio.config import *
 from rootio.telephony import *
 from rootio.telephony.models import Gateway, Call
+from suds.client import Client
 import threading
 import json
 import time
@@ -166,8 +167,22 @@ class CallHandler:
         return self.__do_ESL_command(stop_play_command)
 
     def speak(self, phrase, call_UUID):
-        speak_command = 'speak stuff'
-        return self.__do_ESL_command(speak_command) 
+        tts_file = self._get_cereproc_tts(phrase)
+        if tts_file != None:
+            return self.play(tts_file, call_UUID)
+        else: #resort to poor man's TTS :-(
+            speak_command = 'speak command goes here'
+            return self.__do_ESL_command(speak_command)
+
+    def _get_cereproc_tts(self, text):
+        tts_client = Client(self.config.get("CEREPROC_SERVER", "https://cerevoice.com/soap/soap_1_1.php?WSDL"))
+        tts_request = tts_client.service.speakSimple(self.config.get("CEREPROC_USERNAME") ,self.config.get("CEREPROC_PASSWORD"),"","Hello world!")
+        if fileUrl in tts_request:
+            self.__radio_station.logger.info("Successfully generated TTS file {0} for {1}".format(tts_request.fileUrl, text))            
+            return tts_request.fileUrl
+        else:
+            self.__radio_station.logger.info("TTS generation for {0} failed with error: {1}".format(text, tts_request.resultDescription))
+            return None
         
     def __listen_for_ESL_events(self):
         ESLConnection = self.create_esl()
