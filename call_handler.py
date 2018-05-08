@@ -6,10 +6,10 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 2:15:22 PM$"
 
 from freeswitchESL.ESL import *
-from rootio.config import *
+from rootio.config import DefaultConfig 
 from rootio.telephony import *
 from rootio.telephony.models import Gateway, Call
-from suds.client import Client
+from cereproc.cereproc_rest_agent import CereprocRestAgent
 import threading
 import json
 import time
@@ -18,9 +18,8 @@ from datetime import datetime
 
 class CallHandler:
     
-    def __init__(self, radio_station, config={}):
+    def __init__(self, radio_station):
         self.__radio_station = radio_station
-        self.config = config
         self.__incoming_call_recipients = dict()
         self.__incoming_dtmf_recipients = dict()
         self.__outgoing_call_recipients = dict()
@@ -31,12 +30,14 @@ class CallHandler:
         self.__media_playback_stop_recipients = dict()
         
         #get the gateways to be used for telephony
-        self.__radio_station.logger.info("Done with Call handler Init")
         self.__load_incoming_gateways()
         self.__load_outgoing_gateways()
         
         #start listener for ESL events
         self.__start_ESL_listener()
+
+        #configure cereproc agent
+        self._cprc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD) #ToDo: defaults to English, male, 1600, wav. Pick args from station attributes.
     
     def __start_ESL_listener(self):
         t = threading.Thread(target=self.__listen_for_ESL_events, args=())
@@ -44,9 +45,9 @@ class CallHandler:
         t.start()
 
     def create_esl(self):
-        ESL_SERVER = self.config.get('ESL_SERVER', '127.0.0.1')
-        ESL_PORT = self.config.get('ESL_PORT', 8021)
-        ESL_AUTHENTICATION = self.config.get('ESL_AUTHENTICATION', 'ClueCon')
+        ESL_SERVER = DefaultConfig.ESL_SERVER
+        ESL_PORT = DefaultConfig.ESL_PORT
+        ESL_AUTHENTICATION = DefaultConfig.ESL_AUTHENTICATION
         return ESLconnection(ESL_SERVER, ESL_PORT,  ESL_AUTHENTICATION)
 
     def __load_incoming_gateways(self):
@@ -54,7 +55,6 @@ class CallHandler:
         self.__incoming_gateways = dict()
         self.__available_incoming_gateways = []
         for gw in gws:
-            print gw.number_bottom
             self.__incoming_gateways[str(gw.number_bottom)] = gw
             self.__available_incoming_gateways.append(gw.number_bottom)
             self.__available_incoming_gateways.sort()
@@ -65,7 +65,6 @@ class CallHandler:
         self.__outgoing_gateways = dict()
         self.__available_outgoing_gateways = []
         for gw in gws:
-            print gw.number_bottom
             self.__outgoing_gateways[str(gw.number_bottom)] = gw
             self.__available_outgoing_gateways.append(gw.number_bottom)
             self.__available_outgoing_gateways.sort()
@@ -167,21 +166,11 @@ class CallHandler:
         return self.__do_ESL_command(stop_play_command)
 
     def speak(self, phrase, call_UUID):
-        tts_file = self._get_cereproc_tts(phrase)
-        if tts_file != None:
-            return self.play(tts_file, call_UUID)
-        else: #resort to poor man's TTS :-(
-            speak_command = 'speak command goes here'
-            return self.__do_ESL_command(speak_command)
-
-    def _get_cereproc_tts(self, text):
-        tts_client = Client(self.config.get("CEREPROC_SERVER", "https://cerevoice.com/soap/soap_1_1.php?WSDL"))
-        tts_request = tts_client.service.speakSimple(self.config.get("CEREPROC_USERNAME") ,self.config.get("CEREPROC_PASSWORD"),"","Hello world!")
-        if fileUrl in tts_request:
-            self.__radio_station.logger.info("Successfully generated TTS file {0} for {1}".format(tts_request.fileUrl, text))            
-            return tts_request.fileUrl
-        else:
-            self.__radio_station.logger.info("TTS generation for {0} failed with error: {1}".format(text, tts_request.resultDescription))
+        try:
+            (tts_file,metadata) = self._cprc_agent.get_cprc_tts(phrase)
+            return self.play(call_UUID,tts_file)
+        except Exception as e:
+            self.__radio_station.logger.info("Error with TTS generation: {0}".format(e))
             return None
         
     def __listen_for_ESL_events(self):
@@ -246,7 +235,7 @@ class CallHandler:
                             self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']].notify_media_play_stop(event_json)
                             #del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
-                        print str(e) 
+                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(str(e))) 
 
     def __record_call(self, call_UUID, from_number, destination_number):
         record_command = "uuid_record {0} start '/home/amour/test_media/RootioNew/Northern Uganda Pilot/Luo_Recordings/Call_Recordings/{1}_{2}_{3}_recording.wav'".format(call_UUID, from_number, destination_number, time.strftime("%Y_%m_%d_%H_%M_%S"))
@@ -267,7 +256,6 @@ class CallHandler:
 
     def __release_gateway(self, event_json):
         #if it was an incoming call
-        print "attempting to release {0} from gateways {1}".format(event_json['Caller-ANI'][-9:], self.__outgoing_gateways.keys())
         if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'][:-9] in self.__outgoing_gateways.keys():
             self.__radio_station.logger.info("Putting back gateway {0} to available gateways {1}".format(event_json['Caller-Destination-Number'][:-9], self.__outgoing_gateways))
             self.__available_outgoing_gateways.append(event_json['Caller-Destination-Number'])

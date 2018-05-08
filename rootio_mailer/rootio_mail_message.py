@@ -1,12 +1,12 @@
 import smtplib
-from rootio.config import *
+from rootio.config import DefaultConfig
 
 class RootIOMailMessage:
 
     def __init__(self):
-        self.__smtp_server = MAIL_SERVER
-        self.__smtp_username = MAIL_USERNAME
-        self.__smtp_password = MAIL_PASSWORD
+        self.__smtp_server = DefaultConfig.MAIL_SERVER
+        self.__smtp_username = DefaultConfig.MAIL_USERNAME
+        self.__smtp_password = DefaultConfig.MAIL_PASSWORD
         self.__message = ''
         self.__initialize_message()
         #print "mail server is {0}".format(MAIL_USERNAME)

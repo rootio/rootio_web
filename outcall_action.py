@@ -100,7 +100,7 @@ class OutcallAction:
                 self.stop(True)
 
     def __inquire_host_readiness(self):
-        self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/jude/inquire_host_readiness.mp3')
+        self.__call_handler.speak('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
         self.program.log_program_activity("Asking if host is ready")
 
     def hangup_call(self):  #hangup the ongoing call
@@ -125,10 +125,10 @@ class OutcallAction:
         elif dtmf_digit == "3":#put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'/home/jude/incoming_auto_answer.mp3')
+                self.__call_handler.speak(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],'All incoming calls will be automatically answered')
             else:
                 self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.play(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], '/home/jude/incoming_reject.mp3')
+                self.__call_handler.speak(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'], 'All incoming calls will be rejected')
 
         elif dtmf_digit == "4":#disable auto answer, reject and record all incoming calls
             if self.__phone_status != PhoneStatus.QUEUING:
