@@ -9,7 +9,6 @@ class RootIOMailMessage:
         self.__smtp_password = DefaultConfig.MAIL_PASSWORD
         self.__message = ''
         self.__initialize_message()
-        #print "mail server is {0}".format(MAIL_USERNAME)
 
 
     def __initialize_message(self):
@@ -34,13 +33,15 @@ class RootIOMailMessage:
         self.__body = "\n".join((self.__body, extra_body))
 
     def send_message(self):
-        smtp_server = smtplib.SMTP(self.__smtp_server)
-        smtp_server.starttls()
-        print ",".join(self.__to)
-        smtp_server.login(self.__smtp_username, self.__smtp_password)
-        smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject,self.__body)))
-        smtp_server.quit()
-        return True
+        try:
+            smtp_server = smtplib.SMTP(self.__smtp_server)
+            smtp_server.starttls()
+            smtp_server.login(self.__smtp_username, self.__smtp_password)
+            smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject,self.__body)))
+            smtp_server.quit()
+            return True
+        except:
+            raise
 
 
 

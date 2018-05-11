@@ -44,7 +44,6 @@ class RadioProgram:
     Load the definition of components of the program from a JSON definition
     '''
     def __load_program_actions(self):
-        print self.scheduled_program.program.description
         data = json.loads(self.scheduled_program.program.structure) 
         for action in data:
             if action['type'] == "Advertisements":
@@ -94,12 +93,15 @@ class RadioProgram:
             self.__run_program_action()
 
     def __send_program_summary(self):
-        self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.scheduled_program.program.name))
-        self.__rootio_mail_message.set_from('RootIO')#This will come from DB in future
-        users = self.__get_network_users()
-        for user in users:
-            self.__rootio_mail_message.add_to_address(user.email)
-        self.__rootio_mail_message.send_message()
+        try:
+            self.__rootio_mail_message.set_subject('[%s] %s ' % (self.radio_station.station.name, self.scheduled_program.program.name))
+            self.__rootio_mail_message.set_from('RootIO')#This will come from DB in future
+            users = self.__get_network_users()
+            for user in users:
+                self.__rootio_mail_message.add_to_address(user.email)
+            self.__rootio_mail_message.send_message()
+        except Exception as e:
+            self.radio_station.logger.error('Could not send program status for \'{0}\' due to error: {1}'.format(self.scheduled_program.program.name,str(e))) 
 
     def __log_program_status(self):
         self.db._model_changes = {}

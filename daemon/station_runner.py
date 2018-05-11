@@ -48,7 +48,7 @@ class StationRunner(Daemon):
             self.__logger.info('launching station : {0}'.format(station.id))
             t = threading.Thread(target=radio_station.run, args=())
             t.start()
-        print "================ service started at {0} ==============".format(datetime.utcnow())
+        self.__logger.info('================ service started at {0} =============='.format(datetime.utcnow()))
 
     def __start_listener(self):
         self.__station_sockets = dict()
@@ -66,7 +66,6 @@ class StationRunner(Daemon):
         
     def __handle_tcp_connection(self, sck): #TODO: handle json errors, else server will break due to rogue connection        
         data = sck.recv(1024)
-        print data
         event = json.loads(data)
         if event["action"] == "register": #A station socket is registering
             self.__station_sockets[event["station"]] = sck

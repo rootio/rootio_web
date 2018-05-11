@@ -66,7 +66,7 @@ class OutcallAction:
         self.program.log_program_activity("result of host call is " + str(result))
 
     def request_station_call(self): #call the number specified thru plivo
-        result = self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play', self.__host.phone.raw_number, self.duration)
+        result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play', self.__host.phone.raw_number, self.duration)
         self.program.log_program_activity("result of station call is " + str(result))
     
     def notify_call_answered(self, answer_info):
