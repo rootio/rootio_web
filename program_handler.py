@@ -43,7 +43,6 @@ class ProgramHandler:
             if not self.__is_program_expired(scheduled_program, scheduled_program.program.duration):
                 #try:
                 #program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
-                self.__radio_station.logger.info("Delay seconds is {0}".format(int(scheduled_program.program.duration.total_seconds())))
                 #scheduled_job = self.__scheduler.add_date_job(getattr(program,'start'), self.__get_program_start_time(scheduled_program).replace(tzinfo=None))
                 #self.__scheduled_jobs[scheduled_program.id] = scheduled_job
                 self.__add_scheduled_job(scheduled_program)
@@ -60,7 +59,7 @@ class ProgramHandler:
     
     def __delete_scheduled_job(self, index):
         if index in self.__scheduled_jobs:
-            self.__scheduled.unschedule_job(self.__scheduled_jobs[index])
+            self.__scheduler.unschedule_job(self.__scheduled_jobs[index])
             del self.__scheduled_jobs[index]    
 
     def __stop_program(self):
@@ -83,14 +82,15 @@ class ProgramHandler:
         t.start()
 
     def __listen_for_scheduling_changes(self, ip, port):
-         time.sleep(3)
          sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
          addr = (ip, port)
          sck.connect(addr)
          sck.send(json.dumps({'station':self.__radio_station.id, 'action':'register'}))
 
          while True:
-             event = json.loads(sck.recv(1024))
+             data = sck.recv(1024)
+             print data
+             event = json.loads(data)
              if event["action"] == "delete":
                  self.__delete_scheduled_job(event["id"])
                  self.__radio_station.logger.info("Scheduled program with id {0} has been deleted".format(event["id"]))

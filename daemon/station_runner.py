@@ -65,17 +65,16 @@ class StationRunner(Daemon):
 
         
     def __handle_tcp_connection(self, sck): #TODO: handle json errors, else server will break due to rogue connection        
-        while True:
-            data = sck.recv(1024)
-            print data
-            event = json.loads(data)
-            if event["action"] == "register": #A station socket is registering
-                self.__station_sockets[event["station"]] = sck
-                self.__logger.info("Station {0} has registered for schedule change events".format(event["station"]))
-            elif event["action"] in ["add","delete","update"]: #The schedule is alerting us of a change
-                if event["station"] in self.__station_sockets:
-                    self.__station_sockets[event["station"]].send(data)
-                    self.__logger.info("Event of type {0} sent to station {1} on scheduled program {2}".format(event["action"], event["station"], event["id"]))
+        data = sck.recv(1024)
+        print data
+        event = json.loads(data)
+        if event["action"] == "register": #A station socket is registering
+            self.__station_sockets[event["station"]] = sck
+            self.__logger.info("Station {0} has registered for schedule change events".format(event["station"]))
+        elif event["action"] in ["add","delete","update"]: #The schedule is alerting us of a change
+            if event["station"] in self.__station_sockets:
+                self.__station_sockets[event["station"]].send(data)
+                self.__logger.info("Event of type {0} sent to station {1} on scheduled program {2}".format(event["action"], event["station"], event["id"]))
         
 
 
