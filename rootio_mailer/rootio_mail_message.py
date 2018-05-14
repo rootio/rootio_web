@@ -1,6 +1,7 @@
 import smtplib
 from rootio.config import DefaultConfig
 
+
 class RootIOMailMessage:
 
     def __init__(self):
@@ -8,10 +9,6 @@ class RootIOMailMessage:
         self.__smtp_username = DefaultConfig.MAIL_USERNAME
         self.__smtp_password = DefaultConfig.MAIL_PASSWORD
         self.__message = ''
-        self.__initialize_message()
-
-
-    def __initialize_message(self):
         self.__to = []
         self.__from = ''
         self.__subject = ''
@@ -19,12 +16,12 @@ class RootIOMailMessage:
 
     def add_to_address(self, to_address):
         self.__to.append(to_address)
-    
+
     def set_from(self, from_address):
         self.__from = from_address
 
     def set_subject(self, subject):
-        self.__subject = "SUBJECT: %s " % (subject)
+        self.__subject = "SUBJECT: %s " % subject
 
     def set_body(self, body):
         self.__body = body
@@ -37,11 +34,8 @@ class RootIOMailMessage:
             smtp_server = smtplib.SMTP(self.__smtp_server)
             smtp_server.starttls()
             smtp_server.login(self.__smtp_username, self.__smtp_password)
-            smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject,self.__body)))
+            smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject, self.__body)))
             smtp_server.quit()
             return True
-        except:
-            raise
-
-
-
+        except Exception as e:
+            raise e

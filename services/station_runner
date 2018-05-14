@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#This is an example file. you can put this in /etc/init.d or equivalent and run the specified python files as services.
 source /usr/local/station-telephony/venv-telephony/bin/activate
 cd /usr/local/station-telephony
 

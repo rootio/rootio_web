@@ -1,18 +1,17 @@
-from rss_downloader import RSSDownloader
-import os
+import threading
 from time import sleep
-import feedparser
-from datetime import datetime, timedelta
-from time import mktime
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
-from rootio.content.models import ContentPodcast, ContentPodcastDownload
+
 from rootio.config import DefaultConfig
-import threading 
+from rootio.content.models import ContentPodcast
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from rss_downloader import RSSDownloader
+
 
 class RSSAgent:
     def __init__(self, logger):
-        self.logger = logger
+        self.__logger = logger
 
     def __get_podcast_tracks(self):
         engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
@@ -20,13 +19,11 @@ class RSSAgent:
         return session.query(ContentPodcast).all()
 
     def run(self):
-        print("running....")
         while True:
-            print "found podcasts " + str(len(self.__get_podcast_tracks()))
+            self.__logger.info("Checking for new podcasts")
             for podcast_track in self.__get_podcast_tracks():
                 pd = RSSDownloader(podcast_track.id)
                 thr = threading.Thread(target=pd.download)
                 thr.daemon = True
                 thr.start()
-            sleep(300) #5 minutes
-
+            sleep(300)  # 5 minutes

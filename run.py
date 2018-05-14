@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 import logging
-import threading
-from datetime import datetime
 import sys
-from time import sleep
+import threading
+
 import flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -13,6 +12,7 @@ app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app)
 
 sys.path.append(app.config['ROOTIO_WEB_PATH'])
+
 
 def run():
     from rootio.radio.models import Station
@@ -31,6 +31,7 @@ def run():
         t.start()
 
     print "radio station telephony service started"
+
 
 if __name__ == "__main__":
     run()
