@@ -3,8 +3,8 @@ from decorators import sends_multipart
 
 @sends_multipart
 def test_message(topic, msg):
-    #passthrough for message tester
-    return (topic, msg)
+    # passthrough for message tester
+    return topic, msg
 
 
 @sends_multipart
@@ -19,7 +19,7 @@ def schedule_program(operation, obj_id, program_id, station_id, start_time, upda
            'program_id': program_id,
            'station_id': station_id,
            'start_time': start_time}
-    return (topic, msg)
+    return topic, msg
 
 
 @sends_multipart
@@ -28,4 +28,4 @@ def station_update_fields(station_id, fields):
     topic = "station.%d" % station_id
     msg = {'operation': 'update',
            'fields': fields}
-    return (topic, msg)
+    return topic, msg

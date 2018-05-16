@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Column, Table
-from ..extensions import db
+from coaster.sqlalchemy import BaseMixin
 
 from .constants import PHONE_NUMBER_TYPE
+from ..extensions import db
 from ..utils import STRING_LEN
 
-    
-
-from coaster.sqlalchemy import BaseMixin
 
 class PhoneNumber(BaseMixin, db.Model):
     """A phone number, associated with a station, person or call.
@@ -16,13 +13,13 @@ class PhoneNumber(BaseMixin, db.Model):
     """
     __tablename__ = u'telephony_phonenumber'
 
-    
     carrier = db.Column(db.String(STRING_LEN))
-    countrycode = db.Column(db.String(3)) #does not include + symbol
-    number = db.Column(db.String(20),nullable=False) #filtered data
-    raw_number = db.Column(db.String(20)) #raw from telephony
+    countrycode = db.Column(db.String(3))  # does not include + symbol
+    number = db.Column(db.String(20), nullable=False)  # filtered data
+    raw_number = db.Column(db.String(20))  # raw from telephony
 
-    number_type = db.Column(db.Integer) #convert to enum?
+    number_type = db.Column(db.Integer)  # convert to enum?
+
     @property
     def type(self):
         return PHONE_NUMBER_TYPE.get(self.number_type)
@@ -34,47 +31,44 @@ class PhoneNumber(BaseMixin, db.Model):
             return self.number
 
 
-
-
 class Call(BaseMixin, db.Model):
     """An incoming or outgoing call from the telephony system.
     Defined here for easy readability by the web server, but should not be written to in this process."""
     __tablename__ = u'telephony_call'
-    #import Station
-    #from rootio.radio.models import Station
+    # import Station
+    # from rootio.radio.models import Station
     # circular imports...
-    
+
     call_uuid = db.Column(db.String(100))
     start_time = db.Column(db.DateTime)
     duration = db.Column(db.Integer)
-    from_phonenumber = db.Column(db.String(20)) #nullable=False?
-    to_phonenumber = db.Column(db.String(20)) #nullable=False?
-    a_leg_uuid = db.Column(db.String(100)) #only for outgoing
-    a_leg_request_uuid = db.Column(db.String(100)) #only for outgoing
+    from_phonenumber = db.Column(db.String(20))  # nullable=False?
+    to_phonenumber = db.Column(db.String(20))  # nullable=False?
+    a_leg_uuid = db.Column(db.String(100))  # only for outgoing
+    a_leg_request_uuid = db.Column(db.String(100))  # only for outgoing
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
-    
-    #todo: add station relationship
-    #station = db.relationship(u'rootio.radio.models.Station')
-   
+
+    # todo: add station relationship
+    # station = db.relationship(u'rootio.radio.models.Station')
 
 
 class Message(BaseMixin, db.Model):
     """An incoming or outgoing text message from the telephony system.
     Defined here for easy readability by the web server, but should not be written to in this process."""
     __tablename__ = u'telephony_message'
-    #from ..radio.models import Station
+    # from ..radio.models import Station
     # circular imports...
-    
+
     message_uuid = db.Column(db.String(100))
     sendtime = db.Column(db.DateTime)
     text = db.Column(db.Text())
-    from_phonenumber = db.Column(db.String(20)) #nullable=False?
-    to_phonenumber = db.Column(db.String(20)) #nullable=False?
-    station_id = db.Column(db.ForeignKey('radio_station.id')) 
+    from_phonenumber = db.Column(db.String(20))  # nullable=False?
+    to_phonenumber = db.Column(db.String(20))  # nullable=False?
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
     onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
 
-  
+
 class Gateway(BaseMixin, db.Model):
     """A sip gateway specification, one (current) or more (TODO) per station"""
     __tablename__ = u'telephony_gateway'

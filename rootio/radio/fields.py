@@ -5,6 +5,7 @@ from wtforms_components.widgets import TextInput
 
 import json
 
+
 class FileField(types.TypeDecorator):
     impl = String
 
@@ -20,6 +21,7 @@ class FileField(types.TypeDecorator):
     def process_result_value(self, value, dialect):
         return FileNameString(self.upload_set, value)
 
+
 class FileNameString(object):
     def __init__(self, upload_set, filename):
         self.upload_set = upload_set
@@ -33,22 +35,25 @@ class FileNameString(object):
     def url(self):
         return self.upload_set.url(self.filename)
 
+
 class DurationField(StringField):
     widget = TextInput(pattern="^(0*[0-9]|1[0-9]|2[0-3])([.:][0-5][0-9])([.:][0-5][0-9])?$")
     error_msg = 'Not a valid duration.'
 
-    #html5 time inputs include am/pm, which doesn't make sense for duration
-    #use textfield with custom pattern instead
-    #matches (H)H.:MM(.:SS)
+    # html5 time inputs include am/pm, which doesn't make sense for duration
+    # use textfield with custom pattern instead
+    # matches (H)H.:MM(.:SS)
+
 
 class InlineFormField(FormField):
     def validate(self, form, extra_validators=tuple()):
-        #don't validate inline form fields, we'll do it client side
+        # don't validate inline form fields, we'll do it client side
         return True
 
     def populate_obj(self, obj, name):
-        #don't populate inline forms
+        # don't populate inline forms
         return True
+
 
 class JSONField(TextAreaField):
     def _value(self):

@@ -10,64 +10,74 @@ from flask.ext.restless import ProcessingException
 from flask_sqlalchemy import BaseQuery, Model
 from .utils import simple_serialize_sqlalchemy
 
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_user.role_code not in [0,1,3]: #Admin, network Admin, content provider Admin. Change these to use named constants
+        if current_user.role_code not in [0, 1, 3]:  # Admin, network Admin, content provider Admin. TODO: Get from DB
             abort(403)
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 def returns_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code
     returns a json response where collections are nested in an objects dict"""
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         r = f(*args, **kwargs)
         ct = 'application/json; charset=utf-8'
-        if isinstance(r,BaseQuery):
+        if isinstance(r, BaseQuery):
             obj_list = []
             for o in r.all():
                 obj_list.append(simple_serialize_sqlalchemy(o))
-            return Response(json.dumps({'objects':obj_list}), content_type=ct)
-        if isinstance(r,list):
+            return Response(json.dumps({'objects': obj_list}), content_type=ct)
+        if isinstance(r, list):
             obj_list = []
             for o in r:
                 obj_list.append(simple_serialize_sqlalchemy(o))
-            return Response(json.dumps({'objects':obj_list}), content_type=ct)
-        if isinstance(r,Model):
+            return Response(json.dumps({'objects': obj_list}), content_type=ct)
+        if isinstance(r, Model):
             return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
-        if isinstance(r,dict) and 'status_code' in r:
-            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        if isinstance(r, dict) and 'status_code' in r:
+            return Response(json.dumps(r), content_type=ct, status=r['status_code'])
         return Response(json.dumps(r), content_type=ct)
+
     return decorated_function
+
 
 def returns_flat_json(f):
     """takes either a sqlalchemy query or a dictionary w/ optional status_code
     returns a json response where collections are in an array"""
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         r = f(*args, **kwargs)
         ct = 'application/json; charset=utf-8'
-        if isinstance(r,BaseQuery):
+        if isinstance(r, BaseQuery):
             obj_list = []
             for o in r.all():
                 obj_list.append(simple_serialize_sqlalchemy(o))
             return Response(json.dumps(obj_list), content_type=ct)
-        if isinstance(r,list):
+        if isinstance(r, list):
             obj_list = []
             for o in r:
                 obj_list.append(simple_serialize_sqlalchemy(o))
             return Response(json.dumps(obj_list), content_type=ct)
-        if isinstance(r,Model):
+        if isinstance(r, Model):
             return Response(json.dumps(simple_serialize_sqlalchemy(r)), content_type=ct)
-        if isinstance(r,dict) and 'status_code' in r:
-            return Response(json.dumps(r), content_type=ct,status=r['status_code'])
+        if isinstance(r, dict) and 'status_code' in r:
+            return Response(json.dumps(r), content_type=ct, status=r['status_code'])
         return Response(json.dumps(r), content_type=ct)
+
     return decorated_function
+
 
 def api_key_or_auth_required(f):
     """Restrict access to a valid station api key, or logged in user """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         from .radio import Station
@@ -76,20 +86,22 @@ def api_key_or_auth_required(f):
             if 'station_id' in kwargs:
                 station = Station.query.get(kwargs['station_id'])
                 if station and station.api_key == api_key:
-                    #valid
+                    # valid
                     return f(*args, **kwargs)
             else:
-                #no specific station, check against all valid keys
+                # no specific station, check against all valid keys
                 if Station.query.filter_by(api_key=api_key).count():
-                    #matches, should be only one because of unique constraint
+                    # matches, should be only one because of unique constraint
                     return f(*args, **kwargs)
         else:
             if current_user.is_authenticated():
                 return f(*args, **kwargs)
         abort(403)
+
     return decorated_function
 
-#unfortunate duplication for flask-restless style preprocessor
+
+# unfortunate duplication for flask-restless style preprocessor
 
 def restless_api_auth(*args, **kwargs):
     from .radio import Station
@@ -98,28 +110,28 @@ def restless_api_auth(*args, **kwargs):
         if 'station_id' in kwargs:
             station = Station.query.get(kwargs['station_id'])
             if station and station.api_key == api_key:
-                return None # allow
+                return None  # allow
         else:
-            #no specific station, check against all valid keys
+            # no specific station, check against all valid keys
             if Station.query.filter_by(api_key=api_key).count():
-                return None # allow
+                return None  # allow
     else:
-        #check if user is logged in
+        # check if user is logged in
         if current_user.is_authenticated():
-            return None # allow
+            return None  # allow
 
     raise ProcessingException(message='Not authenticated!')
-    
+
 
 def updated_since_filter(search_params=None, **kwargs):
     if 'updated_since' in request.args:
-        #parse iso datetime
+        # parse iso datetime
         try:
             date = dateutil.parser.parse(request.args.get('updated_since'))
         except (ValueError, TypeError):
             raise ProcessingException(message='Unable to parse updated_since parameter. Must be ISO datetime format')
 
-        #filter on update time
+        # filter on update time
         filt = dict(name='updated_at', op='gt', val=date)
         if 'filters' not in search_params:
             search_params['filters'] = []
@@ -131,19 +143,20 @@ def hide_private_variables(result=None, **kw):
         for key in result.keys():
             if key.startswith('_'):
                 del result[key]
-            if key in ["activation_key","openid","api_key"]:
+            if key in ["activation_key", "openid", "api_key"]:
                 del result[key]
 
-#define restless preprocessor dict for all method types
-restless_preprocessors = { 'GET_SINGLE':   [restless_api_auth, updated_since_filter],
-                           'GET_MANY':     [restless_api_auth, updated_since_filter],
-                           'PATCH_SINGLE': [restless_api_auth, updated_since_filter],
-                           'PATCH_MANY':   [restless_api_auth, updated_since_filter],
-                           'PUT_SINGLE':   [restless_api_auth, updated_since_filter],
-                           'PUT_MANY':     [restless_api_auth, updated_since_filter],
-                           'POST':         [restless_api_auth, updated_since_filter],
-                           'DELETE':       [restless_api_auth, updated_since_filter]}
+
+# define restless preprocessor dict for all method types
+restless_preprocessors = {'GET_SINGLE': [restless_api_auth, updated_since_filter],
+                          'GET_MANY': [restless_api_auth, updated_since_filter],
+                          'PATCH_SINGLE': [restless_api_auth, updated_since_filter],
+                          'PATCH_MANY': [restless_api_auth, updated_since_filter],
+                          'PUT_SINGLE': [restless_api_auth, updated_since_filter],
+                          'PUT_MANY': [restless_api_auth, updated_since_filter],
+                          'POST': [restless_api_auth, updated_since_filter],
+                          'DELETE': [restless_api_auth, updated_since_filter]}
 restless_postprocessors = {
-    'GET_SINGLE':   [hide_private_variables],
-    'GET_MANY':     [hide_private_variables]
+    'GET_SINGLE': [hide_private_variables],
+    'GET_MANY': [hide_private_variables]
 }

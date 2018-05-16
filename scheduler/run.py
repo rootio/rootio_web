@@ -1,19 +1,17 @@
 import atexit
-import argparse
 
 from env import read_env
+from logme import setup
 from scheduler import MessageScheduler
 
-from  multiprocessing import Process
-
-from logme import setup
 logger = setup(__name__)
+
 
 def run():
     config = read_env('config.cfg')
-    
-    scheduler = MessageScheduler(config['jobstore'],config['url'])
-    
+
+    scheduler = MessageScheduler(config['jobstore'], config['url'])
+
     # start APscheduler daemon in own thread
     scheduler.start_ap_daemon()
 
@@ -27,8 +25,8 @@ def run():
     except KeyboardInterrupt:
         scheduler.shutdown()
     except Exception, e:
-	   logger.debug("exception in scheculer start_listener():{}".format(e))
-    
+        logger.debug("exception in scheculer start_listener():{}".format(e))
+
 
 if __name__ == "__main__":
     try:

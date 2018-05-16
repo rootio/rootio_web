@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 import json
+
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
+from sqlalchemy.exc import DatabaseError
 
 from .utils import parse_datetime
+from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
+    ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
+from ..decorators import returns_json, restless_preprocessors, restless_postprocessors
+from ..extensions import db, rest, csrf
+from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..telephony import PhoneNumber, Call, Message
+from ..user import User
 from ..utils import jquery_dt_paginator
 
-from ..extensions import db, rest, csrf
-
-from ..user import User
-from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
-from ..radio.models import Network, Location, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
-from ..telephony import PhoneNumber, Call, Message
-from ..onair import OnAirProgram
-
-from ..decorators import returns_json, api_key_or_auth_required, restless_preprocessors, restless_postprocessors
-
-#the web login api
+# the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
+
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -43,101 +43,104 @@ def logout():
     return jsonify(flag='success', msg='Logged out.')
 
 
-#the restless api
-#needs to be called after app instantiation
-#preprocessor requires logged in user or api key
+# the restless api
+# needs to be called after app instantiation
+# preprocessor requires logged in user or api key
 def restless_routes():
     rest.create_api(Person, collection_name='person', methods=['GET'],
-        preprocessors=restless_preprocessors,
-        postprocessors=restless_postprocessors)
+                    preprocessors=restless_preprocessors,
+                    postprocessors=restless_postprocessors)
     rest.create_api(User, collection_name='user', methods=['GET'],
-        exclude_columns=['_password'],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=['_password'],
+                    preprocessors=restless_preprocessors)
 
-    #rest.create_api(Station, collection_name='station', methods=['GET'],
-     #  exclude_columns=['owner','api_key','scheduled_programs','analytics','blocks']) #,
-        #preprocessors=restless_preprocessors,
-        #postprocessors=restless_postprocessors)
+    # rest.create_api(Station, collection_name='station', methods=['GET'],
+    #  exclude_columns=['owner','api_key','scheduled_programs','analytics','blocks']) #,
+    # preprocessors=restless_preprocessors,
+    # postprocessors=restless_postprocessors)
     rest.create_api(Program, collection_name='program', methods=['GET'],
-        exclude_columns=['scheduled_programs',],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=['scheduled_programs', ],
+                    preprocessors=restless_preprocessors)
     rest.create_api(ScheduledProgram, collection_name='scheduledprogram', methods=['GET'],
-        exclude_columns=['station'],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=['station'],
+                    preprocessors=restless_preprocessors)
 
     rest.create_api(Episode, collection_name='episode', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=[],
+                    preprocessors=restless_preprocessors)
     rest.create_api(Recording, collection_name='recording', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=[],
+                    preprocessors=restless_preprocessors)
 
     rest.create_api(PhoneNumber, collection_name='phonenumber', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=[],
+                    preprocessors=restless_preprocessors)
     rest.create_api(Call, collection_name='call', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=[],
+                    preprocessors=restless_preprocessors)
     rest.create_api(Message, collection_name='message', methods=['GET'],
-        exclude_columns=[],
-        preprocessors=restless_preprocessors)
+                    exclude_columns=[],
+                    preprocessors=restless_preprocessors)
 
-#need routes for:
-    #phone to update station schedule?
 
-#non CRUD-routes
-#protect with decorator
+# need routes for:
+# phone to update station schedule?
+
+# non CRUD-routes
+# protect with decorator
 
 @api.route('/station', methods=['GET'])
 @returns_json
 def stations():
     stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    resps = []
+    responses = []
     for station in stations:
         response = dict()
-        if station != None:
+        if station is not None:
             response["name"] = station.name
             response["frequency"] = station.frequency
             response["network_id"] = station.network_id
-            if station.location != None:
-                response["location"] = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
-            if station.primary_transmitter_phone != None:
+            if station.location is not None:
+                response["location"] = {"name": station.location.name, "latitude": station.location.latitude,
+                                        "longitude": station.location.longitude}
+            if station.primary_transmitter_phone is not None:
                 response["primary_transmitter_telephone"] = station.primary_transmitter_phone.raw_number
-            if station.secondary_transmitter_phone != None:
+            if station.secondary_transmitter_phone is not None:
                 response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
             response["multicast_IP"] = station.broadcast_ip
             response["multicast_port"] = station.broadcast_port
-        resps.append(response)
+        responses.append(response)
     responses = dict()
-    responses["objects"] =  resps
+    responses["objects"] = responses
     return responses
 
 
 @api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     response = dict()
-    if station != None:
+    if station is not None:
         response["name"] = station.name
         response["frequency"] = station.frequency
-        if station.location != None:
-            response["location"] = { "name": station.location.name, "latitude":station.location.latitude, "longitude": station.location.longitude }
-        if station.primary_transmitter_phone != None:
+        if station.location is not None:
+            response["location"] = {"name": station.location.name, "latitude": station.location.latitude,
+                                    "longitude": station.location.longitude}
+        if station.primary_transmitter_phone is not None:
             response["primary_transmitter_telephone"] = station.primary_transmitter_phone.raw_number
-        if station.secondary_transmitter_phone != None:
+        if station.secondary_transmitter_phone is not None:
             response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
         response["multicast_IP"] = station.broadcast_ip
         response["multicast_port"] = station.broadcast_port
     responses = dict()
-    responses["station"] =  response
+    responses["station"] = response
     return responses
 
 
 @api.route('/station/<int:station_id>/current_program', methods=['GET'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def current_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -145,7 +148,7 @@ def current_program(station_id):
 
 
 @api.route('/station/<int:station_id>/on_air', methods=['GET'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def on_air(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -154,11 +157,11 @@ def on_air(station_id):
         return current_program.onairprogram
     else:
         message = jsonify(flag='error', msg='No OnAirProgram set for station')
-        abort(make_response(message, 500)) 
+        abort(make_response(message, 500))
 
 
 @api.route('/station/<int:station_id>/next_program', methods=['GET'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def next_program(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -166,7 +169,7 @@ def next_program(station_id):
 
 
 @api.route('/station/<int:station_id>/current_block', methods=['GET'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def current_block(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -175,11 +178,10 @@ def current_block(station_id):
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/schedule', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def station_schedule(station_id):
     """API method to get a station's schedule.
-    Parameters:
         start: ISO datetime
         end: ISO datetime
         all: if truthy, then ignores start and end constraints"""
@@ -187,23 +189,30 @@ def station_schedule(station_id):
         start = parse_datetime(request.args.get('start'))
         end = parse_datetime(request.args.get('end'))
     except (ValueError, TypeError):
-            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-            abort(make_response(message, 400))
-    #TODO, investigate the proper ordering of these clauses for query speed
+        message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+        abort(make_response(message, 400))
+    # TODO, investigate the proper ordering of these clauses for query speed
     if request.args.get('all'):
-        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).all()
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+            ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).all()
     elif start and end:
-        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.start>start).filter(ScheduledProgram.end>end).all()
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+            ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).filter(
+            ScheduledProgram.start > start).filter(ScheduledProgram.end > end).all()
     elif start:
-        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.start>start).all()
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+            ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).filter(
+            ScheduledProgram.start > start).all()
     elif end:
-        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.end>end).all()
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+            ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).filter(
+            ScheduledProgram.end > end).all()
     else:
         message = jsonify(flag='error', msg="Need to specify parameters 'start' or 'end' as ISO datetime or all=1")
         abort(make_response(message, 400))
-    responses=[]
+    responses = []
     for program in scheduled_programs:
-        response=dict()
+        response = dict()
         response['name'] = program.Program.name
         response['scheduled_program_id'] = program.ScheduledProgram.id
         response['start'] = program.ScheduledProgram.start
@@ -211,13 +220,13 @@ def station_schedule(station_id):
         response['updated_at'] = program.ScheduledProgram.updated_at
         response['deleted'] = program.ScheduledProgram.deleted
         response['structure'] = program.Program.structure
-        responses.append(response)        
-    allresponses = {"scheduled_programs" : responses}
-    return allresponses 
+        responses.append(response)
+    all_responses = {"scheduled_programs": responses}
+    return all_responses
 
 
 @api.route('/station/<int:station_id>/programs', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def station_programs(station_id):
@@ -226,15 +235,18 @@ def station_programs(station_id):
     if request.args.get('updated_since'):
         try:
             updated_since = parse_datetime(request.args.get('updated_since'))
-            scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).filter(ScheduledProgram.updated_at>updated_since).all()
+            scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+                ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).filter(
+                ScheduledProgram.updated_at > updated_since).all()
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
     else:
-        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(ScheduledProgram.station_id==station_id).filter(ScheduledProgram.program_id==Program.id).all()
-    responses=[]
+        scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+            ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).all()
+    responses = []
     for program in scheduled_programs:
-        response=dict()
+        response = dict()
         response['name'] = program.Program.name
         response['scheduled_program_id'] = program.ScheduledProgram.id
         response['program_type_id'] = program.Program.program_type_id
@@ -243,27 +255,27 @@ def station_programs(station_id):
         response['updated_at'] = program.ScheduledProgram.updated_at
         response['deleted'] = program.ScheduledProgram.deleted
         response['structure'] = program.Program.structure
-        responses.append(response)        
-    allresponses = {"scheduled_programs" : responses}
-    return allresponses
+        responses.append(response)
+    all_responses = {"scheduled_programs": responses}
+    return all_responses
 
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/analytics', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def station_analytics(station_id):
     """API method to get or post analytics for a station"""
-    
+
     station = Station.query.filter_by(id=station_id).first_or_404()
     data = json.loads(request.data)
-    responses=[]
-    
+    responses = []
+
     for single_analytic_data in data['analytic_data']:
-        response=dict()
+        response = dict()
         response['id'] = single_analytic_data['id']
-        del(single_analytic_data['id'])
-        analytic = StationAnalytic(**single_analytic_data) #use this format to avoid multidict-type issue
+        del (single_analytic_data['id'])
+        analytic = StationAnalytic(**single_analytic_data)  # use this format to avoid multidict-type issue
         analytic.station = station
         db.session.add(analytic)
         try:
@@ -275,61 +287,60 @@ def station_analytics(station_id):
             response['status'] = False
             response['error'] = e.message
         responses.append(response)
-    allresponses = {"results" : responses}
-    return allresponses
+    all_responses = {"results": responses}
+    return all_responses
 
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/whitelist', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def station_whitelist(station_id):
     """API method to get whitelist for a station"""
-    #whitelist is a concatenation of outgoing gateways and 
+    # whitelist is a concatenation of outgoing gateways and 
     station = Station.query.filter_by(id=station_id).first_or_404()
     whitelists = station.whitelist_number
-    whitelist_numbers=[]
+    whitelist_numbers = []
     for number in whitelists:
         whitelist_number = number.number
         whitelist_numbers.append(whitelist_number)
-    #add the gateways
+    # add the gateways
     for gw in station.outgoing_gateways:
         whitelist_numbers.append(str(gw.number_bottom))
-    allresponses= {"whitelist" : whitelist_numbers}
-    return allresponses
+    all_responses = {"whitelist": whitelist_numbers}
+    return all_responses
 
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/frequency_update', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def frequency_update(station_id):
-    """API method to get the frequency of updates for a station"""  
+    """API method to get the frequency of updates for a station"""
     station = Station.query.filter_by(id=station_id).first_or_404()
-   
-    diagnostic = {"interval" : station.analytic_update_frequency, "unit" : "seconds"}
-    synchronization = {"interval" : station.client_update_frequency, "unit" : "seconds"}
-    response= {"synchronization" : synchronization, "diagnostics" : diagnostic}
+
+    diagnostic = {"interval": station.analytic_update_frequency, "unit": "seconds"}
+    synchronization = {"interval": station.client_update_frequency, "unit": "seconds"}
+    response = {"synchronization": synchronization, "diagnostics": diagnostic}
     return response
 
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/call', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def call_data(station_id):
     """API method to get or post analytics for a station"""
-    
-    station = Station.query.filter_by(id=station_id).first_or_404()
+
     data = json.loads(request.data)
-    responses=[]
-  
+    responses = []
+
     for single_call_data in data['call_data']:
-        response=dict()
+        response = dict()
         response['id'] = single_call_data['call_uuid']
-        call_data = Call(**single_call_data) #use this format to avoid multidict-type issue
-        call_data.station_id = station_id
-        db.session.add(call_data)
+        call_details = Call(**single_call_data)  # use this format to avoid multidict-type issue
+        call_details.station_id = station_id
+        db.session.add(call_details)
         try:
             db.session.commit()
             response['status'] = True
@@ -339,27 +350,26 @@ def call_data(station_id):
             response['status'] = False
             response['error'] = e.message
         responses.append(response)
-    allresponses= {"results" : responses}
-    return allresponses
+    all_responses = {"results": responses}
+    return all_responses
 
 
 @csrf.exempt
 @api.route('/station/<int:station_id>/message', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def message_data(station_id):
     """API method to get or post analytics for a station"""
-    
-    station = Station.query.filter_by(id=station_id).first_or_404()
+
     data = json.loads(request.data)
-    responses=[]
-  
+    responses = []
+
     for single_message_data in data['message_data']:
-        response=dict()
+        response = dict()
         response['id'] = single_message_data['message_uuid']
-        message_data = Message(**single_message_data) #use this format to avoid multidict-type issue
-        message_data.station_id = station_id
-        db.session.add(message_data)
+        message_details = Message(**single_message_data)  # use this format to avoid multidict-type issue
+        message_details.station_id = station_id
+        db.session.add(message_details)
         try:
             db.session.commit()
             response['status'] = True
@@ -369,12 +379,12 @@ def message_data(station_id):
             response['status'] = False
             response['error'] = e.message
         responses.append(response)
-    allresponses= {"results" : responses}
-    return allresponses
+    all_responses = {"results": responses}
+    return all_responses
 
 
 @api.route('/program/<int:program_id>/episodes', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @returns_json
 def program_episodes(program_id):
     """API method to get all episodes currently available for a program"""
@@ -384,24 +394,28 @@ def program_episodes(program_id):
     if request.args.get('updated_since'):
         try:
             updated_since = parse_datetime(request.args.get('updated_since'))
-            return episodes.filter(Episode.updated_at>updated_since)
+            return episodes.filter(Episode.updated_at > updated_since)
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
-            abort(make_response(message, 400)) 
+            abort(make_response(message, 400))
     else:
         return episodes.all()
 
+
 @api.route('/podcast/<int:podcast_id>/downloads', methods=['GET', 'POST'])
-#@api_key_or_auth_required
-#@returns_json
+# @api_key_or_auth_required
+# @returns_json
 @csrf.exempt
 def podcast_downloads(podcast_id):
     """API method to get all episodes currently available for a program"""
 
     cols = [ContentPodcastDownload.date_published, ContentPodcastDownload.summary, ContentPodcastDownload.file_name]
-    downloads = ContentPodcastDownload.query.with_entities(*cols).join(ContentPodcast).filter(ContentPodcast.id==podcast_id)
+    downloads = ContentPodcastDownload.query.with_entities(*cols).join(ContentPodcast).filter(
+        ContentPodcast.id == podcast_id)
 
-    records = jquery_dt_paginator.get_records(downloads, [ContentPodcastDownload.file_name, ContentPodcastDownload.summary], request)
+    records = jquery_dt_paginator.get_records(downloads,
+                                              [ContentPodcastDownload.file_name, ContentPodcastDownload.summary],
+                                              request)
     return jsonify(records)
 
 
@@ -411,28 +425,30 @@ def get_dict_from_rows(rows):
         result[row.title] = row
     return result
 
+
 @api.route('/station/<int:station_id>/music', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
     songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
-    artists_in_db = get_dict_from_rows(ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
+    artists_in_db = get_dict_from_rows(
+        ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
     albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
 
-    data = json.loads(request.data)    
+    data = json.loads(request.data)
     for artist in data:
         if artist in artists_in_db:
             music_artist = artists_in_db[artist]
         else:
-            #persist the artist
-            music_artist = ContentMusicArtist(**{'title':artist, 'station_id':station_id})
+            # persist the artist
+            music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
             artists_in_db[artist] = music_artist
             db.session.add(music_artist)
             try:
                 db.session.commit()
-            except Exception as e:
+            except DatabaseError:
                 db.session.rollback()
                 continue
 
@@ -440,33 +456,36 @@ def music_sync(station_id):
             if album in albums_in_db:
                 music_album = albums_in_db[album]
             else:
-                #persist the album
-                music_album = ContentMusicAlbum(**{'title':album, 'station_id':station_id})
+                # persist the album
+                music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
                 albums_in_db[album] = music_album
                 db.session.add(music_album)
                 try:
                     db.session.commit()
-                except Exception:
+                except DatabaseError:
                     db.session.rollback()
                     continue
-            
+
             for song in data[artist][album]['songs']:
                 if song['title'] in songs_in_db:
                     music_song = songs_in_db[song['title']]
                 else:
-                    music_song = ContentMusic(**{'title':song['title'], 'duration': song['duration'], 'station_id':station_id, 'album_id':music_album.id, 'artist_id':music_artist.id})
+                    music_song = ContentMusic(
+                        **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
+                           'album_id': music_album.id, 'artist_id': music_artist.id})
                     songs_in_db[song['title']] = music_song
-                    db.session.add(music_song)
-                    try:
-                        db.session.commit()
-                    except Exception:
-                        db.session.rollback()
-                        continue
+                db.session.add(music_song)
+                try:
+                    db.session.commit()
+                except DatabaseError:
+                    db.session.rollback()
+                    continue
 
-    return { 'status':True}
+    return {'status': True}  # TODO: Make the status dependent on the result of the upload
+
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])
-#@api_key_or_auth_required
+# @api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def music_playlist(station_id):
@@ -476,18 +495,32 @@ def music_playlist(station_id):
     for playlist in playlists:
         pl = dict()
         pl['title'] = playlist.title
-        #get the songs
-        songs = ContentMusic.query.join(ContentMusicPlaylistItem,ContentMusicPlaylistItem.playlist_item_id==ContentMusic.id).with_entities(ContentMusic.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusic.station_id == station_id).all()
+        # get the songs
+        songs = ContentMusic.query.join(ContentMusicPlaylistItem,
+                                        ContentMusicPlaylistItem.playlist_item_id == ContentMusic.id).with_entities(
+            ContentMusic.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1).filter(
+            ContentMusicPlaylistItem.deleted == False).filter(
+            ContentMusicPlaylistItem.playlist_id == playlist.id).filter(ContentMusic.station_id == station_id).all()
         pl['songs'] = songs
-        
-        #get the artists
-        artists = ContentMusicArtist.query.join(ContentMusicPlaylistItem, ContentMusicPlaylistItem.playlist_item_id==ContentMusicArtist.id).with_entities(ContentMusicArtist.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 3).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusicArtist.station_id == station_id).all()
+
+        # get the artists
+        artists = ContentMusicArtist.query.join(ContentMusicPlaylistItem,
+                                                ContentMusicPlaylistItem.playlist_item_id == ContentMusicArtist.id).with_entities(
+            ContentMusicArtist.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 3).filter(
+            ContentMusicPlaylistItem.deleted == False).filter(
+            ContentMusicPlaylistItem.playlist_id == playlist.id).filter(
+            ContentMusicArtist.station_id == station_id).all()
         pl['artists'] = artists
 
-        #get the albums
-        albums = ContentMusicAlbum.query.join(ContentMusicPlaylistItem, ContentMusicPlaylistItem.playlist_item_id==ContentMusicAlbum.id).with_entities(ContentMusicAlbum.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 2).filter(ContentMusicPlaylistItem.deleted==False).filter(ContentMusicPlaylistItem.playlist_id==playlist.id).filter(ContentMusicAlbum.station_id == station_id).all()
+        # get the albums
+        albums = ContentMusicAlbum.query.join(ContentMusicPlaylistItem,
+                                              ContentMusicPlaylistItem.playlist_item_id == ContentMusicAlbum.id).with_entities(
+            ContentMusicAlbum.title).filter(ContentMusicPlaylistItem.playlist_item_type_id == 2).filter(
+            ContentMusicPlaylistItem.deleted == False).filter(
+            ContentMusicPlaylistItem.playlist_id == playlist.id).filter(
+            ContentMusicAlbum.station_id == station_id).all()
         pl['albums'] = albums
-        
+
         play_list.append(pl)
 
     return play_list

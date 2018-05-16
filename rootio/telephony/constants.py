@@ -1,4 +1,4 @@
-#enum for phone number types
+# enum for phone number types
 MOBILE = 0
 LANDLINE = 1
 SHARED = 2

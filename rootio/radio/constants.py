@@ -2,7 +2,7 @@
 
 STRING_LEN = 100
 
-#enum for privacy types
+# enum for privacy types
 PRIVATE = 0
 SHARED = 1
 PUBLIC = 2

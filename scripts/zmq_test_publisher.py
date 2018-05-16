@@ -6,7 +6,7 @@ ADDRESS = "ipc:///tmp/zmq.sock"
 PATTERN = "PUB"
 
 context = zmq.Context()
-socket = context.socket(getattr(zmq,PATTERN))
+socket = context.socket(getattr(zmq, PATTERN))
 socket.connect(ADDRESS)
 print "publish on %s as %s" % (ADDRESS, PATTERN)
 
@@ -17,7 +17,7 @@ messages = ['hi', 'hello', 'how are you?']
 
 while True:
     try:
-        topic = random.randint(0,3)
+        topic = random.randint(0, 3)
         msg = random.choice(messages)
         print "%s: %s" % (topic, msg)
         socket.send_json((topic, msg))

@@ -7,9 +7,11 @@ import json
 
 messenger = Blueprint('messenger', __name__, url_prefix='/messenger')
 
+
 @messenger.route('/test/', methods=['GET'])
 def message_test():
     return render_template('messenger/message_test.html')
+
 
 @messenger.route('/test_ajax/', methods=['POST'])
 @returns_json
@@ -18,12 +20,12 @@ def message_test_ajax():
     data = {}
     for d in data_list:
         data[d['name']] = d['value']
-    #decode form...
+    # decode form...
 
     try:
         msg = data.get('message').__str__()
         topic = data.get('topic').__str__()
         test_message(topic, msg)
-        return {'status_code':200,'topic':topic,'message':msg}
-    except Exception,e:
-        return {'status_code':400, 'errors':str(e)}
+        return {'status_code': 200, 'topic': topic, 'message': msg}
+    except Exception, e:
+        return {'status_code': 400, 'errors': str(e)}

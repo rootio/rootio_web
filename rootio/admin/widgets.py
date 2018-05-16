@@ -1,17 +1,19 @@
 from wtforms.widgets import HTMLString, html_params
 from cgi import escape
 import six
+from wtforms.fields import Field
+
 
 class ParagraphWidget(object):
     """
     Renders a field as a plain ol' paragraph
     """
-    def __call__(self, field, **kwargs): 
+
+    def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
-        return HTMLString('<p %s>%s</p>' % (html_params(name=field.name, **kwargs), escape(six.text_type(field._value()))))
+        return HTMLString(
+            '<p %s>%s</p>' % (html_params(name=field.name, **kwargs), escape(six.text_type(field._value()))))
 
-
-from wtforms.fields import Field
 
 class DateDisplayOnlyField(Field):
     """

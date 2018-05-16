@@ -79,7 +79,7 @@ def configure_app(app, config=None):
         app.config.from_object(config)
 
     # Use instance folder instead of env variables to make deployment easier.
-    #app.config.from_envvar('%s_APP_CONFIG' % DefaultConfig.PROJECT.upper(), silent=True)
+    # app.config.from_envvar('%s_APP_CONFIG' % DefaultConfig.PROJECT.upper(), silent=True)
 
 
 def configure_extensions(app):
@@ -97,24 +97,24 @@ def configure_extensions(app):
 
     @babel.localeselector
     def get_locale():
-        #TODO, first check user config?
+        # TODO, first check user config?
         g.accept_languages = app.config.get('ACCEPT_LANGUAGES')
         accept_languages = g.accept_languages.keys()
         browser_default = request.accept_languages.best_match(accept_languages)
         if 'language' in session:
             language = session['language']
-            #current_app.logger.debug('lang from session: %s' % language)
-            if not language in accept_languages:
-                #clear it
-                #current_app.logger.debug('invalid %s, clearing' % language)
+            # current_app.logger.debug('lang from session: %s' % language)
+            if language not in accept_languages:
+                # clear it
+                # current_app.logger.debug('invalid %s, clearing' % language)
                 session['language'] = None
                 language = browser_default
         else:
             language = browser_default
-            #current_app.logger.debug('lang from browser: %s' % language)
-        session['language'] = language #save it to session
+            # current_app.logger.debug('lang from browser: %s' % language)
+        session['language'] = language  # save it to session
 
-        #and to user?
+        # and to user?
         return language
 
     # flask-login
@@ -124,22 +124,23 @@ def configure_extensions(app):
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(id)
+
     login_manager.setup_app(app)
 
     # flask-openid
     oid.init_app(app)
 
     # csrf for wtforms
-    #from flask.ext.wtf import csrf
+    # from flask.ext.wtf import csrf
     csrf.init_app(app)
-    
+
     # flask-restless
     rest.init_app(app, flask_sqlalchemy_db=db)
-    restless_routes() #actually setup the routes
+    restless_routes()  # actually setup the routes
 
     # flask-admin
     admin = Admin(app, name='RootIO Backend', index_view=AdminHomeView())
-    admin_routes(admin) #add flask-admin classes
+    admin_routes(admin)  # add flask-admin classes
 
 
 def configure_blueprints(app, blueprints):
@@ -152,7 +153,7 @@ def configure_blueprints(app, blueprints):
 def configure_messenger(app):
     try:
         # wrap zmq config in try/except, because it can fail easily
-        app.messenger = zmq_context.socket(getattr(zmq,app.config['ZMQ_SOCKET_TYPE']))
+        app.messenger = zmq_context.socket(getattr(zmq, app.config['ZMQ_SOCKET_TYPE']))
         app.messenger.connect(app.config['ZMQ_BIND_ADDR'])
         app.logger.info('zmq connected %s' % app.config['ZMQ_BIND_ADDR'])
 
@@ -160,14 +161,13 @@ def configure_messenger(app):
         if app.debug:
             import time;
             time.sleep(1)
-	    app.messenger.send('zmq {"status":"startup"}') 
+            app.messenger.send('zmq {"status":"startup"}')
     except zmq.error.ZMQError:
         app.logger.error('unable to start zmq')
         app.messenger = None
 
 
 def configure_template_filters(app):
-
     @app.template_filter()
     def pretty_date(value):
         return pretty_date(value)
@@ -180,8 +180,8 @@ def configure_template_filters(app):
 def configure_logging(app):
     """Configure file(info) and email(error) logging."""
 
-    #if app.debug or app.testing:
-        # Skip debug and test mode. Just check standard output.
+    # if app.debug or app.testing:
+    # Skip debug and test mode. Just check standard output.
     #    return
 
     import logging
@@ -228,15 +228,14 @@ def configure_hook(app):
 
 
 def configure_error_handlers(app):
-
     @app.errorhandler(403)
     def forbidden_page(error):
-        return render_template("errors/forbidden_page.html"), 403
+        return render_template("errors/forbidden_page.html", error=error), 403
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return render_template("errors/page_not_found.html"), 404
+        return render_template("errors/page_not_found.html", error=error), 404
 
     @app.errorhandler(500)
     def server_error_page(error):
-        return render_template("errors/server_error.html"), 500
+        return render_template("errors/server_error.html", error=error), 500

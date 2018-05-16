@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.mail import Mail
+from flask.ext.cache import Cache
+from flask.ext.login import LoginManager
+from flask.ext.openid import OpenID
+from flask.ext.restless import APIManager
+from flask.ext.wtf.csrf import CsrfProtect
+import zmq
+
 db = SQLAlchemy()
 
-from flask.ext.mail import Mail
 mail = Mail()
 
-from flask.ext.cache import Cache
 cache = Cache()
 
-from flask.ext.login import LoginManager
 login_manager = LoginManager()
 
-from flask.ext.openid import OpenID
 oid = OpenID()
 
-from flask.ext.restless import APIManager
 rest = APIManager()
 
-from flask.ext.wtf.csrf import CsrfProtect
 csrf = CsrfProtect()
 
-import zmq
 zmq_context = zmq.Context()

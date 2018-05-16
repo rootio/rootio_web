@@ -5,11 +5,11 @@ ADDRESS = "ipc:///tmp/zmq.sock"
 PATTERN = "SUB"
 
 context = zmq.Context()
-subscriber = context.socket(getattr(zmq,PATTERN))
+subscriber = context.socket(getattr(zmq, PATTERN))
 subscriber.bind(ADDRESS)
 print "listening to %s as %s" % (ADDRESS, PATTERN)
 
-subscriber.setsockopt(zmq.SUBSCRIBE, '') #subscribe to all
+subscriber.setsockopt(zmq.SUBSCRIBE, '')  # subscribe to all
 while True:
     try:
         topic, message = subscriber.recv_json()

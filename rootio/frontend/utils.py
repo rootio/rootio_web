@@ -1,5 +1,7 @@
 import smtplib
 from ..config import DefaultConfig
+
+
 class RootIOMailMessage:
 
     def __init__(self):
@@ -8,10 +10,6 @@ class RootIOMailMessage:
         self.__smtp_password = DefaultConfig.MAIL_PASSWORD
         self.__message = ''
         self.__initialize_message()
-        #print "mail server is {0}".format(MAIL_USERNAME)
-
-
-    def __initialize_message(self):
         self.__to = []
         self.__from = ''
         self.__subject = ''
@@ -24,7 +22,7 @@ class RootIOMailMessage:
         self.__from = from_address
 
     def set_subject(self, subject):
-        self.__subject = "SUBJECT: %s " % (subject)
+        self.__subject = "SUBJECT: %s " % subject
 
     def set_body(self, body):
         self.__body = body
@@ -37,7 +35,6 @@ class RootIOMailMessage:
         smtp_server.starttls()
         print ",".join(self.__to)
         smtp_server.login(self.__smtp_username, self.__smtp_password)
-        smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject,self.__body)))
+        smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject, self.__body)))
         smtp_server.quit()
         return True
-

@@ -5,13 +5,13 @@ from flask import Markup
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext as _
 from wtforms import (HiddenField, BooleanField, TextField,
-        PasswordField, SubmitField)
+                     PasswordField, SubmitField)
 from wtforms.validators import ValidationError, Required, Length, EqualTo, Email
 from flask_wtf.html5 import EmailField
 
 from ..user import User
 from ..utils import (PASSWORD_LEN_MIN, PASSWORD_LEN_MAX,
-        USERNAME_LEN_MIN, USERNAME_LEN_MAX)
+                     USERNAME_LEN_MIN, USERNAME_LEN_MAX)
 
 
 class LoginForm(Form):
@@ -25,13 +25,13 @@ class LoginForm(Form):
 class SignupForm(Form):
     next = HiddenField()
     email = EmailField(_('Email'), [Required(), Email()],
-            description=_("What's your email address?"))
+                       description=_("What's your email address?"))
     password = PasswordField(_('Password'), [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
-            description=_('%s characters or more' % PASSWORD_LEN_MIN))
+                             description=_('%s characters or more' % PASSWORD_LEN_MIN))
     name = TextField(_('Choose your username'), [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
-            description=_("Don't worry. you can change it later."))
+                     description=_("Don't worry. you can change it later."))
     agree = BooleanField(u'Agree to the ' +
-        Markup('<a target="blank" href="/terms">Terms of Service</a>'), [Required()])
+                         Markup('<a target="blank" href="/terms">Terms of Service</a>'), [Required()])
     submit = SubmitField(_('Sign up'))
 
     def validate_name(self, field):
@@ -69,10 +69,10 @@ class OpenIDForm(Form):
 class CreateProfileForm(Form):
     openid = HiddenField()
     name = TextField(u'Choose your username', [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
-            description=u"Don't worry. you can change it later.")
+                     description=u"Don't worry. you can change it later.")
     email = EmailField(u'Email', [Required(), Email()], description=u"What's your email address?")
     password = PasswordField(u'Password', [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
-            description=u'%s characters or more! Be tricky.' % PASSWORD_LEN_MIN)
+                             description=u'%s characters or more! Be tricky.' % PASSWORD_LEN_MIN)
     submit = SubmitField(u'Create Profile')
 
     def validate_name(self, field):

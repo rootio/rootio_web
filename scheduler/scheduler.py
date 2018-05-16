@@ -1,32 +1,33 @@
-
-import sys
-from apscheduler.scheduler import Scheduler
-import zmq
 import json
+from datetime import datetime, timedelta
+
+import isodate
+import zmq
+from apscheduler.scheduler import Scheduler
+
+from env import read_env
 from logme import setup
 
-from datetime import datetime, tzinfo, timedelta
-import isodate
-from env import read_env
 
 class MessageScheduler(object):
     def __init__(self, jobstore, url):
+        self.socket = zmq.Context().socket(zmq.SUB)
         self.logger = setup(__name__)
-	self.logger.debug("Creating MessageScheduler")
+        self.logger.debug("Creating MessageScheduler")
         self.logger.debug("id = {}".format(id(self)))
-	config = read_env('config.cfg')
+        config = read_env('config.cfg')
         self._scheduler = Scheduler(daemonic=True)
         config_scheduler = {'apscheduler.jobstores.file.class': 'apscheduler.jobstores%s' % jobstore,
-                            'apscheduler.jobstores.file.url':  url}
+                            'apscheduler.jobstores.file.url': url}
         self._scheduler.configure(config_scheduler)
 
-        #Open a publishing socket to the forwarder to pass messages out
+        # Open a publishing socket to the forwarder to pass messages out
         self.broadcast_socket = zmq.Context().socket(zmq.PUB)
         self.broadcast_socket.connect(config['ZMQ_FORWARDER_SUCKS_IN'])
 
     def start_ap_daemon(self):
         self.logger.info("scheduler start")
-	setup("apscheduler.scheduler")
+        setup("apscheduler.scheduler")
         self._scheduler.start()
 
     def shutdown(self):
@@ -49,37 +50,37 @@ class MessageScheduler(object):
                 msg_time = msg['start_time']
         else:
             offset = timedelta(seconds=10)
-            #needs to be a little bit in the future, so scheduler can run it
+            # needs to be a little bit in the future, so scheduler can run it
             msg_time = datetime.now() + offset
 
         if 'operation' in msg:
-                if msg['operation'] == 'insert':
-                    self.schedule_message(topic, msg, msg_time, obj_id)
-                elif msg['operation'] == 'update':
-                    self.reschedule_message(obj_id, topic, msg, msg_time)
-                elif msg['operation'] == 'delete':
-                    self.cancel_message(obj_id)
-		else:
-		    self.logger.debug("Scheduler has been sent unknown database signal operation.")
+            if msg['operation'] == 'insert':
+                self.schedule_message(topic, msg, msg_time, obj_id)
+            elif msg['operation'] == 'update':
+                self.reschedule_message(obj_id, topic, msg, msg_time)
+            elif msg['operation'] == 'delete':
+                self.cancel_message(obj_id)
+            else:
+                self.logger.debug("Scheduler has been sent unknown database signal operation.")
         else:
             self.schedule_message(topic, msg, msg_time)
 
     def send_to_station(self, topic, msg):
         """ Send a message on to rootio_telephony """
-	topic = "station.{}.db".format(msg['station_id'])
-	# reserialize any datetime elements for zmq -- unpack again at ts
-	for key, value in msg.items():
-	    if isinstance(value, datetime):
-	        msg[key] = isodate.datetime_isoformat(value)	
+        topic = "station.{}.db".format(msg['station_id'])
+        # reserialize any datetime elements for zmq -- unpack again at ts
+        for key, value in msg.items():
+            if isinstance(value, datetime):
+                msg[key] = isodate.datetime_isoformat(value)
         msg = json.dumps(msg)
-	self.logger.debug("fwd %s: %s" % (topic, msg))
+        self.logger.debug("fwd %s: %s" % (topic, msg))
         self.broadcast_socket.send_multipart((topic, msg))
 
     def schedule_message(self, topic, message, send_at, obj_id):
         self.logger.info("schedule message %s:%s at %s" % (topic, message, send_at))
-        #create lambda for scheduler to call at execution time
-        #and add it
-	message['obj_id'] = obj_id
+        # create lambda for scheduler to call at execution time
+        # and add it
+        message['obj_id'] = obj_id
         try:
             job = self._scheduler.add_date_job(self.send_to_station,
                                                send_at,
@@ -98,8 +99,8 @@ class MessageScheduler(object):
 
         try:
             for job in self._scheduler.get_jobs():
-                    if job.name == obj_id:
-                        self._scheduler.unschedule_job(job)
+                if job.name == obj_id:
+                    self._scheduler.unschedule_job(job)
         except Exception, e:
             self.logger.debug("Scheduler cancel_message error {} - {}".format(Exception, e))
             raise KeyError('Message id "%s" is not scheduled in any job store' % obj_id)
@@ -118,7 +119,6 @@ class MessageScheduler(object):
 
         self.logger.debug("Scheduler listener start")
         try:
-            self.socket = zmq.Context().socket(zmq.SUB)
             self.socket.setsockopt(zmq.SUBSCRIBE, "scheduler")
             self.socket.connect(config['ZMQ_FORWARDER_SPITS_OUT'])
         except Exception, e:

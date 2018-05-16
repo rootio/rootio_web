@@ -9,6 +9,7 @@ from .telephony.constants import MOBILE
 from .content.models import ContentTrack, ContentUploads
 
 from .config import DefaultConfig
+
 DEMO_MEDIA_PREFIX = Path(DefaultConfig.DEMO_MEDIA_PREFIX)
 
 TRANSMITTER_PHONE_NUMBER = '1007'
@@ -20,12 +21,13 @@ STATION_NAME = "Testy sounds"
 PROGRAM_NAME = "BBC Africa Today"
 PROGRAM_DURATION = 40
 
+
 def setup(db, schedule):
     admin = User.query.get(1)
     rootio_admin = RootioUser.query.get(admin.id)
 
     transmitter_phone = (PhoneNumber.query
-        .filter_by(number=TRANSMITTER_PHONE_NUMBER).first())
+                         .filter_by(number=TRANSMITTER_PHONE_NUMBER).first())
     if transmitter_phone is None:
         transmitter_phone = PhoneNumber(
             number=TRANSMITTER_PHONE_NUMBER,
@@ -35,7 +37,7 @@ def setup(db, schedule):
         db.session.flush()
 
     cloud_phone = (PhoneNumber.query
-        .filter_by(number=CLOUD_PHONE_NUMBER).first())
+                   .filter_by(number=CLOUD_PHONE_NUMBER).first())
     if cloud_phone is None:
         cloud_phone = PhoneNumber(
             number=CLOUD_PHONE_NUMBER,
@@ -53,7 +55,7 @@ def setup(db, schedule):
             gateway_prefix='',
             sofia_string='user',
             extra_string='bridge_early_media=true,hangup_after_bridge=true,'
-                'origination_caller_id_number=4000',
+                         'origination_caller_id_number=4000',
             is_goip=False,
         )
         db.session.add(gateway)

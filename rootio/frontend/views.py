@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import uuid 
+import uuid
 from sqlalchemy import and_
 from flask import (Blueprint, render_template, current_app, request,
                    flash, url_for, redirect, session, abort)
@@ -11,7 +11,8 @@ from flask.ext.login import login_required, login_user, current_user, logout_use
 from .utils import RootIOMailMessage
 from ..user import User, UserDetail
 from ..extensions import db, mail, login_manager, oid
-from .forms import SignupForm, LoginForm, RecoverPasswordForm, ReauthForm, ChangePasswordForm, OpenIDForm, CreateProfileForm
+from .forms import SignupForm, LoginForm, RecoverPasswordForm, ReauthForm, ChangePasswordForm, OpenIDForm, \
+    CreateProfileForm
 
 frontend = Blueprint('frontend', __name__)
 
@@ -36,8 +37,8 @@ def create_or_login(resp):
         flash(_('Logged in'), 'success')
         return redirect(oid.get_next_url() or url_for('user.index'))
     return redirect(url_for('frontend.create_profile', next=oid.get_next_url(),
-            name=resp.fullname or resp.nickname, email=resp.email,
-            openid=resp.identity_url))
+                            name=resp.fullname or resp.nickname, email=resp.email,
+                            openid=resp.identity_url))
 
 
 @frontend.route('/create_profile', methods=['GET', 'POST'])
@@ -46,8 +47,8 @@ def create_profile():
         return redirect(url_for('user.index'))
 
     form = CreateProfileForm(name=request.args.get('name'),
-            email=request.args.get('email'),
-            openid=request.args.get('openid'))
+                             email=request.args.get('email'),
+                             openid=request.args.get('openid'))
 
     if form.validate_on_submit():
         user = User()
@@ -94,7 +95,7 @@ def login():
 
     if form.validate_on_submit():
         user, authenticated, activated = User.authenticate(form.login.data,
-                                    form.password.data)
+                                                           form.password.data)
 
         if user and authenticated and activated:
             remember = request.form.get('remember') == 'y'
@@ -117,7 +118,7 @@ def reauth():
 
     if request.method == 'POST':
         user, authenticated = User.authenticate(current_user.name,
-                                    form.password.data)
+                                                form.password.data)
         if user and authenticated:
             confirm_login()
             flash(_('Reauthenticated.'), 'success')
@@ -146,48 +147,50 @@ def signup():
         user = User()
         user.user_detail = UserDetail()
         form.populate_obj(user)
-        user.activation_key = "-".join([str(uuid.uuid1()),str(uuid.uuid4())])
-        #Defaults to Network Admin - Fix this to make it come from constants
+        user.activation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
+        # Defaults to Network Admin - Fix this to make it come from constants
         user.role_code = 1
 
         db.session.add(user)
         db.session.commit()
 
-        #send the email with the link
+        # send the email with the link
         message = RootIOMailMessage()
         message.set_subject("Your RootIO platform account")
         message.set_body("Welcome to the RootIO platform!\n")
         message.append_to_body("Your username is %s " % user.email)
-        message.append_to_body("Please click this link to activate your account: http://105.27.244.10/activate/%s/%d" % (user.activation_key, user.id))
+        message.append_to_body(
+            "Please click this link to activate your account: http://radio.rootio.org/activate/%s/%d" % (
+                user.activation_key, user.id))
         message.append_to_body("\n\nThanks,\nThe RootIO team")
         message.set_from("mailer@rootio.org")
         message.add_to_address(user.email)
         message.send_message()
-        #if login_user(user):
+        # if login_user(user):
         #    return redirect(form.next.data or url_for('user.index'))
 
         flash(_('Your account was created. Please click on the link sent to your email to validate it'), 'success')
     return render_template('frontend/signup.html', form=form)
 
+
 @frontend.route('/terms')
 def terms():
     return render_template('frontend/terms.html')
 
+
 @frontend.route('/activate/<string:key>/<int:user_id>', methods=['GET'])
-def activate(key,user_id):
-    if key == None or user_id == None:
+def activate(key, user_id):
+    if key is None or user_id is None:
         flash(_('Invalid link'), 'error')
-    user = User.query.filter(and_(User.activation_key==key, User.id==user_id, User.status_code==0)).first()
-    if user == None:
+    user = User.query.filter(and_(User.activation_key == key, User.id == user_id, User.status_code == 0)).first()
+    if user is None:
         flash(_('No user found. This account is probably already validated, try logging in'), 'error')
     else:
         user.status_code = 1
         db.session.commit()
         flash(_('This account has successfully been validated, please login'), 'success')
     return redirect(url_for('frontend.login'))
-        
 
-    
 
 @frontend.route('/change_password', methods=['GET', 'POST'])
 def change_password():
@@ -200,7 +203,7 @@ def change_password():
         activation_key = request.values['activation_key']
         email = request.values['email']
         user = User.query.filter_by(activation_key=activation_key) \
-                         .filter_by(email=email).first()
+            .filter_by(email=email).first()
 
     if user is None:
         abort(403)
@@ -230,13 +233,16 @@ def reset_password():
         if user:
             flash(_('Please see your email for instructions on how to access your account'), 'success')
 
-            user.activation_key = str(uuid4())
+            user.activation_key = str(uuid.uuid4())
             db.session.add(user)
             db.session.commit()
 
-            url = url_for('frontend.change_password', email=user.email, activation_key=user.activation_key, _external=True)
-            html = render_template('macros/_reset_password.html', project=current_app.config['PROJECT'], username=user.name, url=url)
-            message = Message(subject='Reset your password in ' + current_app.config['PROJECT'], html=html, recipients=[user.email])
+            url = url_for('frontend.change_password', email=user.email, activation_key=user.activation_key,
+                          _external=True)
+            html = render_template('macros/_reset_password.html', project=current_app.config['PROJECT'],
+                                   username=user.name, url=url)
+            message = Message(subject='Reset your password in ' + current_app.config['PROJECT'], html=html,
+                              recipients=[user.email])
             mail.send(message)
 
             return render_template('frontend/reset_password.html', form=form)
@@ -255,7 +261,5 @@ def help():
 def lang():
     session['language'] = request.form['language']
     new_language = current_app.config['ACCEPT_LANGUAGES'][request.form['language']]
-    flash(_('Language changed to ')+new_language, 'success')
+    flash(_('Language changed to ') + new_language, 'success')
     return redirect(url_for('frontend.index'))
-
-

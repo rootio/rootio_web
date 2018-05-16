@@ -1,8 +1,8 @@
 from wtforms.widgets import Select
-from wtforms_components.widgets import BaseDateTimeInput, TimeRange
+
 
 class ChoicesSelect(Select):
-    "A Select field that we can pass a list of choices to constrain input"
+    """A Select field that we can pass a list of choices to constrain input"""
     def __init__(self, multiple=False, choices=()):
         self.choices = choices
         super(ChoicesSelect, self).__init__(multiple)

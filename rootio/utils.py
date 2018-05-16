@@ -3,16 +3,12 @@
     Utils has nothing to do with models and views.
 """
 
-import string
-import random
 import os
+import random
 import re
-import smtplib
-import sys
-
+import string
 from datetime import datetime, time, timedelta
 
-from flask import Flask
 from flask import json
 from flask.ext.wtf import Form
 from sqlalchemy import or_
@@ -45,6 +41,7 @@ GENDER_TYPE = {
 
 # Model
 STRING_LEN = 100
+
 
 def get_current_time():
     return datetime.utcnow()
@@ -85,20 +82,22 @@ def pretty_date(dt, default=None):
 
     return default
 
+
 def random_boolean(threshold):
-    "returns 1 threshold percent of the time, otherwise 0"
+    """returns 1 threshold percent of the time, otherwise 0"""
     r = random.random()
     if r > threshold:
         return 0
     else:
         return 1
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_AVATAR_EXTENSIONS
 
 
 def id_generator(size=10, chars=string.ascii_letters + string.digits):
-    #return base64.urlsafe_b64encode(os.urandom(size))
+    # return base64.urlsafe_b64encode(os.urandom(size))
     return ''.join(random.choice(chars) for x in range(size))
 
 
@@ -106,10 +105,11 @@ def make_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-#convert a form errors to an error dict for json display
+
+# convert a form errors to an error dict for json display
 def error_dict(form_errors):
     d = {}
-    for (field,messages) in form_errors.items():
+    for (field, messages) in form_errors.items():
         msgs = []
         for m in messages:
             msgs.append(unicode(m))
@@ -122,8 +122,8 @@ def object_list_to_named_dict(object_list):
     for display as sparkline"""
     named_dict = {}
     for a in object_list:
-        for (k,v) in a.__dict__.items():
-            #skip privates
+        for (k, v) in a.__dict__.items():
+            # skip privates
             if k.startswith('_'):
                 continue
             if k in named_dict:
@@ -132,7 +132,8 @@ def object_list_to_named_dict(object_list):
                 named_dict[k] = [v]
     return named_dict
 
-def fk_lookup_form_data(model_dict,data):
+
+def fk_lookup_form_data(model_dict, data):
     """Checks to ensure all named models have an object with the specified id
     Takes a dict of model names and classes
     and form dict with fields and values
@@ -140,11 +141,11 @@ def fk_lookup_form_data(model_dict,data):
     Modifies form dict, replacing id int with object reference
 
     Returns JSON error dict if lookup error, False otherwise """
-    for (field,cls) in model_dict.items():
+    for (field, cls) in model_dict.items():
         try:
             data[field] = cls.query.get(int(data[field]))
         except ValueError:
-            response = {'status':'error','errors':{field:_('Invalid ')+field},'status_code':400}
+            response = {'status': 'error', 'errors': {field: _('Invalid ') + field}, 'status_code': 400}
             return response
     return False
 
@@ -179,26 +180,27 @@ def read_config(from_filename):
             m3 = re.match(r'\A"(.*)"\Z', val)
             if m3:
                 val = re.sub(r'\\(.)', r'\1', m3.group(1))
-            config[key]=val
+            config[key] = val
     return config
 
 
 class CustomJSONEncoder(json.JSONEncoder):
     """custom json encoder class that can handle python datetimes
     Drops microseconds, because Android client doesn't like it so precise"""
+
     def default(self, obj):
-        if isinstance(obj,datetime):
+        if isinstance(obj, datetime):
             return datetime.isoformat(obj.replace(microsecond=0))
         if isinstance(obj, time):
             return time.isoformat(obj.replace(microsecond=0))
         if isinstance(obj, timedelta):
             return str(obj)
-        #add support for other serialization formats here...
+        # add support for other serialization formats here...
         return super(CustomJSONEncoder, self).default(obj)
 
 
-#monkey patch wtforms to allow field_order attribute
-#from http://stackoverflow.com/a/18475322
+# monkey patch wtforms to allow field_order attribute
+# from http://stackoverflow.com/a/18475322
 class OrderedForm(Form):
     def __iter__(self):
         field_order = getattr(self, 'field_order', None)
@@ -212,11 +214,12 @@ class OrderedForm(Form):
             self._unbound_fields = temp_fields
         return super(OrderedForm, self).__iter__()
 
-#Poor man's paging
+
+# Poor man's paging
 class Paginator():
     def get_json_datatable(self, processed_query, result_set, columns=None):
         datatable = dict()
-        if columns == None:
+        if columns is None:
             datatable['columns'] = []
             for column_description in processed_query.column_descriptions:
                 datatable['columns'].append(column_description['name'])
@@ -224,34 +227,44 @@ class Paginator():
             datatable['columns'] = columns
 
         datatable['data'] = []
-        #results = processed_query.all()
+        # results = processed_query.all()
         for row in result_set:
             datatable['data'].append(list(row))
-        #datatable['recordsFiltered'] = len(results)
+        # datatable['recordsFiltered'] = len(results)
         return datatable
 
     def get_records(self, base_query, searchable_columns, request):
-        #sorting
-        base_query = base_query.order_by('{0} {1}'.format(base_query.column_descriptions[int(request.args['order[0][column]'])]['name'], request.args['order[0][dir]']))
+        # sorting
+        base_query = base_query.order_by(
+            '{0} {1}'.format(base_query.column_descriptions[int(request.args['order[0][column]'])]['name'],
+                             request.args['order[0][dir]']))
 
-        #searching
+        # searching
         filters = []
         for col in searchable_columns:
-           filters.append(col.ilike('%{0}%'.format(request.args['search[value]'])))
+            filters.append(col.ilike('%{0}%'.format(request.args['search[value]'])))
         base_query = base_query.filter(or_(*filters))
 
-        #paging
-        result_set = base_query.slice(int(request.args['start']),int(request.args['start']) + int(request.args['length'])) 
+        # paging
+        result_set = base_query.slice(int(request.args['start']),
+                                      int(request.args['start']) + int(request.args['length']))
         datatable = self.get_json_datatable(base_query, result_set)
-        #sys.setrecursionlimit(10000)
-        datatable['recordsTotal'] = datatable['recordsFiltered'] = len(base_query.all()) #base_query.count() should be used instead, but results in recursion depth error. This implementation hits the db again, and retrieves the entire dataset just to count rows!!
+        # sys.setrecursionlimit(10000)
+        datatable['recordsTotal'] = datatable['recordsFiltered'] = len(
+            base_query.all())  # base_query.count() should be used instead, but results in recursion depth error.
+        # This implementation hits the db again, and retrieves the entire dataset just to count rows!!
         return datatable
 
     def get_records_from_query(self, query, request, columns):
-        result_set = query.fetchall() 
-        datatable = self.get_json_datatable(query, result_set[int(request.args['start']) : int(request.args['start']) + int(request.args['length'])], columns) #wasteful, gets all records and just returns a small size equal to the window
+        result_set = query.fetchall()
+        datatable = self.get_json_datatable(query, result_set[
+                                                   int(request.args['start']): int(request.args['start']) + int(
+                                                       request.args['length'])],
+                                            columns)  # wasteful, gets all records and just returns a
+        # small size equal to the window
         datatable['recordsTotal'] = datatable['recordsFiltered'] = len(result_set)
         return datatable
 
-#paginator
+
+# paginator
 jquery_dt_paginator = Paginator()

@@ -1,4 +1,7 @@
-import re, os, sys
+import os
+import re
+import sys
+
 
 def read_env(from_file):
     """Read and set environment variables from a file
@@ -7,7 +10,7 @@ def read_env(from_file):
         with open(from_file) as f:
             content = f.read()
     except IOError:
-        print "IOError: unable to open",from_file
+        print "IOError: unable to open", from_file
         sys.exit(-1)
 
     new_env = {}
@@ -22,5 +25,5 @@ def read_env(from_file):
             if m3:
                 val = re.sub(r'\\(.)', r'\1', m3.group(1))
             os.environ.setdefault(key, val)
-            new_env[key]=val
+            new_env[key] = val
     return new_env
