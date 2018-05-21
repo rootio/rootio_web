@@ -150,7 +150,7 @@
 {%if program%}
         <h2>{{ _('Edit') }} {{ _('Program') }}</h2>
 
-        {{ render_form(url_for('radio.program', program_id=program.id), form) }}
+        {{ render_form(url_for('radio.program_definition', program_id=program.id), form) }}
         {{ form.hidden_tag() }}
 
     {%else%}

@@ -31,7 +31,7 @@
             <td>{{ station.primary_transmitter_phone }}, {{station.secondary_transmitter_phone}}</td>
             <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
             {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
-            <td><a href="{{ url_for('radio.station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            <td><a href="{{ url_for('radio.station_definition', station_id=station.id) }}">{{ _('Edit') }}</a></td>
             {% endif %}
         </tr>
         {% endfor %}

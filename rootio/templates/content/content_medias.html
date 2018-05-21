@@ -52,7 +52,7 @@
                     </audio>
                 </td>
                 <td>{{ media.name }}</td>
-                <td><a href="{{ url_for('content.content_media', content_media_id=media.id) }}">Edit</a></td>
+                <td><a href="{{ url_for('content.content_media_definition', content_media_id=media.id) }}">Edit</a></td>
             </tr>
             {% endfor %}
         </tbody>

@@ -109,7 +109,7 @@
             <td>{{ content_podcast.description }}</td>
             <td>{{ content_podcast.uri }}</td>
             <td><a href="#" id="podcastDownloadCount{{ content_podcast.id }}" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
-            <td><a href="{{ url_for('content.content_podcast', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td> 
+            <td><a href="{{ url_for('content.content_podcast_definition', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
       </tbody>

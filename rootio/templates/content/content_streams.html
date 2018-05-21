@@ -58,7 +58,7 @@
                     <source src="{{ content_stream.uri }}" type="audio/wav">
                 </audio>
             </td>
-            <td><a href="{{ url_for('content.content_stream', content_stream_id=content_stream.id) }}">{{ _('Edit') }}</a></td> 
+            <td><a href="{{ url_for('content.content_stream_definition', content_stream_id=content_stream.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
       </tbody>

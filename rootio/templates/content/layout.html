@@ -6,14 +6,14 @@
 {% set tab_title = "Content" %}
 {% set tabs = [
     (_("Status"), url_for('content.index')), 
-    (_("Tracks"), url_for('content.tracks')),
-    (_("News"), url_for('content.content_news')), 
+    (_("Tracks"), url_for('content.list_tracks')),
+    (_("News"), url_for('content.list_content_news')),
     (_("Community Notices"), url_for('content.community_content')), 
-    (_("Ads"), url_for('content.content_ads')),
-    (_("Hosts"), url_for('content.hosts')),
-    (_("Media"), url_for('content.content_medias')),  
-    (_("Streams"), url_for('content.content_streams')),
-    (_("Podcasts"), url_for('content.content_podcasts')),
-    (_("Playlists"), url_for('content.content_musicplaylists'))
+    (_("Ads"), url_for('content.list_content_ads')),
+    (_("Hosts"), url_for('content.list_hosts')),
+    (_("Media"), url_for('content.list_content_medias')),
+    (_("Streams"), url_for('content.list_content_streams')),
+    (_("Podcasts"), url_for('content.list_content_podcasts')),
+    (_("Playlists"), url_for('content.content_music_playlists'))
 ]%}
  

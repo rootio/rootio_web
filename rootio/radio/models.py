@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
-
 from coaster.sqlalchemy import BaseMixin
+from sqlalchemy_utils import JSONType
 from sqlalchemy.sql import func
 
-from .constants import PRIVACY_TYPE
 from .fields import FileField
-from ..extensions import db
+from .constants import PRIVACY_TYPE
+
 from ..utils import STRING_LEN, GENDER_TYPE, id_generator, object_list_to_named_dict
+from ..extensions import db
+
+from ..telephony.models import PhoneNumber
 
 
 class Location(BaseMixin, db.Model):
@@ -179,6 +182,8 @@ class Station(BaseMixin, db.Model):
             return "on"
 
     def recent_analytics(self, days_ago=7):
+        since_date = datetime.utcnow() - timedelta(days=days_ago)
+
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
             .order_by(StationAnalytic.created_at.desc()).limit(10)
@@ -212,7 +217,7 @@ class Station(BaseMixin, db.Model):
             pass
 
         # fake data
-        from random import randint
+        from random import random, randint
         from ..utils import random_boolean
 
         telephony_list = []
@@ -407,7 +412,7 @@ class Recording(BaseMixin, db.Model):
 
 
 class Person(BaseMixin, db.Model):
-    """A person associated with a station or program, but not necessarily a user of Rootio system"""
+    "A person associated with a station or program, but not necessarily a user of Rootio system"
     __tablename__ = 'radio_person'
     # from ..telephony.models import PhoneNumber
     # circular imports
@@ -458,7 +463,7 @@ t_personlanguage = db.Table(
 
 
 class Role(BaseMixin, db.Model):
-    """A role for a person at a particular station"""
+    "A role for a person at a particular station"
     __tablename__ = u'radio_role'
 
     name = db.Column(db.String)
@@ -468,7 +473,7 @@ class Role(BaseMixin, db.Model):
 
 
 class StationAnalytic(BaseMixin, db.Model):
-    """A store for analytics from the client"""
+    "A store for analytics from the client"
     __tablename__ = 'radio_stationanalytic'
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))

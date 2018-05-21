@@ -15,7 +15,8 @@ from .forms import StationForm, StationTelephonyForm, NetworkForm, ProgramForm, 
     ScheduleProgramForm, PersonForm
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
 from ..config import DefaultConfig
-from ..content.models import ContentMusicPlaylist, ContentTrack, ContentType, ContentPodcast, ContentStream
+from ..content.models import ContentMusicPlaylist, ContentTrack, ContentPodcast, ContentStream
+from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db
 from ..user.models import User, RootioUser

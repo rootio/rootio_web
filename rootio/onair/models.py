@@ -3,6 +3,7 @@
 from sqlalchemy import Column, Table, types
 from coaster.sqlalchemy import BaseMixin
 from ..extensions import db
+from ..radio import ScheduledProgram
 
 
 class OnAirProgram(BaseMixin, db.Model):

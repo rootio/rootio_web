@@ -218,7 +218,7 @@ def content_news_add():
         cleaned_data.pop('submit', None)  # remove submit field from list
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
-        cleaned_data['track_id'] = cleaned_data['track_id'].id
+        cleaned_data['track_id'] = cleaned_data['track'].id
 
         uri = "{0}/{1}/{2}".format("news", str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],
                                                                                              os.path.join(
@@ -305,7 +305,7 @@ def content_ads_add():
         cleaned_data['uploaded_by'] = current_user.id
         cleaned_data['name'] = filename
         # cleaned_data['content_contenttypeid'] = cleaned_data['track_id'].content_contenttypeid
-        cleaned_data['track_id'] = cleaned_data['track_id'].id
+        cleaned_data['track_id'] = cleaned_data['track'].id
 
         uri = "{0}/{1}/{2}".format("ads", str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],
                                                                                             os.path.join(
@@ -330,7 +330,7 @@ def content_ads_add():
 
 @content.route('/medias/')
 @login_required
-def content_medias():
+def list_content_medias():
     content_type = ContentType.query.filter(ContentType.name == 'Media').first()
     medias = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by == current_user.id).filter(
         ContentTrack.type_id == content_type.id).order_by(ContentUploads.order).all()
@@ -339,7 +339,7 @@ def content_medias():
 
 @content.route('/medias/<int:content_media_id>', methods=['GET', 'POST'])
 @login_required
-def list_content_media(content_media_id):
+def content_media_definition(content_media_id):
     content_media = ContentUploads.query.filter_by(id=content_media_id).first_or_404()
     form = ContentMusicForm(obj=content_media, next=request.args.get('next'))
 
@@ -386,7 +386,7 @@ def content_medias_add():
         cleaned_data['name'] = filename
         # cleaned_data['type_id'] = cleaned_data['track_id'].content_contenttypeid
         # Fix this - Form should automatically go into db
-        cleaned_data['track_id'] = cleaned_data['track_id'].id
+        cleaned_data['track_id'] = cleaned_data['track'].id
 
         # save the file
         file_path = os.path.join(DefaultConfig.CONTENT_DIR, "media", str(cleaned_data['track_id']))
