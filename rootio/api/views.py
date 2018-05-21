@@ -110,9 +110,9 @@ def stations():
             response["multicast_IP"] = station.broadcast_ip
             response["multicast_port"] = station.broadcast_port
         responses.append(response)
-    responses = dict()
-    responses["objects"] = responses
-    return responses
+    all_responses = dict()
+    all_responses["objects"] = responses
+    return all_responses
 
 
 @api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
