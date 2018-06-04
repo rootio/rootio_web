@@ -13,7 +13,7 @@
                         data: 'indexes='+ data,
                         type: 'POST',
                         url: 'reorder/',
-                    }); 
+                    });
                 }
             });
         } );
@@ -27,7 +27,7 @@
         <h3>{{ _('Media') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_medias_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_medias_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
@@ -52,7 +52,7 @@
                     </audio>
                 </td>
                 <td>{{ media.name }}</td>
-                <td><a href="{{ url_for('content.content_media_definition', content_media_id=media.id) }}">Edit</a></td>
+                <td><a href="{{ url_for('content.content_media_definition', content_media_id=media.id) }}">{{ _('Edit') }}</a></td>
             </tr>
             {% endfor %}
         </tbody>

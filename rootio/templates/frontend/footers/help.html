@@ -6,10 +6,10 @@
     {% for i in [1, 2, 3] %}
     <div class="accordion-group">
         <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse{{ i }}">Question #{{ i }}</a>
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse{{ i }}">{{ _('Question') }} #{{ i }}</a>
         </div>
         <div id="collapse{{ i }}" class="accordion-body collapse">
-            <div class="accordion-inner">Answer #{{ i }}</div>
+            <div class="accordion-inner">{{ _('Answer') }} #{{ i }}</div>
         </div>
     </div>
     {% endfor %}

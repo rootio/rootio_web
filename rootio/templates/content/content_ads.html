@@ -13,7 +13,7 @@
                         data: 'indexes='+ data,
                         type: 'POST',
                         url: 'reorder/',
-                    }); 
+                    });
                 }
             });
         } );
@@ -27,7 +27,7 @@
         <h3>{{ _('Ads') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_ads_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_ads_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
@@ -53,7 +53,7 @@
                 </td>
                 </td>
                 <td>{{ ad.name }}</td>
-                <td><a href="{{ url_for('content.content_ads_edit', ad_id=ad.id) }}">Edit</a></td>
+                <td><a href="{{ url_for('content.content_ads_edit', ad_id=ad.id) }}">{{ _('Edit') }}</a></td>
             </tr>
             {% endfor %}
         </tbody>

@@ -68,7 +68,7 @@ def phonenumber_add():
         db.session.commit()
         flash(_('Phone Number added.'), 'success')
     elif request.method == "POST":
-        flash('Validation error', 'error')
+        flash(_('Validation error'),'error')
 
     return render_template('telephony/phonenumber.html', phonenumber=phonenumber, form=form)
 

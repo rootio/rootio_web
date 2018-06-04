@@ -7,6 +7,7 @@ from datetime import datetime
 
 from flask import Blueprint, render_template, current_app, request, flash
 from flask.ext.login import login_required, current_user
+from flask.ext.babel import gettext as _
 
 from ..extensions import db
 from ..user import User, UserDetail
@@ -65,7 +66,7 @@ def profile(user_id):
         db.session.add(user)
         db.session.commit()
 
-        flash('Public profile updated.', 'success')
+        flash(_('Public profile updated.'), 'success')
 
     return render_template('settings/profile.html', user=user,
                            active="profile", form=form, edit=edit)
@@ -84,7 +85,7 @@ def password():
         db.session.add(user)
         db.session.commit()
 
-        flash('Password updated.', 'success')
+        flash(_('Password updated.'), 'success')
 
     return render_template('settings/password.html', user=user,
                            active="password", form=form)

@@ -121,13 +121,13 @@ def content_upload_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash(_('No file part'))
             return redirect(request.url)
         uploaded_file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if uploaded_file.filename == '':
-            flash('No selected file')
+            flash(_('No selected file'))
             return redirect(request.url)
         if uploaded_file and allowed_file(uploaded_file.filename):
             filename = secure_filename(uploaded_file.filename)
@@ -140,10 +140,15 @@ def content_upload_add():
         cleaned_data['content_contenttypeid'] = cleaned_data['contenttrack_id'].content_contenttypeid
         cleaned_data['contenttrack_id'] = cleaned_data['contenttrack_id'].id
 
-        uri = "{0}/{1}/{2}".format("media", str(cleaned_data['contenttrack_id']),
+        uri = "{0}/{1}/{2}".format("media",
+                                   str(cleaned_data['contenttrack_id']),
                                    save_uploaded_file(request.files['file'],
-                                                      os.path.join(DefaultConfig.CONTENT_DIR, str(current_user.id),
-                                                                   str(cleaned_data['contenttrack_id']))))
+                                                      os.path.join(DefaultConfig.CONTENT_DIR,
+                                                                   str(current_user.id),
+                                                                   str(cleaned_data['contenttrack_id'])
+                                                                   )
+                                                      )
+                                   )
 
         cleaned_data['uri'] = uri
         content_uploads = ContentUploads(**cleaned_data)  # create new object from data
@@ -179,12 +184,15 @@ def content_news_edit(content_news_id):
         form.populate_obj(content_news)
 
         # Save the uploaded file
-        uri = "{0}/{1}/{2}".format("news", str(form.data['track'].id), save_uploaded_file(request.files['file'],
-                                                                                          os.path.join(
-                                                                                              DefaultConfig.CONTENT_DIR,
-                                                                                              "news", str(form.data[
-                                                                                                              'track']
-                                                                                                          .id))))
+        uri = "{0}/{1}/{2}".format("news",
+                                   str(form.data['track'].id),
+                                   save_uploaded_file(request.files['file'],
+                                                      os.path.join(DefaultConfig.CONTENT_DIR,
+                                                                   "news",
+                                                                   str(form.data['track'].id)
+                                                                   )
+                                                      )
+                                   )
         content_news.uri = uri
         content_news.name = secure_filename(request.files['file'].filename)
 
@@ -202,13 +210,13 @@ def content_news_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash(_('No file part'))
             return redirect(request.url)
         uploaded_file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if uploaded_file.filename == '':
-            flash('No selected file')
+            flash(_('No selected file'))
             return redirect(request.url)
         if uploaded_file and allowed_file(uploaded_file.filename):
             filename = secure_filename(uploaded_file.filename)
@@ -220,13 +228,15 @@ def content_news_add():
         cleaned_data['name'] = filename
         cleaned_data['track_id'] = cleaned_data['track'].id
 
-        uri = "{0}/{1}/{2}".format("news", str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],
-                                                                                             os.path.join(
-                                                                                                 DefaultConfig
-                                                                                                 .CONTENT_DIR,
-                                                                                                 "news", str(
-                                                                                                     cleaned_data[
-                                                                                                         'track_id']))))
+        uri = "{0}/{1}/{2}".format("news",
+                                   str(cleaned_data['track_id']),
+                                   save_uploaded_file(request.files['file'],
+                                                      os.path.join(DefaultConfig.CONTENT_DIR,
+                                                                   "news",
+                                                                   str(cleaned_data['track_id'])
+                                                                   )
+                                                      )
+                                   )
 
         cleaned_data['uri'] = uri
         content_news = ContentUploads(**cleaned_data)  # create new object from data
@@ -286,16 +296,16 @@ def content_ads_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file selected')
+            flash(_('No file selected'))
             return redirect(request.url)
         uploaded_file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if uploaded_file.filename == '':
-            flash('No selected file')
+            flash(_('No selected file'))
             return redirect(request.url)
         if not uploaded_file or not allowed_file(uploaded_file.filename):
-            flash('Invalid file format')
+            flash(_('Invalid file format'))
             return redirect(request.url)
     if form.validate_on_submit():
         filename = secure_filename(uploaded_file.filename)
@@ -307,13 +317,15 @@ def content_ads_add():
         # cleaned_data['content_contenttypeid'] = cleaned_data['track_id'].content_contenttypeid
         cleaned_data['track_id'] = cleaned_data['track'].id
 
-        uri = "{0}/{1}/{2}".format("ads", str(cleaned_data['track_id']), save_uploaded_file(request.files['file'],
-                                                                                            os.path.join(
-                                                                                                DefaultConfig
-                                                                                                .CONTENT_DIR,
-                                                                                                "ads",
-                                                                                                str(cleaned_data[
-                                                                                                    'track_id']))))
+        uri = "{0}/{1}/{2}".format("ads",
+                                   str(cleaned_data['track_id']),
+                                   save_uploaded_file(request.files['file'],
+                                                      os.path.join(DefaultConfig.CONTENT_DIR,
+                                                                   "ads",
+                                                                   str(cleaned_data['track_id'])
+                                                                   )
+                                                      )
+                                   )
 
         cleaned_data['uri'] = uri
         content_ad = ContentUploads(**cleaned_data)  # create new object from data
@@ -368,13 +380,13 @@ def content_medias_add():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash(_('No file part'))
             return redirect(request.url)
         uploaded_file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if uploaded_file.filename == '':
-            flash('No selected file')
+            flash(_('No selected file'))
             return redirect(request.url)
         if uploaded_file and allowed_file(uploaded_file.filename):
             filename = secure_filename(uploaded_file.filename)

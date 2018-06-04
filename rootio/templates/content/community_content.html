@@ -11,7 +11,7 @@
         <h3>{{ _('Community Ads') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.community_menu_definition', station_id=community) }}"><strong>Configure</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.community_menu_definition', station_id=community) }}"><strong>{{ _('Configure') }}</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
@@ -37,14 +37,14 @@
                         <source src="../../audio-content/community-content/{{community_content.station_id}}/{{community_content.type_code}}/{{community_content.message}}" type="audio/wav">
                     </audio>
                 </td>
-                <td>{{ community_content.duration }}{{ ' secs.' }}</td>
+                <td>{{ community_content.duration }}{{ _(' secs.') }}</td>
                 <td >
                    {% if community_content.type_code == 1 %}
-                     {{ 'Advertisement' }}
+                     {{ _('Advertisement)' }}
                    {% elif community_content.type_code == 2 %}
-                     {{ 'Announcement' }}
+                     {{ _('Announcement)' }}
                    {% elif community_content.type_code == 3 %}
-                     {{ 'Greeting' }}
+                     {{ _('Greeting)' }}
                    {% endif %}
                 </td>
                 <td>{{ community_content.valid_until.strftime('%Y-%m-%d') }}</td>

@@ -8,7 +8,7 @@
     </div>
 
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_news_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_news_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <div class="container">
 
@@ -35,7 +35,7 @@
                 </audio>
             </td>
             <td>{{ content_upload.name }}</td>
-            <td><a href="{{ url_for('content.content_news_edit', content_news_id=content_upload.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('content.content_news_edit', content_news_id=content_upload.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
        </tbody>

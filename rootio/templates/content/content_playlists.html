@@ -22,11 +22,11 @@
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
 
     <script type="text/javascript">
-    
+
     $(document).ready(function() {
       var api = ""
       var list_type = ""
-      var playlist_id = 0 
+      var playlist_id = 0
 
       $('#offline_datatable').on('click', function(e) {
         $('#playlistTitle').html($(e.target).attr('data-item-type') + ' on playlist '+ $(e.target).attr('data-playlist-name'))
@@ -38,7 +38,7 @@
 
 
       var datatable = $('#playlist').DataTable({
-               serverSide: true, searching: true, ajax: api, 
+               serverSide: true, searching: true, ajax: api,
                "aoColumnDefs": [{
                    "aTargets": [2], "mRender": function (data, type, row) {
                           return '<input id="' + list_type + row[0] + '" data-item-type="'+list_type+'" data-item-id="'+ row[0] +'" type="checkbox"' + (data ? 'checked' : '') + '/>'
@@ -46,16 +46,16 @@
                }],
                "drawCallback": function(e, o){
                    $('[id^='+ list_type +']').change(function(f){
-                   var url = '/content/playlist/'+ playlist_id +'/'+(this.checked ? 'add' : 'remove')+'/'+ list_type+'/'+ $(f.target).attr('data-item-id') 
+                   var url = '/content/playlist/'+ playlist_id +'/'+(this.checked ? 'add' : 'remove')+'/'+ list_type+'/'+ $(f.target).attr('data-item-id')
                    $.getJSON(url).done(function(myData) {
-                   //in future display success message  
+                   //in future display success message
                   });
                 });
              }
       });
- 
+
     $.fn.dataTableExt.errMode = 'ignore'
-    
+
     });
 //TO-DO
 //1) what to do with 'songs' on songs?
@@ -99,7 +99,7 @@
         <h3>{{ _('Playlists') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_musicplaylist_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_musicplaylist_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>

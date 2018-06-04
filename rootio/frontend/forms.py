@@ -30,8 +30,7 @@ class SignupForm(Form):
                              description=_('%s characters or more' % PASSWORD_LEN_MIN))
     name = TextField(_('Choose your username'), [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
                      description=_("Don't worry. you can change it later."))
-    agree = BooleanField(u'Agree to the ' +
-                         Markup('<a target="blank" href="/terms">Terms of Service</a>'), [Required()])
+    agree = BooleanField(Markup(_('Agree to the <a target="blank" href="/terms">Terms of Service</a>')), [Required()])
     submit = SubmitField(_('Sign up'))
 
     def validate_name(self, field):
@@ -50,35 +49,35 @@ class RecoverPasswordForm(Form):
 
 class ChangePasswordForm(Form):
     activation_key = HiddenField()
-    password = PasswordField(u'Password', [Required()])
-    password_again = PasswordField(u'Password again', [EqualTo('password', message="Passwords don't match")])
-    submit = SubmitField('Save')
+    password = PasswordField(_('Password'), [Required()])
+    password_again = PasswordField(_('Password again'), [EqualTo('password', message=_('Passwords don\'t match'))])
+    submit = SubmitField(_('Save'))
 
 
 class ReauthForm(Form):
     next = HiddenField()
-    password = PasswordField(u'Password', [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)])
-    submit = SubmitField('Reauthenticate')
+    password = PasswordField(_('Password'), [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)])
+    submit = SubmitField(_('Reauthenticate'))
 
 
 class OpenIDForm(Form):
-    openid = TextField(u'Your OpenID', [Required()])
-    submit = SubmitField(u'Log in with OpenID')
+    openid = TextField(_('Your OpenID'), [Required()])
+    submit = SubmitField(_('Log in with OpenID'))
 
 
 class CreateProfileForm(Form):
     openid = HiddenField()
-    name = TextField(u'Choose your username', [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
-                     description=u"Don't worry. you can change it later.")
-    email = EmailField(u'Email', [Required(), Email()], description=u"What's your email address?")
-    password = PasswordField(u'Password', [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
-                             description=u'%s characters or more! Be tricky.' % PASSWORD_LEN_MIN)
-    submit = SubmitField(u'Create Profile')
+    name = TextField(_('Choose your username'), [Required(), Length(USERNAME_LEN_MIN, USERNAME_LEN_MAX)],
+            description=_('Don\'t worry. you can change it later.'))
+    email = EmailField(_('Email'), [Required(), Email()], description=_('What\'s your email address?'))
+    password = PasswordField(_('Password'), [Required(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
+            description=_('%s characters or more! Be tricky.' % PASSWORD_LEN_MIN))
+    submit = SubmitField(_('Create Profile'))
 
     def validate_name(self, field):
         if User.query.filter_by(name=field.data).first() is not None:
-            raise ValidationError(u'This username is taken.')
+            raise ValidationError(_('This username is taken.'))
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first() is not None:
-            raise ValidationError(u'This email is taken.')
+            raise ValidationError(_('This email is taken.'))

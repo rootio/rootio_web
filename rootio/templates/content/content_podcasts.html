@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
     $(document).ready(function() {
-       
+
         var api = ''
         var podcast_id = "0"
 
@@ -34,7 +34,7 @@
         datatable.ajax.url(api).load()
 
        });
-    
+
 
         var datatable = $('#podcasts').DataTable({
                serverSide: true, searching: true, ajax: api,
@@ -46,10 +46,10 @@
                }],
 
         });
-   
-        $.fn.dataTableExt.errMode = 'ignore'   
-    });  
- 
+
+        $.fn.dataTableExt.errMode = 'ignore'
+    });
+
 
     </script>
 {% endblock %}
@@ -90,7 +90,7 @@
         <h3>{{ _('Podcasts') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_podcast_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.content_podcast_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>

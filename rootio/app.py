@@ -161,7 +161,7 @@ def configure_messenger(app):
         if app.debug:
             import time;
             time.sleep(1)
-            app.messenger.send('zmq {"status":"startup"}')
+	    app.messenger.send('zmq {"status":"startup"}')
     except zmq.error.ZMQError:
         app.logger.error('unable to start zmq')
         app.messenger = None

@@ -5,6 +5,6 @@
 {% extends "layouts/base.html" %}
 
 {% block body %}
-<h2>{{ _('Create Profile') }} <small>{%trans%}Already have an account? <a href="{{ url_for('frontend.login') }}">Sign in</a>, please.{%endtrans%}</small></h2>
+<h2>{{ _('Create Profile') }} <small>{{ _('Already have an account?') }} <a href="{{ url_for('frontend.login') }}">{{ _('Sign in') }}</a>, {{ _('please') }}.</small></h2>
 {{ render_form(url_for('frontend.create_profile'), form) }}
 {% endblock %}

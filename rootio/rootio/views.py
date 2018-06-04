@@ -2,6 +2,7 @@
 
 from flask import Blueprint, render_template, request, flash
 from flask.ext.login import login_required
+from flask.ext.babel import gettext as _
 
 from ..extensions import db
 from ..decorators import admin_required
@@ -44,7 +45,7 @@ def user(user_id):
         db.session.add(user)
         db.session.commit()
 
-        flash('User updated.', 'success')
+        flash(_('User updated.'), 'success')
 
     return render_template('rootio/user.html', user=user, form=form)
 
@@ -70,7 +71,7 @@ def language(language_id):
         db.session.add(language)
         db.session.commit()
 
-        flash('Language updated.', 'success')
+        flash(_('Language updated.'), 'success')
 
     return render_template('rootio/language.html', language=language, form=form)
 
@@ -89,9 +90,9 @@ def language_add():
 
         db.session.add(language)
         db.session.commit()
-        flash('Language added.', 'success')
+        flash(_('Language added.'), 'success')
     elif request.method == "POST":
-        flash('Validation error', 'error')
+        flash(_('Validation error'), 'error')
 
     return render_template('rootio/language.html', language=language, form=form)
 
@@ -117,7 +118,7 @@ def program_type(program_type_id):
         db.session.add(program_type)
         db.session.commit()
 
-        flash('Program Type updated.', 'success')
+        flash(_('Program Type updated.'), 'success')
 
     return render_template('rootio/program_type.html', program_type=program_type, form=form)
 
@@ -136,9 +137,9 @@ def program_type_add():
 
         db.session.add(program_type)
         db.session.commit()
-        flash('Program Type added.', 'success')
+        flash(_('Program Type added.'), 'success')
     elif request.method == "POST":
-        flash('Validation error', 'error')
+        flash(_('Validation error'),'error')
 
     return render_template('rootio/program_type.html', program_type=program_type, form=form)
 
@@ -167,7 +168,7 @@ def content_type(content_type_id):
         db.session.add(content_types)
         db.session.commit()
 
-        flash('Content Type updated.', 'success')
+        flash(_('Content Type updated.'), 'success')
 
     return render_template('rootio/content_type.html', content_type=content_types, form=form)
 
@@ -186,8 +187,8 @@ def content_type_add():
 
         db.session.add(content_types)
         db.session.commit()
-        flash('Content Type added.', 'success')
+        flash(_('Content Type added.'), 'success')
     elif request.method == "POST":
-        flash('Validation error', 'error')
+        flash(_('Validation error'),'error')
 
     return render_template('rootio/content_type.html', content_type=content_types, form=form)

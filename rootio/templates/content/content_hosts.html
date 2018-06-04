@@ -7,7 +7,7 @@
         <h3>{{ _('Program Hosts') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.hosts_add') }}"><strong>Add +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.hosts_add') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
@@ -35,7 +35,7 @@
                      {% endif %}
                  {% endfor %}
             </td>
-            <td><a href="{{ url_for('content.host_edit', host_id=host.id) }}">Edit</a></td>
+            <td><a href="{{ url_for('content.host_edit', host_id=host.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
       </tbody>
