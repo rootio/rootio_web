@@ -9,7 +9,6 @@ class RootIOMailMessage:
         self.__smtp_username = DefaultConfig.MAIL_USERNAME
         self.__smtp_password = DefaultConfig.MAIL_PASSWORD
         self.__message = ''
-        self.__initialize_message()
         self.__to = []
         self.__from = ''
         self.__subject = ''

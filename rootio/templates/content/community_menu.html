@@ -6,10 +6,10 @@
 <div class="container">
     {%if community_menu %}
         <h2>{{ _('Configure Menu') }}</h2>
-        {{ render_form(url_for('content.community_menu', community_menu_id=community_menu.id), form) }}
+        {{ render_form(url_for('content.community_menu_definition', community_menu_id=community_menu.id), form) }}
     {%else%}
         <h2>{{ _('Configure Menu') }}</h2>
-        {{ render_form(url_for('content.community_menu'), form) }}
+        {{ render_form(url_for('content.community_menu_definition'), form) }}
     {%endif%}
 </div>
 {% endblock %}
