@@ -40,11 +40,11 @@
                 <td>{{ community_content.duration }}{{ _(' secs.') }}</td>
                 <td >
                    {% if community_content.type_code == 1 %}
-                     {{ _('Advertisement)' }}
+                     {{ _('Advertisement') }}
                    {% elif community_content.type_code == 2 %}
-                     {{ _('Announcement)' }}
+                     {{ _('Announcement') }}
                    {% elif community_content.type_code == 3 %}
-                     {{ _('Greeting)' }}
+                     {{ _('Greeting') }}
                    {% endif %}
                 </td>
                 <td>{{ community_content.valid_until.strftime('%Y-%m-%d') }}</td>

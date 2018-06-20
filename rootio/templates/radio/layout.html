@@ -1,16 +1,16 @@
 {% extends "layouts/base.html" %}
 
-{% set page_header = _(active|capitalize) %}
+{% set page_header = _(active) %}
 {% set page_title = page_header %}
 
 {% set tab_title = "Radio" %}
 {% set tabs = [
-    (_("Status"), url_for('radio.index')), 
+    (_("Status"), url_for('radio.index')),
     (_("Stations"), url_for('radio.list_stations')),
     (_("Stations Telephony"), url_for('radio.telephony')),
     (_("Programs"), url_for('radio.programs')),
     (_("Music Programs"), url_for('radio.list_music_programs')),
-    (_("Schedule"), url_for('radio.schedule')),  
+    (_("Schedule"), url_for('radio.schedule')),
 ]%}
 
 {% block paging_js %}
