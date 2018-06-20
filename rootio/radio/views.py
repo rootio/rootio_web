@@ -47,6 +47,7 @@ def emergency():
 @login_required
 def network_add():
     form = NetworkForm(request.form)
+    network = False
 
     if form.validate_on_submit():
         form_data = form.data  # copy it to remove items, it is immutable
@@ -64,7 +65,7 @@ def network_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/network.html', program=program, form=form)
+    return render_template('radio/network.html', network=network, form=form)
 
 
 @radio.route('/station/', methods=['GET'])
