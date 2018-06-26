@@ -4,6 +4,7 @@ import json
 import pytz
 from .user.models import User, RootioUser
 from .radio.models import Location, Network, Station, Program, ScheduledProgram
+from .radio.models import ContentType, ProgramType
 from .telephony.models import PhoneNumber, Gateway
 from .telephony.constants import MOBILE
 from .content.models import ContentTrack, ContentUploads
@@ -148,6 +149,35 @@ def setup(db, schedule):
             deleted=False,
         )
         db.session.add(scheduled_program)
+        db.session.flush()
+
+    content_type_media = ContentType.query.filter_by(name='Media').first()
+    if content_type_media is None:
+        content_type_media = ContentType(
+            name='Media',
+            description='',
+        )
+        db.session.add(content_type_media)
+        db.session.flush()
+
+    content_type_news = ContentType.query.filter_by(name='News').first()
+    if content_type_news is None:
+        content_type_news = ContentType(
+            name='News',
+            description='',
+        )
+        db.session.add(content_type_news)
+        db.session.flush()
+
+    program_type_talkshow = ProgramType.query.filter_by(name='Talk Show').first()
+    if program_type_talkshow is None:
+        program_type_talkshow = ProgramType(
+            name='Talk Show',
+            description='',
+            definition='',
+            phone_functions='',
+        )
+        db.session.add(program_type_talkshow)
         db.session.flush()
 
     db.session.commit()
