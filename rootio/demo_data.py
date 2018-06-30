@@ -169,6 +169,15 @@ def setup(db, schedule):
         db.session.add(content_type_news)
         db.session.flush()
 
+    content_type_news = ContentType.query.filter_by(name='Advertisements').first()
+    if content_type_news is None:
+        content_type_news = ContentType(
+            name='Advertisements',
+            description='',
+        )
+        db.session.add(content_type_news)
+        db.session.flush()
+
     program_type_talkshow = ProgramType.query.filter_by(name='Talk Show').first()
     if program_type_talkshow is None:
         program_type_talkshow = ProgramType(
