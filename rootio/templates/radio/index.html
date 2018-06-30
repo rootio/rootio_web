@@ -55,6 +55,7 @@ tr.heading {
     </div>
         <h2>{% trans %} Stations {% endtrans %}</h2>
         <div id="map" class="span4"></div>
+
         <div class="span7">
             <table class='table table-bordered'>
             <thead>
@@ -69,23 +70,31 @@ tr.heading {
                     <th>{{ _('CPU ') }}</th>
                 </tr>
             </thead>
-            {%for station in stations %}
-            {% set analytics = station.recent_analytics() %}
-            {% if loop.index0 == 0 or (loop.index0 > 0 and stations[loop.index0 - 1].network.name != stations[loop.index0].network.name) %}
-            <tr  class="heading expand">
-                <th colspan="8"><span class="sign"></span> {{station.network.name}}</th>
-            </tr>
-            {% endif %}
-            <tr>
-                <td>{{station.network.name}}</td>
-                <td>{{station.name}}</td>
-                <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
-                <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
-            </tr>
+            {%for network in networks %}
+              <tr  class="heading expand">
+                <th colspan="8"><span class="sign"></span> {{network.name}}</th>
+              </tr>
+              {% if network.stations %}
+                {%for station in network.stations %}
+                {% set analytics = station.recent_analytics() %}
+                <tr>
+                  <td>{{network.name}}</td>
+                  <td>{{station.name}}</td>
+                  <td><span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
+                  <td><span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
+                  <td><span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
+                  <td><span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
+                  <td><span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
+                  <td><span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+                </tr>
+                {%endfor%}
+              {% else %}
+                <tr>
+                  <td colspan="8">
+                    <a href="{{ url_for('radio.station_add') }}">{{ _('Add a station to this network') }}</a>
+                  </td>
+                </tr>
+              {% endif %}
             {%endfor%}
             </table>
         </div>

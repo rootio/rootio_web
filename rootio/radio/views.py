@@ -27,9 +27,9 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 @radio.route('/', methods=['GET'])
 def index():
-    # get the stations in networks that I am associated with
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('radio/index.html', stations=stations, userid=current_user.id)
+    # get all the user's networks and their stations
+    networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('radio/index.html', networks=networks, userid=current_user.id)
 
 
 @radio.route('/emergency/', methods=['GET'])
