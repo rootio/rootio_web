@@ -200,6 +200,7 @@ def music_program_add():
 
     # hosts in my network
     playlists = ContentMusicPlaylist.query.all()
+    streams = ContentStream.query.all()
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
@@ -214,7 +215,7 @@ def music_program_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/music_program.html', program=program, playlists=playlists, form=form)
+    return render_template('radio/music_program.html', program=program, playlists=playlists, streams=streams, form=form)
 
 
 @radio.route('/music_program/<int:music_program_id>', methods=['GET', 'POST'])
