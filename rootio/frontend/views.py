@@ -160,10 +160,12 @@ def signup():
         message.set_body("Welcome to the RootIO platform!\n")
         message.append_to_body("Your username is %s " % user.email)
         message.append_to_body(
-            "Please click this link to activate your account: http://radio.rootio.org/activate/%s/%d" % (
-                user.activation_key, user.id))
+            "Please click this link to activate your account: %s/activate/%s/%d" % (
+                current_app.config['DOMAIN'], user.activation_key, user.id
+            )
+        )
         message.append_to_body("\n\nThanks,\nThe RootIO team")
-        message.set_from("mailer@rootio.org")
+        message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
         message.add_to_address(user.email)
         message.send_message()
         # if login_user(user):

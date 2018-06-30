@@ -13,6 +13,8 @@ INSTANCE_FOLDER_PATH = os.path.join(PROJECT_ROOT, 'instance')
 class BaseConfig(object):
     PROJECT = "rootio"
 
+    DOMAIN = 'http://staging.rootio.org'
+
     DEBUG = True
     TESTING = False
 
@@ -36,14 +38,14 @@ class BaseConfig(object):
     ZMQ_BIND_ADDR = "tcp://127.0.0.1:55777"
     ZMQ_SOCKET_TYPE = "PUB"
     WTF_CSRF_SECRET_KEY = 'a random string'
-    CSRF_SESSION_KEY = "02090298402394okajsdflkaslfkj02934" 
+    CSRF_SESSION_KEY = "02090298402394okajsdflkaslfkj02934"
 
     CONTENT_DIR = "/var/content"
 
 
 class DefaultConfig(BaseConfig):
     DEBUG = True
-    CSRF_ENABLED = False 
+    CSRF_ENABLED = False
     #WTF_CSRF_CHECK_DEFAULT = True
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
@@ -51,14 +53,16 @@ class DefaultConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'postgresql://username:password@host/db_name'
 
     # Flask-babel: http://pythonhosted.org/Flask-Babel/
-    ACCEPT_LANGUAGES = {#'ach':'Acholi',
-                        'en':'English',
-                        #'kdj':'Karamjong',
-                        #'mhd':"Ma'di",
-                        'nyn':'Nyankore',
-                        'lug':'Luganda',
-                        'luo':'Luo',
-			'es':'Espanol'}
+    ACCEPT_LANGUAGES = {
+        #'ach':'Acholi',
+        'en':'English',
+        #'kdj':'Karamjong',
+        #'mhd':"Ma'di",
+        'nyn':'Nyankore',
+        'lug':'Luganda',
+        'luo':'Luo',
+        'es':'Espanol'
+    }
 
     # Flask-cache: http://pythonhosted.org/Flask-Cache/
     CACHE_TYPE = 'simple'
@@ -71,14 +75,19 @@ class DefaultConfig(BaseConfig):
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
+
+    MAIL_SERVER = 'server:port'
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME",'gmail_username')
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD",'gmail_password')
-    DEFAULT_MAIL_SENDER = '%s@gmail.com' % MAIL_USERNAME
+    DEFAULT_MAIL_SENDER = 'info@rootio.org'
 
     # Flask-openid: http://pythonhosted.org/Flask-OpenID/
     OPENID_FS_STORE_PATH = os.path.join(INSTANCE_FOLDER_PATH, 'openid')
     make_dir(OPENID_FS_STORE_PATH)
-    
+
     #WTF_CSRF_ENABLED=True
 
 class TestConfig(BaseConfig):
