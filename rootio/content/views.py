@@ -220,33 +220,29 @@ def content_news_add():
             return redirect(request.url)
         if uploaded_file and allowed_file(uploaded_file.filename):
             filename = secure_filename(uploaded_file.filename)
-    if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('file', None)
-        cleaned_data.pop('submit', None)  # remove submit field from list
-        cleaned_data['uploaded_by'] = current_user.id
-        cleaned_data['name'] = filename
-        cleaned_data['track_id'] = cleaned_data['track'].id
+        if form.validate_on_submit():
+            cleaned_data = form.data  # make a copy
+            cleaned_data.pop('file', None)
+            cleaned_data.pop('submit', None)  # remove submit field from list
+            cleaned_data['uploaded_by'] = current_user.id
+            cleaned_data['name'] = filename
+            cleaned_data['track_id'] = cleaned_data['track'].id
 
-        uri = "{0}/{1}/{2}".format("news",
-                                   str(cleaned_data['track_id']),
-                                   save_uploaded_file(request.files['file'],
-                                                      os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                   "news",
-                                                                   str(cleaned_data['track_id'])
-                                                                   )
-                                                      )
-                                   )
+            track_id = str(cleaned_data['track_id'])
+            saved_file_path = os.path.join(DefaultConfig.CONTENT_DIR, "news", str(cleaned_data['track_id']))
+            saved_file = save_uploaded_file(uploaded_file, saved_file_path)
+            uri = "{0}/{1}/{2}".format("news", track_id, saved_file)
 
-        cleaned_data['uri'] = uri
-        content_news = ContentUploads(**cleaned_data)  # create new object from data
 
-        db.session.add(content_news)
-        db.session.commit()
+            cleaned_data['uri'] = uri
+            content_news = ContentUploads(**cleaned_data)  # create new object from data
 
-        flash(_('Content added.'), 'success')
-    elif request.method == "POST":
-        flash(_(form.errors.items()), 'error')
+            db.session.add(content_news)
+            db.session.commit()
+
+            flash(_('Content added.'), 'success')
+        else:
+            flash(_(form.errors.items()), 'error')
 
     return render_template('content/content_news_edit.html', content_news=content_news, form=form)
 
@@ -390,30 +386,30 @@ def content_medias_add():
             return redirect(request.url)
         if uploaded_file and allowed_file(uploaded_file.filename):
             filename = secure_filename(uploaded_file.filename)
-    if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('file', None)
-        cleaned_data.pop('submit', None)  # remove submit field from list
-        cleaned_data['uploaded_by'] = current_user.id
-        cleaned_data['name'] = filename
-        # cleaned_data['type_id'] = cleaned_data['track_id'].content_contenttypeid
-        # Fix this - Form should automatically go into db
-        cleaned_data['track_id'] = cleaned_data['track'].id
+        if form.validate_on_submit():
+            cleaned_data = form.data  # make a copy
+            cleaned_data.pop('file', None)
+            cleaned_data.pop('submit', None)  # remove submit field from list
+            cleaned_data['uploaded_by'] = current_user.id
+            cleaned_data['name'] = filename
+            # cleaned_data['type_id'] = cleaned_data['track_id'].content_contenttypeid
+            # Fix this - Form should automatically go into db
+            cleaned_data['track_id'] = cleaned_data['track'].id
 
-        # save the file
-        file_path = os.path.join(DefaultConfig.CONTENT_DIR, "media", str(cleaned_data['track_id']))
-        saved_file = save_uploaded_file(request.files['file'], file_path)
-        uri = "{0}/{1}/{2}".format("media", str(cleaned_data['track_id']), saved_file)
+            # save the file
+            saved_file_path = os.path.join(DefaultConfig.CONTENT_DIR, "media", str(cleaned_data['track_id']))
+            saved_file = save_uploaded_file(uploaded_file, saved_file_path)
+            uri = "{0}/{1}/{2}".format("media", str(cleaned_data['track_id']), saved_file)
 
-        cleaned_data['uri'] = uri
-        content_media = ContentUploads(**cleaned_data)  # create new object from data
+            cleaned_data['uri'] = uri
+            content_media = ContentUploads(**cleaned_data)  # create new object from data
 
-        db.session.add(content_media)
-        db.session.commit()
+            db.session.add(content_media)
+            db.session.commit()
 
-        flash(_('Media Uploaded'), 'success')
-    elif request.method == "POST":
-        flash(_(form.errors.items()), 'error')
+            flash(_('Media Uploaded'), 'success')
+        else:
+            flash(_(form.errors.items()), 'error')
 
     return render_template('content/content_media.html', content_media=content_media, form=form)
 
