@@ -13,7 +13,6 @@
             <tr>
                 <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
                 <th>{{ _('Location') }}</th>
-                <th>{{ _('Owner') }}</th>
                 <th>{{ _('Phone Numbers') }}</th>
                 <th>{{ _('Languages') }}</th>
                 {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
@@ -27,7 +26,6 @@
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
             <td>{{ station.location }}</td>
-            <td>{{ station.owner }}</td>
             <td>{{ station.primary_transmitter_phone }}, {{station.secondary_transmitter_phone}}</td>
             <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
             {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}

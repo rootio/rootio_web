@@ -40,14 +40,13 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                  'location': {'validators': [HasInlineForm, ]},
                                  'phone': {'description': _('Station contact telephone number'),
                                            'validators': [HasInlineForm, ]},
-                                 'owner': {'description': _('User who is the owner of the station')},
                                  'languages': {'description': _("Primary languages the station will broadcast in")},
                                  'client_update_frequency': {'description': _(
                                      "How frequently the transmitter should check for updates, in seconds")},
                                  'broadcast_ip': {'description': _(
                                      "IP address of the transmitter on the local network. Should start with 230.")},
                              },
-                             exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                             exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
