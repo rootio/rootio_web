@@ -1,0 +1,10 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = _("Sign in") %}
+
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<h2>{{ _('Activate account') }} <small>{{ _('Didn\'t get the link?') }} <a href="{{ url_for('frontend.resend_activation', email=email) }}">{{ _('Resend the activation email')}}</a>.</small></h2>
+{{ render_form(url_for('frontend.login'), form)}}
+{% endblock %}

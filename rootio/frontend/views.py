@@ -11,6 +11,7 @@ from flask.ext.login import login_required, login_user, current_user, logout_use
 from .utils import RootIOMailMessage
 from ..user import User, UserDetail
 from ..extensions import db, mail, login_manager, oid
+from ..user.constants import ACTIVE
 from .forms import SignupForm, LoginForm, RecoverPasswordForm, ReauthForm, ChangePasswordForm, OpenIDForm, \
     CreateProfileForm
 
@@ -105,10 +106,20 @@ def login():
         else:
             if user and authenticated:
                 flash(_('This account is not yet activated. Please click the link sent to you to activate'), 'error')
+                return render_template('frontend/resend_activation.html', form=form, email=user.email)
             else:
                 flash(_('Invalid login details. Please try again'))
 
     return render_template('frontend/login.html', form=form)
+
+
+@frontend.route('/resend_activation', methods=['GET'])
+def resend_activation():
+    email = request.args.get('email')
+    user = User.query.filter(and_(User.email == email)).first()
+    send_activation_email(user)
+    flash(_('A new activation link was sent to you via email, please check your inbox!'), 'info')
+    return render_template('frontend/login.html', form=LoginForm())
 
 
 @frontend.route('/reauth', methods=['GET', 'POST'])
@@ -147,32 +158,33 @@ def signup():
         user = User()
         user.user_detail = UserDetail()
         form.populate_obj(user)
-        user.activation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
-        # Defaults to Network Admin - Fix this to make it come from constants
-        user.role_code = 1
 
-        db.session.add(user)
-        db.session.commit()
-
-        # send the email with the link
-        message = RootIOMailMessage()
-        message.set_subject("Your RootIO platform account")
-        message.set_body("Welcome to the RootIO platform!\n")
-        message.append_to_body("Your username is %s " % user.email)
-        message.append_to_body(
-            "Please click this link to activate your account: %s/activate/%s/%d" % (
-                current_app.config['DOMAIN'], user.activation_key, user.id
-            )
-        )
-        message.append_to_body("\n\nThanks,\nThe RootIO team")
-        message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
-        message.add_to_address(user.email)
-        message.send_message()
-        # if login_user(user):
-        #    return redirect(form.next.data or url_for('user.index'))
+        send_activation_email(user)
 
         flash(_('Your account was created. Please click on the link sent to your email to validate it'), 'success')
     return render_template('frontend/signup.html', form=form)
+
+def send_activation_email(user):
+    user.activation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
+    db.session.add(user)
+    db.session.commit()
+
+    # send the email with the link
+    message = RootIOMailMessage()
+    message.set_subject("Your RootIO platform account")
+    message.set_body("Welcome to the RootIO platform!\n")
+    message.append_to_body("Your username is %s " % user.email)
+    message.append_to_body(
+        "Please click this link to activate your account: %s/activate/%s/%d" % (
+            current_app.config['DOMAIN'], user.activation_key, user.id
+        )
+    )
+    message.append_to_body("\n\nThanks,\nThe RootIO team")
+    message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
+    message.add_to_address(user.email)
+    message.send_message()
+    # if login_user(user):
+    #    return redirect(form.next.data or url_for('user.index'))
 
 
 @frontend.route('/terms')
@@ -188,7 +200,7 @@ def activate(key, user_id):
     if user is None:
         flash(_('No user found. This account is probably already validated, try logging in'), 'error')
     else:
-        user.status_code = 1
+        user.status_code = ACTIVE
         db.session.commit()
         flash(_('This account has successfully been validated, please login'), 'success')
     return redirect(url_for('frontend.login'))

@@ -92,7 +92,7 @@ class User(RootioUser, UserMixin):
 
         if user:
             authenticated = user.check_password(password)
-            activated = user.status_code == ACTIVE
+            activated = (user.status_code == ACTIVE)
         else:
             activated = False
             authenticated = False
