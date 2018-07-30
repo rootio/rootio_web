@@ -5,6 +5,10 @@
 {% extends "layouts/base.html" %}
 
 {% block body %}
-<h2>{{ _('Sign in') }} <small>{{ _('Don\'t have an account?') }} <a href="{{ url_for('frontend.signup') }}">{{ _('Sign up')}}</a>, {{_('please')}}. </small></h2>
+<h2>{{ _('Sign in') }}
+  <small>{{ _('Don\'t have an account?') }}
+    <a href="{{ url_for('frontend.signup') }}">{{ _('Sign up')}}</a>, {{_('please')}}.
+  </small></h2>
+  <a href="{{ url_for('frontend.reset_password') }}">{{ _('Forgot your password?')}}</a>
 {{ render_form(url_for('frontend.login'), form)}}
 {% endblock %}

@@ -49,6 +49,7 @@ class RecoverPasswordForm(Form):
 
 class ChangePasswordForm(Form):
     activation_key = HiddenField()
+    email = HiddenField()
     password = PasswordField(_('Password'), [Required()])
     password_again = PasswordField(_('Password again'), [EqualTo('password', message=_('Passwords don\'t match'))])
     submit = SubmitField(_('Save'))

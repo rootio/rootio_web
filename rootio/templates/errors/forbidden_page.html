@@ -2,10 +2,8 @@
 {% set page_title = _('Forbidden page') %}
 {% block body %}
 <h1>{{ _('Forbidden Page') }} <span>:(</span></h1>
-{% trans %}
 <p>{{ _('You do not have permission to access this page.') }}</p>
 <p>{{ _('<a href="/login">Log in</a> and try again?') }}</p>
-{% endtrans %}
 <script>
     var GOOG_FIXURL_LANG = (navigator.language || '').slice(0,2),GOOG_FIXURL_SITE = location.host;
 </script>

@@ -222,7 +222,7 @@ def change_password():
     if user is None:
         abort(403)
 
-    form = ChangePasswordForm(activation_key=user.activation_key)
+    form = ChangePasswordForm(activation_key=user.activation_key, email=user.email)
 
     if form.validate_on_submit():
         user.password = form.password.data
@@ -230,8 +230,7 @@ def change_password():
         db.session.add(user)
         db.session.commit()
 
-        flash(_("Your password has been changed, please log in again"),
-              "success")
+        flash(_("Your password has been changed, please log in again"), "success")
         return redirect(url_for("frontend.login"))
 
     return render_template("frontend/change_password.html", form=form)
@@ -255,9 +254,12 @@ def reset_password():
                           _external=True)
             html = render_template('macros/_reset_password.html', project=current_app.config['PROJECT'],
                                    username=user.name, url=url)
-            message = Message(subject='Reset your password in ' + current_app.config['PROJECT'], html=html,
-                              recipients=[user.email])
-            mail.send(message)
+            message = RootIOMailMessage()
+            message.set_subject('[{}] Reset your password'.format(current_app.config['PROJECT']))
+            message.set_body(html)
+            message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
+            message.add_to_address(user.email)
+            message.send_message()
 
             return render_template('frontend/reset_password.html', form=form)
         else:
