@@ -7,7 +7,7 @@ from flask.ext.babel import Babel
 
 from flask.ext.admin import Admin
 
-from .config import DefaultConfig
+from .config import BaseConfig, DefaultConfig
 from .admin import admin_routes, AdminHomeView
 from .user import User, user
 from .settings import settings
@@ -21,7 +21,7 @@ from .messenger import messenger
 from .content import content
 
 from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
-from .utils import CustomJSONEncoder, read_config
+from .utils import CustomJSONEncoder, make_dir
 
 import zmq
 
@@ -71,6 +71,9 @@ def configure_app(app, config=None):
 
     # http://flask.pocoo.org/docs/api/#configuration
     app.config.from_object(DefaultConfig)
+
+    for directory in BaseConfig.LOG_FOLDER, BaseConfig.UPLOAD_FOLDER, DefaultConfig.OPENID_FS_STORE_PATH:
+        make_dir(directory)
 
     # http://flask.pocoo.org/docs/config/#instance-folders
     app.config.from_pyfile('rootio.cfg', silent=True)

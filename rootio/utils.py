@@ -7,11 +7,15 @@ import os
 import random
 import re
 import string
+import urllib
 from datetime import datetime, time, timedelta
 
+import boto3
 from flask import json
 from flask.ext.wtf import Form
 from sqlalchemy import or_
+
+from .config import DefaultConfig
 
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -41,6 +45,33 @@ GENDER_TYPE = {
 
 # Model
 STRING_LEN = 100
+
+
+def upload_to_s3(file, key,  acl="public-read"):
+    bucket_name = DefaultConfig.S3_BUCKET_NAME
+    s3 = boto3.client('s3',
+                      DefaultConfig.S3_REGION,
+                      aws_access_key_id=DefaultConfig.S3_KEY_ID,
+                      aws_secret_access_key=DefaultConfig.S3_KEY
+                      )
+    s3.upload_fileobj(
+        file,
+        bucket_name,
+        key,
+        ExtraArgs={
+            "ACL": acl,
+            "ContentType": file.content_type
+        }
+    )
+
+    bucket_location = s3.get_bucket_location(Bucket=bucket_name)
+    uri = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
+        bucket_location['LocationConstraint'],
+        bucket_name,
+        urllib.quote(key)
+    )
+
+    return uri
 
 
 def get_current_time():

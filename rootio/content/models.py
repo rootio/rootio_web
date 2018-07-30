@@ -1,5 +1,6 @@
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy.sql import func
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from ..extensions import db
 from ..utils import STRING_LEN
@@ -42,6 +43,10 @@ class ContentUploads(BaseMixin, db.Model):
 
     def __unicode__(self):
         return self.name
+
+    @hybrid_property
+    def is_remote(self):
+        return self.uri.startswith('http://') or self.uri.startswith('https://')
 
 
 class CommunityMenu(BaseMixin, db.Model):

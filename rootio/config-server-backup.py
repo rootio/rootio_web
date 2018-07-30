@@ -90,6 +90,12 @@ class DefaultConfig(BaseConfig):
 
     #WTF_CSRF_ENABLED=True
 
+    S3_UPLOADS = False
+    S3_KEY_ID = ''
+    S3_KEY = ''
+    S3_BUCKET_NAME = 'rootio-staging'
+    S3_REGION = 'eu-west-1'
+
 class TestConfig(BaseConfig):
     TESTING = True
     CSRF_ENABLED = False

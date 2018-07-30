@@ -28,11 +28,17 @@
             <td>{{ content_upload.track.name }}</td>
             <td>{{ content_upload.created_at }}</td>
             <td>
-                 <audio preload="metadata" controls>
-                    <source src="../../audio-content/{{ content_upload.uri }}" type="audio/mpeg">
-                    <source src="../../audio-content/{{ content_upload.uri }}" type="audio/ogg">
-                    <source src="../../audio-content/{{ content_upload.uri }}" type="audio/wav">
-                </audio>
+              <audio preload="metadata" controls>
+                {% if content_upload.is_remote %}
+                  <source src="{{ content_upload.uri }}" type="audio/mpeg">
+                  <source src="{{ content_upload.uri }}" type="audio/ogg">
+                  <source src="{{ content_upload.uri }}" type="audio/wav">
+                {% else %}
+                  <source src="../../audio-content/{{ content_upload.uri }}" type="audio/mpeg">
+                  <source src="../../audio-content/{{ content_upload.uri }}" type="audio/ogg">
+                  <source src="../../audio-content/{{ content_upload.uri }}" type="audio/wav">
+                {% endif %}
+              </audio>
             </td>
             <td>{{ content_upload.name }}</td>
             <td><a href="{{ url_for('content.content_news_edit', content_news_id=content_upload.id) }}">{{ _('Edit') }}</a></td>

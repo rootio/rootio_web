@@ -23,13 +23,19 @@
         <tbody>
         {% for content_upload in content_uploads %}
         <tr id="{{ content_upload.id }}">
-            <td>{{ content_upload.content_tracks.name }}</td>
+            <td>{{ content_upload.track.name }}</td>
             <td>{{ content_upload.created_at }}</td>
             <td>
                 <audio controls>
+                  {% if content_upload.is_remote %}
+                    <source src="{{ content_upload.uri }}" type="audio/mpeg">
+                    <source src="{{ content_upload.uri }}" type="audio/ogg">
+                    <source src="{{ content_upload.uri }}" type="audio/wav">
+                  {% else %}
                     <source src="../../media/{{ content_upload.uri }}" type="audio/mpeg">
                     <source src="../../media/{{ content_upload.uri }}" type="audio/ogg">
                     <source src="../../media/{{ content_upload.uri }}" type="audio/wav">
+                  {% endif %}
                 </audio>
             </td>
             </td>

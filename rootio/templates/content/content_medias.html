@@ -46,9 +46,15 @@
                 <td>{{ media.created_at }}</td>
                 <td>
                     <audio preload="metadata" controls>
+                      {% if media.is_remote %}
+                        <source src="{{ media.uri }}" type="audio/mpeg">
+                        <source src="{{ media.uri }}" type="audio/ogg">
+                        <source src="{{ media.uri }}" type="audio/wav">
+                      {% else %}
                         <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
                         <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
                         <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                      {% endif %}
                     </audio>
                 </td>
                 <td>{{ media.name }}</td>
