@@ -5,7 +5,7 @@ import hashlib
 
 from datetime import datetime
 
-from flask import Blueprint, render_template, current_app, request, flash
+from flask import Blueprint, render_template, current_app, request, flash, abort
 from flask.ext.login import login_required, current_user
 from flask.ext.babel import gettext as _
 
@@ -13,6 +13,7 @@ from ..extensions import db
 from ..user import User, UserDetail
 from ..utils import allowed_file, make_dir
 from .forms import ProfileForm, PasswordForm
+from ..user.constants import USER_ROLE, ADMIN
 
 
 settings = Blueprint('settings', __name__, url_prefix='/settings')
@@ -22,6 +23,10 @@ settings = Blueprint('settings', __name__, url_prefix='/settings')
 @settings.route('/profile/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 def profile(user_id):
+    if current_user.id != user_id:
+        if current_user.role != USER_ROLE[ADMIN]:
+            abort(403)
+
     if user_id:
         edit = True
         user = User.query.get(user_id)
