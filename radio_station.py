@@ -20,11 +20,11 @@ class RadioStation(Station):
         pass
 
     def __init__(self, station_id, db, logger):
-        self.__program_handler = ProgramHandler(self.db, self)
-        self.call_handler = CallHandler(self)
         self.id = station_id
         self.logger = logger
         self.db = db
         self.station = self.db.query(Station).filter(Station.id == station_id).one()
+        self.__program_handler = ProgramHandler(self.db, self)
+        self.call_handler = CallHandler(self)
         self.logger.info("Starting up station {0}".format(self.station.name))
         return

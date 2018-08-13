@@ -17,11 +17,8 @@ class PodcastAction:
         self.program.log_program_activity("Done initialising Media action for program {0}".format(self.program.name))
 
     def start(self):
-        print "requesting call"
         call_result = self.__request_call()
-        print call_result
         if not call_result:  # !!
-            print "call_result is not true!!"
             self.stop(False)
 
     def pause(self):
@@ -43,7 +40,7 @@ class PodcastAction:
         self.__podcast = self.program.db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
 
     def __request_call(self):
-        return self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play',
+        return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',
                                         self.__podcast_id, self.duration)
 
     def __play_media(self, call_info):  # play the media in the array

@@ -32,9 +32,9 @@ class CereprocRestAgent:
         return etree.tostring(rt, xml_declaration=True)
 
     def cprc_list_voices(self):
-        requestxml = self._generate_request_xml("listVoices", {'accountID': self._cereproc_username,
+        requestxml = self.__generate_request_xml("listVoices", {'accountID': self._cereproc_username,
                                                                'password': self._cereproc_password})
-        return self._do_cprc_request(requestxml)
+        return self.__do_cprc_request(requestxml)
 
     def get_cprc_tts(self, text, voice=None, sample_rate=None, audio_format=None, metadata=True):
         if voice is None:

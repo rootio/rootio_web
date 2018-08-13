@@ -54,7 +54,8 @@ class RadioProgram:
                 self.__program_actions.insert(0, PodcastAction(action["track_id"], action["start_time"],
                                                                action["duration"], self))
             if action['type'] == "Music":
-                print "This would have started here"
+                self.radio_station.logger.info("Music program scheduled to start at {0} for a duration  {1}".format(action["start_time"], action["duration"]))
+            
             if action['type'] == "News":
                 self.__program_actions.insert(0,
                                               NewsAction(action["track_id"], action["start_time"], action["duration"],

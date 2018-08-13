@@ -35,7 +35,7 @@ class ProgramHandler:
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:
-            if not self.__is_program_expired(scheduled_program, scheduled_program.program.duration):
+            if not self.__is_program_expired(scheduled_program):
                 self.__add_scheduled_job(scheduled_program)
                 self.__radio_station.logger.info(
                     "Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name,
@@ -85,14 +85,13 @@ class ProgramHandler:
 
         while True:
             data = sck.recv(1024)
-            print data
             event = json.loads(data)
             if event["action"] == "delete":
                 self.__delete_scheduled_job(event["id"])
                 self.__radio_station.logger.info("Scheduled program with id {0} has been deleted".format(event["id"]))
             elif event["action"] == "add":
                 scheduled_program = self.__load_program(event["id"])
-                if not self.__is_program_expired(scheduled_program, scheduled_program.program.duration):
+                if not self.__is_program_expired(scheduled_program):
                     self.__add_scheduled_job(scheduled_program)
                     self.__radio_station.logger.info(
                         "Scheduled program with id {0} has been added at time {1}".format(event["id"],

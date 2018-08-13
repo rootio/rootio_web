@@ -181,8 +181,8 @@ class CallHandler:
         self.__radio_station.logger.info("ordering hangup for call with UUID {0}".format(call_uuid))
         self.__do_esl_command(hangup_command)  # possibly segfaults
 
-    def play(self, file_location, call_uuid):
-        play_command = 'uuid_displace {1} start \'{0}\''.format(call_uuid, file_location)
+    def play(self, call_uuid, file_location):
+        play_command = "uuid_displace {0} start \'{1}\'".format(call_uuid, file_location.replace('\'', '\\\'')) # single quote breaks FS
         self.__radio_station.logger.info("Playing file {0} into call with UUID {1}".format(file_location, call_uuid))
         return self.__do_esl_command(play_command)
 
@@ -251,8 +251,8 @@ class CallHandler:
                         if loggable:
                             self.__log_call(event_json)
 
-                    if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
-                        del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
+                        if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
+                            del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
 
                 elif event_name == "CHANNEL_PARK":
                     self.__radio_station.logger.info("Notifying recipient for {0} in {1} and {2}".format(
@@ -282,7 +282,7 @@ class CallHandler:
 
     def __record_call(self, call_uuid, from_number, destination_number):
         record_command = "uuid_record {0} start '{1}/{2}_{3}_{4}_recording.wav'".format(
-            call_uuid, os.path.join(DefaultConfig.CONTENT_DIR, 'call_recordings', self.__radio_station.id), from_number,
+            call_uuid, os.path.join(DefaultConfig.CONTENT_DIR, 'call_recordings', str(self.__radio_station.id)), from_number,
             destination_number, time.strftime("%Y_%m_%d_%H_%M_%S"))
         self.__radio_station.logger.info("setting up recording for call with UUID {0}".format(call_uuid))
         return self.__do_esl_command(record_command)
