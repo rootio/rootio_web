@@ -13,12 +13,13 @@ class NewsAction:
         self.__media_expected_to_stop = False
         self.__call_answer_info = None
         self.__call_handler = self.program.radio_station.call_handler
-        self.program.log_program_activity("Done initialising Media action for program {0}".format(self.program.name))
+        self.program.log_program_activity("Done initialising news action for program {0}".format(self.program.name))
 
     def start(self):
         # if self.__is_valid:
         # self.program.set_running_action(self)
         call_result = self.__request_call()
+        print call_result
         if not call_result:  # !!
             self.stop(False)
 
@@ -42,7 +43,7 @@ class NewsAction:
         self.__track = self.program.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
 
     def __request_call(self):
-        return self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play',
+        return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',
                                         self.__track_id, self.duration)
 
     def __play_media(self, call_info):  # play the media in the array

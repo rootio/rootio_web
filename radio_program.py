@@ -60,6 +60,7 @@ class RadioProgram:
                 self.__program_actions.insert(0,
                                               NewsAction(action["track_id"], action["start_time"], action["duration"],
                                                          self))
+                print action 
             if action['type'] == "Outcall":
                 self.__program_actions.insert(0,
                                               OutcallAction(action['host_id'], action["start_time"], action['duration'],

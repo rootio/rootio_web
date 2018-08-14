@@ -3,6 +3,9 @@ import logging
 import os
 import socket
 import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 import threading
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
