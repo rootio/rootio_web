@@ -20,7 +20,7 @@ msgstr ""
 
 #: utils.py:147 radio/views.py:291
 msgid "Invalid "
-msgstr ""
+msgstr "Inválido"
 
 #: content/forms.py:22 content/forms.py:50 content/forms.py:58
 #: content/forms.py:65 content/forms.py:72 content/forms.py:79
@@ -34,153 +34,153 @@ msgid "Save"
 msgstr ""
 
 #: content/views.py:55
-msgid "Faixa atualizada."
-msgstr ""
+msgid "Track updated."
+msgstr "Faixa atualizada."
 
 #: content/views.py:72
-msgid "Faixa adicionada."
-msgstr ""
+msgid "Track added."
+msgstr "Faixa adicionada."
 
 #: content/views.py:74 content/views.py:445 content/views.py:471
 #: radio/views.py:66 radio/views.py:109 radio/views.py:177 radio/views.py:206
 #: radio/views.py:275 radio/views.py:346 radio/views.py:608
-msgid "Erro de validação"
-msgstr ""
+msgid "Validation error"
+msgstr "Erro de validação"
 
 #: content/views.py:97 content/views.py:185 content/views.py:257
 #: content/views.py:332 content/views.py:623
-msgid "Conteúdo atualizado."
-msgstr ""
+msgid "Content updated."
+msgstr "Conteúdo atualizado."
 
 #: content/views.py:150 content/views.py:226
-msgid "Conteúdo atualizado."
-msgstr ""
+msgid "Content added."
+msgstr "Conteúdo adicionado."
 
 #: content/views.py:301
-msgid "Anúncio carregado."
-msgstr ""
+msgid "Advertisement uploaded."
+msgstr "Anúncio carregado."
 
 #: content/views.py:375
-msgid "Mídia carregada"
-msgstr ""
+msgid "Media Uploaded"
+msgstr "Mídia carregada"
 
 #: content/views.py:396
-msgid "Mídia reordenada."
-msgstr ""
+msgid "Media reordered."
+msgstr "Mídia reordenada."
 
 #: content/views.py:413
-msgid "Ads reordenados."
-msgstr ""
+msgid "Ads reordered."
+msgstr "Ads reordenados."
 
 #: content/views.py:443
-msgid "Host adicionado."
-msgstr ""
+msgid "Host added."
+msgstr "Host adicionado."
 
 #: content/views.py:469
-msgid "Host editado."
-msgstr ""
+msgid "Host edited."
+msgstr "Host editado."
 
 #: content/views.py:502
-msgid "Configuração salva."
-msgstr ""
+msgid "Configuration saved."
+msgstr "Configuração salva."
 
 #: content/views.py:528
-msgid "Podcast atualizado"
-msgstr ""
+msgid "Podcast updated"
+msgstr "Podcast atualizado"
 
 #: content/views.py:549
-msgid "Podcast adicionado."
-msgstr ""
+msgid "Podcast added."
+msgstr "Podcast adicionado."
 
 #: content/views.py:575
-msgid "Stream atualizada"
-msgstr ""
+msgid "Stream updated"
+msgstr "Stream atualizada"
 
 #: content/views.py:596
-msgid "Stream adicionada."
-msgstr ""
+msgid "Stream added."
+msgstr "Stream adicionada."
 
 #: content/views.py:693
-msgid "Playlist adicionada."
-msgstr ""
+msgid "Playlist added."
+msgstr "Playlist adicionada."
 
 #: frontend/forms.py:19
-msgid "Usuário ou email"
-msgstr ""
+msgid "Username or email"
+msgstr "Usuário ou email"
 
 #: frontend/forms.py:20 frontend/forms.py:29 frontend/forms.py:52
 #: frontend/forms.py:59 frontend/forms.py:73
-msgid "Senha"
-msgstr ""
+msgid "Password"
+msgstr "Senha"
 
 #: frontend/forms.py:21
-msgid "Lembre-me"
-msgstr ""
+msgid "Remember me"
+msgstr "Lembre-me"
 
 #: frontend/forms.py:22
-msgid "Entrar"
-msgstr ""
+msgid "Sign in"
+msgstr "Entrar"
 
 #: frontend/forms.py:27 frontend/forms.py:72
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: frontend/forms.py:30
 #, python-format
-msgid "%s caracteres ou mais"
-msgstr ""
+msgid "%s characters or more"
+msgstr "%s caracteres ou mais"
 
 #: frontend/forms.py:31 frontend/forms.py:70
-msgid "Escolha seu nome de usuário"
-msgstr ""
+msgid "Choose your username"
+msgstr "Escolha seu nome de usuário"
 
 #: frontend/forms.py:32 frontend/forms.py:71
-msgid "Não se preocupe. Você poderá mudar isso depois."
-msgstr ""
+msgid "Don't worry. you can change it later."
+msgstr "Não se preocupe. Você poderá mudar isso depois."
 
 #: frontend/forms.py:33
-msgid "Aceito os <a target=\"blank\" href=\"/terms\">Termos de Serviço</a>"
-msgstr ""
+msgid "Agree to the <a target=\"blank\" href=\"/terms\">Terms of Service</a>"
+msgstr "Aceito os <a target=\"blank\" href=\"/terms\">Termos de Serviço</a>"
 
 #: frontend/forms.py:34
-msgid "Cadastre-se"
-msgstr ""
+msgid "Sign up"
+msgstr "Cadastre-se"
 
 #: frontend/forms.py:38
-msgid "Esse nome de usuário já está em uso"
-msgstr ""
+msgid "This username is already registered"
+msgstr "Esse nome de usuário já está em uso"
 
 #: frontend/forms.py:42
-msgid "Esse email já está em uso"
-msgstr ""
+msgid "This email is already registered"
+msgstr "Esse email já está em uso"
 
 #: frontend/forms.py:46
-msgid "Seu email"
-msgstr ""
+msgid "Your email"
+msgstr "Seu email"
 
 #: frontend/forms.py:47
-msgid "Enviar instruções"
-msgstr ""
+msgid "Send instructions"
+msgstr "Enviar instruções"
 
 #: frontend/forms.py:53
-msgid "Senha novamente"
-msgstr ""
+msgid "Password again"
+msgstr "Senha novamente"
 
 #: frontend/forms.py:60
-msgid "Reautenticação"
-msgstr ""
+msgid "Reauthenticate"
+msgstr "Reautenticação"
 
 #: frontend/forms.py:64
-msgid "Seu OpenID"
-msgstr ""
+msgid "Your OpenID"
+msgstr "Seu OpenID"
 
 #: frontend/forms.py:65
-msgid "Entre com o OpenID"
-msgstr ""
+msgid "Log in with OpenID"
+msgstr "Entre com o OpenID"
 
 #: frontend/forms.py:72
-msgid "Qual é o seu endereço de email?"
-msgstr ""
+msgid "What's your email address?"
+msgstr "Qual é o seu endereço de email?"
 
 #: frontend/forms.py:74
 #, python-format
@@ -188,186 +188,186 @@ msgid "%s caracteres ou mais! Seja complexo."
 msgstr ""
 
 #: frontend/forms.py:75
-msgid "Criar Perfil"
-msgstr ""
+msgid "Create Profile"
+msgstr "Criar Perfil"
 
 #: frontend/forms.py:79
 msgid "Esse nome de usuário já está em uso."
 msgstr ""
 
 #: frontend/forms.py:83
-msgid "Esse email já está em uso."
-msgstr ""
+msgid "This email is taken."
+msgstr "Esse email já está em uso."
 
 #: frontend/views.py:36 frontend/views.py:102
-msgid "Logado"
-msgstr ""
+msgid "Logged in"
+msgstr "Logado"
 
 #: frontend/views.py:83
-msgid "Por favor insira a palavra-chave(s)"
-msgstr ""
+msgid "Please input keyword(s)"
+msgstr "Por favor insira a palavra-chave(s)"
 
 #: frontend/views.py:106
 msgid ""
-"Essa conta não está ativa ainda. Por favor clique no link enviado para você"
+"This account is not yet activated. Please click the link sent to you to "
 "activate"
-msgstr ""
+msgstr "Essa conta não está ativa ainda. Por favor clique no link enviado para você"
 
 #: frontend/views.py:108
-msgid "Detalhes inválidos ao entrar. Por favor tente de novo"
-msgstr ""
+msgid "Invalid login details. Please try again"
+msgstr "Detalhes inválidos ao entrar. Por favor tente de novo"
 
 #: frontend/views.py:123
-msgid "Reautenticação."
-msgstr ""
+msgid "Reauthenticated."
+msgstr "Reautenticação."
 
 #: frontend/views.py:126
-msgid "Senha incorreta."
-msgstr ""
+msgid "Password is wrong."
+msgstr "Senha incorreta."
 
 #: frontend/views.py:134
-msgid "Sair"
-msgstr ""
+msgid "Logged out"
+msgstr "Sair"
 
 #: frontend/views.py:169
 msgid ""
-"Sua conta foi criada. Por favor clique no link enviado para o seu email para "
-"validar"
-msgstr ""
+"Your account was created. Please click on the link sent to your email to "
+"validate it"
+msgstr "Sua conta foi criada. Por favor clique no link enviado para o seu email para"
 
 #: frontend/views.py:179
-msgid "Link inválido"
-msgstr ""
+msgid "Invalid link"
+msgstr "Link inválido"
 
 #: frontend/views.py:182
-msgid "Nenhum usuário encontrado. Provavelmente esta conta já foi validada, tente entrar na conta"
-msgstr ""
+msgid "No user found. This account is probably already validated, try logging in"
+msgstr "Nenhum usuário encontrado. Provavelmente esta conta já foi validada, tente entrar na conta"
 
 #: frontend/views.py:186
-msgid "Essa conta foi validada com sucesso, por favor entre"
-msgstr ""
+msgid "This account has successfully been validated, please login"
+msgstr "Essa conta foi validada com sucesso, por favor entre"
 
 #: frontend/views.py:216
-msgid "Sua senha foi alterada, por favor entre novamente"
-msgstr ""
+msgid "Your password has been changed, please log in again"
+msgstr "Sua senha foi alterada, por favor entre novamente"
 
 #: frontend/views.py:231
-msgid "Por favor veja as instruções enviadas para o seu email para entrar na conta"
-msgstr ""
+msgid "Please see your email for instructions on how to access your account"
+msgstr "Por favor veja as instruções enviadas para o seu email para entrar na conta"
 
 #: frontend/views.py:244
-msgid "Desculpe, nenhum usuário foi encontrado para este endereço de email"
-msgstr ""
+msgid "Sorry, no user found for that email address"
+msgstr "Desculpe, nenhum usuário foi encontrado para este endereço de email"
 
 #: frontend/views.py:258
-msgid "Língua mudada para "
-msgstr ""
+msgid "Language changed to "
+msgstr "Língua mudada para "
 
 #: radio/fields.py:65
-msgid "Dados inválidos no JSON."
-msgstr ""
+msgid "Invalid JSON data."
+msgstr "Dados inválidos no JSON."
 
 #: radio/forms.py:38
-msgid "Nome ou frequência da estação"
-msgstr ""
+msgid "Name or callsign of station"
+msgstr "Nome ou frequência da estação"
 
 #: radio/forms.py:39
-msgid "Frequência de transmissão da estação"
-msgstr ""
+msgid "Station broadcast frequency"
+msgstr "Frequência de transmissão da estação"
 
 #: radio/forms.py:41
-msgid "Número de telefone para contato da estação"
-msgstr ""
+msgid "Station contact telephone number"
+msgstr "Número de telefone para contato da estação"
 
 #: radio/forms.py:42
-msgid "Usuário dono da estação"
-msgstr ""
+msgid "User who is the owner of the station"
+msgstr "Usuário dono da estação"
 
 #: radio/forms.py:43
-msgid "Língua primária que a estação irá transmitir"
-msgstr ""
+msgid "Primary languages the station will broadcast in"
+msgstr "Língua primária que a estação irá transmitir"
 
 #: radio/forms.py:44
-msgid "Com que frequência o transmissor deve verificar se há atualizações, em segundos"
-msgstr ""
+msgid "How frequently the transmitter should check for updates, in seconds"
+msgstr "Com que frequência o transmissor deve verificar se há atualizações, em segundos"
 
 #: radio/forms.py:45
-msgid "Endereço IP do transmissor na rede local. Deve começar com 230."
-msgstr ""
+msgid "IP address of the transmitter on the local network. Should start with 230."
+msgstr "Endereço IP do transmissor na rede local. Deve começar com 230."
 
 #: radio/forms.py:78
-msgid "Arraste o conteúdo aqui na ordem desejada, clique duas vezes para redefinir"
-msgstr ""
+msgid "Drag content here in desired order, double click to reset"
+msgstr "Arraste o conteúdo aqui na ordem desejada, clique duas vezes para redefinir"
 
 #: radio/forms.py:80
-msgid "Duração do programa, em HH:MM(:SS)"
-msgstr ""
+msgid "Duration of the program, in HH:MM(:SS)"
+msgstr "Duração do programa, em HH:MM(:SS)"
 
 #: radio/forms.py:87 radio/forms.py:88
-msgid "Esse campo espera um JSON"
-msgstr ""
+msgid "This field expects JSON"
+msgstr "Esse campo espera um JSON"
 
 #: radio/forms.py:145
-msgid "Hora de entrar no ar"
-msgstr ""
+msgid "Time to begin airing"
+msgstr "Hora de entrar no ar"
 
 #: radio/views.py:64
-msgid "Rede Criada."
-msgstr ""
+msgid "Network Created."
+msgstr "Rede Criada"
 
 #: radio/views.py:87 radio/views.py:586
-msgid "Estação atualizada."
-msgstr ""
+msgid "Station updated."
+msgstr "Estação atualizada."
 
 #: radio/views.py:107 radio/views.py:606
-msgid "Estação adicionada."
-msgstr ""
+msgid "Station added."
+msgstr "Estação adicionada."
 
 #: radio/views.py:147
-msgid "Programa atualizado."
-msgstr ""
+msgid "Program updated."
+msgstr "Programa atualizado."
 
 #: radio/views.py:175 radio/views.py:204
-msgid "Programa adicionado."
-msgstr ""
+msgid "Program added."
+msgstr "Programa adicionado."
 
 #: radio/views.py:234
-msgid "Programa Musical atualizado."
-msgstr ""
+msgid "Music Program updated."
+msgstr "Programa Musical atualizado.""
 
 #: radio/views.py:255
-msgid "Pessoa atualizada."
-msgstr ""
+msgid "Person updated."
+msgstr "Pessoa atualizada."
 
 #: radio/views.py:273
-msgid "Pessoa adicionada."
-msgstr ""
+msgid "Person added."
+msgstr "Pessoa adicionada."
 
 #: radio/views.py:326
-msgid "Bloco atualizado."
-msgstr ""
+msgid "Block updated."
+msgstr "Bloco atualizado."
 
 #: radio/views.py:344
-msgid "Bloco criado."
-msgstr ""
+msgid "Block added."
+msgstr "Bloco adicionado."
 
 #: telephony/views.py:41
 msgid "Phone Number updated."
-msgstr ""
+msgstr "Número de telefone atualizado."
 
 #: telephony/views.py:59
-msgid "Número de telefone adicionado."
-msgstr ""
+msgid "Phone Number added."
+msgstr "Número de telefone adicionado."
 
 #: user/forms.py:28 user/forms.py:45 user/forms.py:72 user/forms.py:105
-msgid "Função"
-msgstr ""
+msgid "Role"
+msgstr "Função"
 
 #: user/forms.py:30
-msgid "Estado"
-msgstr ""
+msgid "Status"
+msgstr "Estado"
 
 #: user/forms.py:33
-msgid "Criada em"
-msgstr ""
+msgid "Created time"
+msgstr "Criada em"
 
