@@ -3,7 +3,7 @@
 #This is an example file. you can put this in /etc/init.d or equivalent and run the specified python files as services.
 
 #activate the venv to use
-source /usr/local/station-telephony/venv/bin/activate
+source /usr/local/station-telephony/venv-telephony/bin/activate
 
 #cd to the station telephony dir, wherever it is on your server
 cd /usr/local/station-telephony/
