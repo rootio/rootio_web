@@ -40,6 +40,7 @@ class RadioProgram:
     def __load_program_actions(self):
         data = json.loads(self.scheduled_program.program.structure)
         for action in data:
+            print action
             if action['type'] == "Advertisements":
                 self.__program_actions.insert(0, AdvertisementAction(action["track_id"], action["start_time"],
                                                                      action["duration"], self))

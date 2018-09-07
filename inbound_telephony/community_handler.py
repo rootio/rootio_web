@@ -112,13 +112,13 @@ def finish(answer_time, db, session, station_id):
 
 
 def handler(session, args):
+    session.consoleLog("info", session.__dict__)
     session.answer()
     answer_time = datetime.utcnow()
     session.set_tts_params("flite", "kal")
 
     db = get_db_connection()
-    station = db.query(Station).join(PhoneNumber, Station.cloud_phone).filter(
-        PhoneNumber.raw_number == session.getVariable('destination_number')).first()
+    station = db.query(Station).filter(Station.incoming_gateways.number_bottom == session.getVariable('destination_number')).first()
     if station is None:  # No station has the number that was called, exit, do not hangup
         return
 

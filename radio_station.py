@@ -4,9 +4,10 @@ from rootio.radio.models import Station
 
 from call_handler import CallHandler
 from program_handler import ProgramHandler
+from community_menu import CommunityMenu
 
 
-class RadioStation(Station):
+class RadioStation:
 
     def run(self):
         self.__program_handler.run()
@@ -26,5 +27,6 @@ class RadioStation(Station):
         self.station = self.db.query(Station).filter(Station.id == station_id).one()
         self.__program_handler = ProgramHandler(self.db, self)
         self.call_handler = CallHandler(self)
+        self.__community_handler = CommunityMenu(self)
         self.logger.info("Starting up station {0}".format(self.station.name))
         return

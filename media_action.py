@@ -19,8 +19,10 @@ class MediaAction:
 
     def start(self):
         episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
+        print episode_number
         self.__media = self.__load_media(episode_number)
         call_result = self.__request_call()
+        print call_result
         if not call_result:  # !!
             self.stop()
 
@@ -60,7 +62,7 @@ class MediaAction:
         return count + 1
 
     def __request_call(self):
-        return self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play',
+        return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',
                                         self.__track_id, self.duration)
 
     def __play_media(self, call_info):  # play the media in the array
