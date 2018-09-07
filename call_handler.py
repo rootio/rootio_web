@@ -24,6 +24,7 @@ class CallHandler:
         self.__call_hangup_recipients = dict()
         self.__available_calls = dict()
         self.__media_playback_stop_recipients = dict()
+        self.__media_playback_start_recipients = dict()
         self.__speech_start_recipients = dict()
         self.__speech_stop_recipients = dict()
 
@@ -132,6 +133,11 @@ class CallHandler:
         self.__radio_station.logger.info("Added {0} to media playback stop recipients {1}".format(recipient, str(
             self.__media_playback_stop_recipients)))
 
+    def register_for_media_playback_start(self, recipient, from_number):
+        self.__media_playback_start_recipients[from_number] = recipient
+        self.__radio_station.logger.info("Added {0} to media playback start recipients {1}".format(recipient, str(
+            self.__media_playback_start_recipients)))
+
     def deregister_for_incoming_calls(self, recipient):
         self.__incoming_call_recipients = dict()
         self.__radio_station.logger.info(
@@ -148,6 +154,12 @@ class CallHandler:
             del self.__media_playback_stop_recipients[from_number]
             self.__radio_station.logger.info("Removed {0} from media playback stop recipients {1}"
                                              .format(recipient, str(self.__media_playback_stop_recipients)))
+
+    def deregister_for_media_playback_start(self, recipient, from_number):
+        if from_number in self.__media_playback_start_recipients:
+            del self.__media_playback_start_recipients[from_number]
+            self.__radio_station.logger.info("Removed {0} from media playback start recipients {1}"
+                                             .format(recipient, str(self.__media_playback_start_recipients)))
 
     def call(self, program_action, to_number, action, argument, time_limit):  # redundant params will be used later
         if to_number in self.__available_calls.keys():
@@ -292,6 +304,19 @@ class CallHandler:
                         elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
                             self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
 
+                elif event_name == "MEDIA_BUG_START":
+                    try:
+                        if 'Caller-Destination-Number' in event_json and event_json[
+                            'Caller-Destination-Number'] in self.__media_playback_start_recipients:
+                            # self.__radio_station.logger.info("got media stop bug as {0}".format(event_json_string))
+                            self.__radio_station.logger.info(
+                                "Notifying media playback start recipient for {0} in {1}".format(
+                                    event_json['Caller-Destination-Number'], self.__media_playback_start_recipients))
+                            threading.Thread(target=self.__media_playback_start_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_media_play_start, args=(event_json,)).start()
+                            # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
+                    except e:
+                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(str(e)))
+
                 elif event_name == "MEDIA_BUG_STOP":
                     try:
                         if 'Caller-Destination-Number' in event_json and event_json[
@@ -300,8 +325,7 @@ class CallHandler:
                             self.__radio_station.logger.info(
                                 "Notifying media playback stop recipient for {0} in {1}".format(
                                     event_json['Caller-Destination-Number'], self.__media_playback_stop_recipients))
-                            self.__media_playback_stop_recipients[
-                                event_json['Caller-Destination-Number']].notify_media_play_stop(event_json)
+                            threading.Thread(target=self.__media_playback_stop_recipients[str(event_json['Caller-Destination-Number'])[-10:]].notify_media_play_stop, args=(event_json,)).start()
                             # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
                         self.__radio_station.logger.error('error in media bug stop: {0}'.format(str(e)))
