@@ -1,7 +1,7 @@
 import json
 import socket
 import threading
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import dateutil.tz
 import pytz
@@ -24,14 +24,22 @@ class ProgramHandler:
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
     def run(self):
+        self.run_today_schedule()
+
+    def run_today_schedule(self):
         self.__scheduler.start()
         self.__schedule_programs()
         self.__start_listeners()
+        self.__schedule_next_day_scheduler()
 
     def stop(self):
         self.__stop_program()
         # any clean up goes here
         # unschedule stuff
+
+    def __schedule_next_day_scheduler(self):
+        #TODO: make this safe for differebt timezones!
+        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), datetime.now() + timedelta(0,60)) #schedule the scheduler to reload at midnight 
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:

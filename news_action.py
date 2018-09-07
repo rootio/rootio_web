@@ -49,14 +49,12 @@ class NewsAction:
     def __play_media(self, call_info):  # play the media in the array
         self.__load_track()
         self.program.log_program_activity(
-            "Playing media {0}".format(self.__track.track_uploads[len(self.__track.track_uploads) - 1].name))
+            "Playing media {0}".format(self.__track.track_uploads[0].name))
         self.__listen_for_media_play_stop()
 
         # Always play the last file for news
         result = self.__call_handler.play(call_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                                       self.__track.track_uploads[len(
-                                                                                           self.__track.track_uploads)
-                                                                                                                  - 1].
+                                                                                       self.__track.track_uploads[0].
                                                                                        uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
