@@ -27,6 +27,6 @@ class RadioStation:
         self.station = self.db.query(Station).filter(Station.id == station_id).one()
         self.__program_handler = ProgramHandler(self.db, self)
         self.call_handler = CallHandler(self)
-        #self.__community_handler = CommunityMenu(self)
+        self.__community_handler = CommunityMenu(self)
         self.logger.info("Starting up station {0}".format(self.station.name))
         return

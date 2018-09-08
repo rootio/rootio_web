@@ -98,10 +98,16 @@ class CallHandler:
         self.__radio_station.logger.info(
             "The program {0} is now listening for host calls from {1}".format(recipient, host_number))
 
-    def register_for_incoming_calls(self, recipient):
-        for incoming_gateway in self.__incoming_gateways:
-            self.__incoming_call_recipients[incoming_gateway] = recipient
-            self.__radio_station.logger.info(
+    def register_for_incoming_calls(self, recipient, is_community_menu = False):
+        gws = self.__incoming_gateways.keys()
+        gws.sort()
+        if is_community_menu: #register only the first gateway
+            if len(gws) > 0:
+                self.__incoming_call_recipients[gws[0]] = recipient
+        else:
+            for x in range (1, len(gws)): #skip the first, used by community menu
+                self.__incoming_call_recipients[gws[x]] = recipient
+                self.__radio_station.logger.info(
                 "Added {0} to incoming call recipients {1}".format(recipient, str(self.__incoming_call_recipients)))
 
     def register_for_incoming_dtmf(self, recipient, from_number):
@@ -110,7 +116,8 @@ class CallHandler:
             "Added {0} to incoming dtmf recipients {1}".format(recipient, str(self.__incoming_dtmf_recipients)))
 
     def deregister_for_incoming_dtmf(self, from_number):
-        del self.__incoming_dtmf_recipients[from_number]
+        if from_number in self.__incoming_dtmf_recipients:
+            del self.__incoming_dtmf_recipients[from_number]
 
     def register_for_speak_start(self, recipient, from_number):
         self.__speech_start_recipients[from_number] = recipient
@@ -118,7 +125,8 @@ class CallHandler:
             "Added {0} to speak start recipients {1}".format(recipient, str(self.__speech_start_recipients)))
 
     def deregister_for_speak_start(self, from_number):
-        del self.__speech_start_recipients[from_number]
+        if from_number in self.__speech_start_recipients:
+            del self.__speech_start_recipients[from_number]
  
     def register_for_speak_stop(self, recipient, from_number):
         self.__speech_stop_recipients[from_number] = recipient
@@ -126,7 +134,8 @@ class CallHandler:
             "Added {0} to speak stop recipients {1}".format(recipient, str(self.__speech_stop_recipients)))
 
     def deregister_for_speak_stop(self, from_number):
-        del self.__speech_stop_recipients[from_number]
+        if from_number in self.__speech_stop_recipients:
+            del self.__speech_stop_recipients[from_number]
 
     def register_for_media_playback_stop(self, recipient, from_number):
         self.__media_playback_stop_recipients[from_number] = recipient
@@ -143,23 +152,23 @@ class CallHandler:
         self.__radio_station.logger.info(
             "Removed {0} from call hangup recipients {1}".format(recipient, str(self.__incoming_call_recipients)))
 
-    def deregister_for_call_hangup(self, recipient, from_number):
+    def deregister_for_call_hangup(self, from_number):
         if from_number in self.__call_hangup_recipients:
             del self.__call_hangup_recipients[from_number]
             self.__radio_station.logger.info(
-                "Removed {0} from call hangup recipients {1}".format(recipient, str(self.__call_hangup_recipients)))
+                "Removed {0} from call hangup recipients {1}".format(from_number, str(self.__call_hangup_recipients)))
 
-    def deregister_for_media_playback_stop(self, recipient, from_number):
+    def deregister_for_media_playback_stop(self, from_number):
         if from_number in self.__media_playback_stop_recipients:
             del self.__media_playback_stop_recipients[from_number]
             self.__radio_station.logger.info("Removed {0} from media playback stop recipients {1}"
-                                             .format(recipient, str(self.__media_playback_stop_recipients)))
+                                             .format(from_number, str(self.__media_playback_stop_recipients)))
 
-    def deregister_for_media_playback_start(self, recipient, from_number):
+    def deregister_for_media_playback_start(self, from_number):
         if from_number in self.__media_playback_start_recipients:
             del self.__media_playback_start_recipients[from_number]
             self.__radio_station.logger.info("Removed {0} from media playback start recipients {1}"
-                                             .format(recipient, str(self.__media_playback_start_recipients)))
+                                             .format(from_number, str(self.__media_playback_start_recipients)))
 
     def call(self, program_action, to_number, action, argument, time_limit):  # redundant params will be used later
         if to_number in self.__available_calls.keys():
@@ -292,7 +301,7 @@ class CallHandler:
                             del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
 
                 elif event_name == "CHANNEL_PARK":
-                    self.__radio_station.logger.info("Notifying recipient for {0} in {1} and {2}".format(
+                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
                         event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
                         self.__host_call_recipients))
                     if 'Caller-Destination-Number' in event_json:
