@@ -2,6 +2,7 @@ import json
 import socket
 import threading
 from datetime import date, datetime, timedelta
+import time
 
 import dateutil.tz
 import pytz
@@ -19,14 +20,20 @@ class ProgramHandler:
         self.__db = db
         self.__radio_station = radio_station
         self.__load_programs()
-        self.__scheduler = Scheduler()
-        self.__scheduled_jobs = dict()
+        self.__scheduler = None
+        self.__scheduled_jobs = None
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
     def run(self):
         self.run_today_schedule()
 
+    def __prepare_schedule(self):
+        self.__load_programs()
+        self.__scheduler = Scheduler()
+        self.__scheduled_jobs = dict()
+
     def run_today_schedule(self):
+        self.__prepare_schedule()
         self.__scheduler.start()
         self.__schedule_programs()
         self.__start_listeners()
@@ -37,9 +44,12 @@ class ProgramHandler:
         # any clean up goes here
         # unschedule stuff
 
+    def tester(self):
+        print "Test was run..."
+
     def __schedule_next_day_scheduler(self):
         #TODO: make this safe for differebt timezones!
-        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), datetime.now() + timedelta(0,60)) #schedule the scheduler to reload at midnight 
+        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), date.today() + timedelta(1,0)) #schedule the scheduler to reload at midnight 
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:
@@ -88,8 +98,17 @@ class ProgramHandler:
     def __listen_for_scheduling_changes(self, ip, port):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         addr = (ip, port)
-        sck.connect(addr)
-        sck.send(json.dumps({'station': self.__radio_station.id, 'action': 'register'}))
+        
+         #It may not be possible to connect after restart, TIME_WAIT could come into play etc. Anyway, keep trying
+        connected = False
+        while not connected:
+            try:         
+                sck.connect(addr)
+                connected = True
+            except:
+                self.__radio_station.logger.error("Could not connect to server, retrying in 30 ...")
+                time.sleep(30)
+        sck.send(json.dumps({'station':self.__radio_station.id, 'action':'register'}))
 
         while True:
             data = sck.recv(1024)
