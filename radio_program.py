@@ -111,8 +111,7 @@ class RadioProgram:
                 self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
-            self.radio_station.logger.error('Could not send program status for \'{0}\' due to error: {1}'.format(
-                self.scheduled_program.program.name, str(e)))
+            pass #mail error most probably
 
     def __log_program_status(self):
         self.db._model_changes = {}
