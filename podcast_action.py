@@ -38,6 +38,7 @@ class PodcastAction:
 
     def __load_podcast(self):  # load the media to be played
         self.__podcast = self.program.db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
+        self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
 
     def __request_call(self):
         return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',
@@ -46,16 +47,14 @@ class PodcastAction:
     def __play_media(self, call_info):  # play the media in the array
         self.__load_podcast()
         self.program.log_program_activity("Playing media {0}".format(
-            self.__podcast.podcast_downloads[len(self.__podcast.podcast_downloads) - 1].file_name))
+            self.__podcast.podcast_downloads[0].file_name))
         self.__listen_for_media_play_stop()
 
         # Always play the last file for news
-        self.__last_podcast_download = self.program.db.query(ContentPodcastDownload).filter(
-            ContentPodcastDownload.podcast_id == self.__podcast.id).order_by(
-            desc(ContentPodcastDownload.date_created)).first()
         result = self.__call_handler.play(call_info['Channel-Call-UUID'],
                                           os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
-                                                       self.__last_podcast_download.file_name))
+                                                       self.__podcast.podcast_downloads[0].file_name))
+
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
             self.stop(False, call_info)
@@ -71,7 +70,7 @@ class PodcastAction:
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    os.path.join(DefaultConfig.CONTENT_DIR, 'podcast',
                                                                 str(self.__podcast.id),
-                                                                self.__last_podcast_download.file_name))
+                                                                self.__podcast.podcast_downloads[0].file_name))
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception, e:
             self.program.radio_station.logger.error(str(e))
@@ -86,7 +85,7 @@ class PodcastAction:
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
         if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
-                                                          self.__last_podcast_download.file_name):
+                                                          self.__podcast.podcast_downloads[0].file_name):
             self.stop(True, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 

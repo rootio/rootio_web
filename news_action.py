@@ -41,6 +41,7 @@ class NewsAction:
 
     def __load_track(self):  # load the media to be played
         self.__track = self.program.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
+        self.__track.track_uploads.sort(key=lambda x: x.date_created, reverse=True)
 
     def __request_call(self):
         return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',

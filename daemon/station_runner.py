@@ -54,7 +54,7 @@ class StationRunner(Daemon):
             try:
                 s.bind((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
                 bound = True
-            except e as Exception:
+            except:
                 print self.logger.error("Error on server bind, retrying. Retrying in 30 secs...")
                 time.sleep(30)
         s.listen(0)
