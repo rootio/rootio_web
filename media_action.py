@@ -31,6 +31,7 @@ class MediaAction:
 
     def stop(self, graceful=True, call_info=None):
         self.__stop_media(call_info)
+        self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def notify_call_answered(self, answer_info):
@@ -81,7 +82,6 @@ class MediaAction:
         try:
             self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}"
                                               .format(self.program.name))
-            self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:])
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
             self.program.log_program_activity('result of stop play is ' + result)
@@ -100,3 +100,7 @@ class MediaAction:
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'])
+
+    def __deregister_listeners(self):
+        self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'])
+        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-10:])

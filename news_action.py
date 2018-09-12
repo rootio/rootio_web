@@ -28,6 +28,7 @@ class NewsAction:
 
     def stop(self, graceful=True, call_info=None):
         self.__stop_media(call_info)
+        self.__deregister_listeners()
         # Fix this - clash of names btn programs and scheduled instances
         self.program.notify_program_action_stopped(graceful, call_info)
 
@@ -68,7 +69,6 @@ class NewsAction:
         try:
             self.program.log_program_activity(
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
-            self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:])
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    self.__track.track_uploads[len(self.__track.track_uploads) - 1].uri)
             self.program.log_program_activity('result of stop play is ' + result)
@@ -90,3 +90,7 @@ class NewsAction:
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, str(self.__call_answer_info['Caller-Destination-Number']))
+  
+    def __deregister_listeners(self):
+        self.__call_handler.deregister_for_media_playback_stop(str(self.__call_answer_info['Caller-Destination-Number']))
+        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-10:])
