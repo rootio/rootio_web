@@ -25,10 +25,10 @@ class RadioProgram:
         self.radio_station = radio_station
         self.__scheduler = Scheduler()
         self.__running_action = None
-        self.__rootio_mail_message = RootIOMailMessage()
         return
 
     def start(self):
+        self.__rootio_mail_message = RootIOMailMessage()
         self.__load_program_actions()
         self.__run_program_action()  # will call the next one when done
         return
