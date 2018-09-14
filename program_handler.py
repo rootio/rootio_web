@@ -1,11 +1,12 @@
 import json
 import socket
 import threading
-from datetime import date, datetime, timedelta
-import time
+from time import sleep
+from datetime import date, datetime, timedelta, time
 
 import dateutil.tz
 import pytz
+from pytz import timezone
 from apscheduler.scheduler import Scheduler
 from rootio.config import DefaultConfig
 from rootio.radio.models import ScheduledProgram
@@ -19,9 +20,9 @@ class ProgramHandler:
     def __init__(self, db, radio_station):
         self.__db = db
         self.__radio_station = radio_station
-        self.__load_programs()
         self.__scheduler = None
         self.__scheduled_jobs = None
+        self.__start_listeners()
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
     def run(self):
@@ -36,20 +37,21 @@ class ProgramHandler:
         self.__prepare_schedule()
         self.__scheduler.start()
         self.__schedule_programs()
-        self.__start_listeners()
         self.__schedule_next_day_scheduler()
+        print self.__scheduler.get_jobs()
 
     def stop(self):
         self.__stop_program()
         # any clean up goes here
         # unschedule stuff
 
-    def tester(self):
-        print "Test was run..."
-
     def __schedule_next_day_scheduler(self):
         #TODO: make this safe for differebt timezones!
-        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), date.today() + timedelta(1,0)) #schedule the scheduler to reload at midnight 
+        base_date = date.today() + timedelta(1,0)
+        tomorrow_date = datetime.combine(base_date, time())
+        #add the timezone offset
+        tomorrow_date = tomorrow_date + timedelta(0, timezone(self.__radio_station.station.timezone).utcoffset(datetime.now()).seconds)
+        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), tomorrow_date) #schedule the scheduler to reload at midnight 
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:
@@ -107,7 +109,7 @@ class ProgramHandler:
                 connected = True
             except:
                 self.__radio_station.logger.error("Could not connect to server, retrying in 30 ...")
-                time.sleep(30)
+                sleep(30)
         sck.send(json.dumps({'station':self.__radio_station.id, 'action':'register'}))
 
         while True:

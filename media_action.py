@@ -23,7 +23,7 @@ class MediaAction:
         self.__media = self.__load_media(episode_number)
         call_result = self.__request_call()
         print call_result
-        if not call_result:  # !!
+        if not call_result[0]:  # !!
             self.stop()
 
     def pause(self):

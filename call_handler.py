@@ -176,7 +176,7 @@ class CallHandler:
                 "Existing call to {0} requested for action on argument '{1}, being returned".format(to_number,
                                                                                                     argument))
             program_action.notify_call_answered(self.__available_calls[to_number])
-            return True
+            return (True, self.__available_calls[to_number]['Channel-Call-UUID'])
         else:
             self.__radio_station.logger.info("GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
             gw = self.__outgoing_gateways[str(self.__available_outgoing_gateways.pop())[-9:]]
@@ -195,7 +195,10 @@ class CallHandler:
                 self.__available_outgoing_gateways.append(gw.number_bottom)
                 self.__available_outgoing_gateways.sort()
             self.__radio_station.logger.info("GWS after call are {0}".format(str(self.__available_outgoing_gateways)))
-            return result is not None and result.split(" ")[0] == "+OK"
+            if result is not None and result.split(" ")[0] == "+OK":
+                return (True, result.split(" ")[1])
+            else:
+                return (False, None)
 
     def bridge_incoming_call(self, call_uuid, call_id):
         bridge_command = 'uuid_transfer {0} conference:"{1}"@default inline'.format(call_uuid, call_id)
@@ -349,17 +352,20 @@ class CallHandler:
         return self.__do_esl_command(stop_record_command)
 
     def __log_call(self, event_json):
-        call = Call()
-        call.call_uuid = event_json['Channel-Call-UUID']
-        call.start_time = datetime.fromtimestamp(float(event_json['Caller-Channel-Answered-Time'][0:-6]))
-        call.duration = (
+        try:
+            call = Call()
+            call.call_uuid = event_json['Channel-Call-UUID']
+            call.start_time = datetime.fromtimestamp(float(event_json['Caller-Channel-Answered-Time'][0:-6]))
+            call.duration = (
                 datetime.fromtimestamp(float(event_json['Event-Date-Timestamp'][0:-6])) - call.start_time).seconds
-        call.from_phonenumber = event_json['Caller-ANI']
-        call.to_phonenumber = event_json['Caller-Destination-Number']
-        call.station_id = self.__radio_station.station.id
-        self.__radio_station.db._model_changes = {}
-        self.__radio_station.db.add(call)
-        self.__radio_station.db.commit()
+            call.from_phonenumber = event_json['Caller-ANI']
+            call.to_phonenumber = event_json['Caller-Destination-Number']
+            call.station_id = self.__radio_station.station.id
+            self.__radio_station.db._model_changes = {}
+            self.__radio_station.db.add(call)
+            self.__radio_station.db.commit()
+        except e:
+            self.__radio_station.logger.error('error in logging call: {0}'.format(str(e)))
 
     def __release_gateway(self, event_json):
         # if it was an incoming call

@@ -18,7 +18,7 @@ class PodcastAction:
 
     def start(self):
         call_result = self.__request_call()
-        if not call_result:  # !!
+        if not call_result[0]:  # !!
             self.stop(False)
 
     def pause(self):

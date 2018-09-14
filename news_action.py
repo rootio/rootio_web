@@ -20,7 +20,7 @@ class NewsAction:
         # self.program.set_running_action(self)
         call_result = self.__request_call()
         print call_result
-        if not call_result:  # !!
+        if not call_result[0]:  # !!
             self.stop(False)
 
     def pause(self):

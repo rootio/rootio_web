@@ -52,12 +52,13 @@ class CereprocRestAgent:
             raise ValueError("Audio format not supported")
         metadata = bool(metadata)
 
-        requestxml = self._generate_request_xml("speakExtended", {'accountID': self._cereproc_username,
+        requestxml = self.__generate_request_xml("speakExtended", {'accountID': self._cereproc_username,
                                                                   'password': self._cereproc_password, 'voice': voice,
                                                                   'audioFormat': audio_format,
                                                                   'sampleRate': sample_rate, 'audio3D': '',
                                                                   'metadata': metadata, 'text': text})
-        responsexml = self._do_cprc_request(requestxml)
+        responsexml = self.__do_cprc_request(requestxml)
+
         if responsexml.findtext('resultCode') != '1':
             raise RuntimeError('Failed to synthesize voice with Cereproc Cloud server')
 

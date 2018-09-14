@@ -3,7 +3,7 @@ from sets import Set
 
 from apscheduler.scheduler import Scheduler
 from rootio.radio.models import Person
-
+from pytz import timezone
 
 class PhoneStatus:
     REJECTING = 1
@@ -34,11 +34,11 @@ class OutcallAction:
         self.__in_talkshow_setup = True
         self.__host = self.__get_host(self.__host_id)
         # self.program.set_running_action(self)
-        self.request_host_call()
         self.__scheduler.start()
         self.__call_handler.register_for_incoming_calls(self)
         self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
         self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number))
+        self.request_host_call()
 
     def stop(self, graceful=True, call_info=None):
         self.hangup_call()
@@ -93,7 +93,7 @@ class OutcallAction:
             if event_json[
                 'Caller-Destination-Number'] in self.__community_call_UUIDs:  # a community caller is hanging up
                 del self.__community_call_UUIDs[event_json['Caller-Destination-Number']]
-                self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'])
+                self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
             else:  # It is a hangup by the station or the host
                 self.program.log_program_activity(
                     "Program terminated because {0} hangup".format(event_json['Caller-Destination-Number']))
@@ -107,7 +107,7 @@ class OutcallAction:
 
     def hangup_call(self):  # hangup the ongoing call
         for available_call in self.__available_calls:
-            self.__call_handler.deregister_for_call_hangup(self, available_call)
+            self.__call_handler.deregister_for_call_hangup(available_call)
             self.__call_handler.hangup(self.__available_calls[available_call]['Channel-Call-UUID'])
         self.__available_calls = dict()  # empty available calls. they all are hung up
 
@@ -127,12 +127,10 @@ class OutcallAction:
         elif dtmf_digit == "3":  # put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
-                self.__call_handler.speak(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],
-                                          'All incoming calls will be automatically answered')
+                self.__call_handler.speak('All incoming calls will be automatically answered', self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             else:
                 self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.speak(self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'],
-                                          'All incoming calls will be rejected')
+                self.__call_handler.speak('All incoming calls will be rejected',self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
 
         elif dtmf_digit == "4":  # disable auto answer, reject and record all incoming calls
             if self.__phone_status != PhoneStatus.QUEUING:
@@ -150,7 +148,7 @@ class OutcallAction:
             for caller in self.__interested_participants:
                 result = self.__call_handler.call(self, caller, None, None, self.duration)
                 self.program.log_program_activity("result of participant call is {0}".format(str(result)))
-                self.__community_call_UUIDs[caller] = result.split(" ")[-1]
+                self.__community_call_UUIDs[caller] = result[1]
                 self.__call_handler.register_for_call_hangup(self, caller)
                 self.__interested_participants.discard(caller)
                 return
@@ -161,6 +159,7 @@ class OutcallAction:
             pass
 
         elif dtmf_digit == "7":  # Take a 5 min music break
+            self.__call_handler.speak('You will be called back in 5 minutes',self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             self.program.log_program_activity("Host is taking a break")
             self.__pause_call()
 
@@ -175,7 +174,7 @@ class OutcallAction:
     def notify_incoming_call(self, call_info):
         if self.__phone_status == PhoneStatus.ANSWERING:  # answer the phone call, join it to the conference
             if len(self.__community_call_UUIDs) == 0:
-                self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'], self)
+                self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'], "{0}_{1}".format(self.program.id, self.program.radio_station.id))
                 self.__call_handler.register_for_call_hangup(self, call_info['Caller-Destination-Number'])
                 self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
                 self.program.log_program_activity(
@@ -185,7 +184,6 @@ class OutcallAction:
             self.__call_handler.speak(
                 'You have a new caller on the line',
                 self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-            print self.__interested_participants
             self.__call_handler.hangup(call_info['Channel-Call-UUID'])
             self.program.log_program_activity(
                 "Call from community caller {0} was queued".format(call_info['Caller-Destination-Number']))
@@ -197,8 +195,8 @@ class OutcallAction:
 
     def __schedule_host_callback(self):
         time_delta = timedelta(seconds=30)  # one minutes
-        now = datetime.utcnow()
-        callback_time = now + time_delta
+        now = datetime.now()
+        callback_time = now + time_delta 
         self.__scheduler.add_date_job(getattr(self, 'request_host_call'), callback_time)
 
     def __schedule_warning(self):
@@ -212,3 +210,9 @@ class OutcallAction:
         now = datetime.utcnow()
         hangup_time = now + time_delta
         self.__scheduler.add_date_job(getattr(self, 'hangup_call'), hangup_time)
+
+    def __deregister_listeners(self):
+        for available_call in self.__available_calls:
+            self.__call_handler.deregister_for_call_hangup(available_call)
+        self.__call_handler.deregister_for_incoming_calls(self)
+        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number))
