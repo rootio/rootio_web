@@ -82,6 +82,7 @@ class Station(BaseMixin, db.Model):
     api_key = db.Column(db.String(STRING_LEN), nullable=False, default=id_generator(), unique=True)
     # todo, make sure this default function fires each time a new object is created
     timezone = db.Column(db.String(32), default="UTC")
+    sip_settings = db.Column(db.Text(), default="{}")
 
     # foreign keys
     owner_id = db.Column(db.ForeignKey('user_user.id'))

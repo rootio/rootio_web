@@ -45,6 +45,8 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                      "How frequently the transmitter should check for updates, in seconds")},
                                  'broadcast_ip': {'description': _(
                                      "IP address of the transmitter on the local network. Should start with 230.")},
+                                 'sip_settings': {'description': _(
+                                     "SIP settings for the station(JSON)")},
                              },
                              exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',

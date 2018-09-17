@@ -73,7 +73,7 @@ simplejson==3.6.5
 six==1.11.0
 speaklater==1.3
 sqlalchemy-utils==0.25.0
-sqlalchemy==1.2.10
+sqlalchemy==0.9.3
 tox==3.1.2
 traitlets==4.3.2
 tzlocal==1.1.2
