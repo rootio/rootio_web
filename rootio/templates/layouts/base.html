@@ -49,7 +49,7 @@
                                 {% else %}
                                 <li><a href="{{ url_for('user.index') }}">{{ current_user.name }}</a></li>
                                 {% endif %}
-                                <li><a href="{{ url_for('settings.profile') }}">Settings</a></li>
+                                <li><a href="{{ url_for('settings.profile', user_id=current_user.id) }}">Settings</a></li>
                                 <li><a href="{{ url_for('frontend.logout') }}">Log out</a></li>
                             {% else %}
                                 <li><span><a class="btn btn-success" href="{{ url_for('frontend.signup') }}"><strong>{{ _('Sign up') }}</strong></a></span></li>
