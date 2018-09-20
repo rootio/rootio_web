@@ -135,6 +135,7 @@ def station(station_id):
             response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
         response["multicast_IP"] = station.broadcast_ip
         response["multicast_port"] = station.broadcast_port
+        response["sip_settings"] = station.sip_settings
     responses = dict()
     responses["station"] = response
     return responses
