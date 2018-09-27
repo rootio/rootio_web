@@ -7,7 +7,7 @@ import time
 
 from flask.ext.script import Manager, Shell
 
-from rootio import create_app
+from rootio.app import create_app
 from rootio.extensions import db
 
 from rootio.radio import Station, Language
