@@ -84,4 +84,4 @@ Werkzeug==0.9.3
 WTForms==1.0.4
 WTForms-Alchemy==0.7.12
 WTForms-Components==0.10.0
-Yapsy===1.10.2-pythons2n3
+Yapsy==1.10.2-pythons2n3
