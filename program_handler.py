@@ -85,7 +85,7 @@ class ProgramHandler:
 
     def __load_programs(self):
         self.__scheduled_programs = self.__db.query(ScheduledProgram).filter(
-            ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start) = current_date")).filter(
+            ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start at TIME ZONE 'UTC') = current_date at TIME ZONE 'UTC'")).filter(
             ScheduledProgram.deleted == False).all()
         self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.station.name))
 
