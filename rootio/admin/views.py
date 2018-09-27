@@ -15,11 +15,12 @@ class MyModelView(ModelView):
     form_base_class = wtf.Form
 
 
-def datetime_formatter(model, name):
-    return getattr(model, name).strftime("%Y-%m-%d %H:%M:%S")
-
 
 class AdminView(MyModelView):
+
+    def datetime_formatter(self, context, model, name):
+        return getattr(model, name).strftime("%Y-%m-%d %H:%M:%S")
+
     column_formatters = {'created_at': datetime_formatter, 'updated_at': datetime_formatter}
     form_excluded_columns = (
         'created_at', 'updated_at', 'station_cloud', 'station_transmitter', 'stations', 'number_type', 'person')
