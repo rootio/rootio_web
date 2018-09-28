@@ -1,0 +1,49 @@
+{
+    "Jingle":
+            {
+                "argument": "C:\\Users\\HP Envy\\Music\\jingles\\jingle.mp3",
+                "start_time": "00:00:00",
+                "duration": 6,
+                "is_streamed": true
+            },
+    "Media":
+            {
+                "argument": "/usr/src/freeswitch/libs/lame-3.98.4/testcase.wav",
+                "start_time": "00:00:06",
+                "duration": 600,
+                "is_streamed": true
+            },
+    "Stream":
+            {
+                "argument": "http://10.10.2.3:5000/rootio",
+                "start_time": "00:10:06",
+                "duration": 600,
+                "is_streamed": true
+            },
+    "Music":
+            {
+                "argument": "C:\\Users\\HP Envy\\Desktop\\rootio-music\\4 Season Of Loneliness.mp3",
+                "start_time": "00:20:06",
+                "duration": 1200,
+                "is_streamed": true
+            },
+    "CommunityIVR":
+            {
+                "prompt": "Welcome to this station. to hear the station name, press 1, to listen to the program definition, press 2. To record an advert, press 3",
+                "1":
+                        {
+                            "action": "speak",
+                            "argument": "This is wanton FM"
+                        },
+                "2": 
+                        {
+                            "action" : "speak",
+                            "argument" : "This is a show about health information."
+                        },
+                "3":
+                        {
+                            "action" : "record",
+                            "prompt" : "Please record your message now"
+                        }
+            }
+}

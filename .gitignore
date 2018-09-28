@@ -45,3 +45,6 @@ nosetests.xml
 # pytest cache
 /.cache
 tests/.cache/
+*.pyc
+/instance
+/venv-telephony
