@@ -1,5 +1,5 @@
 import pytest
-from rootio import create_app
+from rootio.app import create_app
 from rootio.user.models import User, UserDetail, NETWORK_USER, ACTIVE
 from rootio.radio.models import Station
 from rootio.config import TestConfig
