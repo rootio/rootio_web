@@ -44,3 +44,4 @@ nosetests.xml
 
 # pytest cache
 /.cache
+tests/.cache

@@ -37,15 +37,15 @@ def setup(db, schedule):
         db.session.add(transmitter_phone)
         db.session.flush()
 
-    cloud_phone = (PhoneNumber.query
-                   .filter_by(number=CLOUD_PHONE_NUMBER).first())
-    if cloud_phone is None:
-        cloud_phone = PhoneNumber(
-            number=CLOUD_PHONE_NUMBER,
-            number_type=MOBILE,
-        )
-        db.session.add(cloud_phone)
-        db.session.flush()
+    # cloud_phone = (PhoneNumber.query
+    #                .filter_by(number=CLOUD_PHONE_NUMBER).first())
+    # if cloud_phone is None:
+    #     cloud_phone = PhoneNumber(
+    #         number=CLOUD_PHONE_NUMBER,
+    #         number_type=MOBILE,
+    #     )
+    #     db.session.add(cloud_phone)
+    #     db.session.flush()
 
     gateway = Gateway.query.filter_by(name=GATEWAY_NAME).first()
     if gateway is None:
@@ -88,8 +88,8 @@ def setup(db, schedule):
             network=network,
             timezone='Africa/Abidjan',
             owner=admin,
-            transmitter_phone=transmitter_phone,
-            cloud_phone=cloud_phone,
+            # transmitter_phone=transmitter_phone,
+            # cloud_phone=cloud_phone,
             client_update_frequency=30,
             analytic_update_frequency=30,
             broadcast_ip='230.255.255.257',
