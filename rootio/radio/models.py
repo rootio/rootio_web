@@ -84,7 +84,15 @@ class Station(BaseMixin, db.Model):
     timezone = db.Column(db.String(32), default="UTC")
     sip_settings = db.Column(db.Text(), default="{}")
 
+    # TTS settings
+    # TODO: make these fields foreign keys once we figure out how the values would look like
+    tts_accent = db.Column(db.String(STRING_LEN))
+    tts_gender = db.Column(db.String(STRING_LEN))
+    tts_audio_format = db.Column(db.String(STRING_LEN))
+    tts_sample_rate = db.Column(db.String(STRING_LEN))
+
     # foreign keys
+    tts_language_id = db.Column(db.ForeignKey('radio_language.id'))
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'), nullable=False)
     location_id = db.Column(db.ForeignKey('radio_location.id'))
@@ -97,6 +105,7 @@ class Station(BaseMixin, db.Model):
 
     # relationships
     owner = db.relationship(u'User')
+    tts_language = db.relationship(u'Language')
     location = db.relationship(u'Location')
     primary_transmitter_phone = db.relationship(u'PhoneNumber',
                                                 backref=db.backref('station_primary_transmitter_phone', uselist=False),

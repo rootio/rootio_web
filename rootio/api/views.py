@@ -109,7 +109,6 @@ def stations():
                 response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
             response["multicast_IP"] = station.broadcast_ip
             response["multicast_port"] = station.broadcast_port
-            response["sip_settings"] = station.sip_settings
         responses.append(response)
     all_responses = dict()
     all_responses["objects"] = responses
@@ -136,6 +135,11 @@ def station(station_id):
         response["multicast_IP"] = station.broadcast_ip
         response["multicast_port"] = station.broadcast_port
         response["sip_settings"] = station.sip_settings
+        response["tts_accent"] = station.tts_accent
+        response["tts_gender"] = station.tts_gender
+        response["tts_language"] = station.tts_language.name
+        response["tts_audio_format"] = station.tts_audio_format
+        response["tts_sample_rate"] = station.tts_sample_rate
     responses = dict()
     responses["station"] = response
     return responses
