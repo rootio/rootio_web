@@ -20,7 +20,7 @@ import os,sys
 parentdir = os.path.abspath(os.path.join('.', '.'))
 sys.path.insert(0,parentdir) 
 
-from rootio import create_app
+from rootio.app import create_app
 from rootio.extensions import db
 app = create_app()
 config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
