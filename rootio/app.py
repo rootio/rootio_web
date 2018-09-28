@@ -72,7 +72,7 @@ def configure_app(app, config=None):
     # http://flask.pocoo.org/docs/api/#configuration
     app.config.from_object(DefaultConfig)
 
-    for directory in BaseConfig.LOG_FOLDER, BaseConfig.UPLOAD_FOLDER, DefaultConfig.OPENID_FS_STORE_PATH:
+    for directory in DefaultConfig.LOG_FOLDER, DefaultConfig.UPLOAD_FOLDER, DefaultConfig.OPENID_FS_STORE_PATH:
         make_dir(directory)
 
     # http://flask.pocoo.org/docs/config/#instance-folders
