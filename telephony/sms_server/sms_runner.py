@@ -4,7 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from rootio.config import *
 
-from daemon.daemoner import Daemon
+from telephony.daemon.daemoner import Daemon
 from sms_server import SMSServer
 
 

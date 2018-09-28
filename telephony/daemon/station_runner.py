@@ -17,14 +17,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from daemoner import Daemon
-from radio_station import RadioStation
+from ..radio_station import RadioStation
 
 
 class StationRunner(Daemon):
 
     def run(self):
         self.logger = logging.getLogger('station_runner')
-        hdlr = TimedRotatingFileHandler('/var/log/rootio/stations.log',when='midnight',interval=1)
+        log_folder = DefaultConfig.LOG_FOLDER
+        hdlr = TimedRotatingFileHandler(os.path.join(log_folder, 'stations.log'), when='midnight', interval=1)
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         hdlr.setFormatter(formatter)
         self.logger.addHandler(hdlr)

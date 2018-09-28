@@ -6,9 +6,11 @@ __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
 import sys
+import os
 sys.path.append('/usr/local/rootio_web/')
 from rootio.config import *
-from daemon.daemoner import Daemon
+from telephony.daemon.daemoner import Daemon
+from rootio.radio.models import Station
 from rss_agent import RSSAgent
 from datetime import datetime
 import threading
@@ -19,7 +21,8 @@ class RSSRunner(Daemon):
 
     def run(self):
         app_logger = logging.getLogger('rss_downloader')
-        hdlr = TimedRotatingFileHandler('/var/log/rootio/rssdownloader.log',when='midnight',interval=1)
+        log_folder = BaseConfig.LOG_FOLDER
+        hdlr = TimedRotatingFileHandler(os.path.join(log_folder, 'rssdownloader.log'), when='midnight', interval=1)
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         hdlr.setFormatter(formatter)
         app_logger.addHandler(hdlr)
