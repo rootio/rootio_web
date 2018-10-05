@@ -26,13 +26,15 @@
 {% elif analytics.cpu_load[-1] >= 50 %} {% set cpu_color = warning_color %}
 {% else %}                              {% set cpu_color = ok_color %} {% endif %}
 
-{% set last_ping_interval = (now() - station.last_accessed_mobile).total_seconds() %}
-{% if last_ping_interval > (station.analytic_update_frequency * 2) %}
-  {% set ping_color = critical_color %}
-{% elif last_ping_interval > station.analytic_update_frequency %}
-  {% set ping_color = warning_color %}
-{% else %}
-  {% set ping_color = ok_color %}
+{% if station.last_accessed_mobile%}
+  {% set last_ping_interval = (now() - station.last_accessed_mobile).total_seconds() %}
+  {% if last_ping_interval > (station.analytic_update_frequency * 2) %}
+    {% set ping_color = critical_color %}
+  {% elif last_ping_interval > station.analytic_update_frequency %}
+    {% set ping_color = warning_color %}
+  {% else %}
+    {% set ping_color = ok_color %}
+  {% endif %}
 {% endif %}
 
 
