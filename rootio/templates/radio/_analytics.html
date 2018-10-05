@@ -1,0 +1,57 @@
+{% set critical_color = '#ff9292' %}
+{% set warning_color = '#ffff9f' %}
+{% set ok_color = '#99ff99' %}
+
+{% if analytics.battery_level[-1] <= 60 %}   {% set battery_color = warning_color %}
+{% elif analytics.battery_level[-1] <= 30 %} {% set battery_color = critical_color %}
+{% else %}                                   {% set battery_color = ok_color %} {% endif %}
+
+{% if analytics.gsm_signal[-1] <= 60 %}   {% set gsm_color = warning_color %}
+{% elif analytics.gsm_signal[-1] <= 30 %} {% set gsm_color = critical_color %}
+{% else %}                                {% set gsm_color = ok_color %} {% endif %}
+
+{% if analytics.wifi_connectivity[-1] <= 60 %}   {% set wifi_color = warning_color %}
+{% elif analytics.wifi_connectivity[-1] <= 30 %} {% set wifi_color = critical_color %}
+{% else %}                                       {% set wifi_color = ok_color %} {% endif %}
+
+{% if analytics.memory_utilization[-1] >= 80 %}   {% set memory_color = critical_color %}
+{% elif analytics.memory_utilization[-1] >= 50 %} {% set memory_color = warning_color %}
+{% else %}                                        {% set memory_color = ok_color %} {% endif %}
+
+{% if analytics.storage_usage[-1] >= 80 %}   {% set storage_color = critical_color %}
+{% elif analytics.storage_usage[-1] >= 50 %} {% set storage_color = warning_color %}
+{% else %}                                   {% set storage_color = ok_color %} {% endif %}
+
+{% if analytics.cpu_load[-1] >= 80 %}   {% set cpu_color = critical_color %}
+{% elif analytics.cpu_load[-1] >= 50 %} {% set cpu_color = warning_color %}
+{% else %}                              {% set cpu_color = ok_color %} {% endif %}
+
+{% set last_ping_interval = (now() - station.last_accessed_mobile).total_seconds() %}
+{% if last_ping_interval > (station.analytic_update_frequency * 2) %}
+  {% set ping_color = critical_color %}
+{% elif last_ping_interval > station.analytic_update_frequency %}
+  {% set ping_color = warning_color %}
+{% else %}
+  {% set ping_color = ok_color %}
+{% endif %}
+
+
+<tr>
+  <td>{{network.name}}</td>
+  <td>{{station.name}}</td>
+  <td style="background-color: {{battery_color}};">
+    <span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
+  <td style="background-color: {{gsm_color}};">
+    <span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
+  <td style="background-color: {{wifi_color}};">
+    <span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
+  <td style="background-color: {{memory_color}};">
+    <span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
+  <td style="background-color: {{storage_color}};">
+    <span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
+  <td style="background-color: {{cpu_color}};">
+    <span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+  <td style="background-color: {{ping_color}};">
+    {{last_ping_interval | int}}s <small>({{station.analytic_update_frequency | int}}s)</small>
+  </td>
+</tr>

@@ -83,6 +83,7 @@ class Station(BaseMixin, db.Model):
     # todo, make sure this default function fires each time a new object is created
     timezone = db.Column(db.String(32), default="UTC")
     sip_settings = db.Column(db.Text(), default="{}")
+    last_accessed_mobile = db.Column(db.DateTime(timezone=True))
 
     # TTS settings
     # TODO: make these fields foreign keys once we figure out how the values would look like

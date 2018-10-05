@@ -2,6 +2,7 @@
 
 from functools import wraps
 import dateutil.parser
+from datetime import datetime
 
 from flask import json, abort, request, Response
 from flask.ext.login import current_user
@@ -9,6 +10,7 @@ from flask.ext.restless import ProcessingException
 
 from flask_sqlalchemy import BaseQuery, Model
 from .utils import simple_serialize_sqlalchemy
+from .extensions import db
 
 
 def admin_required(f):
@@ -87,6 +89,9 @@ def api_key_or_auth_required(f):
                 station = Station.query.get(kwargs['station_id'])
                 if station and station.api_key == api_key:
                     # valid
+                    station.last_accessed_mobile = datetime.now()
+                    db.session.add(station)
+                    db.session.commit()
                     return f(*args, **kwargs)
             else:
                 # no specific station, check against all valid keys

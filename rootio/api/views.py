@@ -8,7 +8,7 @@ from sqlalchemy.exc import DatabaseError
 from .utils import parse_datetime
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
     ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
-from ..decorators import returns_json, restless_preprocessors, restless_postprocessors
+from ..decorators import returns_json, restless_preprocessors, restless_postprocessors, api_key_or_auth_required
 from ..extensions import db, rest, csrf
 from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
@@ -116,7 +116,7 @@ def stations():
 
 
 @api.route('/station/<int:station_id>/information', methods=['GET', 'POST'])
-# @api_key_or_auth_required
+@api_key_or_auth_required
 @csrf.exempt
 @returns_json
 def station(station_id):
@@ -303,7 +303,7 @@ def station_analytics(station_id):
 @returns_json
 def station_whitelist(station_id):
     """API method to get whitelist for a station"""
-    # whitelist is a concatenation of outgoing gateways and 
+    # whitelist is a concatenation of outgoing gateways and
     station = Station.query.filter_by(id=station_id).first_or_404()
     whitelists = station.whitelist_number
     whitelist_numbers = []
