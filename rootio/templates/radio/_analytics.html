@@ -35,6 +35,8 @@
   {% else %}
     {% set ping_color = ok_color %}
   {% endif %}
+{% else %}
+  {% set last_ping_interval = 0 %}
 {% endif %}
 
 
@@ -54,6 +56,6 @@
   <td style="background-color: {{cpu_color}};">
     <span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
   <td style="background-color: {{ping_color}};">
-    {{last_ping_interval | int}}s <small>({{station.analytic_update_frequency | int}}s)</small>
+    {{last_ping_interval | int}} <small>({{station.analytic_update_frequency | int}})</small>
   </td>
 </tr>
