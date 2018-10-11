@@ -708,8 +708,9 @@ def list_content_musicplaylist_songs(playlist_id):
                   'content_musicplaylistitem where playlist_item_type_id = 1 and not deleted and playlist_id = ' \
                   ':playlist_id) playlistitems on ' \
                   'content_music.id = playlistitems.playlist_item_id left outer join (select * from ' \
-                  'content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = ' \
-                  'playlist.id where content_music.title ilike \'%\'||:search_term||\'%\' order by {0} {1}'.format(
+                  'content_musicplaylist where  id = :playlist_id) playlist on playlistitems.playlist_id = ' \
+                  'playlist.id where content_music.station_id = (select station_id from content_musicplaylist ' \
+                  'where id = :playlist_id) and content_music.title ilike \'%\'||:search_term||\'%\' order by {0} {1}'.format(
         columns[int(request.args['order[0][column]'])], sort_dir)
 
     content_musicplaylist_songs = db.session.execute(songs_query, {'playlist_id': playlist_id,
