@@ -676,10 +676,13 @@ def list_content_musicplaylist_albums(playlist_id):
     albums_query = 'select content_musicalbum.id "id", content_musicalbum.title  "item", case when playlist.title ' \
                    'is not null then true else false end "is_included", (select count(*) from content_music where ' \
                    'album_id = content_musicalbum.id) "songs" from content_musicalbum left outer join (select * from ' \
-                   'content_musicplaylistitem where playlist_item_type_id = 2 and not deleted) playlistitems on ' \
+                   'content_musicplaylistitem where playlist_item_type_id = 2 and not deleted and playlist_id = ' \
+                   ':playlist_id) playlistitems on ' \
                    'content_musicalbum.id = playlistitems.playlist_item_id left outer join (select * from ' \
                    'content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = ' \
-                   'playlist.id  where content_musicalbum.title ilike \'%\'||:search_term||\'%\' order by {0} {1}'\
+                   'playlist.id  where content_musicalbum.station_id = (select station_id from content_musicplaylist ' \
+                   'where id = :playlist_id) and content_musicalbum.title ' \
+                   'ilike \'%\'||:search_term||\'%\' order by {0} {1}' \
         .format(columns[int(request.args['order[0][column]'])], sort_dir)
 
     content_musicplaylist_albums = db.session.execute(albums_query, {'playlist_id': playlist_id,
@@ -702,7 +705,8 @@ def list_content_musicplaylist_songs(playlist_id):
     songs_query = 'select content_music.id "id", content_music.title  "item", case when playlist.title is not null ' \
                   'then true else false end "is_included", (content_music.duration/1000)/60||\':\'||' \
                   '(content_music.duration/1000)%60 "songs" from content_music left outer join (select * from ' \
-                  'content_musicplaylistitem where playlist_item_type_id = 1 and not deleted) playlistitems on ' \
+                  'content_musicplaylistitem where playlist_item_type_id = 1 and not deleted and playlist_id = ' \
+                  ':playlist_id) playlistitems on ' \
                   'content_music.id = playlistitems.playlist_item_id left outer join (select * from ' \
                   'content_musicplaylist where id = :playlist_id) playlist on playlistitems.playlist_id = ' \
                   'playlist.id where content_music.title ilike \'%\'||:search_term||\'%\' order by {0} {1}'.format(
@@ -723,13 +727,16 @@ def list_content_musicplaylist_artists(playlist_id):
         sort_dir = request.args['order[0][dir]']
     artists_query = 'select content_musicartist.id "id", content_musicartist.title  "item", case when playlist.title ' \
                     'is not null then true else false end "is_included", (select count(*) from ' \
-                    'content_music_musicartist where artist_id = content_musicartist.id) "songs" from ' \
+                    'content_music where artist_id = content_musicartist.id) "songs" from ' \
                     'content_musicartist left outer join (select * from content_musicplaylistitem where ' \
-                    'playlist_item_type_id = 3 and not deleted) playlistitems on content_musicartist.id = ' \
+                    'playlist_item_type_id = 3 and not deleted and playlist_id = ' \
+                    ':playlist_id) playlistitems on content_musicartist.id = ' \
                     'playlistitems.playlist_item_id left outer join (select * from content_musicplaylist where ' \
                     'id = :playlist_id) playlist on playlistitems.playlist_id = playlist.id  where ' \
-                    'content_musicartist.title ilike \'%\'||:search_term||\'%\' order by {0} {1}'.format(
-                     columns[int(request.args['order[0][column]'])], sort_dir)
+                    'content_musicartist.station_id = (select station_id from content_musicplaylist ' \
+                    'where id = :playlist_id) and content_musicartist.title ilike \'%\'||:search_term||\'%\' order by ' \
+                    '{0} {1}'.format(
+        columns[int(request.args['order[0][column]'])], sort_dir)
 
     content_musicplaylist_artists = db.session.execute(artists_query, {'playlist_id': playlist_id,
                                                                        'search_term': request.args['search[value]']})
