@@ -107,6 +107,7 @@ class ProgramForm(Form):
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     # language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     # program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
+    networks = QuerySelectMultipleField('Networks', [Required()], query_factory=all_networks)
     submit = SubmitField(_('Save'))
 
 

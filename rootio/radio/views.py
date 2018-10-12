@@ -114,7 +114,8 @@ def station_add():
 
 @radio.route('/program/', methods=['GET'])
 def programs():
-    programs = Program.query.filter(Program.program_type_id != 2).all()
+    programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+        User.id == current_user.id).filter(Program.program_type_id != 2).all()
     return render_template('radio/programs.html', programs=programs, active='programs')
 
 
@@ -162,10 +163,14 @@ def program_add():
     # hosts in my network
     hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
-    news = ContentTrack.query.join(ContentType).filter(ContentType.name == "News").all()
-    ads = ContentTrack.query.join(ContentType).filter(ContentType.name == "Advertisements").all()
-    medias = ContentTrack.query.join(ContentType).filter(ContentType.name == "Media").all()
-    podcasts = ContentPodcast.query.all()
+    news = ContentTrack.query.join(User, Network.networkusers).filter(
+        User.id == current_user.id).join(ContentType).filter(ContentType.name == "News").all()
+    ads = ContentTrack.query.join(User, Network.networkusers).filter(
+        User.id == current_user.id).join(ContentType).filter(ContentType.name == "Advertisements").all()
+    medias = ContentTrack.query.join(User, Network.networkusers).filter(
+        User.id == current_user.id).join(ContentType).filter(ContentType.name == "Media").all()
+    podcasts = ContentPodcast.query.join(User, Network.networkusers).filter(
+        User.id == current_user.id).all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
                                    {"type": "Greetings", "category_id": "3"}]}
 
@@ -188,7 +193,8 @@ def program_add():
 
 @radio.route('/music_program/', methods=['GET'])
 def list_music_programs():
-    music_programs = Program.query.filter(Program.program_type_id == 2).all()
+    music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+        User.id == current_user.id).filter(Program.program_type_id == 2).all()
     return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
 
 
@@ -199,8 +205,10 @@ def music_program_add():
     program = None
 
     # hosts in my network
-    playlists = ContentMusicPlaylist.query.all()
-    streams = ContentStream.query.all()
+    playlists = ContentMusicPlaylist.query.join(Station).join(User, Network.networkusers).filter(
+        User.id == current_user.id).all()  # Playlist->Station->Network->user
+    streams = ContentStream.query.join(User, Network.networkusers).filter(
+        User.id == current_user.id).all()  # created by -> user -> Network
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
@@ -223,8 +231,8 @@ def music_program_definition(music_program_id):
     music_program = Program.query.filter_by(id=music_program_id).first_or_404()
 
     # TODO: Filter these by network
-    playlists = ContentMusicPlaylist.query.all()
-    streams = ContentStream.query.all()
+    playlists = ContentMusicPlaylist.query.join(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all() #Playlist->Station->Network->user
+    streams = ContentStream.query.join(User, Network.networkusers).filter(User.id == current_user.id).all() # created by -> user -> Network
 
     # render the program structure
     action_names = []
@@ -570,7 +578,8 @@ def schedule_station(station_id):
 
     form = ScheduleProgramForm()
 
-    all_programs = Program.query.all()
+    all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+        User.id == current_user.id).all()
     # TODO: filter by language?
 
     return render_template('radio/schedule.html',

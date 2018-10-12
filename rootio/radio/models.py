@@ -58,6 +58,7 @@ class Network(BaseMixin, db.Model):
     about = db.Column(db.Text())
 
     stations = db.relationship(u'Station', backref=db.backref('network'))
+    #programs = db.relationship(u'Program', backref=db.backref('networks'))
 
     # networks can have multiple admins
 
@@ -306,6 +307,7 @@ class Program(BaseMixin, db.Model):
     program_type = db.relationship(u'ProgramType')
     episodes = db.relationship('Episode', backref=db.backref('program'), lazy='dynamic')
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('program', uselist=False))
+    networks = db.relationship(u'Network', secondary=u'radio_programnetwork', backref=db.backref('programs'))
 
     def __unicode__(self):
         return self.name
@@ -315,6 +317,11 @@ class Program(BaseMixin, db.Model):
         return ScheduledProgram.before(now).filter(ScheduledProgram.program_id == self.id).filter(
             ScheduledProgram.status == True).filter(ScheduledProgram.deleted == False).all()
 
+t_programnetwork = db.Table(
+    u'radio_programnetwork',
+    db.Column(u'network_id', db.ForeignKey('radio_network.id')),
+    db.Column(u'program_id', db.ForeignKey('radio_program.id'))
+)
 
 class Episode(BaseMixin, db.Model):
     "A particular episode of a program, or other broadcast audio"
