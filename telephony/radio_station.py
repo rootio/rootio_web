@@ -20,11 +20,10 @@ class RadioStation:
         self.__program_handler.stop()
         pass
 
-    def __init__(self, station_id, db, logger):
-        self.id = station_id
+    def __init__(self, station, db, logger):
         self.logger = logger
         self.db = db
-        self.station = self.db.query(Station).filter(Station.id == station_id).one()
+        self.station = station
         self.__program_handler = ProgramHandler(self.db, self)
         self.call_handler = CallHandler(self)
         self.__community_handler = CommunityMenu(self)

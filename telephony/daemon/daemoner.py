@@ -88,7 +88,7 @@ class Daemon:
         self.daemonize()
         self.run()
 
-    def stop(self):
+    def stop(self): #TODO: Notify components of impending shutdown, wait for Notification of finalization, proceed
         """
                 Stop the daemon
                 """

@@ -46,12 +46,13 @@ class ProgramHandler:
         # unschedule stuff
 
     def __schedule_next_day_scheduler(self):
-        #TODO: make this safe for differebt timezones!
-        base_date = date.today() + timedelta(1,0)
+        # TODO: make this safe for different timezones!
+        base_date = date.today() + timedelta(1, 0)
         tomorrow_date = datetime.combine(base_date, time())
-        #add the timezone offset
+        # add the timezone offset
         tomorrow_date = tomorrow_date + timedelta(0, timezone(self.__radio_station.station.timezone).utcoffset(datetime.now()).seconds)
-        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), tomorrow_date) #schedule the scheduler to reload at midnight 
+        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), tomorrow_date) # schedule the scheduler to
+        #  reload at midnight
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:
@@ -76,21 +77,23 @@ class ProgramHandler:
             del self.__scheduled_jobs[index]
 
     def __stop_program(self):
-        #self.__running_program.stop()
+        # self.__running_program.stop()
         return
 
     def __run_program(self):
-        #self.__running_program.run()
+        # self.__running_program.run()
         return
 
     def __load_programs(self):
         self.__scheduled_programs = self.__db.query(ScheduledProgram).filter(
-            ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start at TIME ZONE 'UTC') = current_date at TIME ZONE 'UTC'")).filter(
+            ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start at TIME ZONE 'UTC') = "
+                                                                                "current_date at TIME ZONE "
+                                                                                "'UTC'")).filter(
             ScheduledProgram.deleted == False).all()
         self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.station.name))
 
-    def __load_program(self, id):
-        return self.__db.query(ScheduledProgram).filter(ScheduledProgram.id == id).first()
+    def __load_program(self, program_id):
+        return self.__db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
     def __start_listeners(self):
         t = threading.Thread(target=self.__listen_for_scheduling_changes,
@@ -101,7 +104,7 @@ class ProgramHandler:
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         addr = (ip, port)
         
-         #It may not be possible to connect after restart, TIME_WAIT could come into play etc. Anyway, keep trying
+        # It may not be possible to connect after restart, TIME_WAIT could come into play etc. Anyway, keep trying
         connected = False
         while not connected:
             try:         
@@ -115,7 +118,10 @@ class ProgramHandler:
         while True:
             data = sck.recv(1024)
             try:
-                event = json.loads(data)
+                 event = json.loads(data)
+            except ValueError as e:
+                 continue
+            if "action" in event and "id" in event:
                 if event["action"] == "delete":
                     self.__delete_scheduled_job(event["id"])
                     self.__radio_station.logger.info("Scheduled program with id {0} has been deleted".format(event["id"]))
@@ -125,7 +131,7 @@ class ProgramHandler:
                         self.__add_scheduled_job(scheduled_program)
                         self.__radio_station.logger.info(
                             "Scheduled program with id {0} has been added at time {1}".format(event["id"],
-                                                                                          scheduled_program.start))
+                                                                                              scheduled_program.start))
                 elif event["action"] == "update":
                     self.__delete_scheduled_job(event["id"])
                     scheduled_program = self.__load_program(event["id"])
@@ -133,10 +139,8 @@ class ProgramHandler:
                         self.__add_scheduled_job(scheduled_program)
                         self.__radio_station.logger.info(
                             "Scheduled program with id {0} has been moved to start at time {1}".format(event["id"],
-                                                                                                 scheduled_program.start))
-            except:
-                pass #Most probably a JSON parse error
- 
+                                                                                                       scheduled_program.start))
+
 
     """
     Gets the program to run from the current list of programs that are lined up for the day

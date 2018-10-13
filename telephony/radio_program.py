@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import dateutil.tz
 from apscheduler.scheduler import Scheduler
+from sqlalchemy.exc import SQLAlchemyError
 
 from advertisement_action import AdvertisementAction
 from community_action import CommunityAction
@@ -16,6 +17,7 @@ from rootio_mailer.rootio_mail_message import RootIOMailMessage
 class RadioProgram:
 
     def __init__(self, db, program, radio_station):
+        self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
         self.__status = True
         self.id = program.id
@@ -28,7 +30,6 @@ class RadioProgram:
         return
 
     def start(self):
-        self.__rootio_mail_message = RootIOMailMessage()
         self.__load_program_actions()
         self.__run_program_action()  # will call the next one when done
         return
@@ -38,34 +39,49 @@ class RadioProgram:
     '''
 
     def __load_program_actions(self):
-        data = json.loads(self.scheduled_program.program.structure)
+        try:
+            data = json.loads(self.scheduled_program.program.structure)
+        except ValueError as e:
+            return
+
         for action in data:
-            print action
-            if action['type'] == "Advertisements":
-                self.__program_actions.insert(0, AdvertisementAction(action["track_id"], action["start_time"],
+            if "type" in action:
+                if action['type'] == "Advertisements":
+                    if "track_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0, AdvertisementAction(action["track_id"], action["start_time"],
+                                                                             action["duration"], self))
+                if action['type'] == "Media":
+                    if "track_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0,
+                                                  MediaAction(action["track_id"], action["start_time"],
+                                                              action["duration"],
+                                                              self))
+                if action['type'] == "Community":
+                    if "category_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0, CommunityAction(action["category_id"], action["start_time"],
                                                                      action["duration"], self))
-            if action['type'] == "Media":
-                self.__program_actions.insert(0,
-                                              MediaAction(action["track_id"], action["start_time"], action["duration"],
-                                                          self))
-            if action['type'] == "Community":
-                self.__program_actions.insert(0, CommunityAction(action["category_id"], action["start_time"],
-                                                                 action["duration"], self))
-            if action['type'] == "Podcast":
-                self.__program_actions.insert(0, PodcastAction(action["track_id"], action["start_time"],
-                                                               action["duration"], self))
-            if action['type'] == "Music":
-                self.radio_station.logger.info("Music program scheduled to start at {0} for a duration  {1}".format(action["start_time"], action["duration"]))
-            
-            if action['type'] == "News":
-                self.__program_actions.insert(0,
-                                              NewsAction(action["track_id"], action["start_time"], action["duration"],
-                                                         self))
-                print action 
-            if action['type'] == "Outcall":
-                self.__program_actions.insert(0,
-                                              OutcallAction(action['host_id'], action["start_time"], action['duration'],
-                                                            self))
+                if action['type'] == "Podcast":
+                    if "track_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0, PodcastAction(action["track_id"], action["start_time"],
+                                                                   action["duration"], self))
+                if action['type'] == "Music":
+                    if "start_time" in action and "duration" in action:
+                        self.radio_station.logger.info(
+                            "Music program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
+
+                if action['type'] == "News":
+                    if "track_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0,
+                                                  NewsAction(action["track_id"], action["start_time"],
+                                                             action["duration"],
+                                                             self))
+                if action['type'] == "Outcall":
+                    if "host_id" in action and "start_time" in action and "duration" in action:
+                        self.__program_actions.insert(0,
+                                                  OutcallAction(action['host_id'], action["start_time"],
+                                                                action['duration'],
+                                                                self))
         return
 
     '''
@@ -94,7 +110,7 @@ class RadioProgram:
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
         self.__status = self.__status and played_successfully
         if len(self.__program_actions) == 0:  # all program actions have run
-            if call_info is not None:
+            if call_info is not None and 'Channel-Call-UUID' in call_info:
                 self.radio_station.call_handler.hangup(call_info['Channel-Call-UUID'])
             self.__log_program_status()
             self.__send_program_summary()
@@ -111,13 +127,21 @@ class RadioProgram:
                 self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
-            pass #mail error most probably
+            self.radio_station.logger.error(e.message)
 
     def __log_program_status(self):
-        self.db._model_changes = {}
-        self.scheduled_program.status = self.__status
-        self.radio_station.db.add(self.scheduled_program)
-        self.radio_station.db.commit()
+        try:
+            self.radio_station.db._model_changes = {}
+            self.scheduled_program.status = self.__status
+            self.radio_station.db.add(self.scheduled_program)
+            self.radio_station.db.commit()
+        except SQLAlchemyError:
+            try:
+                self.radio_station.db.rollback()
+            except:
+                return
+        except Exception as e:
+            self.radio_station.logger.error(e.message)
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
