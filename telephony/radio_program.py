@@ -16,12 +16,11 @@ from rootio_mailer.rootio_mail_message import RootIOMailMessage
 
 class RadioProgram:
 
-    def __init__(self, db, program, radio_station):
+    def __init__(self, program, radio_station):
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
         self.__status = True
         self.id = program.id
-        self.db = db
         self.name = program.id
         self.scheduled_program = program
         self.radio_station = radio_station

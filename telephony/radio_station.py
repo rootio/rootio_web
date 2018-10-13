@@ -24,7 +24,7 @@ class RadioStation:
         self.logger = logger
         self.db = db
         self.station = station
-        self.__program_handler = ProgramHandler(self.db, self)
+        self.__program_handler = ProgramHandler(self)
         self.call_handler = CallHandler(self)
         self.__community_handler = CommunityMenu(self)
         self.logger.info("Starting up station {0}".format(self.station.name))

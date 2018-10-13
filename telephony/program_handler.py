@@ -17,8 +17,7 @@ from radio_program import RadioProgram
 
 class ProgramHandler:
 
-    def __init__(self, db, radio_station):
-        self.__db = db
+    def __init__(self, radio_station):
         self.__radio_station = radio_station
         self.__scheduler = None
         self.__scheduled_jobs = None
@@ -65,7 +64,7 @@ class ProgramHandler:
         return
 
     def __add_scheduled_job(self, scheduled_program):
-        program = RadioProgram(self.__db, scheduled_program, self.__radio_station)
+        program = RadioProgram(scheduled_program, self.__radio_station)
         scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),
                                                       self.__get_program_start_time(scheduled_program).replace(
                                                           tzinfo=None))
@@ -85,7 +84,7 @@ class ProgramHandler:
         return
 
     def __load_programs(self):
-        self.__scheduled_programs = self.__db.query(ScheduledProgram).filter(
+        self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
             ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start at TIME ZONE 'UTC') = "
                                                                                 "current_date at TIME ZONE "
                                                                                 "'UTC'")).filter(
@@ -93,7 +92,7 @@ class ProgramHandler:
         self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.station.name))
 
     def __load_program(self, program_id):
-        return self.__db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
+        return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
     def __start_listeners(self):
         t = threading.Thread(target=self.__listen_for_scheduling_changes,
