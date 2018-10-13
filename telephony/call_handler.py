@@ -3,6 +3,7 @@ import threading
 from datetime import datetime
 
 from freeswitchESL.ESL import *
+from sqlalchemy.exc import SQLAlchemyError
 
 from cereproc.cereproc_rest_agent import CereprocRestAgent
 from rootio.config import DefaultConfig
@@ -82,7 +83,7 @@ class CallHandler:
             con.disconnect()
             return result.getBody()
         except Exception, e:
-            self.__radio_station.logger.error(str(e))
+            self.__radio_station.logger.error(e.message)
             return None
 
     def register_for_call_hangup(self, recipient, to_number):
@@ -238,68 +239,75 @@ class CallHandler:
         while 1:
             e = esl_connection.recvEvent()
             if e:
-                event_json_string = e.serialize('json')
-                event_json = json.loads(event_json_string)
+                try:
+                    event_json_string = e.serialize('json')
+                    event_json = json.loads(event_json_string)
+                except ValueError as e:
+                    continue  # rogue value. move on..
+
                 event_name = e.getHeader("Event-Name")
                 # print event_name
-                if event_name == "CHANNEL_ANSWER":
-                    # self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]] = event_json
-                    self.__radio_station.logger.info("received answer for {0} with waiting recipients {1}".format(
-                        event_json['Caller-Destination-Number'], self.__waiting_call_recipients.keys()))
-                    # self.__record_call(event_json['Channel-Call-UUID'], event_json['variable_sip_from_user']
-                    # , event_json['Caller-Destination-Number'])
-                    if str(event_json['Caller-Destination-Number'])[-10:] in self.__waiting_call_recipients:
-                        self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]] = event_json
-                        # self.__record_call(event_json['Channel-Call-UUID'], event_json['variable_sip_from_user'],
-                        #                  event_json['Caller-Destination-Number'])
-                        self.__waiting_call_recipients[
-                            str(event_json['Caller-Destination-Number'])[-10:]].notify_call_answered(event_json)
-                        self.__radio_station.logger.info(
-                            "Deleting recipient {0} from waiting call recipients {1}".format(
-                                str(event_json['Caller-Destination-Number'])[-10:], self.__waiting_call_recipients))
-                        del self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-10:]]
+                if event_name == "CHANNEL_ANSWER" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        self.__radio_station.logger.info("received answer for {0} with waiting recipients {1}".format(
+                            event_json['Caller-Destination-Number'], self.__waiting_call_recipients.keys()))
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__waiting_call_recipients:
+                            self.__available_calls[str(event_json['Caller-Destination-Number'])[-9:]] = event_json
+                            self.__waiting_call_recipients[
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_call_answered(event_json)
+                            self.__radio_station.logger.info(
+                                "Deleting recipient {0} from waiting call recipients {1}".format(
+                                    str(event_json['Caller-Destination-Number'])[-9:], self.__waiting_call_recipients))
+                            del self.__waiting_call_recipients[str(event_json['Caller-Destination-Number'])[-9:]]
+                    except e:
+                        self.__radio_station.logger.error('error in channel answer: {0}'.format(e.message))
 
-                elif event_name == "DTMF":
-                    # print event_json
-                    if 'Caller-Destination-Number' in event_json and str(event_json['Caller-Destination-Number'])[
-                                                                     -10:] in self.__incoming_dtmf_recipients:
-                        self.__radio_station.logger.info(
-                            "Received DTMF [{0}] for recipient {1} in {2}".format(event_json["DTMF-Digit"], event_json[
-                                'Caller-Destination-Number'], self.__incoming_dtmf_recipients))
-                        threading.Thread(target=self.__incoming_dtmf_recipients[
-                            str(event_json['Caller-Destination-Number'])[-10:]].notify_incoming_dtmf,
-                                         args=(event_json,)).start()
+                elif event_name == "DTMF" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__incoming_dtmf_recipients:
+                            self.__radio_station.logger.info(
+                                "Received DTMF [{0}] for recipient {1} in {2}".format(event_json["DTMF-Digit"], event_json[
+                                    'Caller-Destination-Number'], self.__incoming_dtmf_recipients))
+                            threading.Thread(target=self.__incoming_dtmf_recipients[
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_incoming_dtmf,
+                                             args=(event_json,)).start()
+                    except e:
+                        self.__radio_station.logger.error('error in DTMF detection: {0}'.format(e.message))
 
-                elif event_name == "DETECTED_SPEECH":
-                    if 'Caller-Destination-Number' in event_json and str(event_json['Caller-Destination-Number'])[
-                                                                     -10:] in self.__speech_start_recipients:
-                        self.__radio_station.logger.info(
-                            "Speech on call to [{0}] ".format(event_json['Caller-Destination-Number']))
-                        threading.Thread(target=self.__speech_start_recipients[
-                            str(event_json['Caller-Destination-Number'])[-10:]].notify_speech_start,
-                                         args=(event_json,)).start()
+                elif event_name == "DETECTED_SPEECH" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__speech_start_recipients:
+                            self.__radio_station.logger.info(
+                                "Speech on call to [{0}] ".format(event_json['Caller-Destination-Number']))
+                            threading.Thread(target=self.__speech_start_recipients[
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_speech_start,
+                                             args=(event_json,)).start()
+                    except e:
+                        self.__radio_station.logger.error('error in speak start: {0}'.format(e.message))
 
-                elif event_name == "NOTALK":
-                    if 'Caller-Destination-Number' in event_json and str(event_json['Caller-Destination-Number'])[
-                                                                     -10:] in self.__speech_stop_recipients:
-                        self.__radio_station.logger.info(
-                            "Speech stopped on call to [{0}] ".format(event_json['Caller-Destination-Number']))
-                        threading.Thread(target=self.__speech_stop_recipients[
-                            str(event_json['Caller-Destination-Number'])[-10:]].notify_speech_stop,
-                                         args=(event_json,)).start()
+                elif event_name == "NOTALK" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__speech_stop_recipients:
+                            self.__radio_station.logger.info(
+                                "Speech stopped on call to [{0}] ".format(event_json['Caller-Destination-Number']))
+                            threading.Thread(target=self.__speech_stop_recipients[
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_speech_stop,
+                                             args=(event_json,)).start()
+                    except e:
+                        self.__radio_station.logger.error('error in speak end: {0}'.format(e.message))
 
-                elif event_name == "CHANNEL_HANGUP":
-                    loggable = False
-                    if 'Caller-Destination-Number' in event_json:
-                        if str(event_json['Caller-Destination-Number'])[-10:] in self.__call_hangup_recipients:
+                elif event_name == "CHANNEL_HANGUP" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        loggable = False
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__call_hangup_recipients:
                             self.__call_hangup_recipients[
-                                str(event_json['Caller-Destination-Number'])[-10:]].notify_call_hangup(event_json)
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_call_hangup(event_json)
                             loggable = True
                         # remove the call from the list of available calls
-                        if str(event_json['Caller-Destination-Number'])[-10:] in self.__available_calls:
+                        if str(event_json['Caller-Destination-Number'])[-9:] in self.__available_calls:
                             self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(
-                                str(event_json['Caller-Destination-Number'])[-10:], self.__available_calls.keys()))
-                            del self.__available_calls[str(event_json['Caller-Destination-Number'])[-10:]]
+                                str(event_json['Caller-Destination-Number'])[-9:], self.__available_calls.keys()))
+                            del self.__available_calls[str(event_json['Caller-Destination-Number'])[-9:]]
                             self.__release_gateway(event_json)
                             loggable = True
                         # log the call
@@ -308,51 +316,50 @@ class CallHandler:
 
                         if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
                             del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
+                    except e:
+                        self.__radio_station.logger.error('error in channel hangup: {0}'.format(e.message))
 
-                elif event_name == "CHANNEL_PARK":
-                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
-                        event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
-                        self.__host_call_recipients))
-                    if 'Caller-Destination-Number' in event_json:
+                elif event_name == "CHANNEL_PARK" and 'Caller-Destination-Number' in event_json:
+                    try:
+                        self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
+                            event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
+                            self.__host_call_recipients))
                         if event_json['Caller-Destination-Number'][
                            -9:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                             threading.Thread(target=self.__incoming_call_recipients[
-                                str(event_json['Caller-Destination-Number'])[-10:]].notify_incoming_call,
-                                             args=(event_json,)).start()
-                            # self.__incoming_call_recipients[
-                            #   event_json['Caller-Destination-Number'][-9:]].notify_incoming_call(event_json)
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_incoming_call,
+                                         args=(event_json,)).start()
                         elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
                             self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
+                    except e:
+                        self.__radio_station.logger.error('error in channel park: {0}'.format(e.message))
 
-                elif event_name == "MEDIA_BUG_START":
+                elif event_name == "MEDIA_BUG_START" and 'Caller-Destination-Number' in event_json:
                     try:
-                        if 'Caller-Destination-Number' in event_json and event_json[
-                            'Caller-Destination-Number'] in self.__media_playback_start_recipients:
-                            # self.__radio_station.logger.info("got media stop bug as {0}".format(event_json_string))
+                        if event_json['Caller-Destination-Number'] in self.__media_playback_start_recipients:
                             self.__radio_station.logger.info(
                                 "Notifying media playback start recipient for {0} in {1}".format(
                                     event_json['Caller-Destination-Number'], self.__media_playback_start_recipients))
                             threading.Thread(target=self.__media_playback_start_recipients[
-                                str(event_json['Caller-Destination-Number'])[-10:]].notify_media_play_start,
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_media_play_start,
                                              args=(event_json,)).start()
                             # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
-                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(str(e)))
+                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(e.message))
 
-                elif event_name == "MEDIA_BUG_STOP":
+                elif event_name == "MEDIA_BUG_STOP" and 'Caller-Destination-Number' in event_json:
                     try:
-                        if 'Caller-Destination-Number' in event_json and event_json[
-                            'Caller-Destination-Number'] in self.__media_playback_stop_recipients:
+                        if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
                             # self.__radio_station.logger.info("got media stop bug as {0}".format(event_json_string))
                             self.__radio_station.logger.info(
                                 "Notifying media playback stop recipient for {0} in {1}".format(
                                     event_json['Caller-Destination-Number'], self.__media_playback_stop_recipients))
                             threading.Thread(target=self.__media_playback_stop_recipients[
-                                str(event_json['Caller-Destination-Number'])[-10:]].notify_media_play_stop,
+                                str(event_json['Caller-Destination-Number'])[-9:]].notify_media_play_stop,
                                              args=(event_json,)).start()
                             # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
-                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(str(e)))
+                        self.__radio_station.logger.error('error in media bug stop: {0}'.format(e.message))
 
     def record_call(self, call_uuid, path):
         record_command = "uuid_record {0} start '{1}'".format(call_uuid, path)
@@ -373,16 +380,24 @@ class CallHandler:
             call.from_phonenumber = event_json['Caller-ANI']
             call.to_phonenumber = event_json['Caller-Destination-Number']
             call.station_id = self.__radio_station.station.id
+        except KeyError as e:
+            self.__radio_station.logger.error('error in __log_call: {0}'.format(e.message))
+            return
+            
+        try:
             self.__radio_station.db._model_changes = {}
             self.__radio_station.db.add(call)
             self.__radio_station.db.commit()
-        except e:
-            self.__radio_station.logger.error('error in logging call: {0}'.format(str(e)))
+        except SQLAlchemyError as e:
+            self.__radio_station.logger.error('error in logging call: {0}'.format(e.message))
+            try:
+                self.__radio_station.db.rollback()
+            except:
+                return
 
     def __release_gateway(self, event_json):
         # if it was an incoming call
-        if 'Caller-Destination-Number' in event_json and event_json['Caller-Destination-Number'][
-                                                         :-9] in self.__outgoing_gateways.keys():
+        if event_json['Caller-Destination-Number'][:-9] in self.__outgoing_gateways.keys():
             self.__radio_station.logger.info("Putting back gateway {0} to available gateways {1}".format(
                 event_json['Caller-Destination-Number'][:-9], self.__outgoing_gateways))
             self.__available_outgoing_gateways.append(event_json['Caller-Destination-Number'])
