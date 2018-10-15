@@ -66,14 +66,21 @@ class CallHandler:
         gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(
             id=self.__radio_station.id).all()
         self.__outgoing_gateways = dict()
+        self.__outgoing_sip_gateways = dict()
         self.__available_outgoing_gateways = []
         for gw in gws:
-            self.__outgoing_gateways[str(gw.number_bottom)] = gw
-            self.__available_outgoing_gateways.append(gw.number_bottom)
-            self.__available_outgoing_gateways.sort()
-            self.__radio_station.logger.info(
-                "Got outgoing gateways for {0} {1}".format(self.__radio_station.station.name,
-                                                           str(self.__available_outgoing_gateways)))
+            if gw.is_goip:
+                self.__outgoing_gateways[str(gw.number_bottom)] = gw
+                self.__available_outgoing_gateways.append(gw.number_bottom)
+                self.__available_outgoing_gateways.sort()
+                self.__radio_station.logger.info(
+                    "Got outgoing goip gateways for {0} {1}".format(self.__radio_station.station.name,
+                                                               str(self.__available_outgoing_gateways)))
+            else:  # really all you need is one outgoing :-)
+                self.__outgoing_sip_gateways[str(gw.number_bottom)] = gw
+                self.__radio_station.logger.info(
+                    "Got outgoing SIP gateways for {0} {1}".format(self.__radio_station.station.name,
+                                                               str(self.__outgoing_sip_gateways)))
 
     def __do_esl_command(self, esl_command):
         self.__radio_station.logger.info("Executing ESL Command: {0}".format(esl_command))
@@ -168,7 +175,7 @@ class CallHandler:
             self.__radio_station.logger.info("Removed {0} from media playback start recipients {1}"
                                              .format(from_number, str(self.__media_playback_start_recipients)))
 
-    def call(self, program_action, to_number, action, argument, time_limit):  # redundant params will be used later
+    def call(self, program_action, to_number, argument, use_sip=False, time_limit=0):  # redundant params will be used later
         if to_number in self.__available_calls.keys():
             self.__radio_station.logger.info(
                 "Existing call to {0} requested for action on argument '{1}, being returned".format(to_number,
@@ -176,27 +183,51 @@ class CallHandler:
             program_action.notify_call_answered(self.__available_calls[to_number])
             return (True, self.__available_calls[to_number]['Channel-Call-UUID'])
         else:
-            self.__radio_station.logger.info("GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
-            gw = self.__outgoing_gateways[str(self.__available_outgoing_gateways.pop())[-9:]]
-            self.__radio_station.logger.info("GWS after pop are {0}".format(str(self.__available_outgoing_gateways)))
-            call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string, gw.sofia_string,
+            if self.__radio_station.station.is_high_bandwidth and use_sip and len(self.__outgoing_sip_gateways) > 0:
+                self.__radio_station.logger.info(
+                    "SIP GWS before pop are {0}".format(str(self.__outgoing_sip_gateways)))
+                gw = self.__outgoing_sip_gateways.values(0)
+                self.__radio_station.logger.info(
+                    "SIP GWS after pop are {0}".format(str(self.__outgoing_sip_gateways)))
+                call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string,
+                                                                                           gw.sofia_string,
+                                                                                           gw.gateway_prefix, to_number,
+                                                                                           program_action.program.id,
+                                                                                           program_action.program
+                                                                                           .radio_station.id)
+                self.__radio_station.logger.info(
+                    "setting up new call for argument '{0}': {1}".format(argument, call_command))
+                self.__waiting_call_recipients[to_number] = program_action
+                result = self.__do_esl_command(call_command)
+                self.__radio_station.logger.info("Result of call ESL command is {0}".format(result))
+                self.__radio_station.logger.info(
+                    "SIP GWS after call are {0}".format(str(self.__outgoing_sip_gateways)))
+                if result is not None and result.split(" ")[0] == "+OK":
+                    return True, result.split(" ")[1]
+                else:
+                    return False, None
+            else:
+                self.__radio_station.logger.info("GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
+                gw = self.__outgoing_gateways[str(self.__available_outgoing_gateways.pop())[-9:]]
+                self.__radio_station.logger.info("GWS after pop are {0}".format(str(self.__available_outgoing_gateways)))
+                call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string, gw.sofia_string,
                                                                                        gw.gateway_prefix, to_number,
                                                                                        program_action.program.id,
                                                                                        program_action.program
                                                                                        .radio_station.id)
-            self.__radio_station.logger.info(
-                "setting up new call for argument '{0}': {1}".format(argument, call_command))
-            self.__waiting_call_recipients[to_number] = program_action
-            result = self.__do_esl_command(call_command)
-            self.__radio_station.logger.info("Result of call ESL command is {0}".format(result))
-            if result is None or result.split(" ")[0] != "+OK":
-                self.__available_outgoing_gateways.append(gw.number_bottom)
-                self.__available_outgoing_gateways.sort()
-            self.__radio_station.logger.info("GWS after call are {0}".format(str(self.__available_outgoing_gateways)))
-            if result is not None and result.split(" ")[0] == "+OK":
-                return (True, result.split(" ")[1])
-            else:
-                return (False, None)
+                self.__radio_station.logger.info(
+                    "setting up new call for argument '{0}': {1}".format(argument, call_command))
+                self.__waiting_call_recipients[to_number] = program_action
+                result = self.__do_esl_command(call_command)
+                self.__radio_station.logger.info("Result of call ESL command is {0}".format(result))
+                if result is None or result.split(" ")[0] != "+OK":
+                    self.__available_outgoing_gateways.append(gw.number_bottom)
+                    self.__available_outgoing_gateways.sort()
+                self.__radio_station.logger.info("GWS after call are {0}".format(str(self.__available_outgoing_gateways)))
+                if result is not None and result.split(" ")[0] == "+OK":
+                    return True, result.split(" ")[1]
+                else:
+                    return False, None
 
     def bridge_incoming_call(self, call_uuid, call_id):
         bridge_command = 'uuid_transfer {0} conference:"{1}"@default inline'.format(call_uuid, call_id)
@@ -266,8 +297,10 @@ class CallHandler:
                     try:
                         if str(event_json['Caller-Destination-Number'])[-9:] in self.__incoming_dtmf_recipients:
                             self.__radio_station.logger.info(
-                                "Received DTMF [{0}] for recipient {1} in {2}".format(event_json["DTMF-Digit"], event_json[
-                                    'Caller-Destination-Number'], self.__incoming_dtmf_recipients))
+                                "Received DTMF [{0}] for recipient {1} in {2}".format(event_json["DTMF-Digit"],
+                                                                                      event_json[
+                                                                                          'Caller-Destination-Number'],
+                                                                                      self.__incoming_dtmf_recipients))
                             threading.Thread(target=self.__incoming_dtmf_recipients[
                                 str(event_json['Caller-Destination-Number'])[-9:]].notify_incoming_dtmf,
                                              args=(event_json,)).start()
@@ -328,7 +361,7 @@ class CallHandler:
                            -9:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                             threading.Thread(target=self.__incoming_call_recipients[
                                 str(event_json['Caller-Destination-Number'])[-9:]].notify_incoming_call,
-                                         args=(event_json,)).start()
+                                             args=(event_json,)).start()
                         elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
                             self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
                     except e:
@@ -383,7 +416,7 @@ class CallHandler:
         except KeyError as e:
             self.__radio_station.logger.error('error in __log_call: {0}'.format(e.message))
             return
-            
+
         try:
             self.__radio_station.db._model_changes = {}
             self.__radio_station.db.add(call)

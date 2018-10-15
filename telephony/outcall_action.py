@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta, datetime
 from sets import Set
 
@@ -60,9 +61,23 @@ class OutcallAction:
         self.program.log_program_activity("result of host call is " + str(result))
 
     def request_station_call(self):  # call the number specified thru plivo
-        result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number,
-                                          'play', self.__host.phone.raw_number, self.duration)
-        self.program.log_program_activity("result of station call is " + str(result))
+        # Try a high bandwidth call first
+        sip_info = self.__get_sip_info()
+        if sip_info is not None and 'user' in sip_info and self.program.radio_station.station.is_high_bandwidth:
+            result = self.__call_handler.call(self, sip_info['user'], self.__host.phone.raw_number, True, self.duration)
+            self.program.log_program_activity("result of station call via SIP is " + str(result))
+            if not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
+                result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone,
+                                                  self.__host.phone.raw_number, False,
+                                                  self.duration)
+                self.program.log_program_activity("result of station call via GoIP is " + str(result))
+
+    def __get_sip_info(self):
+        try:
+            sip_info = json.loads(self.program.radio_station.station.sip_settings)
+            return sip_info
+        except ValueError:
+            return None
 
     def notify_call_answered(self, answer_info):
         if self.__host.phone.raw_number not in self.__available_calls:
