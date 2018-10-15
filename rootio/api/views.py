@@ -137,7 +137,8 @@ def station(station_id):
         response["sip_settings"] = station.sip_settings
         response["tts_accent"] = station.tts_accent
         response["tts_gender"] = station.tts_gender
-        response["tts_language"] = station.tts_language.name
+        if station.tts_language is not None:
+            response["tts_language"] = station.tts_language.name
         response["tts_audio_format"] = station.tts_audio_format
         response["tts_sample_rate"] = station.tts_sample_rate
     responses = dict()
