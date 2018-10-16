@@ -41,9 +41,11 @@ class RadioProgram:
         try:
             data = json.loads(self.scheduled_program.program.structure)
         except ValueError as e:
+            print e
             return
 
         for action in data:
+            print action
             if "type" in action:
                 if action['type'] == "Advertisements":
                     if "track_id" in action and "start_time" in action and "duration" in action:
@@ -77,6 +79,7 @@ class RadioProgram:
                                                              self))
                 if action['type'] == "Outcall":
                     if "host_id" in action and "start_time" in action and "duration" in action:
+                        print "scheduling..."
                         self.__program_actions.insert(0,
                                                   OutcallAction(action['host_id'], action["start_time"],
                                                                 action['duration'],

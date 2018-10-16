@@ -54,6 +54,7 @@ class ProgramHandler:
         #  reload at midnight
 
     def __schedule_programs(self):
+        print len(self.__scheduled_programs)
         for scheduled_program in self.__scheduled_programs:
             if not self.__is_program_expired(scheduled_program):
                 self.__add_scheduled_job(scheduled_program)
@@ -61,6 +62,8 @@ class ProgramHandler:
                     "Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name,
                                                                                    self.__radio_station.station.name,
                                                                                    scheduled_program.start))
+            else:
+                print "program is expired!"
         return
 
     def __add_scheduled_job(self, scheduled_program):
@@ -85,11 +88,10 @@ class ProgramHandler:
 
     def __load_programs(self):
         self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
-            ScheduledProgram.station_id == self.__radio_station.id).filter(text("date(start at TIME ZONE 'UTC') = "
-                                                                                "current_date at TIME ZONE "
-                                                                                "'UTC'")).filter(
+            ScheduledProgram.station_id == self.__radio_station.station.id).filter(text("date(start) = "
+                                                                                "current_date")).filter(
             ScheduledProgram.deleted == False).all()
-        self.__radio_station.logger.info("Loaded programs for {0}".format(self.__radio_station.station.name))
+        self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
         return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
@@ -112,7 +114,7 @@ class ProgramHandler:
             except:
                 self.__radio_station.logger.error("Could not connect to server, retrying in 30 ...")
                 sleep(30)
-        sck.send(json.dumps({'station':self.__radio_station.id, 'action':'register'}))
+        sck.send(json.dumps({'station':self.__radio_station.station.id, 'action':'register'}))
 
         while True:
             data = sck.recv(1024)

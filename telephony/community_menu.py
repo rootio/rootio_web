@@ -84,7 +84,7 @@ class CommunityMenu:
         try:
             self.__call = call_json
             # Assuming Goip, no two calls are possible to menu at same time. Otherwise make below more exclusive
-            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], self.__radio_station.radio_station.id)
+            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], self.__radio_station.station.id)
             self.__start(self.__call['Channel-Call-UUID'])
         except:  # Key error, event_json is null etc
             pass

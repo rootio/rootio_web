@@ -51,7 +51,7 @@ class CallHandler:
 
     def __load_incoming_gateways(self):
         gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(
-            id=self.__radio_station.id).all()
+            id=self.__radio_station.station.id).all()
         self.__incoming_gateways = dict()
         self.__available_incoming_gateways = []
         for gw in gws:
@@ -64,7 +64,7 @@ class CallHandler:
 
     def __load_outgoing_gateways(self):
         gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(
-            id=self.__radio_station.id).all()
+            id=self.__radio_station.station.id).all()
         self.__outgoing_gateways = dict()
         self.__outgoing_sip_gateways = dict()
         self.__available_outgoing_gateways = []
@@ -99,6 +99,7 @@ class CallHandler:
             "Added {0} to incoming call hangup recipients {1}".format(recipient, str(self.__call_hangup_recipients)))
 
     def register_for_host_call(self, recipient, host_number):
+        print "reged fir host"
         self.__host_call_recipients[host_number] = recipient
         self.__radio_station.logger.info(
             "The program {0} is now listening for host calls from {1}".format(recipient, host_number))
@@ -194,7 +195,7 @@ class CallHandler:
                                                                                            gw.gateway_prefix, to_number,
                                                                                            program_action.program.id,
                                                                                            program_action.program
-                                                                                           .radio_station.id)
+                                                                                           .radio_station.station.id)
                 self.__radio_station.logger.info(
                     "setting up new call for argument '{0}': {1}".format(argument, call_command))
                 self.__waiting_call_recipients[to_number] = program_action
@@ -214,7 +215,7 @@ class CallHandler:
                                                                                        gw.gateway_prefix, to_number,
                                                                                        program_action.program.id,
                                                                                        program_action.program
-                                                                                       .radio_station.id)
+                                                                                       .radio_station.station.id)
                 self.__radio_station.logger.info(
                     "setting up new call for argument '{0}': {1}".format(argument, call_command))
                 self.__waiting_call_recipients[to_number] = program_action
