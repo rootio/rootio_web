@@ -369,7 +369,7 @@ class CallHandler:
 
                 elif event_name == "MEDIA_BUG_START" and 'Caller-Destination-Number' in event_json:
                     try:
-                        if event_json['Caller-Destination-Number'] in self.__media_playback_start_recipients:
+                        if event_json['Caller-Destination-Number'][-9:] in self.__media_playback_start_recipients:
                             self.__radio_station.logger.info(
                                 "Notifying media playback start recipient for {0} in {1}".format(
                                     event_json['Caller-Destination-Number'], self.__media_playback_start_recipients))
@@ -382,7 +382,7 @@ class CallHandler:
 
                 elif event_name == "MEDIA_BUG_STOP" and 'Caller-Destination-Number' in event_json:
                     try:
-                        if event_json['Caller-Destination-Number'] in self.__media_playback_stop_recipients:
+                        if event_json['Caller-Destination-Number'][-9:] in self.__media_playback_stop_recipients:
                             # self.__radio_station.logger.info("got media stop bug as {0}".format(event_json_string))
                             self.__radio_station.logger.info(
                                 "Notifying media playback stop recipient for {0} in {1}".format(
@@ -392,6 +392,7 @@ class CallHandler:
                                              args=(event_json,)).start()
                             # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
+                        print e
                         self.__radio_station.logger.error('error in media bug stop: {0}'.format(e.message))
 
     def record_call(self, call_uuid, path):

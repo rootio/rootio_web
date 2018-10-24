@@ -1,6 +1,7 @@
 from rootio.config import *
 from rootio.content.models import ContentUploads
 from rootio.radio.models import ScheduledProgram
+import json
 
 
 class MediaAction:
@@ -19,10 +20,8 @@ class MediaAction:
 
     def start(self):
         episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
-        print episode_number
         self.__media = self.__load_media(episode_number)
-        call_result = self.__request_call()
-        print call_result
+        call_result = self.__request_station_call()
         if not call_result[0]:  # !!
             self.stop()
 
@@ -38,33 +37,69 @@ class MediaAction:
         self.program.log_program_activity("Received call answer notification for Media action of {0} program"
                                           .format(self.program.name))
         self.__call_answer_info = answer_info
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-10:])
-        self.__play_media(self.__call_answer_info)
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-9:])
         self.__listen_for_media_play_stop()
+        self.__play_media(self.__call_answer_info)
 
     def __load_media(self, episode_number):  # load the media to be played
-        episode_count = self.program.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
+        episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
         if episode_number > episode_count:
             index = episode_number % episode_count
         else:
             index = episode_number
         if index == 0:
             index = index + 1
-        media = self.program.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id) \
+        media = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id) \
             .filter(ContentUploads.order == index).first()
         return media
 
     def __get_episode_number(self, program_id):
         # Fix this below - Make RadioProgram inherit scheduled_program, rename it
-        count = self.program.db.query(ScheduledProgram).filter(ScheduledProgram.status == True).filter(ScheduledProgram
+        count = self.program.radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.status == True).filter(ScheduledProgram
                                                                                                        .program_id ==
                                                                                                        program_id) \
             .count()
         return count + 1
 
-    def __request_call(self):
-        return self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number, 'play',
-                                        self.__track_id, self.duration)
+    def __request_station_call(self):  # call the number specified thru plivo
+        if self.program.radio_station.station.is_high_bandwidth:
+            result = self.__call_station_via_sip()
+            if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
+                result = self.__call_station_via_goip()
+        else:
+            result = self.__call_station_via_goip()
+        return result
+
+    def __call_station_via_sip(self):
+        # Try a high bandwidth call first
+        sip_info = self.__get_sip_info()
+        if sip_info is not None and 'sip_username' in sip_info:
+            result = self.__call_handler.call(self, sip_info['sip_username'], self.program.name, True,
+                                              self.duration)
+            self.program.log_program_activity("result of station call via SIP is " + str(result))
+            return result
+
+    def __call_station_via_goip(self):
+        result = None
+        if self.program.radio_station.station.primary_transmitter_phone is not None:
+            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
+                                              self.program.name, False,
+                                          self.duration)
+            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+                result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                                  self.program.name, False,
+                                              self.duration)
+                self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
+        return result
+
+    def __get_sip_info(self):
+        try:
+            sip_info = json.loads(json.loads(self.program.radio_station.station.sip_settings))  # Crap!!
+            return sip_info
+        except ValueError:
+            return None
 
     def __play_media(self, call_info):  # play the media in the array
         self.program.log_program_activity("Playing media {0}".format(self.__media.name))
@@ -99,8 +134,8 @@ class MediaAction:
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
-        self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'])
+        self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-9:])
 
     def __deregister_listeners(self):
-        self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'])
-        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-10:])
+        self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'][-9:])
+        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-9:])

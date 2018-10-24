@@ -69,24 +69,25 @@ class OutcallAction:
         if not result[0]:
             self.stop(False)
 
-    def request_station_call(self):  # call the number specified thru plivo
+    def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
             result = self.__call_station_via_sip()
-            if not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
+            if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
                 result = self.__call_station_via_goip()
         else:
             result = self.__call_station_via_goip()
-        if not result[0]:
+        if result is None or not result[0]:
             self.stop(False)
 
     def __call_station_via_sip(self):
+        result = None
         # Try a high bandwidth call first
         sip_info = self.__get_sip_info()
         if sip_info is not None and 'sip_username' in sip_info:
             result = self.__call_handler.call(self, sip_info['sip_username'], self.__host.phone.raw_number, True,
                                               self.duration)
             self.program.log_program_activity("result of station call via SIP is " + str(result))
-            return result
+        return result
 
     def __call_station_via_goip(self):
         result = None
@@ -162,7 +163,7 @@ class OutcallAction:
         dtmf_digit = dtmf_json["DTMF-Digit"]
         if dtmf_digit == "1" and self.__in_talkshow_setup:
             self.program.log_program_activity("Host is ready, we are calling the station")
-            self.request_station_call()
+            self.__request_station_call()
             self.__in_talkshow_setup = False
 
         elif dtmf_digit == "2" and self.__in_talkshow_setup:  # stop the music, put this live on air
@@ -243,7 +244,7 @@ class OutcallAction:
         time_delta = timedelta(seconds=30)  # one minutes
         now = datetime.now()
         callback_time = now + time_delta 
-        self.__scheduler.add_date_job(getattr(self, 'request_host_call'), callback_time)
+        self.__scheduler.add_date_job(getattr(self, '__request_host_call'), callback_time)
 
     def __schedule_warning(self):
         time_delta = timedelta(seconds=self.__warning_time)
