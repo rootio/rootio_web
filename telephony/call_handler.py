@@ -99,7 +99,6 @@ class CallHandler:
             "Added {0} to incoming call hangup recipients {1}".format(recipient, str(self.__call_hangup_recipients)))
 
     def register_for_host_call(self, recipient, host_number):
-        print "reged fir host"
         self.__host_call_recipients[host_number] = recipient
         self.__radio_station.logger.info(
             "The program {0} is now listening for host calls from {1}".format(recipient, host_number))
@@ -187,7 +186,7 @@ class CallHandler:
             if self.__radio_station.station.is_high_bandwidth and use_sip and len(self.__outgoing_sip_gateways) > 0:
                 self.__radio_station.logger.info(
                     "SIP GWS before pop are {0}".format(str(self.__outgoing_sip_gateways)))
-                gw = self.__outgoing_sip_gateways.values(0)
+                gw = self.__outgoing_sip_gateways.values()[0]
                 self.__radio_station.logger.info(
                     "SIP GWS after pop are {0}".format(str(self.__outgoing_sip_gateways)))
                 call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string,

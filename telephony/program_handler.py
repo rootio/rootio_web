@@ -54,7 +54,6 @@ class ProgramHandler:
         #  reload at midnight
 
     def __schedule_programs(self):
-        print len(self.__scheduled_programs)
         for scheduled_program in self.__scheduled_programs:
             if not self.__is_program_expired(scheduled_program):
                 self.__add_scheduled_job(scheduled_program)
@@ -62,9 +61,6 @@ class ProgramHandler:
                     "Scheduled program {0} for station {1} starting at {2}".format(scheduled_program.program.name,
                                                                                    self.__radio_station.station.name,
                                                                                    scheduled_program.start))
-            else:
-                print "program is expired!"
-        return
 
     def __add_scheduled_job(self, scheduled_program):
         program = RadioProgram(scheduled_program, self.__radio_station)
