@@ -392,7 +392,6 @@ class CallHandler:
                                              args=(event_json,)).start()
                             # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
                     except e:
-                        print e
                         self.__radio_station.logger.error('error in media bug stop: {0}'.format(e.message))
 
     def record_call(self, call_uuid, path):
@@ -416,6 +415,8 @@ class CallHandler:
             call.station_id = self.__radio_station.station.id
         except KeyError as e:
             self.__radio_station.logger.error('error in __log_call: {0}'.format(e.message))
+            return
+        except:
             return
 
         try:

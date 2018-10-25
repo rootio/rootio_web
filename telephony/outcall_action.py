@@ -244,7 +244,7 @@ class OutcallAction:
         time_delta = timedelta(seconds=30)  # one minutes
         now = datetime.now()
         callback_time = now + time_delta 
-        self.__scheduler.add_date_job(getattr(self, '__request_host_call'), callback_time)
+        self.__scheduler.add_date_job(getattr(self, 'request_host_call'), callback_time)
 
     def __schedule_warning(self):
         time_delta = timedelta(seconds=self.__warning_time)

@@ -71,7 +71,10 @@ class ProgramHandler:
 
     def __delete_scheduled_job(self, index):
         if index in self.__scheduled_jobs:
-            self.__scheduler.unschedule_job(self.__scheduled_jobs[index])
+            try:
+                self.__scheduler.unschedule_job(self.__scheduled_jobs[index])
+            except:
+                pass  # The job probably ran already
             del self.__scheduled_jobs[index]
 
     def __stop_program(self):
