@@ -164,11 +164,11 @@ def program_add():
     hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     news = ContentTrack.query.join(User, Network.networkusers).filter(
-        User.id == current_user.id).join(ContentType).filter(ContentType.name == "News").all()
+        User.id == current_user.id).join(ContentTrack, ContentType).filter(ContentType.name == "News").all()
     ads = ContentTrack.query.join(User, Network.networkusers).filter(
-        User.id == current_user.id).join(ContentType).filter(ContentType.name == "Advertisements").all()
+        User.id == current_user.id).join(ContentTrack, ContentType).filter(ContentType.name == "Advertisements").all()
     medias = ContentTrack.query.join(User, Network.networkusers).filter(
-        User.id == current_user.id).join(ContentType).filter(ContentType.name == "Media").all()
+        User.id == current_user.id).join(ContentTrack, ContentType).filter(ContentType.name == "Media").all()
     podcasts = ContentPodcast.query.join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},

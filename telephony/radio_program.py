@@ -41,6 +41,7 @@ class RadioProgram:
         try:
             data = json.loads(self.scheduled_program.program.structure)
         except ValueError as e:
+            print e
             return
 
         for action in data:

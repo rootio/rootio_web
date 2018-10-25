@@ -47,7 +47,7 @@ class Call(BaseMixin, db.Model):
     a_leg_uuid = db.Column(db.String(100))  # only for outgoing
     a_leg_request_uuid = db.Column(db.String(100))  # only for outgoing
     station_id = db.Column(db.ForeignKey('radio_station.id'))
-    onairprogram_id = db.Column(db.ForeignKey('onair_program.id'))
+    onairprogram_id = db.Column(db.ForeignKey('radio_program.id'))
 
     # todo: add station relationship
     # station = db.relationship(u'rootio.radio.models.Station')

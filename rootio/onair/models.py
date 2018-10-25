@@ -17,7 +17,7 @@ class OnAirProgram(BaseMixin, db.Model):
     # backrefs
     scheduled_program = db.relationship(u'ScheduledProgram', backref=db.backref('onairprogram', uselist=False))
     # incoming calls and messages
-    calls = db.relationship(u'Call', backref=db.backref('onairprogram'))
+    #calls = db.relationship(u'Call', backref=db.backref('onairprogram'))
     messages = db.relationship(u'Message', backref=db.backref('onairprogram'))
 
     # alternate architectures:

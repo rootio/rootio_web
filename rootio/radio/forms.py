@@ -53,7 +53,8 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
-                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'tts_language'])
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language', 'is_high_bandwidth', 'sip_settings'])
 
 
 def all_languages():
@@ -83,7 +84,9 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
-                                               'playlists', 'artists', 'albums', 'network', ])
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
+                                               'tts_sample_rate'])
 
 
 class StationTelephonyForm(StationTelephonyFormBase):

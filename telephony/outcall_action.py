@@ -1,9 +1,11 @@
+import json
 from datetime import timedelta, datetime
 from sets import Set
 
 from apscheduler.scheduler import Scheduler
+
 from rootio.radio.models import Person
-from pytz import timezone
+
 
 class PhoneStatus:
     REJECTING = 1
@@ -31,14 +33,20 @@ class OutcallAction:
         self.__interested_participants = Set([])
 
     def start(self):
-        self.__in_talkshow_setup = True
-        self.__host = self.__get_host(self.__host_id)
-        # self.program.set_running_action(self)
-        self.__scheduler.start()
-        self.__call_handler.register_for_incoming_calls(self)
-        self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
-        self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number))
-        self.request_host_call()
+        try:
+            self.__in_talkshow_setup = True
+            self.__host = self.__get_host(self.__host_id)
+            if self.__host is None or self.__host.phone is None:  # No point proceeding if host is null or no phone number
+                self.stop(False)
+                return
+            # self.program.set_running_action(self)
+            self.__scheduler.start()
+            self.__call_handler.register_for_incoming_calls(self)
+            self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
+            self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number))
+            self.request_host_call()
+        except Exception as e:
+            print e
 
     def stop(self, graceful=True, call_info=None):
         self.hangup_call()
@@ -50,30 +58,69 @@ class OutcallAction:
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def __get_host(self, host_id):
-        host = self.program.db.query(Person).filter(Person.id == host_id).first()
+        host = self.program.radio_station.db.query(Person).filter(Person.id == host_id).first()
         return host
 
     def request_host_call(self):
         self.__in_talkshow_setup = True
-        result = self.__call_handler.call(self, self.__host.phone.raw_number, None, None,
+        result = self.__call_handler.call(self, self.__host.phone.raw_number, None, False,
                                           15)  # call ends in 15 mins max
         self.program.log_program_activity("result of host call is " + str(result))
+        if not result[0]:
+            self.stop(False)
 
-    def request_station_call(self):  # call the number specified thru plivo
-        result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.number,
-                                          'play', self.__host.phone.raw_number, self.duration)
-        self.program.log_program_activity("result of station call is " + str(result))
+    def __request_station_call(self):  # call the number specified thru plivo
+        if self.program.radio_station.station.is_high_bandwidth:
+            result = self.__call_station_via_sip()
+            if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
+                result = self.__call_station_via_goip()
+        else:
+            result = self.__call_station_via_goip()
+        if result is None or not result[0]:
+            self.stop(False)
+
+    def __call_station_via_sip(self):
+        result = None
+        # Try a high bandwidth call first
+        sip_info = self.__get_sip_info()
+        if sip_info is not None and 'sip_username' in sip_info:
+            result = self.__call_handler.call(self, sip_info['sip_username'], self.__host.phone.raw_number, True,
+                                              self.duration)
+            self.program.log_program_activity("result of station call via SIP is " + str(result))
+        return result
+
+    def __call_station_via_goip(self):
+        result = None
+        if self.program.radio_station.station.primary_transmitter_phone is not None:
+            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
+                                          self.__host.phone.raw_number, False,
+                                          self.duration)
+            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+                result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                              self.__host.phone.raw_number, False,
+                                              self.duration)
+                self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
+        return result
+
+    def __get_sip_info(self):
+        try:
+            sip_info = json.loads(json.loads(self.program.radio_station.station.sip_settings))  # Crap!!
+            return sip_info
+        except ValueError:
+            return None
 
     def notify_call_answered(self, answer_info):
         if self.__host.phone.raw_number not in self.__available_calls:
-            self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-9:]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
         else:  # This notification is from answering the host call
-            self.__available_calls[answer_info['Caller-Destination-Number'][-10:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-9:]] = answer_info
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-10:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-9:])
 
     def warn_number(self):
         seconds = self.duration - self.__warning_time
@@ -116,7 +163,7 @@ class OutcallAction:
         dtmf_digit = dtmf_json["DTMF-Digit"]
         if dtmf_digit == "1" and self.__in_talkshow_setup:
             self.program.log_program_activity("Host is ready, we are calling the station")
-            self.request_station_call()
+            self.__request_station_call()
             self.__in_talkshow_setup = False
 
         elif dtmf_digit == "2" and self.__in_talkshow_setup:  # stop the music, put this live on air
