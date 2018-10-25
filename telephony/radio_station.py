@@ -24,6 +24,7 @@ class RadioStation:
         self.logger = logger
         self.db = db
         self.station = station
+        self.id = station.id
         self.__program_handler = ProgramHandler(self)
         self.call_handler = CallHandler(self)
         self.__community_handler = CommunityMenu(self)
