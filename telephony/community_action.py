@@ -89,7 +89,7 @@ class CommunityAction:
 
     def __get_sip_info(self):
         try:
-            sip_info = json.loads(json.loads(self.program.radio_station.station.sip_settings))  # Crap!!
+            sip_info = json.loads(self.program.radio_station.station.sip_settings)
             return sip_info
         except ValueError:
             return None
