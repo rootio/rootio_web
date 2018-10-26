@@ -60,8 +60,9 @@ class RSSDownloader:
                     published_date = datetime.strptime(
                         "{0} {1} {2} {3}".format(dt_parts[1], dt_parts[2], dt_parts[3], dt_parts[4]),
                         "%d %b %Y %H:%M:%S")
-                    # if datetime.fromtimestamp(mktime(entry.published_parsed)) > base_date.replace(tzinfo=None):
-                    if published_date > base_date.replace(tzinfo=None):
+                    #Some podcasts entries do not have published_parsed
+                    if datetime.fromtimestamp(mktime(entry.published_parsed)) > base_date.replace(tzinfo=None):
+                    #f published_date > base_date.replace(tzinfo=None):
                         podcasts.append(entry)
                 except Exception as e:
                     print e

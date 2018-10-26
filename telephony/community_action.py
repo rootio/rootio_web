@@ -76,14 +76,12 @@ class CommunityAction:
         result = None
         if self.program.radio_station.station.primary_transmitter_phone is not None:
             result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
-                                              self.program.name, False,
-                                          self.duration)
+                                              self.program.name, False, self.duration)
             self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
             if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
                 result = self.__call_handler.call(self,
                                               self.program.radio_station.station.secondary_transmitter_phone.raw_number,
-                                                  self.program.name, False,
-                                              self.duration)
+                                                  self.program.name, False, self.duration)
                 self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
         return result
 
