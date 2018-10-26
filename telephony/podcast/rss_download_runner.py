@@ -9,11 +9,12 @@ import sys
 
 sys.path.append('/usr/local/rootio_web/')
 from rootio.config import *
+from rootio.radio.models import Station
 from telephony.daemon.daemoner import Daemon
 from rss_agent import RSSAgent
 from datetime import datetime
 import logging
-from logging.handlers import TimedRotatingFileHandler 
+from logging.handlers import TimedRotatingFileHandler
 
 
 class RSSRunner(Daemon):
@@ -39,7 +40,7 @@ if __name__ == "__main__":
             rss_daemon.start()
         elif sys.argv[1] == "stop":
            rss_daemon.stop()
-        elif sys.argv[1] == "restart": 
+        elif sys.argv[1] == "restart":
             rss_daemon.restart()
         else:
             print "Wrong arguments supplied. Usage: rss_download_runner start|stop|restart"
