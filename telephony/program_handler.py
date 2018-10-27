@@ -82,7 +82,7 @@ class ProgramHandler:
         return
 
     def __load_programs(self):
-        date_filter = "(start >= now() and start < now() + interval '3 hour') or (start < now() and radio_scheduledprogram.end > now())"
+        date_filter = "((start >= now() and start < now() + interval '3 hour') or (start < now() and radio_scheduledprogram.end > now()))"
         self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
             ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
             ScheduledProgram.deleted == False).all()
