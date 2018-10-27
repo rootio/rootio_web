@@ -39,7 +39,7 @@ if __name__ == "__main__":
         if sys.argv[1] == "start":
             rss_daemon.start()
         elif sys.argv[1] == "stop":
-           rss_daemon.stop()
+            rss_daemon.stop()
         elif sys.argv[1] == "restart":
             rss_daemon.restart()
         else:
