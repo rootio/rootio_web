@@ -25,18 +25,18 @@ class ProgramHandler:
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
     def run(self):
-        self.run_today_schedule()
+        self.run_current_schedule()
 
     def __prepare_schedule(self):
         self.__load_programs()
         self.__scheduler = Scheduler()
         self.__scheduled_jobs = dict()
 
-    def run_today_schedule(self):
+    def run_current_schedule(self):
         self.__prepare_schedule()
         self.__scheduler.start()
         self.__schedule_programs()
-        self.__schedule_next_day_scheduler()
+        self.__schedule_next_schedule()
         print self.__scheduler.get_jobs()
 
     def stop(self):
@@ -44,14 +44,10 @@ class ProgramHandler:
         # any clean up goes here
         # unschedule stuff
 
-    def __schedule_next_day_scheduler(self):
-        # TODO: make this safe for different timezones!
-        base_date = date.today() + timedelta(1, 0)
-        tomorrow_date = datetime.combine(base_date, time())
-        # add the timezone offset
-        tomorrow_date = tomorrow_date + timedelta(0, timezone(self.__radio_station.station.timezone).utcoffset(datetime.now()).seconds)
-        self.__scheduler.add_date_job(getattr(self, 'run_today_schedule'), tomorrow_date) # schedule the scheduler to
-        #  reload at midnight
+    def __schedule_next_schedule(self):
+        base_date = datetime.now()
+        next_schedule_date = base_date + timedelta(0, 0, 0, 0, 0, 3)  # 3 hours
+        self.__scheduler.add_date_job(getattr(self, 'run_current_schedule'), next_schedule_date)
 
     def __schedule_programs(self):
         for scheduled_program in self.__scheduled_programs:
@@ -92,9 +88,9 @@ class ProgramHandler:
         return
 
     def __load_programs(self):
+        date_filter = "((start >= now() and start < now() + interval '3 hour') or (start < now() and radio_scheduledprogram.end > now()))"
         self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
-            ScheduledProgram.station_id == self.__radio_station.station.id).filter(text("date(start) = "
-                                                                                "current_date")).filter(
+            ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
             ScheduledProgram.deleted == False).all()
         self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 

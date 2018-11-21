@@ -36,7 +36,7 @@ class OutcallAction:
         try:
             self.__in_talkshow_setup = True
             self.__host = self.__get_host(self.__host_id)
-            if self.__host is None or self.__host.phone is None:  # No point proceeding if host is null or no phone number
+            if self.__host is None or self.__host.phone is None:
                 self.stop(False)
                 return
             # self.program.set_running_action(self)
@@ -106,7 +106,7 @@ class OutcallAction:
 
     def __get_sip_info(self):
         try:
-            sip_info = json.loads(json.loads(self.program.radio_station.station.sip_settings))  # Crap!!
+            sip_info = json.loads(self.program.radio_station.station.sip_settings)
             return sip_info
         except ValueError:
             return None

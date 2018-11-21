@@ -433,6 +433,10 @@ class CallHandler:
             except:
                 return
 
+        except:  # any other exception. This loop should not stop for anything.
+            return
+
+
     def __release_gateway(self, event_json):
         # if it was an incoming call
         if event_json['Caller-Destination-Number'][:-9] in self.__outgoing_gateways.keys():

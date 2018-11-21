@@ -105,7 +105,8 @@ class RadioProgram:
         pass
 
     def __run_program_action(self):
-        self.__program_actions.pop().start()
+        if self.__program_actions is not None and len(self.__program_actions) > 0:
+            self.__program_actions.pop().start()
 
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
         self.__status = self.__status and played_successfully
