@@ -63,6 +63,7 @@ class ProgramHandler:
                                                                                    scheduled_program.start))
 
     def __add_scheduled_job(self, scheduled_program):
+        station = self.__radio_station.station
         program = RadioProgram(scheduled_program, self.__radio_station)
         scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),
                                                       self.__get_program_start_time(scheduled_program).replace(
@@ -70,11 +71,16 @@ class ProgramHandler:
         self.__scheduled_jobs[scheduled_program.id] = scheduled_job
 
     def __delete_scheduled_job(self, index):
+        if not self.__scheduled_jobs:
+            self.__radio_station.logger.warning("Failed to delete job (no jobs are scheduled)")
+            return
+
         if index in self.__scheduled_jobs:
             try:
                 self.__scheduler.unschedule_job(self.__scheduled_jobs[index])
             except:
-                pass  # The job probably ran already
+                # The job probably ran already
+                self.__radio_station.logger.warning("Failed to remove unscheduled job #{}".format(index))
             del self.__scheduled_jobs[index]
 
     def __stop_program(self):
@@ -103,15 +109,17 @@ class ProgramHandler:
     def __listen_for_scheduling_changes(self, ip, port):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         addr = (ip, port)
-        
+
         # It may not be possible to connect after restart, TIME_WAIT could come into play etc. Anyway, keep trying
         connected = False
         while not connected:
-            try:         
+            try:
                 sck.connect(addr)
                 connected = True
             except:
-                self.__radio_station.logger.error("Could not connect to server, retrying in 30 ...")
+                self.__radio_station.logger.warning(
+                    "[Station #{}] Could not connect to server, retrying in 30..."
+                    .format(self.__radio_station.id))
                 sleep(30)
         sck.send(json.dumps({'station':self.__radio_station.station.id, 'action':'register'}))
 
@@ -124,22 +132,24 @@ class ProgramHandler:
             if "action" in event and "id" in event:
                 if event["action"] == "delete":
                     self.__delete_scheduled_job(event["id"])
-                    self.__radio_station.logger.info("Scheduled program with id {0} has been deleted".format(event["id"]))
+                    self.__radio_station.logger.info(
+                        "Scheduled program with id {0} has been deleted"
+                        .format(event["id"]))
                 elif event["action"] == "add":
                     scheduled_program = self.__load_program(event["id"])
                     if not self.__is_program_expired(scheduled_program):
                         self.__add_scheduled_job(scheduled_program)
                         self.__radio_station.logger.info(
-                            "Scheduled program with id {0} has been added at time {1}".format(event["id"],
-                                                                                              scheduled_program.start))
+                            "Scheduled program with id {0} has been added at time {1}"
+                            .format(event["id"], scheduled_program.start))
                 elif event["action"] == "update":
                     self.__delete_scheduled_job(event["id"])
                     scheduled_program = self.__load_program(event["id"])
-                    if not self.__is_program_expired(scheduled_program, scheduled_program.program.duration):
+                    if not self.__is_program_expired(scheduled_program):
                         self.__add_scheduled_job(scheduled_program)
                         self.__radio_station.logger.info(
-                            "Scheduled program with id {0} has been moved to start at time {1}".format(event["id"],
-                                                                                                       scheduled_program.start))
+                            "Scheduled program with id {0} has been moved to start at time {1}"
+                            .format(event["id"], scheduled_program.start))
 
 
     """

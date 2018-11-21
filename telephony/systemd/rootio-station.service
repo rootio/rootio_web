@@ -1,0 +1,15 @@
+[Unit]
+description=rootio station runner service
+after=syslog.target
+
+[Service]
+type=simple
+user=root
+group=root
+WorkingDirectory=/opt/rootio/rootio_web
+ExecStart=/opt/rootio/venvs/rootio_web/bin/python -u -m telephony.daemon.station_runner
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

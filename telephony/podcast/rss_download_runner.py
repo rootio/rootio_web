@@ -5,44 +5,45 @@
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
-import sys
+import sys, os
 
 sys.path.append('/usr/local/rootio_web/')
-from rootio.config import *
+from rootio.config import DefaultConfig, BaseConfig
 from rootio.radio.models import Station
-from telephony.daemon.daemoner import Daemon
 from rss_agent import RSSAgent
 from datetime import datetime
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from logging import StreamHandler
 
 
-class RSSRunner(Daemon):
+class RSSRunner():
+
+    def __init__(self, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        self.logger = logging.getLogger('rss_downloader')
+        self.run()
 
     def run(self):
-        app_logger = logging.getLogger('rss_downloader')
-        log_folder = BaseConfig.LOG_FOLDER
-        hdlr = TimedRotatingFileHandler(os.path.join(log_folder, 'rssdownloader.log'), when='midnight', interval=1)
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        hdlr.setFormatter(formatter)
-        app_logger.addHandler(hdlr)
-        app_logger.setLevel(logging.DEBUG)
+        self.__prepare_logging()
 
-        rss_server = RSSAgent(app_logger)
+        rss_server = RSSAgent(self.logger)
         rss_server.run()
         print "================ RSS runner service started at {0} ==============".format(datetime.utcnow())
 
+    def __prepare_logging(self):
+        log_folder = DefaultConfig.LOG_FOLDER
+        file_hdlr = TimedRotatingFileHandler(os.path.join(log_folder, 'rssdownloader.log'), when='midnight', interval=1)
+        stream_hdlr = StreamHandler(stream=sys.stdout)
+
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        file_hdlr.setFormatter(formatter)
+        stream_hdlr.setFormatter(formatter)
+
+        self.logger.addHandler(file_hdlr)
+        self.logger.addHandler(stream_hdlr)
+
+        self.logger.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
-    rss_daemon = RSSRunner("/tmp/rss_runner.pid")
-    if len(sys.argv) == 2:
-        if sys.argv[1] == "start":
-            rss_daemon.start()
-        elif sys.argv[1] == "stop":
-           rss_daemon.stop()
-        elif sys.argv[1] == "restart":
-            rss_daemon.restart()
-        else:
-            print "Wrong arguments supplied. Usage: rss_download_runner start|stop|restart"
-    else:
-        print "Wrong number of arguments supplied. Usage: rss_download_runner start|stop|restart"
+    rss_daemon = RSSRunner()
