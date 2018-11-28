@@ -81,13 +81,14 @@ $(document).ready(function() {
         if (calendarView.name === "agendaDay") {
             return "bottom";
         }
-        if (calendarView.name === "agendaWeek") {
+        else if (calendarView.name === "agendaWeek") {
             //check if date is toward the end of the week
             if (eventDate.isoWeekday() > 5) {
                 return "left";
             }
+        } else {
+          return "right";
         }
-        return "right";
     };
 
     //set up calendar
@@ -97,6 +98,7 @@ $(document).ready(function() {
             center: 'title',
             right: 'month,agendaWeek,agendaDay'
         },
+        firstDay: 1,
         allDayDefault: false,
         defaultView: 'agendaWeek',
         timezone: $('#calendar').data('timezone'),
