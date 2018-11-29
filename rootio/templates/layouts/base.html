@@ -67,7 +67,7 @@
                             </li>
                         </ul>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -102,16 +102,17 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.3/js/jquery.dataTables.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $('#datatable').DataTable({
-               serverSide: true,
-               ajax: $('#datatable').attr('data-url'),
-               searching: true,
-           });
+          $('#datatable').DataTable({
+            serverSide: true,
+            ajax: $('#datatable').attr('data-url'),
+            searching: true,
+            lengthMenu: [ 25, 50, 100, 1000 ],
+          });
 
-            $('#offline_datatable').DataTable({
-               searching: true,
-           });
-
+          $('#offline_datatable').DataTable({
+            searching: true,
+            lengthMenu: [ 25, 50, 100, 1000 ],
+          });
         });
     </script>
     {% endblock %}
