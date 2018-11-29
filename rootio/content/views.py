@@ -355,9 +355,10 @@ def content_media_definition(content_media_id):
 
         # Save the uploaded file
         file_path = os.path.join("media", str(form.data['track'].id))
-        uri = save_uploaded_file(request.files['file'], file_path)
-        content_media.uri = uri
-        content_media.name = secure_filename(request.files['file'].filename)
+        if request.files['file']:
+            uri = save_uploaded_file(request.files['file'], file_path)
+            content_media.uri = uri
+            content_media.name = secure_filename(request.files['file'].filename)
 
         db.session.add(content_media)
         db.session.commit()
