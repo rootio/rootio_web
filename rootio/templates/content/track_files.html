@@ -30,13 +30,7 @@
             {% else %}                {% set status_color = ok_color %} {% endif %}
 
             <tr id="{{ media.id }}">
-              <td>{{ media.name }}
-                {% if media.is_expired %}
-                EXPIRED
-                {% else %}
-                NOT EXPIRED
-                {% endif %}
-              </td>
+              <td>{{ media.name }}</td>
                 <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
                 <td style="background-color: {{status_color}}">{{ media.expiry_date.strftime('%Y-%m-%d') }}</td>
                 <td>
