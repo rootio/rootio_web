@@ -5,7 +5,7 @@ import socket
 from datetime import datetime
 
 import dateutil.parser
-import dateutil.rrule
+from dateutil import rrule
 from flask import Blueprint, render_template, request, flash, json
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
@@ -484,8 +484,15 @@ def schedule_recurring_program_ajax():
     # save refs to form objects
     program = Program.query.filter(Program.id == form.data['program']).first()
 
+    # hotfix for some broken recurrence rules
+    if 'DTSTART=' in form.data['recurrence']:
+        import re
+        clean_rrule = re.sub(r'.DTSTART=',
+                             '\nDTSTART:',
+                             form.data['recurrence'])
+
     # parse recurrence rule
-    r = dateutil.rrule.rrulestr(form.data['recurrence'])
+    r = rrule.rrulestr(clean_rrule)
     for instance in r[:30]:  # TODO: dynamically determine instance limit
         scheduled_program = ScheduledProgram()
         scheduled_program.station_id = data['station']
@@ -539,7 +546,7 @@ def scheduled_block_json(station_id):
 
     resp = []
     for block in scheduled_blocks:
-        r = dateutil.rrule.rrulestr(block.recurrence)
+        r = rrule.rrulestr(block.recurrence)
         for instance in r.between(start, end):
             d = {'title': block.name,
                  'start': datetime.combine(instance, block.start_time),
@@ -569,7 +576,7 @@ def schedule_station(station_id):
     scheduled_blocks = ScheduledBlock.query.filter_by(station_id=station.id)
     block_list = []
     for block in scheduled_blocks:
-        r = dateutil.rrule.rrulestr(block.recurrence)
+        r = rrule.rrulestr(block.recurrence)
         for instance in r[:30]:  # TODO: dynamically determine instance limit from calendar view
             d = {'title': block.name,
                  'start': datetime.combine(instance, block.start_time),
