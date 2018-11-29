@@ -83,7 +83,7 @@ virtualenv==16.0.0
 waitress==1.0.1
 wcwidth==0.1.7
 webassets==0.10.1
-werkzeug==0.9.3
+werkzeug==0.11.4
 wsgiref==0.1.2
 wtforms-alchemy==0.7.12
 wtforms-components==0.9.1
