@@ -155,14 +155,20 @@ $(document).ready(function() {
                 url:'/api/scheduledprogram/'+event.id,
                 context: this, //so that the success callback gets a reference
                 success: function(data) {
+                    setEventStart = function(id){
+                      return update_event(id, $('input#newStart_'+id).val());
+                    };
                     program = data['program'];
                     popover_content = "<ul>";
-                    if (program['description'] !== null) {
+                    if (program['description']) {
                         popover_content += "<li>"+program['description']+"</li>";
                     }
                     popover_content += "<li>Start: "+event.start.format("L LT")+"</li>";
                     popover_content += "<li>End: "+event.end.format("L LT")+"</li>";
                     popover_content += "</ul>";
+                    popover_content += "<p>Modify start time (HH:mm): ";
+                    popover_content += "<input id='newStart_"+event.id+"' type='text' value='"+event.start.format('LT')+"' placeholder='HH:MM'></p>";
+                    popover_content += "<button id='update_event' onclick='setEventStart("+event.id+")'>Save</button>";
                     popover_content += "<button id='delete_event' onclick='delete_event("+event.id+")'>Delete</button>";
                     $(this).popover({
                         trigger:'manual',
@@ -228,7 +234,7 @@ $(document).ready(function() {
                 station:event.station,
                 start:event.start}; //moment json-ifies to iso8601 natively
             action_url = '/radio/scheduleprogram/add/ajax/';
-            
+
 
             if (event.edited === 'edited') {
                 //there's already an existing ScheduledProgram in the db
@@ -247,8 +253,8 @@ $(document).ready(function() {
                     event.saved = true;
                 });
         }
-        
-    
+
+
         //clear editlog
         $('#addable-programs #schedule-edit-log').empty();
         $('#addable-programs #unsaved-changes').hide();
@@ -265,10 +271,24 @@ function remove_from_log(elem){
 }
 
 function delete_event(id){
-    if(confirm("Are you sure, you want to delete this program?")) {
+    if(confirm("Are you sure you want to delete this program?")) {
         ask_to_delete(id);
         $('#calendar').fullCalendar('removeEvents', id);
     }
+}
+
+function update_event(id, start){
+  var e = $("#calendar").fullCalendar('clientEvents', id)[0];
+  var oldStart = e.start;
+  var oldEnd = e.end;
+  var duration = moment.duration(oldEnd.diff(oldStart)).as('minutes');
+  e.start = moment(moment().format('YYYYMMDD')+start+'+00:00', 'YYYYMMDDh:mm AZ');
+  e.end = e.start.clone().add(duration, 'm');
+  $('#calendar').fullCalendar('updateEvent', e);
+  $('#calendar').fullCalendar('refresh');
+  e.edited = 'edited'; //set edited flag
+  // alert schedule edited
+  alertEditLog(e, e.start+' changed to '+e.start.format("L LT"));
 }
 
 function ask_to_delete(id){
