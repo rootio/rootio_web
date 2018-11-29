@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-welcome_message_file = FileField('Welcome message')
 
 import os
+import pytz
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash, redirect, jsonify
@@ -42,6 +43,13 @@ def index():
 def list_tracks():
     tracks = ContentTrack.query.filter_by(uploaded_by=current_user.id).all()
     return render_template('content/tracks.html', tracks=tracks, active='tracks')
+
+
+@content.route('/tracks/<int:track_id>/files', methods=['GET'])
+@login_required
+def list_track_files(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+    return render_template('content/track_files.html', track=track, active='tracks')
 
 
 @content.route('/tracks/<int:track_id>', methods=['GET', 'POST'])
@@ -365,6 +373,20 @@ def content_media_definition(content_media_id):
         flash(_('Content updated.'), 'success')
 
     return render_template('content/content_media.html', content_media=content_media, form=form)
+
+
+@content.route('/medias/<int:content_media_id>/disable', methods=['GET', 'POST'])
+@login_required
+def content_media_disable(content_media_id):
+    content_media = ContentUploads.query.filter_by(id=content_media_id).first_or_404()
+
+    content_media.expiry_date = datetime.now().replace(tzinfo=pytz.UTC)
+
+    db.session.add(content_media)
+    db.session.commit()
+    flash(_('Content updated.'), 'success')
+
+    return redirect(request.referrer or '/')
 
 
 @content.route('/medias/add/', methods=['GET', 'POST'])

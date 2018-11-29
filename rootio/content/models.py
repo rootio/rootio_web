@@ -1,3 +1,5 @@
+import pytz, datetime
+
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -47,6 +49,12 @@ class ContentUploads(BaseMixin, db.Model):
     @hybrid_property
     def is_remote(self):
         return self.uri.startswith('http://') or self.uri.startswith('https://')
+    @hybrid_property
+    def is_expired(self):
+        # make datetime objects offset-aware so they can be compared
+        aware_expiry_date = self.expiry_date.replace(tzinfo=pytz.UTC)
+        aware_now = self.expiry_date.now().replace(tzinfo=pytz.UTC)
+        return aware_expiry_date < aware_now
 
 
 class CommunityMenu(BaseMixin, db.Model):

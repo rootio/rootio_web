@@ -16,6 +16,7 @@
                 <th>{{ _('Description') }}</th>
                 <th>{{ _('Content Type') }}</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         {% for track in tracks %}
@@ -23,6 +24,7 @@
             <td>{{ track.name }}</td>
             <td>{{ track.description }}</td>
             <td>{{ track.content_type }}</td>
+            <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|length}} {{ _('Files') }}</a></td>
             <td><a href="{{ url_for('content.track', track_id=track.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}

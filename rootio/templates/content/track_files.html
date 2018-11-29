@@ -1,0 +1,62 @@
+{% extends "content/layout.html" %}
+
+{% set warning_color = '#ffff9f' %}
+{% set ok_color = '#99ff99' %}
+
+{% block body %}
+<div class="container">
+    <h2>{{ _('Content Dashboard') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Track contents') }} ({{track.name}})</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('content.track_add') }}"><strong>{{ _('Add') }} +</strong></a>
+    </div>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('File name') }}</th>
+                <th>{{ _('Uploaded date') }}</th>
+                <th>{{ _('Expiration date') }}</th>
+                <th>{{ _('Listen') }}</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for media in track.track_uploads %}
+
+            {% if media.is_expired %} {% set status_color = warning_color %}
+            {% else %}                {% set status_color = ok_color %} {% endif %}
+
+            <tr id="{{ media.id }}">
+              <td>{{ media.name }}
+                {% if media.is_expired %}
+                EXPIRED
+                {% else %}
+                NOT EXPIRED
+                {% endif %}
+              </td>
+                <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
+                <td style="background-color: {{status_color}}">{{ media.expiry_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <audio preload="metadata" controls>
+                      {% if media.is_remote %}
+                        <source src="{{ media.uri }}" type="audio/mpeg">
+                        <source src="{{ media.uri }}" type="audio/ogg">
+                        <source src="{{ media.uri }}" type="audio/wav">
+                      {% else %}
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
+                        <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                      {% endif %}
+                    </audio>
+                </td>
+                <td><a href="{{ url_for('content.content_media_definition', content_media_id=media.id) }}">{{ _('Edit') }}</a></td>
+                <td><a href="{{ url_for('content.content_media_disable', content_media_id=media.id) }}">{{ _('Disable') }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
