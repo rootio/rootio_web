@@ -71,6 +71,7 @@ $(document).ready(function() {
 
     //alert edit log
     alertEditLog = function(event, text) {
+        $('button#save-schedule').removeAttr("disabled");
         alert = $('<li class="alert alert-info" style="display:none;">'+text+'<br/><a href="#" onclick="event.preventDefault(); remove_from_log(this)" title="Remove" style="color: red">remove</a></li>');
         $('#addable-programs #schedule-edit-log').prepend(alert);
         alert.fadeIn();
@@ -203,17 +204,20 @@ $(document).ready(function() {
     $('button#save-schedule').click(function() {
         //make sure no edit is ongoing already - rapid double tap on save button results in multiple saves esp if link is slow
         if(is_saving)
-         { 
+         {
+           alert('Saving already in progress, please wait!');
+           $(this).attr("disabled", "disabled");
          }
         else
-        { 
+        {
+          $(this).attr("disabled", "disabled");
         is_saving = true;
 
         //query clientside events by edited flag
         editedEvents = $('#calendar').fullCalendar('clientEvents',function(event) {
             if (event.edited !== undefined && event.saved !== true ) { return true; }
         });
-        
+
         num_events = editedEvents.size;
         for (var key in editedEvents) {
             var event = editedEvents[key];
@@ -252,6 +256,7 @@ $(document).ready(function() {
         //rerender the calendar
         $('#calendar').fullCalendar('refresh');
         is_saving = false;
+          $(this).removeAttr("disabled");
     }});
 });
 function remove_from_log(elem){
