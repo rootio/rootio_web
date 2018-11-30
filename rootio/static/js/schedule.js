@@ -168,7 +168,7 @@ $(document).ready(function() {
                     popover_content += "</ul>";
                     popover_content += "<p>Modify start time (HH:mm): ";
                     popover_content += "<input id='newStart_"+event.id+"' type='text' value='"+event.start.format('LT')+"' placeholder='HH:MM'></p>";
-                    popover_content += "<button id='update_event' onclick='setEventStart("+event.id+")'>Save</button>";
+                    popover_content += "<button id='update_event' onclick='setEventStart("+event.id+")'>Update</button>";
                     popover_content += "<button id='delete_event' onclick='delete_event("+event.id+")'>Delete</button>";
                     $(this).popover({
                         trigger:'manual',
@@ -282,7 +282,7 @@ function update_event(id, start){
   var oldStart = e.start;
   var oldEnd = e.end;
   var duration = moment.duration(oldEnd.diff(oldStart)).as('minutes');
-  e.start = moment(moment().format('YYYYMMDD')+start+'+00:00', 'YYYYMMDDh:mm AZ');
+  e.start = moment(oldStart.format('YYYYMMDD')+start+'+00:00', 'YYYYMMDDh:mm AZ');
   e.end = e.start.clone().add(duration, 'm');
   $('#calendar').fullCalendar('updateEvent', e);
   $('#calendar').fullCalendar('refresh');
