@@ -94,6 +94,12 @@ $(document).ready(function() {
 
     //set up calendar
     $('#calendar').fullCalendar({
+        defaultDate: (localStorage.getItem("fcDefaultDate") !== null ? localStorage.getItem("fcDefaultDate") : null),
+        defaultView: (localStorage.getItem("fcDefaultView") !== null ? localStorage.getItem("fcDefaultView") : "basicMonth"),
+        viewRender: function( view, element ) {
+          localStorage.setItem("fcDefaultView", view.name);
+          localStorage.setItem("fcDefaultDate", view.intervalStart.format());
+        },
         header: {
             left: 'prev,next today',
             center: 'title',
@@ -101,7 +107,6 @@ $(document).ready(function() {
         },
         firstDay: 1,
         allDayDefault: false,
-        defaultView: 'agendaWeek',
         timezone: $('#calendar').data('timezone'),
 
         droppable: true,

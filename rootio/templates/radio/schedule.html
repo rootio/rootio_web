@@ -25,29 +25,26 @@
 
     <script type="text/javascript">
     $(document).ready(function() {
-        //after initial calendar render
+      //set timezone
+      $('#calendar').fullCalendar({
+        timezone: '{{station.timezone}}',
+      });
 
-        //set timezone
-        $('#calendar').fullCalendar({
-            timezone: '{{station.timezone}}'
-        });
+      //add event sources
+      $('#calendar').fullCalendar('addEventSource',
+        {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
+      );
+      $('#calendar').fullCalendar('addEventSource', {
+        url: '/radio/station/{{station.id}}/scheduledblocks.json',
+        backgroundColor: '#edb',
+        borderColor: '#edb',
+        textColor: '#777',
+        startEditable: false,
+        durationEditable: false,
+      });
 
-        //add event sources
-        $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
-        );
-        $('#calendar').fullCalendar('addEventSource',
-            {url: '/radio/station/{{station.id}}/scheduledblocks.json',
-            backgroundColor: '#edb',
-            borderColor: '#edb',
-            textColor: '#777',
-            startEditable: false,
-            durationEditable: false
-            }
-        ); 
 
-        //re-render calendar
-        $('#calendar').fullCalendar('render');
+      $('#calendar').fullCalendar('render');
     });
     </script>
 {% endblock %}
