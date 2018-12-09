@@ -45,9 +45,6 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                      "How frequently the transmitter should check for updates, in seconds")},
                                  'broadcast_ip': {'description': _(
                                      "IP address of the transmitter on the local network. Should start with 230.")},
-                                 # 'sip_settings': {'description': _(
-                                 #     "SIP settings for the station(JSON)")},
-                                 # 'tts_language': {'description': _('TTS language')},
                              },
                              exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
@@ -69,10 +66,9 @@ class StationForm(StationFormBase):
     # ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
     timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
-    sip_settings = JSONField()
     tts_language = QuerySelectField(u'TTS Language', query_factory=all_languages, allow_blank=False)
     submit = SubmitField(_('Save'))
-    field_order = ('network', 'name', 'location', 'timezone', 'tts_language', 'sip_settings', '*')
+    field_order = ('network', 'name', 'location', 'timezone', 'tts_language', '*')
 
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
