@@ -86,6 +86,7 @@ class Station(BaseMixin, db.Model):
     sip_settings = db.Column(db.Text(), default="{}")
     is_high_bandwidth = db.Column(db.Boolean, default=False)
     last_accessed_mobile = db.Column(db.DateTime(timezone=True))
+    audio_volume = db.Column(db.Float)
 
     # TTS settings
     # TODO: make these fields foreign keys once we figure out how the values would look like
