@@ -394,38 +394,49 @@ def content_media_disable(content_media_id):
 def content_medias_add():
     form = ContentMusicForm(request.form)
     content_media = None
+    uploaded_count = failed_count = 0
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
             flash(_('No file part'))
             return redirect(request.url)
-        uploaded_file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if uploaded_file.filename == '':
-            flash(_('No selected file'))
-            return redirect(request.url)
-        if uploaded_file and allowed_file(uploaded_file.filename):
-            filename = secure_filename(uploaded_file.filename)
-        if form.validate_on_submit():
-            cleaned_data = form.data  # make a copy
-            cleaned_data.pop('file', None)
-            cleaned_data.pop('submit', None)  # remove submit field from list
-            cleaned_data['uploaded_by'] = current_user.id
-            cleaned_data['name'] = filename
-            # Fix this - Form should automatically go into db
-            cleaned_data['track_id'] = cleaned_data['track'].id
+        for uploaded_file in request.files.getlist('file'):
+            # import ipdb
+            # ipdb.set_trace()
+            # if user does not select file, browser also
+            # submit a empty part without filename
+            if uploaded_file.filename == '':
+                flash(_('No selected file'))
+                return redirect(request.url)
+            if uploaded_file and allowed_file(uploaded_file.filename):
+                filename = secure_filename(uploaded_file.filename)
+            if form.validate_on_submit():
+                cleaned_data = form.data  # make a copy
+                cleaned_data.pop('file', None)
+                cleaned_data.pop('submit', None)  # remove submit field from list
+                cleaned_data['uploaded_by'] = current_user.id
+                cleaned_data['name'] = filename
+                # Fix this - Form should automatically go into db
+                cleaned_data['track_id'] = cleaned_data['track'].id
 
-            upload_directory = "{}/{}".format("media", str(cleaned_data['track_id']))
-            uri = save_uploaded_file(uploaded_file, upload_directory)
+                upload_directory = "{}/{}".format("media", str(cleaned_data['track_id']))
+                uri = save_uploaded_file(uploaded_file, upload_directory)
 
-            cleaned_data['uri'] = uri
-            content_media = ContentUploads(**cleaned_data)  # create new object from data
+                cleaned_data['uri'] = uri
+                content_media = ContentUploads(**cleaned_data)  # create new object from data
 
-            db.session.add(content_media)
-            db.session.commit()
+                db.session.add(content_media)
+                db.session.commit()
 
-            flash(_('Media Uploaded'), 'success')
+                uploaded_count += 1
+
+            else:
+                failed_count += 1
+
+        if uploaded_count:
+            flash(
+                _('Media Uploaded ({} files), {} errors'.format(uploaded_count, failed_count)),
+                'success')
         else:
             flash(_(form.errors.items()), 'error')
 

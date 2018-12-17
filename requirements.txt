@@ -16,7 +16,7 @@ docutils==0.14
 ecdsa==0.11
 enum34==1.1.6
 fabric==1.7.0
-flask-admin==1.0.7
+flask-admin==1.5.2
 flask-assets==0.10
 flask-babel==0.9
 flask-cache==0.12
@@ -85,7 +85,7 @@ wcwidth==0.1.7
 webassets==0.10.1
 werkzeug==0.11.4
 wsgiref==0.1.2
-wtforms-alchemy==0.7.12
+wtforms-alchemy==0.16.7
 wtforms-components==0.9.1
-wtforms==1.0.4
+wtforms==2.2
 yapsy==1.10.423

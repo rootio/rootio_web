@@ -35,7 +35,7 @@
 
 {% macro render_datepicker(field) %}
 <div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label" 
+    <label class="control-label"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
@@ -53,7 +53,7 @@
 
 {% macro render_textarea(field) %}
 <div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label {%if field.flags.required%}required{%endif%}" 
+    <label class="control-label {%if field.flags.required%}required{%endif%}"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
@@ -71,7 +71,7 @@
 
 {% macro render_inline_form(field, inline_form) %}
 <div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label {%if field.flags.required%}required{%endif%}" 
+    <label class="control-label {%if field.flags.required%}required{%endif%}"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
@@ -117,9 +117,34 @@
 
 {% endmacro %}
 
+{% macro render_upload_multiple(field) %}
+<div class="control-group{% if field.errors %} error{% endif %}">
+  <label class="control-label {%if field.flags.required%}required{%endif%}"
+    for="{{ field.id }}">
+    {{ field.label }}
+  </label>
+  <div class="controls">
+    {{ field }}
+    <span class="help-inline">{{ field.description }}</span>
+    {% if field.errors -%}
+    {% for error in field.errors -%}
+    <span class="help-block error">{{ error }}</span>
+    {%- endfor %}
+    {%- endif %}
+  </div>
+  <script>
+   $('#{{field.id}}').pekeUpload({
+     'dragMode': true,
+     'bootstrap': true,
+     'onSubmit': true
+   });
+  </script>
+</div>
+{% endmacro %}
+
 {% macro render_input(field) %}
 <div class="control-group{% if field.errors %} error{% endif %}">
-    <label class="control-label {%if field.flags.required%}required{%endif%}" 
+    <label class="control-label {%if field.flags.required%}required{%endif%}"
         for="{{ field.id }}">
         {{ field.label }}
     </label>
@@ -156,6 +181,8 @@
             {{ render_textarea(field) }}
         {% elif field.type == "DateField" %}
             {{ render_datepicker(field) }}
+        {% elif field.type == "MultipleFileField" %}
+            {{ render_upload_multiple(field) }}
         {% elif field.type == "TextField" %}
             {% if focus %}
                 {{ render_input(field) }}
@@ -179,7 +206,7 @@
 
 {% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None) %}
 <form class="{% if horizontal %}form-horizontal{% endif %}" method="POST" action="{{ url }}"
-    {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %} 
+    {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %}
     {% if form.multipart %}enctype="multipart/form-data"{% endif %} >
     {{ form.hidden_tag() }}
     <fieldset>

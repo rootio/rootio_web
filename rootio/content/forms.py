@@ -3,7 +3,7 @@
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, FileField
+from wtforms import StringField, SubmitField, TextAreaField, FileField, MultipleFileField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.fields.html5 import DateField
@@ -58,7 +58,7 @@ def stations():
 
 class ContentUploadForm(Form):
     multipart = True
-    file = FileField()
+    file = MultipleFileField()
     contenttrack_id = QuerySelectField(_('Track name'), query_factory=all_tracks, allow_blank=False)
     submit = SubmitField(_('Save'))
 
@@ -91,7 +91,7 @@ class ContentMusicForm(Form):
     multipart = True
     track = QuerySelectField(_('Track name'), [Required()], query_factory=musics_tracks, allow_blank=False)
     expiry_date = DateField(_('Expiration Date'))
-    file = FileField(_('File(s)'))
+    file = MultipleFileField(_('File(s)'))
     submit = SubmitField(_('Save'))
 
 

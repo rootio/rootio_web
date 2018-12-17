@@ -3,6 +3,7 @@
 import json
 import socket
 from datetime import datetime
+import re
 
 import dateutil.parser
 from dateutil import rrule
@@ -486,7 +487,6 @@ def schedule_recurring_program_ajax():
 
     # hotfix for some broken recurrence rules
     if 'DTSTART=' in form.data['recurrence']:
-        import re
         clean_rrule = re.sub(r'.DTSTART=',
                              '\nDTSTART:',
                              form.data['recurrence'])
