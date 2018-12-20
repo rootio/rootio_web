@@ -485,14 +485,16 @@ def schedule_recurring_program_ajax():
     # save refs to form objects
     program = Program.query.filter(Program.id == form.data['program']).first()
 
-    # hotfix for some broken recurrence rules
+    # fix for some broken recurrence rules
     if 'DTSTART=' in form.data['recurrence']:
-        clean_rrule = re.sub(r'.DTSTART=',
-                             '\nDTSTART:',
-                             form.data['recurrence'])
+        dtstart = re.search('DTSTART=([0-9]*T[0-9]*Z)', form.data['recurrence']).group(1)
+        clean_rrule = re.sub(r'.DTSTART=[0-9]*T[0-9]*Z', '', form.data['recurrence'])
+    if 'UNTIL=' in form.data['recurrence']:
+        # "count" together with  "until" is deprecated as of datetime v2.7.5
+        clean_rrule = re.sub(r'.COUNT=', '', clean_rrule)
 
     # parse recurrence rule
-    r = rrule.rrulestr(clean_rrule)
+    r = rrule.rrulestr(clean_rrule, dtstart=dateutil.parser.parse(dtstart))
     for instance in r[:30]:  # TODO: dynamically determine instance limit
         scheduled_program = ScheduledProgram()
         scheduled_program.station_id = data['station']
