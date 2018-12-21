@@ -44,7 +44,6 @@ $(document).ready(function() {
     $('button#modal-save').click(function() {
         $('.modal').hide();
         $('.modal-backdrop').fadeOut();
-        $('#calendar').fullCalendar('refetchEvents');
     });
 
 

@@ -402,8 +402,7 @@ def schedule_program_add_ajax():
     scheduled_program = ScheduledProgram()
     scheduled_program.station_id = data['station']
     scheduled_program.program_id = data['program']
-    scheduled_program.start = timezone(station.timezone).localize(
-        dateutil.parser.parse(data['start']).replace(tzinfo=None))  # Otherwise everything assumes UTC
+    scheduled_program.start = dateutil.parser.parse(data['start'])
     scheduled_program.end = scheduled_program.start + program.duration
     scheduled_program.deleted = False
 
@@ -435,20 +434,15 @@ def delete_program(_id):
 @login_required
 @returns_json
 def schedule_program_edit_ajax():
+
     data = json.loads(request.data)
 
     if 'scheduledprogram' not in data:
         return {'status': 'error', 'errors': 'scheduledprogram required', 'status_code': 400}
 
-    # lookup objects from ids
-    fk_errors = fk_lookup_form_data({'scheduledprogram': ScheduledProgram}, data)
-    if fk_errors:
-        return fk_errors
-
-    scheduled_program = data['scheduledprogram']
+    scheduled_program = db.session.query(ScheduledProgram).get(data['scheduledprogram'])
     scheduled_program.start = dateutil.parser.parse(data['start'])
-    program = scheduled_program.program
-    scheduled_program.end = scheduled_program.start + program.duration
+    scheduled_program.end = dateutil.parser.parse(data['end'])
     scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
