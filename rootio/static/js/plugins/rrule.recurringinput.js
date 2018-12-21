@@ -6,7 +6,7 @@
  */
 
 // add helpful constants to RRule
-RRule.FREQUENCY_NAMES = ['year','month','week','day','hour','minute','second'];
+RRule.FREQUENCY_NAMES = [/*'year','month',*/'week','day','hour','minute','second'];
 RRule.DAYCODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 RRule.DAYNAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 RRule.MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -28,6 +28,9 @@ $.widget("rrule.recurringinput", {
     tmpl += '<label class="controls">Repeat ';
     tmpl += '<select name="freq">';
     _.each(RRule.FREQUENCIES, function(element, index) {
+      if (['yearly', 'monthly'].includes(element.toLowerCase())) {
+        return; // remove yearly and monthly frequencies for now
+      }
       var f = window['RRule'][element]; //use window[] syntax to get object from string
       tmpl += '<option value='+f+'>'+element.toLowerCase()+'</option>';
     });
@@ -42,17 +45,19 @@ $.widget("rrule.recurringinput", {
 
     // repeat options, frequency specific
     // data-freq should be lowercase value from FREQUENCY_NAMES
-    
-    //bymonth
-    tmpl += '<div class="repeat-options controls form-inline" data-freq="monthly"><label>Only in ';
-    _.each(RRule.MONTHS, function(element, index) {
-      tmpl += '<label class="inline">';
-      tmpl += '<input type="checkbox" name="bymonth" value="'+(index+1)+'" />';
-      tmpl += element+'</label>';
-    });
-    tmpl += '</div>';
 
-    //byweekday
+    // bymonth (works, temporarily disabled)
+    //
+    // tmpl += '<div class="repeat-options controls form-inline" data-freq="monthly"><label>Only in ';
+    // _.each(RRule.MONTHS, function(element, index) {
+    //   tmpl += '<label class="inline">';
+    //   tmpl += '<input type="checkbox" name="bymonth" value="'+(index+1)+'" />';
+    //   tmpl += element+'</label>';
+    // });
+    // tmpl += '</div>';
+
+    // by weekday
+    //
     tmpl += '<div class="repeat-options controls form-inline" data-freq="weekly">';
     tmpl += '<label for="byweekday">On </label>';
     _.each(RRule.DAYCODES, function(element, index) {
@@ -63,15 +68,18 @@ $.widget("rrule.recurringinput", {
     });
     tmpl += '</div>';
 
-    //byhour
+    // by hour
+    //
     tmpl += '<label class="repeat-options" data-freq="hourly">Only at ';
     tmpl += '<input name="byhour" /> <span>o\'clock</span></label>';
 
-    //byminute
+    // by minute
+    //
     tmpl += '<label class="repeat-options" data-freq="minutely">Only at ';
     tmpl += '<input name="byminute" />  <span>minutes<span></label>';
 
-    //bysecond
+    // by second
+    //
     tmpl += '<label class="repeat-options" data-freq="secondly">Only at ';
     tmpl += '<input name="bysecond" /> <span>seconds</span></label>';
 
@@ -86,11 +94,11 @@ $.widget("rrule.recurringinput", {
     tmpl += '<div class="end-options controls">';
     tmpl += '<label for="end">End </label>';
 
-    tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value="0" checked="checked"/> Never</label>';
-    tmpl += '<label class="inline">';
-    tmpl += '<input type="radio" name="end" value="1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
-    tmpl += '</label>';
+    // Stop after a number of occurrences (works, temporarily disabled)
+    //
+    // tmpl += '<label class="inline">';
+    // tmpl += '<input type="radio" name="end" value="1" /> After <input type="number" max="1000" min="1" value="" name="count"/> occurences';
+    // tmpl += '</label>';
     tmpl += '<label class="inline">';
     tmpl += '<input type="radio" name="end" value="2"> On date <input type="date" name="until"/>';
     tmpl += '</label>';
@@ -138,12 +146,12 @@ $.widget("rrule.recurringinput", {
     // display appropriate repeat options
     var repeatOptions = this.element.find('.repeat-options');
     repeatOptions.hide();
-    
+
     if (frequency !== "") {
       //show options for the selected frequency
       var selectedOptions = repeatOptions.filter('[data-freq='+frequency.text()+']');
       selectedOptions.show();
-      
+
       //and clear descendent fields for the others
       nonSelectedOptions = repeatOptions.filter('[data-freq!='+frequency.text()+']');
       nonSelectedOptions.find('input[type=checkbox]:checked').removeAttr('checked');
@@ -252,7 +260,7 @@ $.widget("rrule.recurringinput", {
     // remove references
     this.frequency_select.remove();
     this.interval_input.remove();
-    
+
     // unbind events
 
     // clear templated html
