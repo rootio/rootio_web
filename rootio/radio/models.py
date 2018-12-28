@@ -201,53 +201,9 @@ class Station(BaseMixin, db.Model):
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
             .order_by(StationAnalytic.id.desc()).limit(10)
-
-        if len(analytics_list.all()) == 0:
-            # fake a week's worth for the demo
-            # guess reasonable ranges
-            from random import random, randint
-            from ..utils import random_boolean
-            analytics_list = []
-            for i in xrange(7):
-                a = StationAnalytic()
-                a.battery_level = randint(50, 100)
-                a.gsm_signal = randint(0, 100)
-                a.wifi_connectivity = randint(0, 100)
-                a.memory_utilization = randint(60, 80)
-                a.storage_usage = randint(20, 50)
-                a.cpu_load = randint(0, 100)
-                analytics_list.append(a)
-
         # convert to named dict for sparkline display
         analytics_dict = object_list_to_named_dict(analytics_list)
         return analytics_dict
-
-    def recent_telephony(self):
-        # TODO, load from GOIP
-        # fake a week's worth for the demo
-
-        # do we need a db object for this?
-        class TelephonyAnalytic():
-            pass
-
-        # fake data
-        from random import random, randint
-        from ..utils import random_boolean
-
-        telephony_list = []
-        for i in xrange(7):
-            a = TelephonyAnalytic()
-            a.sim = random_boolean(0.9)
-            a.gsm = random_boolean(0.7)
-            a.voip = random_boolean(0.5)
-            a.credits = randint(1000, 5000)
-            a.messages = randint(0, 100)
-            a.calls = randint(0, 100)
-            telephony_list.append(a)
-
-        # convert to named dict for sparkline display
-        telephony_dict = object_list_to_named_dict(telephony_list)
-        return telephony_dict
 
     def __unicode__(self):
         return self.name
