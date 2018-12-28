@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy_utils import JSONType
 from sqlalchemy.sql import func
-from sqlalchemy import text
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
@@ -199,13 +198,11 @@ class Station(BaseMixin, db.Model):
     def recent_analytics(self, days_ago=7):
         since_date = datetime.utcnow() - timedelta(days=days_ago)
 
-        #analytics_list = StationAnalytic.query \
-         #   .filter_by(station_id=self.id) \
-         #   .order_by(StationAnalytic.id.desc()).limit(10)
+        analytics_list = StationAnalytic.query \
+            .filter_by(station_id=self.id) \
+            .order_by(StationAnalytic.id.desc()).limit(10)
         # convert to named dict for sparkline display
 
-        qry = text("select * from radio_stationanalytic where station_id = :station_id order by id desc limit 0").bindparams(station_id=self.id)
-        analytics_list = db.session.execute(qry)
         analytics_dict = object_list_to_named_dict(analytics_list)
         return analytics_dict
 
