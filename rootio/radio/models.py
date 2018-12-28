@@ -200,7 +200,7 @@ class Station(BaseMixin, db.Model):
 
         analytics_list = StationAnalytic.query \
             .filter_by(station_id=self.id) \
-            .order_by(StationAnalytic.created_at.desc()).limit(10)
+            .order_by(StationAnalytic.id.desc()).limit(10)
 
         if len(analytics_list.all()) == 0:
             # fake a week's worth for the demo
