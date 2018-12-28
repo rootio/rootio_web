@@ -204,7 +204,7 @@ class Station(BaseMixin, db.Model):
          #   .order_by(StationAnalytic.id.desc()).limit(10)
         # convert to named dict for sparkline display
 
-        qry = text("select * from radio_stationanalytic where station_id = :station_id order by id desc limit 10").bindparams(station_id=self.id)
+        qry = text("select * from radio_stationanalytic where station_id = :station_id order by id desc limit 0").bindparams(station_id=self.id)
         analytics_list = db.session.execute(qry)
         analytics_dict = object_list_to_named_dict(analytics_list)
         return analytics_dict
