@@ -79,7 +79,7 @@ tr.heading {
                 {%for station in network.stations %}
                 {% set analytics = station.recent_analytics() %}
                   {% with station=station, network=network, analytics=analytics %}
-                    {% include 'radio/_analytics.html' %}
+                    
                   {% endwith %}
                 {%endfor%}
               {% else %}
