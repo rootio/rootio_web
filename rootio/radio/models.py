@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy_utils import JSONType
 from sqlalchemy.sql import func
+from sqlalchemy import text
 
 from .fields import FileField
 from .constants import PRIVACY_TYPE
@@ -198,27 +199,13 @@ class Station(BaseMixin, db.Model):
     def recent_analytics(self, days_ago=7):
         since_date = datetime.utcnow() - timedelta(days=days_ago)
 
-        analytics_list = StationAnalytic.query \
-            .filter_by(station_id=self.id) \
-            .order_by(StationAnalytic.id.desc()).limit(10)
-
-        if len(analytics_list.all()) == 0:
-            # fake a week's worth for the demo
-            # guess reasonable ranges
-            from random import random, randint
-            from ..utils import random_boolean
-            analytics_list = []
-            for i in xrange(7):
-                a = StationAnalytic()
-                a.battery_level = randint(50, 100)
-                a.gsm_signal = randint(0, 100)
-                a.wifi_connectivity = randint(0, 100)
-                a.memory_utilization = randint(60, 80)
-                a.storage_usage = randint(20, 50)
-                a.cpu_load = randint(0, 100)
-                analytics_list.append(a)
-
+        #analytics_list = StationAnalytic.query \
+         #   .filter_by(station_id=self.id) \
+         #   .order_by(StationAnalytic.id.desc()).limit(10)
         # convert to named dict for sparkline display
+
+        qry = text("select * from radio_stationanalytic where station_id = :station_id order by id desc limit 10").bindparams(station_id=self.id)
+        analytics_list = db.session.execute(qry)
         analytics_dict = object_list_to_named_dict(analytics_list)
         return analytics_dict
 
