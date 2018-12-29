@@ -50,3 +50,5 @@ tests/.cache/
 /venv-telephony
 
 .ropeproject
+
+*.wsgi
