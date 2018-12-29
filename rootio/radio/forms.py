@@ -67,6 +67,7 @@ class StationForm(StationFormBase):
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
     timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
     tts_language = QuerySelectField(u'TTS Language', query_factory=all_languages, allow_blank=False)
+    audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
     submit = SubmitField(_('Save'))
     field_order = ('network', 'name', 'location', 'timezone', 'tts_language', '*')
 
