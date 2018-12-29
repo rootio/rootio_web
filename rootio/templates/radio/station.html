@@ -2,8 +2,64 @@
 
 {% extends "radio/layout.html" %}
 
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel='stylesheet' />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+
+{% endblock %}
+
 {% block body %}
 <div class="container">
+     <div class="pull-right" style="float:right; width:50%">
+{%if station%}
+        <table cellpadding="10px" id="api-placard">
+            <thead>
+                <h3>{{ _('Connection Information') }}</h3>
+            </thead>
+            <tr>
+            <td colspan="2">
+                <i>{{ _('Information for the android phone application') }}</i>
+            </td>
+            <tr>
+                <td>
+                    <b>{{ _('Station ID:') }}</b>
+                </td>
+                <td>
+                    {{station.id}}
+                </td>
+            </tr>
+             <tr>
+                <td>
+                    <b>{{ _('Station Key:') }}</b>
+                </td>
+                <td>
+                    {{station.api_key}}
+                </td>
+            </tr>
+             <tr>
+                <td>
+                    <b>{{ _('Server address:') }}</b>
+                </td>
+                <td>
+                    {{defaultConfig.CLOUD_SERVER_ADDRESS}}
+                </td>
+            </tr>
+            </tr>
+             <tr>
+                <td>
+                    <b>{{ _('Port:') }}</b>
+                </td>
+                <td>
+                    {{defaultConfig.HTTP_PORT}}
+                </td>
+            </tr>
+        </table>
+
+</div>
+     {%endif%}
     {%if station%}
         <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station_definition', station_id=station.id), form) }}
@@ -11,5 +67,7 @@
         <h2>{{ _('Add') }} {{ _('Station') }}</h2>
         {{ render_form(url_for('radio.station_add'), form) }}
     {%endif%}
-</div>
+    </div>
+
+
 {% endblock %}

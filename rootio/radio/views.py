@@ -88,7 +88,7 @@ def station_definition(station_id):
         db.session.commit()
         flash(_('Station updated.'), 'success')
 
-    return render_template('radio/station.html', station=station, form=form)
+    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form)
 
 
 @radio.route('/station/add/', methods=['GET', 'POST'])

@@ -148,6 +148,12 @@ table .headerSortUp:after {
     border: 0 !important
 }
 
+
+#api-placard {
+background-color: #efefef;
+border: 1px solid #afafaf;
+}
+
 .top-5 { margin-top:5px; }
 .top-10 { margin-top:10px; }
 .top-15 { margin-top:15px; }
