@@ -205,8 +205,8 @@ def music_program_add():
     form = ProgramForm(request.form)
     program = None
 
-    # hosts in my network
-    playlists = ContentMusicPlaylist.query.join(Station).join(User, Network.networkusers).filter(
+    # Playlists and streams in my network
+    playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()  # Playlist->Station->Network->user
     streams = ContentStream.query.join(User, Network.networkusers).filter(
         User.id == current_user.id).all()  # created by -> user -> Network
@@ -232,7 +232,7 @@ def music_program_definition(music_program_id):
     music_program = Program.query.filter_by(id=music_program_id).first_or_404()
 
     # TODO: Filter these by network
-    playlists = ContentMusicPlaylist.query.join(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all() #Playlist->Station->Network->user
+    playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all() #Playlist->Station->Network->user
     streams = ContentStream.query.join(User, Network.networkusers).filter(User.id == current_user.id).all() # created by -> user -> Network
 
     # render the program structure
