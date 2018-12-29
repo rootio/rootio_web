@@ -696,7 +696,7 @@ def content_musicplaylist_definition(content_musicplaylist_id):
 
         db.session.add(content_musicplaylist)
         db.session.commit()
-        flash(_('Content updated.'), 'success')
+        flash(_('Playlist updated.'), 'success')
     return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form)
 
 
