@@ -135,7 +135,10 @@ def station(station_id):
             response["secondary_transmitter_telephone"] = station.secondary_transmitter_phone.raw_number
         response["multicast_IP"] = station.broadcast_ip
         response["multicast_port"] = station.broadcast_port
-        response["sip_settings"] = station.sip_settings
+        response["sip_settings"] = {"sip_username": station.sip_username, "sip_password":station.sip_password,
+                                    "sip_server": station.sip_server, "sip_port": station.sip_port,
+                                    "sip_protocol": station.sip_protocol,
+                                    "sip_reregister_period": station.sip_reregister_period}
         response["tts_accent"] = station.tts_accent
         response["tts_gender"] = station.tts_gender
         if station.tts_language is not None:

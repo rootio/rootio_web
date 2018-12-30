@@ -3,7 +3,7 @@ from flask.ext.babel import gettext as _
 from flask.ext.wtf import Form
 from wtforms import SubmitField, RadioField, StringField
 from wtforms.ext.sqlalchemy.orm import model_form
-from wtforms.validators import AnyOf
+from wtforms.validators import AnyOf, Required
 
 from .constants import PHONE_NUMBER_TYPE
 from .models import PhoneNumber, Gateway
@@ -24,6 +24,7 @@ PhoneNumberFormBase = model_form(PhoneNumber,
 
 
 class PhoneNumberForm(PhoneNumberFormBase):
+    number = StringField(_('Phone Number'), [Required], default=" ")
     number_type = RadioField(_("Type"),
                              [AnyOf([str(val) for val in PHONE_NUMBER_TYPE.keys()])],
                              choices=[(str(val), label) for val, label in PHONE_NUMBER_TYPE.items()])

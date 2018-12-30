@@ -4,10 +4,10 @@ import pytz
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SelectField, SubmitField, TextField, TextAreaField, HiddenField, RadioField
+from wtforms import StringField, SelectField, SubmitField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.ext.sqlalchemy.orm import model_form
-from wtforms.validators import Required, AnyOf
+from wtforms.validators import Required, AnyOf, NumberRange
 from wtforms_components.fields import TimeField
 
 from .fields import DurationField, InlineFormField, JSONField
@@ -51,7 +51,9 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
-                                               'broadcast_port', 'last_accessed_mobile', 'tts_language', 'is_high_bandwidth', 'sip_settings'])
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language',
+                                      'is_high_bandwidth', 'sip_username', 'sip_password', 'sip_server',
+                                      'sip_port','sip_stun_server', 'sip_reregister_period', 'sip_protocol'])
 
 
 def all_languages():
@@ -83,13 +85,16 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate'])
+                                               'tts_sample_rate','call_volume', 'audio_volume'])
 
 
 class StationTelephonyForm(StationTelephonyFormBase):
     primary_transmitter_phone_inline = InlineFormField(PhoneNumberForm, description='/telephony/phonenumber/add/ajax/')
     secondary_transmitter_phone_inline = InlineFormField(PhoneNumberForm,
                                                          description='/telephony/phonenumber/add/ajax/')
+    sip_protocol = SelectField(choices=[(val, val) for val in ["udp", "tcp"]])
+    sip_port = IntegerField(_('SIP Port'), [NumberRange(1, 65535, _('1 - 65535'))])
+    sip_reregister_period = IntegerField(_('Re-register Period'), [NumberRange(30, 3600, _('30 - 3600'))])
     submit = SubmitField(_('Save'))
 
 

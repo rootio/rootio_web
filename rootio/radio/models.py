@@ -83,10 +83,10 @@ class Station(BaseMixin, db.Model):
     api_key = db.Column(db.String(STRING_LEN), nullable=False, default=id_generator(), unique=True)
     # todo, make sure this default function fires each time a new object is created
     timezone = db.Column(db.String(32), default="UTC")
-    sip_settings = db.Column(db.Text(), default="{}")
     is_high_bandwidth = db.Column(db.Boolean, default=False)
     last_accessed_mobile = db.Column(db.DateTime(timezone=True))
     audio_volume = db.Column(db.Integer, default=8)
+    call_volume = db.Column(db.Integer, default=6)
 
     # TTS settings
     # TODO: make these fields foreign keys once we figure out how the values would look like
@@ -94,6 +94,15 @@ class Station(BaseMixin, db.Model):
     tts_gender = db.Column(db.String(STRING_LEN))
     tts_audio_format = db.Column(db.String(STRING_LEN))
     tts_sample_rate = db.Column(db.String(STRING_LEN))
+
+    #SIP settings
+    sip_username = db.Column(db.String(STRING_LEN))
+    sip_password = db.Column(db.String(STRING_LEN))
+    sip_server = db.Column(db.String(STRING_LEN))
+    sip_stun_server = db.Column(db.String(STRING_LEN))
+    sip_port = db.Column(db.Integer, default=5060)
+    sip_reregister_period = db.Column(db.Integer, default=30)
+    sip_protocol = db.Column(db.String(STRING_LEN), default="udp")
 
     # foreign keys
     tts_language_id = db.Column(db.ForeignKey('radio_language.id'))
