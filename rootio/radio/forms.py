@@ -85,13 +85,39 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate','call_volume', 'audio_volume'])
+                                               'tts_sample_rate','call_volume', 'audio_volume', 'sip_username',
+                                               'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
+                                               'sip_reregister_period', 'sip_protocol'])
 
 
 class StationTelephonyForm(StationTelephonyFormBase):
     primary_transmitter_phone_inline = InlineFormField(PhoneNumberForm, description='/telephony/phonenumber/add/ajax/')
     secondary_transmitter_phone_inline = InlineFormField(PhoneNumberForm,
-                                                         description='/telephony/phonenumber/add/ajax/')
+                                                     description='/telephony/phonenumber/add/ajax/')
+    submit = SubmitField(_('Save'))
+
+
+StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
+                                      field_args={
+                                          'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
+                                          'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
+                                               'location_id', 'owner', 'location', 'languages',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
+                                               'tts_sample_rate','call_volume', 'audio_volume', 'scheduled_programs',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
+                                      'primary_transmitter_phone_id', 'primary_transmitter_phone',
+                                      'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language'])
+
+
+class StationSipTelephonyForm(StationSipTelephonyFormBase):
     sip_protocol = SelectField(choices=[(val, val) for val in ["udp", "tcp"]])
     sip_port = IntegerField(_('SIP Port'), [NumberRange(1, 65535, _('1 - 65535'))])
     sip_reregister_period = IntegerField(_('Re-register Period'), [NumberRange(30, 3600, _('30 - 3600'))])
