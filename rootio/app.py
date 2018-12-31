@@ -19,6 +19,7 @@ from .onair import onair
 from .telephony import telephony
 from .messenger import messenger
 from .content import content
+from .configuration import configuration
 
 from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
 from .utils import CustomJSONEncoder, make_dir
@@ -39,6 +40,7 @@ DEFAULT_BLUEPRINTS = (
     api,
     messenger,
     content,
+    configuration
 )
 
 

@@ -1,4 +1,4 @@
-{% extends "radio/layout.html" %}
+{% extends "configuration/layout.html" %}
 
 {% block body %}
 <div class="container">
@@ -44,7 +44,7 @@
             {% endfor %}
             </td>
             {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
-            <td><a href="{{ url_for('radio.telephony_station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            <td><a href="{{ url_for('configuration.telephony_station', station_id=station.id) }}">{{ _('Edit') }}</a></td>
             {% endif %}
         </tr>
         {% endfor %}

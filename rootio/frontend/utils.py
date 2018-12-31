@@ -32,7 +32,6 @@ class RootIOMailMessage:
     def send_message(self):
         smtp_server = smtplib.SMTP(self.__smtp_server)
         smtp_server.starttls()
-        print ",".join(self.__to)
         smtp_server.login(self.__smtp_username, self.__smtp_password)
         smtp_server.sendmail(self.__from, self.__to, "\n\n".join((self.__subject, self.__body)))
         smtp_server.quit()

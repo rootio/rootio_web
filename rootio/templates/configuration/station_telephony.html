@@ -1,0 +1,12 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "configuration/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if station%}
+        <h2>{{ _('Telephony') }}</h2>
+        {{ render_form(url_for('configuration.telephony_station', station_id=station.id), form) }}
+    {%endif%}
+</div>
+{% endblock %}
