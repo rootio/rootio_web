@@ -10,7 +10,6 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
-                <th>{{ _('Cloud Number') }}</th>
                 <th>{{ _('Transmitter Number') }}</th>
                 <th>{{ _('Whitelist Numbers') }}</th>
                 <th>{{ _('Outgoing Gateways') }}</th>
@@ -24,7 +23,6 @@
         {% for station in stations %}
         <tr>
             <td>{{ station.name}} </td>
-            <td>{{ station.cloud_phone}} </td>
             <td>
               {{ station.primary_transmitter_phone}}
               {% if station.secondary_transmitter_phone %}
