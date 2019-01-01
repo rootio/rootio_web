@@ -1,0 +1,12 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "configuration/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if station%}
+        <h2>{{ _('Audio Levels') }}</h2>
+        {{ render_form(url_for('configuration.station_audio_level', station_id=station.id), form) }}
+    {%endif%}
+</div>
+{% endblock %}

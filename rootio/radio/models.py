@@ -87,6 +87,7 @@ class Station(BaseMixin, db.Model):
     last_accessed_mobile = db.Column(db.DateTime(timezone=True))
     audio_volume = db.Column(db.Integer, default=8)
     call_volume = db.Column(db.Integer, default=6)
+    media_amplification_factor = db.Column(db.Integer, default=0)
 
     # TTS settings
     # TODO: make these fields foreign keys once we figure out how the values would look like

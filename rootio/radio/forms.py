@@ -53,7 +53,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
                                                'broadcast_port', 'last_accessed_mobile', 'tts_language',
                                       'is_high_bandwidth', 'sip_username', 'sip_password', 'sip_server',
-                                      'sip_port','sip_stun_server', 'sip_reregister_period', 'sip_protocol'])
+                                      'sip_port','sip_stun_server', 'sip_reregister_period', 'sip_protocol', 'media_amplification_factor'])
 
 
 def all_languages():
@@ -87,7 +87,7 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
                                                'tts_sample_rate','call_volume', 'audio_volume', 'sip_username',
                                                'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
-                                               'sip_reregister_period', 'sip_protocol'])
+                                               'sip_reregister_period', 'sip_protocol', 'media_amplification_factor','is_high_bandwidth'])
 
 
 class StationTelephonyForm(StationTelephonyFormBase):
@@ -114,13 +114,42 @@ StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_cl
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
-                                               'broadcast_port', 'last_accessed_mobile', 'tts_language'])
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language', 'media_amplification_factor'])
 
 
 class StationSipTelephonyForm(StationSipTelephonyFormBase):
     sip_protocol = SelectField(choices=[(val, val) for val in ["udp", "tcp"]])
     sip_port = IntegerField(_('SIP Port'), [NumberRange(1, 65535, _('1 - 65535'))])
     sip_reregister_period = IntegerField(_('Re-register Period'), [NumberRange(30, 3600, _('30 - 3600'))])
+    submit = SubmitField(_('Save'))
+
+
+StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_class=Form,
+                                      field_args={
+                                          'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
+                                          'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
+                                               'location_id', 'owner', 'location', 'languages',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
+                                               'tts_sample_rate', 'scheduled_programs',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
+                                      'primary_transmitter_phone_id', 'primary_transmitter_phone',
+                                      'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language', 'sip_username',
+                                               'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
+                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth'])
+
+
+class StationAudioLevelsForm(StationAudioLevelsFormBase):
+    audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
+    call_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 6, 1)], default="6")
+    media_amplification_factor = SelectField(choices=[(str(val), str(val)) for val in range(0, 3, 1)], default="0")
     submit = SubmitField(_('Save'))
 
 

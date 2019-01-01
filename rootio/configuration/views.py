@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request, flash
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 
-from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, NetworkForm
+from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm
 from ..radio.models import Station, Network
 from ..extensions import db
 from ..user.models import User, RootioUser
@@ -97,12 +97,26 @@ def sip_telephony():
     return render_template('configuration/sip_telephony.html', stations=stations)
 
 
+@configuration.route('/station_audio_level/<int:station_id>', methods=['GET', 'POST'])
+def station_audio_level(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationAudioLevelsForm(obj=station, next=request.args.get('next'))
 
-@configuration.route('/audio_levels', methods=['GET'])
-def audio_levels():
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Audio levels updated.'), 'success')
+
+    return render_template('configuration/station_audio_level.html', station=station, form=form)
+
+
+@configuration.route('/station_audio_levels', methods=['GET'])
+def station_audio_levels():
     stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     # stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
-    return render_template('configuration/stations_telephony.html', stations=stations, active='stations')
+    return render_template('configuration/station_audio_levels.html', stations=stations, active='stations')
 
 
 @configuration.route('/ivr_menu', methods=['GET', 'POST'])
