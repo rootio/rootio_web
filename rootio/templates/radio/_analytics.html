@@ -2,6 +2,7 @@
 {% set warning_color = '#ffff9f' %}
 {% set ok_color = '#99ff99' %}
 
+{% if analytics %}
 {% if analytics.battery_level[-1] <= 60 %}   {% set battery_color = warning_color %}
 {% elif analytics.battery_level[-1] <= 30 %} {% set battery_color = critical_color %}
 {% else %}                                   {% set battery_color = ok_color %} {% endif %}
@@ -38,24 +39,26 @@
 {% else %}
   {% set last_ping_interval = 0 %}
 {% endif %}
-
+{% endif %}
 
 <tr>
   <td>{{network.name}}</td>
   <td>{{station.name}}</td>
   <td style="background-color: {{battery_color}};">
-    <span class="sparkline" data-type="line">{{analytics.battery_level}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.battery_level}}{% endif %}</span></td>
   <td style="background-color: {{gsm_color}};">
-    <span class="sparkline" data-type="line">{{analytics.gsm_signal}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_signal}}{% endif %}</span></td>
   <td style="background-color: {{wifi_color}};">
-    <span class="sparkline" data-type="line">{{analytics.wifi_connectivity}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.wifi_connectivity}}{% endif %}</span></td>
   <td style="background-color: {{memory_color}};">
-    <span class="sparkline" data-type="line">{{analytics.memory_utilization}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.memory_utilization}}{% endif %}</span></td>
   <td style="background-color: {{storage_color}};">
-    <span class="sparkline" data-type="line">{{analytics.storage_usage}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.storage_usage}}{% endif %}</span></td>
   <td style="background-color: {{cpu_color}};">
-    <span class="sparkline" data-type="line">{{analytics.cpu_load}}</span></td>
+    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.cpu_load}}{% endif %}</span></td>
   <td style="background-color: {{ping_color}};">
-    {{last_ping_interval | int}} <small>({{station.analytic_update_frequency | int}})</small>
+    {% if analytics %}{{last_ping_interval | int}} <small>({{station.analytic_update_frequency | int}})</small>{% endif %}
   </td>
 </tr>
+
+

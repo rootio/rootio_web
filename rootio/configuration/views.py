@@ -23,7 +23,7 @@ configuration = Blueprint('configuration', __name__, url_prefix='/configuration'
 def index():
     # get all the user's networks and their stations
     networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now)
+    return render_template('configuration/index.html', networks=networks, userid=current_user.id, now=datetime.now)
 
 
 @configuration.route('/tts/', methods=['GET'])
