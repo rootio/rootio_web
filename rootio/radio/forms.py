@@ -4,7 +4,7 @@ import pytz
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SelectField, SubmitField, TextField, TextAreaField, HiddenField, RadioField, IntegerField
+from wtforms import StringField, SelectField, SubmitField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, FloatField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.validators import Required, AnyOf, NumberRange
@@ -49,6 +49,11 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                              exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
+                                      'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
+                                               'tts_sample_rate', 'call_volume', 'audio_volume',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
                                                'broadcast_port', 'last_accessed_mobile', 'tts_language',
@@ -61,17 +66,19 @@ def all_languages():
 
 
 class StationForm(StationFormBase):
-    network = QuerySelectField(u'Network', [Required()], query_factory=all_networks,
-                               allow_blank=False)  # TODO: default this to be the logged in user?
+    name = TextField(_('Station Name'), [Required()])
+    network = QuerySelectField(u'Network', [Required()], query_factory=all_networks, allow_blank=False)
     phone_inline = InlineFormField(PhoneNumberForm, description='/telephony/phonenumber/add/ajax/')
+    languages = QuerySelectMultipleField(_('Languages'), [Required()], query_factory=all_languages)
+    api_key = TextField(_('Key for communication with the API'), [Required()])
+    timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
+    frequency = FloatField(_('Broadcasting Frequency'))
+    about = TextAreaField(_('About the station'))
     # inline form and POST url for phone creation modal
     # ugly overloading of the description field. WTForms won't let us attach any old random kwargs...
     location_inline = InlineFormField(LocationForm, description='/radio/location/add/ajax/')
-    timezone = SelectField(choices=[(val, val) for val in pytz.common_timezones], default="UTC")
-    tts_language = QuerySelectField(u'TTS Language', query_factory=all_languages, allow_blank=False)
-    audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
     submit = SubmitField(_('Save'))
-    field_order = ('network', 'name', 'location', 'timezone', 'tts_language', '*')
+    field_order = ('network', 'name', 'location', 'timezone',  '*')
 
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
