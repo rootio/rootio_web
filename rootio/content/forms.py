@@ -3,7 +3,8 @@
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, FileField, MultipleFileField
+from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField
+from flask_wtf.file import FileField, FileRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.fields.html5 import DateField
@@ -98,12 +99,12 @@ class ContentMusicForm(Form):
 class CommunityMenuForm(Form):
     multipart = True
     station = QuerySelectField(_('Station'), [Required()], query_factory=stations, allow_blank=False)
-    welcome_message = FileField(_('Welcome message'), [Required()])
-    days_prompt = FileField(_('Days prompt'), [Required()])
-    message_type_prompt = FileField(_('Message type'), [Required()])
-    record_prompt = FileField(_('Record Prompt'), [Required()])
-    finalization_prompt = FileField(_('Finalization prompt'), [Required()])
-    goodbye_message = FileField(_('Goodbye message'), [Required()])
+    welcome_message = FileField(_('Welcome message'))
+    days_prompt = FileField(_('Days prompt'))
+    message_type_prompt = FileField(_('Message type'))
+    record_prompt = FileField(_('Record Prompt'))
+    finalization_prompt = FileField(_('Finalization prompt'))
+    goodbye_message = FileField(_('Goodbye message'))
     submit = SubmitField(_('Save'))
 
 

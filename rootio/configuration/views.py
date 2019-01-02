@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import os
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 
+from rootio.config import DefaultConfig
+from ..content.forms import CommunityMenuForm
+from ..content.models import CommunityMenu
+from ..extensions import db
 from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm
 from ..radio.models import Station, Network
-from ..extensions import db
-from ..user.models import User, RootioUser
+from ..user.models import User
+from ..utils import upload_to_s3, make_dir
 
 configuration = Blueprint('configuration', __name__, url_prefix='/configuration')
 
@@ -115,14 +120,67 @@ def station_audio_level(station_id):
 @configuration.route('/station_audio_levels', methods=['GET'])
 def station_audio_levels():
     stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    # stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
     return render_template('configuration/station_audio_levels.html', stations=stations, active='stations')
 
 
-@configuration.route('/ivr_menu', methods=['GET', 'POST'])
-def ivr_menu():
+@configuration.route('/ivr_menus', methods=['GET', 'POST'])
+def ivr_menus():
+    community_menus = CommunityMenu.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('configuration/ivr_menus.html', community_menus=community_menus)
 
-    return render_template('configuration/ivr_menu.html', station=None)
+
+@configuration.route('/ivr_menu', methods=['GET', 'POST'])
+@login_required
+def ivr_menu():
+    form = CommunityMenuForm(request.form)
+    community_menu = None
+    if request.method == 'POST':
+        pass  # validate files here
+    if form.validate_on_submit():
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)
+        for key in request.files.keys():
+            prompt_file = request.files[key]
+            file_path = os.path.join("community-menu", request.form['station'])
+            uri = save_uploaded_file(prompt_file, file_path)
+            cleaned_data[key] = uri
+
+        community_menu = CommunityMenu(**cleaned_data)  # create new object from data
+
+        db.session.add(community_menu)
+        db.session.commit()
+
+        flash(_('Configuration saved.'), 'success')
+
+    elif request.method == "POST":
+        flash(_(form.errors.items()), 'error')
+
+    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form)
+
+
+def save_uploaded_file(uploaded_file, directory, file_name=False):
+    date_part = datetime.now().strftime("%y%m%d%H%M%S")
+    if not file_name:
+        file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
+
+    if DefaultConfig.S3_UPLOADS:
+        try:
+            location = upload_to_s3(uploaded_file, file_name)
+        except:
+            flash(_('Media upload error (S3)'), 'error')
+            raise
+    else:
+        upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
+        make_dir(upload_directory)
+        file_path = os.path.join(upload_directory, file_name)
+        try:
+            uploaded_file.save(file_path)
+        except:
+            flash(_('Media upload error (filesystem)'), 'error')
+            raise
+        location = "{0}/{1}".format(directory, file_name)
+
+    return location
 
 
 @configuration.route('/synchronization', methods=['GET', 'POST'])
