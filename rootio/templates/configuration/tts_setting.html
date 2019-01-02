@@ -5,7 +5,7 @@
 {% block body %}
 <div class="container">
     {%if station%}
-        <h2>{{ _('TTS settings') }}</h2>
+        <h2>{{ station.name }}</h2>
         {{ render_form(url_for('configuration.tts_setting', station_id=station.id), form) }}
     {%endif%}
 </div>

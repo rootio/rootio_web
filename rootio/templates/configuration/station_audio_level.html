@@ -5,7 +5,8 @@
 {% block body %}
 <div class="container">
     {%if station%}
-        <h2>{{ _('Audio Levels') }}</h2>
+    <h2>{{ station.name }}</h2>
+
         {{ render_form(url_for('configuration.station_audio_level', station_id=station.id), form) }}
     {%endif%}
 </div>

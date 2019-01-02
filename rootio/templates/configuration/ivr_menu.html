@@ -5,10 +5,10 @@
 {% block body %}
 <div class="container">
     {%if community_menu %}
-        <h2>{{ _('Configure Menu') }}</h2>
+        <h2>{{ station.name }}</h2>
         {{ render_form(url_for('configuration.ivr_menu', community_menu_id=community_menu.id), form) }}
     {%else%}
-        <h2>{{ _('Configure Menu') }}</h2>
+        <h2>{{ _('Add Menu') }}</h2>
         {{ render_form(url_for('configuration.ivr_menu'), form) }}
     {%endif%}
 </div>
