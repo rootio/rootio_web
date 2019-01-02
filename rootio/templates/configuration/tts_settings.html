@@ -1,0 +1,38 @@
+{% extends "configuration/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <h2 class="pull-left">{{ _('Audio Levels') }}</h2>
+    <div class="pull-right">
+        <!--<a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>-->
+    </div>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('TTS Language') }}</th>
+                <th>{{ _('TTS Accent') }}</th>
+                <th>{{ _('TTS Audio Format') }}</th>
+                <th>{{ _('TTS Sample Rate') }}</th>
+                 {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
+                <th>{{ _('Edit') }}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for station in stations %}
+        <tr>
+            <td>{{ station.name}} </td>
+            <td>{{ station.tts_language}} </td>
+            <td>{{ station.tts_accent}} </td>
+            <td>{{ station.tts_audio_format}} </td>
+            <td>{{ station.tts_sample_rate}} </td>
+                {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
+            <td><a href="{{ url_for('configuration.tts_setting', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

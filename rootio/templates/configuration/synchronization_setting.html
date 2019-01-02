@@ -1,0 +1,12 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "configuration/layout.html" %}
+
+{% block body %}
+<div class="container">
+    {%if station%}
+        <h2>{{ _('Synchronization') }}</h2>
+        {{ render_form(url_for('configuration.synchronization_setting', station_id=station.id), form) }}
+    {%endif%}
+</div>
+{% endblock %}

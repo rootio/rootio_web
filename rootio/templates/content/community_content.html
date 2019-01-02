@@ -8,11 +8,9 @@
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
-        <h3>{{ _('Community Ads') }}</h3>
+        <h3>{{ _('Community Messages') }}</h3>
     </div>
-    <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.community_menu_definition', station_id=community) }}"><strong>{{ _('Configure') }}</strong></a>
-    </div>
+
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>

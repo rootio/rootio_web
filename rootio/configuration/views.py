@@ -11,7 +11,7 @@ from rootio.config import DefaultConfig
 from ..content.forms import CommunityMenuForm
 from ..content.models import CommunityMenu
 from ..extensions import db
-from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm
+from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir
@@ -183,10 +183,47 @@ def save_uploaded_file(uploaded_file, directory, file_name=False):
     return location
 
 
-@configuration.route('/synchronization', methods=['GET', 'POST'])
+@configuration.route('/tts_settings', methods=['GET', 'POST'])
 @login_required
-def synchronization():
-    form = StationForm(request.form)
-    station = None
-    return render_template('configuration/stations_telephony.html', station=station, form=form)
+def tts_settings():
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('configuration/tts_settings.html', stations=stations)
 
+
+@configuration.route('/tts_setting/<int:station_id>', methods=['GET', 'POST'])
+@login_required
+def tts_setting(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationTtsForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('TTS settings updated.'), 'success')
+
+    return render_template('configuration/tts_setting.html', station=station, form=form)
+
+
+@configuration.route('/synchronization_settings', methods=['GET', 'POST'])
+@login_required
+def synchronization_settings():
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('configuration/synchronization_settings.html', stations=stations)
+
+
+@configuration.route('/synchronization_setting/<int:station_id>', methods=['GET', 'POST'])
+@login_required
+def synchronization_setting(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationSynchronizationForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Synchronization settings updated.'), 'success')
+
+    return render_template('configuration/synchronization_setting.html', station=station, form=form)

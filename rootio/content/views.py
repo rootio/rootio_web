@@ -544,35 +544,6 @@ def community_content():
     return render_template('content/community_content.html', community_contents=community_contents)
 
 
-@content.route('/community_menu', methods=['GET', 'POST'])
-@login_required
-def community_menu_definition():
-    form = CommunityMenuForm(request.form)
-    community_menu = None
-    if request.method == 'POST':
-        pass  # validate files here
-    if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('submit', None)
-        for key in request.files.keys():
-            prompt_file = request.files[key]
-            file_path = os.path.join("community-menu", request.form['station'])
-            uri = save_uploaded_file(prompt_file, file_path)
-            cleaned_data[key] = uri
-
-        community_menu = CommunityMenu(**cleaned_data)  # create new object from data
-
-        db.session.add(community_menu)
-        db.session.commit()
-
-        flash(_('Configuration saved.'), 'success')
-
-    elif request.method == "POST":
-        flash(_(form.errors.items()), 'error')
-
-    return render_template('content/community_menu.html', community_menu=community_menu, form=form)
-
-
 @content.route('/podcasts/')
 @login_required
 def list_content_podcasts():

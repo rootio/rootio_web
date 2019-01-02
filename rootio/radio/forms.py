@@ -138,6 +138,66 @@ StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_cla
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
+                                               'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
+                                               'tts_sample_rate', 'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
+                                      'primary_transmitter_phone_id', 'primary_transmitter_phone','call_volume', 'audio_volume',
+                                      'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'tts_language', 'sip_username',
+                                               'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
+                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth',
+                                               'media_amplification_factor'])
+
+
+class StationAudioLevelsForm(StationAudioLevelsFormBase):
+    audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
+    call_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 6, 1)], default="6")
+    media_amplification_factor = SelectField(choices=[(str(val), str(val)) for val in range(0, 3, 1)], default="0")
+    submit = SubmitField(_('Save'))
+
+
+StationSynchronizationFormBase = model_form(Station, db_session=db.session, base_class=Form,
+                                      field_args={
+                                          'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
+                                          'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
+                                               'location_id', 'owner', 'location', 'languages',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
+                                      'primary_transmitter_phone_id', 'primary_transmitter_phone',
+                                      'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'sip_username',
+                                               'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
+                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth',
+                                               'call_volume', 'audio_volume', 'media_amplification_factor'])
+
+
+class StationSynchronizationForm(StationSynchronizationFormBase):
+    client_update_frequency = IntegerField(_('Frequency of Synchronization (Transmission site to cloud server)'),
+                                           [NumberRange(1, 20, 600)], default=60)
+    analytic_update_frequency = IntegerField(_('Frequency of transmission site probing'),
+                                             [NumberRange(1, 20, 600)], default=60)
+    submit = SubmitField(_('Save'))
+
+
+StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
+                                      field_args={
+                                          'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
+                                          'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
+                                               'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
@@ -150,13 +210,12 @@ StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_cla
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
                                                'broadcast_port', 'last_accessed_mobile', 'tts_language', 'sip_username',
                                                'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
-                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth'])
+                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth',
+                                               'call_volume', 'audio_volume', 'media_amplification_factor'])
 
 
-class StationAudioLevelsForm(StationAudioLevelsFormBase):
-    audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
-    call_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 6, 1)], default="6")
-    media_amplification_factor = SelectField(choices=[(str(val), str(val)) for val in range(0, 3, 1)], default="0")
+class StationTtsForm(StationSynchronizationFormBase):
+
     submit = SubmitField(_('Save'))
 
 
