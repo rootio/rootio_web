@@ -100,8 +100,8 @@ class CommunityMenuForm(Form):
     multipart = True
     station = QuerySelectField(_('Station'), [Required()], query_factory=stations, allow_blank=False)
     welcome_message = FileField(_('Welcome message'))
-    days_prompt = FileField(_('Days prompt'))
     message_type_prompt = FileField(_('Message type'))
+    days_prompt = FileField(_('Days prompt'))
     record_prompt = FileField(_('Record Prompt'))
     finalization_prompt = FileField(_('Finalization prompt'))
     goodbye_message = FileField(_('Goodbye message'))
