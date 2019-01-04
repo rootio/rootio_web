@@ -280,6 +280,9 @@ class CallHandler:
                 continue  # rogue value. move on..
 
             event_name = e.getHeader("Event-Name")
+            self.__radio_station.logger.info("received event {0} for station {1}".format(event_name, self.__radio_station.station.name))
+            self.__log_everything()
+
             # print event_name
             if event_name == "CHANNEL_ANSWER" and 'Caller-Destination-Number' in event_json:
                 try:
@@ -450,3 +453,27 @@ class CallHandler:
                                                                             self.__outgoing_gateways))
             self.__available_outgoing_gateways.append(int(event_json['Caller-ANI'][-9:]))
         self.__available_outgoing_gateways.sort()
+
+
+    def __log_everything(self):
+        self.__radio_station.logger.info("For station {0} incoming call recipients are {1}".format(self.__radio_station.station.name, self.__incoming_call_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} DTMF recipients are {1}".format(self.__radio_station.station.name, self.__incoming_dtmf_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} outgoing call recipients are {1}".format(self.__radio_station.station.name, self.__outgoing_call_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} host call recipients are {1}".format(self.__radio_station.station.name, self.__host_call_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} waiting call recipients are {1}".format(self.__radio_station.station.name, self.__waiting_call_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} call hangup recipients are {1}".format(self.__radio_station.station.name, self.__call_hangup_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} available calls are {1}".format(self.__radio_station.station.name, self.__available_calls))
+        self.__radio_station.logger.info(
+            "For station {0} media playback recipients are {1}".format(self.__radio_station.station.name, self.__media_playback_stop_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} media playback start recipients are {1}".format(self.__radio_station.station.name, self.__media_playback_start_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} speech start recipients are {1}".format(self.__radio_station.station.name, self.__speech_start_recipients))
+        self.__radio_station.logger.info(
+            "For station {0} speech stop recipients are {1}".format(self.__radio_station.station.name, self.__speech_stop_recipients))
