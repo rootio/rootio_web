@@ -59,9 +59,8 @@ class NewsAction:
 
     def __call_station_via_sip(self):
         # Try a high bandwidth call first
-        sip_info = self.__get_sip_info()
-        if sip_info is not None and 'sip_username' in sip_info:
-            result = self.__call_handler.call(self, sip_info['sip_username'], self.program.name, True,
+        if self.program.radio_station.station.sip_username is not None:
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name, True,
                                               self.duration)
             self.program.log_program_activity("result of station call via SIP is " + str(result))
             return result
@@ -80,13 +79,6 @@ class NewsAction:
                                               self.duration)
                 self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
         return result
-
-    def __get_sip_info(self):
-        try:
-            sip_info = json.loads(self.program.radio_station.station.sip_settings)
-            return sip_info
-        except ValueError:
-            return None
 
     def __play_media(self, call_info):  # play the media in the array
         self.__load_track()

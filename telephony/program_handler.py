@@ -59,7 +59,6 @@ class ProgramHandler:
                                                                                    scheduled_program.start))
 
     def __add_scheduled_job(self, scheduled_program):
-        station = self.__radio_station.station
         program = RadioProgram(scheduled_program, self.__radio_station)
         scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),
                                                       self.__get_program_start_time(scheduled_program).replace(
