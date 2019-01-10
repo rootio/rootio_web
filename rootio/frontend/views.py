@@ -3,7 +3,7 @@
 import uuid
 from sqlalchemy import and_
 from flask import (Blueprint, render_template, current_app, request,
-                   flash, url_for, redirect, session, abort)
+                   flash, url_for, redirect, session, abort, Markup)
 from flask.ext.mail import Message
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, login_user, current_user, logout_user, confirm_login, login_fresh
@@ -250,8 +250,14 @@ def reset_password():
             db.session.add(user)
             db.session.commit()
 
-            url = url_for('frontend.change_password', email=user.email, activation_key=user.activation_key,
-                          _external=True)
+            # ugly fix for a Flask issue causing the router to fail
+            # when passed `SERVER_NAME`, which is needed to build external URLs with `url_for()`
+            # (this might go away by upgrading Flask to 1.x and possibly Werkzeug)
+            url = Markup(
+                "{}/change_password?activation_key={}&email={}"
+                .format( current_app.config['DOMAIN'], user.activation_key, user.email)
+            )
+
             html = render_template('macros/_reset_password.html', project=current_app.config['PROJECT'],
                                    username=user.name, url=url)
             message = RootIOMailMessage()
