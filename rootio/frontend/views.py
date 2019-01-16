@@ -171,6 +171,7 @@ def send_activation_email(user):
 
     # send the email with the link
     message = RootIOMailMessage()
+    message.set_header('Content-Type', 'text/html')
     message.set_subject("Your RootIO platform account")
     message.set_body("Welcome to the RootIO platform!\n")
     message.append_to_body("Your username is %s " % user.email)
@@ -261,6 +262,7 @@ def reset_password():
             html = render_template('macros/_reset_password.html', project=current_app.config['PROJECT'],
                                    username=user.name, url=url)
             message = RootIOMailMessage()
+            message.set_header('Content-Type', 'text/html')
             message.set_subject('[{}] Reset your password'.format(current_app.config['PROJECT']))
             message.set_body(html)
             message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
