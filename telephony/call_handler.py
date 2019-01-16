@@ -280,8 +280,8 @@ class CallHandler:
                 continue  # rogue value. move on..
 
             event_name = e.getHeader("Event-Name")
-            self.__radio_station.logger.info("received event {0} for station {1}".format(event_name, self.__radio_station.station.name))
-            self.__log_everything()
+            #self.__radio_station.logger.info("received event {0} for station {1}".format(event_name, self.__radio_station.station.name))
+            #self.__log_everything()
 
             # print event_name
             if event_name == "CHANNEL_ANSWER" and 'Caller-Destination-Number' in event_json:
