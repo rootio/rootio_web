@@ -6,6 +6,7 @@ from flask.ext.login import login_user, current_user, logout_user
 from sqlalchemy.exc import DatabaseError
 
 from .utils import parse_datetime
+#from ..app import music_file_uploads
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
     ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
 from ..decorators import returns_json, restless_preprocessors, restless_postprocessors, api_key_or_auth_required
@@ -445,12 +446,22 @@ def get_dict_from_rows(rows):
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
+    from rootio.app import music_file_uploads
+    music_file_uploads.append((station_id, request.data))
+    #t = threading.Thread(target=process_music_data, args=(station_id, request.data))
+    #t.start()
+    #process_music_data(station_id, request.data)
+
+    return {'status': True}  # TODO: Make the status dependent on the result of the upload
+
+
+def process_music_data(station_id, json_string):
     songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
     artists_in_db = get_dict_from_rows(
         ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
     albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
 
-    data = json.loads(request.data)
+    data = json.loads(json_string)
     for artist in data:
         if artist in artists_in_db:
             music_artist = artists_in_db[artist]
@@ -493,8 +504,6 @@ def music_sync(station_id):
                 except DatabaseError:
                     db.session.rollback()
                     continue
-
-    return {'status': True}  # TODO: Make the status dependent on the result of the upload
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])

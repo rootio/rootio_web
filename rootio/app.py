@@ -1,33 +1,34 @@
 # -*- coding: utf-8 -*-
-
+import json
 import os
-
-from flask import Flask, g, request, render_template, session
-from flask.ext.babel import Babel
-
-from flask.ext.admin import Admin
-
-from .config import BaseConfig, DefaultConfig
-from .admin import admin_routes, AdminHomeView
-from .user import User, user
-from .settings import settings
-from .frontend import frontend
-from .api import api, restless_routes
-from .rootio import rootio
-from .radio import radio
-from .onair import onair
-from .telephony import telephony
-from .messenger import messenger
-from .content import content
-from .configuration import configuration
-
-from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
-from .utils import CustomJSONEncoder, make_dir
+import threading
+import time
 
 import zmq
+from flask import Flask, g, request, render_template, session
+from flask.ext.admin import Admin
+from flask.ext.babel import Babel
+from sqlalchemy.exc import DatabaseError
+
+from .admin import admin_routes, AdminHomeView
+from .api import api, restless_routes
+from .config import DefaultConfig
+from .configuration import configuration
+from .content import content, ContentMusic, ContentMusicArtist, ContentMusicAlbum
+from .extensions import db, mail, cache, login_manager, oid, rest, csrf, zmq_context
+from .frontend import frontend
+from .messenger import messenger
+from .onair import onair
+from .radio import radio
+from .rootio import rootio
+from .settings import settings
+from .telephony import telephony
+from .user import User, user
+from .utils import CustomJSONEncoder, make_dir
 
 # For import *
-__all__ = ['create_app']
+#__all__ = ['create_app', 'music_file_uploads']
+music_file_uploads = []
 
 DEFAULT_BLUEPRINTS = (
     frontend,
@@ -42,6 +43,8 @@ DEFAULT_BLUEPRINTS = (
     content,
     configuration
 )
+
+
 
 
 def create_app(config=None, app_name=None, blueprints=None):
@@ -65,7 +68,80 @@ def create_app(config=None, app_name=None, blueprints=None):
     configure_error_handlers(app)
     app.logger.info('application started')
 
+    @app.before_first_request
+    def handle_music_syncs():
+        lock = threading.Lock()
+        def handle_file():
+            while True:
+                lock.acquire()
+                while len(music_file_uploads) > 0:
+                    upload = music_file_uploads.pop(0)
+                    process_music_data(upload[0], upload[1])
+                lock.release()
+                time.sleep(3)
+
+        thread = threading.Thread(target=handle_file())
+        thread.start()
+
     return app
+
+
+def get_dict_from_rows(rows):
+    result = dict()
+    for row in rows:
+        result[row.title] = row
+    return result
+
+
+def process_music_data(station_id, json_string):
+    songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
+    artists_in_db = get_dict_from_rows(
+        ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
+    albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
+
+    data = json.loads(json_string)
+    for artist in data:
+        if artist in artists_in_db:
+            music_artist = artists_in_db[artist]
+        else:
+            # persist the artist
+            music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
+            artists_in_db[artist] = music_artist
+            db.session.add(music_artist)
+            try:
+                db.session.commit()
+            except DatabaseError:
+                db.session.rollback()
+                continue
+
+        for album in data[artist]:
+            if album in albums_in_db:
+                music_album = albums_in_db[album]
+            else:
+                # persist the album
+                music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
+                albums_in_db[album] = music_album
+                db.session.add(music_album)
+                try:
+                    db.session.commit()
+                except DatabaseError:
+                    db.session.rollback()
+                    continue
+
+            for song in data[artist][album]['songs']:
+                if song['title'] in songs_in_db:
+                    music_song = songs_in_db[song['title']]
+                else:
+                    music_song = ContentMusic(
+                        **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
+                           'album_id': music_album.id, 'artist_id': music_artist.id})
+                    songs_in_db[song['title']] = music_song
+                db.session.add(music_song)
+                try:
+                    db.session.commit()
+                except DatabaseError:
+                    db.session.rollback()
+                    continue
 
 
 def configure_app(app, config=None):
@@ -166,7 +242,7 @@ def configure_messenger(app):
         if app.debug:
             import time;
             time.sleep(1)
-	    app.messenger.send('zmq {"status":"startup"}')
+            app.messenger.send('zmq {"status":"startup"}')
     except zmq.error.ZMQError:
         app.logger.error('unable to start zmq')
         app.messenger = None
