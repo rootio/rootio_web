@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
+import os
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
 from sqlalchemy.exc import DatabaseError
+
+from dateutil import parser as date_parser
 
 from .utils import parse_datetime
 #from ..app import music_file_uploads
@@ -15,6 +19,7 @@ from ..radio.models import Network, Station, Person, Program, ScheduledProgram, 
 from ..telephony import PhoneNumber, Call, Message
 from ..user import User
 from ..utils import jquery_dt_paginator
+from ..config import DefaultConfig
 
 # the web login api
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -546,3 +551,65 @@ def music_playlist(station_id):
         play_list.append(pl)
 
     return play_list
+
+
+@api.route('/station/<int:station_id>/log', methods=['POST'])
+# @api_key_or_auth_required
+@csrf.exempt
+@returns_json
+def station_log(station_id):
+    raw_data = request.get_data()
+    attributes = ['category', 'argument', 'action', 'date']
+    allowed_categories = ['media', 'sms', 'call', 'data_network', 'sip_call', 'sync', 'service']
+
+    try:
+        data = json.loads(raw_data)
+    except (ValueError, AttributeError):
+        response = json.dumps({'error': 'You must provide a valid JSON input'})
+        abort(make_response(response, 400))
+
+    if not set(attributes).issubset(data.keys()):
+        response = json.dumps(
+            {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
+        )
+        abort(make_response(response, 422))
+
+    if data['category'] not in allowed_categories:
+        response = json.dumps(
+            {'error': 'Allowed categories are: {}'.format(', '.join(allowed_categories))}
+        )
+        abort(make_response(response, 422))
+
+    try:
+        parsed_date = date_parser.parse(data['date'])
+    except (ValueError, TypeError):
+        response = json.dumps({'error': 'The date you provided is not valid'})
+        abort(make_response(response, 422))
+
+    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
+    log_file_name = '{}_{}_{}.log'.format(station_id,
+                                  data['category'],
+                                  datetime.datetime.now().isoformat()[:10])
+    log_file = os.path.join(log_folder, log_file_name)
+    log_line = '{} | {category} {action} {argument}\n'.format(parsed_date, **data)
+
+    try:
+        with open(log_file, 'a+') as log:
+            log.write(log_line)
+    except IOError:
+        try:
+            os.mkdir(log_folder)
+            with open(log_file, 'a+') as log:
+                log.write(log_line)
+        except (OSError, IOError):
+            response = json.dumps({'error': 'Failed to create log'})
+            abort(make_response(response, 500))
+
+    response = {
+        'station_id': station_id,
+        'category': data['category'],
+        'argument': data['argument'],
+        'action': data['action'],
+        'date': data['date']
+    }
+    return response
