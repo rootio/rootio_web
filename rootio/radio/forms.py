@@ -4,11 +4,14 @@ import pytz
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SelectField, SubmitField, TextField, TextAreaField, HiddenField, RadioField, IntegerField, FloatField
+from wtforms import StringField, SelectField, SubmitField, \
+    TextField, TextAreaField, HiddenField, RadioField, \
+    IntegerField, FloatField, DecimalField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.validators import Required, AnyOf, NumberRange
 from wtforms_components.fields import TimeField
+
 
 from .fields import DurationField, InlineFormField, JSONField
 from .models import Station, Network, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType
@@ -184,10 +187,15 @@ StationSynchronizationFormBase = model_form(Station, db_session=db.session, base
 
 
 class StationSynchronizationForm(StationSynchronizationFormBase):
-    client_update_frequency = IntegerField(_('Frequency of Synchronization (Transmission site to cloud server)'),
-                                           [NumberRange(1, 20, 600)], default=60)
-    analytic_update_frequency = IntegerField(_('Frequency of transmission site probing'),
-                                             [NumberRange(1, 20, 600)], default=60)
+    client_update_frequency = SelectField(_('Frequency of Synchronization (Transmission site to cloud server)'),
+                                           choices=[
+                                               (10, 10), (20, 20), (30, 30), (60, 60),
+                                               (120, 120), (300, 300), (600, 600)
+                                           ], coerce=int, default=(30, 30))
+    analytic_update_frequency = DecimalField(_('Frequency of transmission site probing'),
+                                             places=0,
+                                             validators=[NumberRange(min=1, max=60)],
+                                             default=60)
     submit = SubmitField(_('Save'))
 
 
