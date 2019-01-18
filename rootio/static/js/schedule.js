@@ -264,6 +264,7 @@ function save_event(event) {
       async: false
     })
     .success(function(data) {
+      toastr["success"]("Saved!")
       event.saved = true;
     });
 
