@@ -266,7 +266,9 @@ class CallHandler:
 
     def __listen_for_esl_events(self):
         esl_connection = self.create_esl()
-        esl_connection.events("plain", "all")
+        events_to_catch = ["CHANNEL_ANSWER", "DTMF", "DETECTED_SPEECH", "NOTALK", "CHANNEL_HANGUP", "CHANNEL_PARK", "MEDIA_BUG_START", "MEDIA_BUG_STOP"]
+        for event in events_to_catch:
+            esl_connection.events("plain", event)
 
         while 1:
             e = esl_connection.recvEvent()
