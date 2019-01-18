@@ -18,6 +18,15 @@
     text-decoration: none;
 }
 
+.navbar .container .pull-left,
+.navbar .container .pull-right {
+  padding-top: 15px;
+}
+
+.navbar .pull-right .navbar-search {
+  margin-top: -10px !important;
+}
+
 ul.nav li.nav-header {
     margin-top: 6px;
     font-size: 14px;
@@ -38,13 +47,13 @@ form .required label:after {
     margin-left:2px;
 }
 
-/* 
- * Sticky footer 
+/*
+ * Sticky footer
  * http://twitter.github.io/bootstrap/examples/sticky-footer.html
  * */
 
 html,
-body { 
+body {
     height: 100%;
 }
 
@@ -144,7 +153,7 @@ table .headerSortUp:after {
 }
 
 .table-borderless td,
-.table-borderless th{ 
+.table-borderless th{
     border: 0 !important
 }
 
