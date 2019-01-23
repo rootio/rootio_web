@@ -294,6 +294,14 @@ def station_analytics(station_id):
         response = dict()
         response['id'] = single_analytic_data['id']
         del (single_analytic_data['id'])
+
+        # compatibility with old versions sending only one gsm signal value
+        try:
+            single_analytic_data['gsm_signal_1'] = single_analytic_data['gsm_signal']
+            del single_analytic_data['gsm_signal']
+        except KeyError:
+            pass
+
         analytic = StationAnalytic(**single_analytic_data)  # use this format to avoid multidict-type issue
         analytic.station = station
         db.session.add(analytic)
