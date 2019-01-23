@@ -61,9 +61,9 @@
     <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_signal_2}}{% endif %}</span></td>
 
   <td style="background-color: {{gsm_network_type_color_1}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_network_type_1}}{% endif %}</span></td>
+    {% if analytics %}{{analytics.gsm_network_type_1[-1] | upper}}{% endif %}</td>
   <td style="background-color: {{gsm_network_type_color_2}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_network_type_2}}{% endif %}</span></td>
+    {% if analytics %}{{analytics.gsm_network_type_2[-1] | upper}}{% endif %}</td>
 
   <td style="background-color: {{wifi_color}};">
     <span class="sparkline" data-type="line">{% if analytics %}{{analytics.wifi_connectivity}}{% endif %}</span></td>
