@@ -205,7 +205,7 @@
 
 
 {% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None) %}
-<form class="{% if horizontal %}form-horizontal{% endif %}" method="POST" action="{{ url }}"
+<form class="{% if horizontal %}form-horizontal{% endif %}" novalidate method="POST" action="{{ url }}"
     {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %}
     {% if form.multipart %}enctype="multipart/form-data"{% endif %} >
     {{ form.hidden_tag() }}

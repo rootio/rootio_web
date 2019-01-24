@@ -401,8 +401,6 @@ def content_medias_add():
             flash(_('No file part'))
             return redirect(request.url)
         for uploaded_file in request.files.getlist('file'):
-            # import ipdb
-            # ipdb.set_trace()
             # if user does not select file, browser also
             # submit a empty part without filename
             if uploaded_file.filename == '':
@@ -491,13 +489,16 @@ def list_hosts():
 @login_required
 def hosts_add():
     form = PersonForm(request.form)
-    del form.created_at
-    del form.updated_at
-    del form.role
-    del form.title
-    del form.additionalcontact
-    del form.privacy_code
-    del form.network_id
+    try:
+        del form.created_at
+        del form.updated_at
+        del form.role
+        del form.title
+        del form.additionalcontact
+        del form.privacy_code
+        del form.network_id
+    except AttributeError:
+        pass
 
     host = None
     if form.validate_on_submit():
