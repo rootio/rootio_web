@@ -134,14 +134,16 @@ def ivr_menus():
 def ivr_menu():
     form = CommunityMenuForm(request.form)
     community_menu = None
+    station = form.station
     if request.method == 'POST':
         pass  # validate files here
     if form.validate_on_submit():
+        station = request.form['station']
         cleaned_data = form.data  # make a copy
         cleaned_data.pop('submit', None)
         for key in request.files.keys():
             prompt_file = request.files[key]
-            file_path = os.path.join("community-menu", request.form['station'])
+            file_path = os.path.join("community-menu", station)
             uri = save_uploaded_file(prompt_file, file_path)
             cleaned_data[key] = uri
 
@@ -155,7 +157,7 @@ def ivr_menu():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form)
+    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station)
 
 
 def save_uploaded_file(uploaded_file, directory, file_name=False):
