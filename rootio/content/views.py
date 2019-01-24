@@ -519,13 +519,16 @@ def hosts_add():
 def host_edit(host_id):
     host = Person.query.filter(Person.id == host_id).first()
     form = PersonForm(obj=host)
-    del form.created_at  # TODO: Include this and look at implications
-    del form.updated_at  # TODO: Include this and look at implications
-    del form.role
-    del form.title
-    del form.additionalcontact
-    del form.privacy_code
-    del form.network_id  # TODO: actually include this. A host can be used by multiple stations in a network
+    try:
+        del form.created_at  # TODO: Include this and look at implications
+        del form.updated_at  # TODO: Include this and look at implications
+        del form.role
+        del form.title
+        del form.additionalcontact
+        del form.privacy_code
+        del form.network_id  # TODO: actually include this. A host can be used by multiple stations in a network
+    except AttributeError:
+        pass
 
     if form.validate_on_submit():
         form.populate_obj(host)
