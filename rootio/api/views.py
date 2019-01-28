@@ -611,7 +611,7 @@ def station_log(station_id):
                                               record['category'],
                                               datetime.datetime.now().isoformat()[:10])
         log_file = os.path.join(log_folder, log_file_name)
-        log_line = '{eventdate} | {category} {event} {argument}\n'.format(**data)
+        log_line = '{eventdate} | {category} {event} {argument}\n'.format(**record)
 
         try:
             with open(log_file, 'a+') as log:
