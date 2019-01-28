@@ -10,7 +10,7 @@ from sqlalchemy.exc import DatabaseError
 from dateutil import parser as date_parser
 
 from .utils import parse_datetime
-#from ..app import music_file_uploads
+# from ..app import music_file_uploads
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
     ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
 from ..decorators import returns_json, restless_preprocessors, restless_postprocessors, api_key_or_auth_required
@@ -461,9 +461,9 @@ def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
     from rootio.app import music_file_uploads
     music_file_uploads.append((station_id, request.data))
-    #t = threading.Thread(target=process_music_data, args=(station_id, request.data))
-    #t.start()
-    #process_music_data(station_id, request.data)
+    # t = threading.Thread(target=process_music_data, args=(station_id, request.data))
+    # t.start()
+    # process_music_data(station_id, request.data)
 
     return {'status': True}  # TODO: Make the status dependent on the result of the upload
 
@@ -566,6 +566,7 @@ def music_playlist(station_id):
 @csrf.exempt
 @returns_json
 def station_log(station_id):
+    responses = []
     raw_data = request.get_data()
     attributes = ['category', 'argument', 'action', 'date']
     allowed_categories = ['media', 'sms', 'call', 'data_network', 'sip_call', 'sync', 'service']
@@ -576,48 +577,55 @@ def station_log(station_id):
         response = json.dumps({'error': 'You must provide a valid JSON input'})
         abort(make_response(response, 400))
 
-    if not set(attributes).issubset(data.keys()):
-        response = json.dumps(
-            {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
-        )
-        abort(make_response(response, 422))
+    for record in data['analytic_data']:
+        response = dict()
+        response['id'] = record['id']
+        # del (record['id'])
 
-    if data['category'] not in allowed_categories:
-        response = json.dumps(
-            {'error': 'Allowed categories are: {}'.format(', '.join(allowed_categories))}
-        )
-        abort(make_response(response, 422))
+        # # compatibility with old versions sending only one gsm signal value
+        # try:
+        #     record['gsm_signal_1'] = record['gsm_signal']
+        #     del record['gsm_signal']
+        # except KeyError:
+        #     pass
+        # if not set(attributes).issubset(data.keys()):
+        #     response = json.dumps(
+        #     {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
+        #     )
+        #     abort(make_response(response, 422))
+        #
+        # if data['category'] not in allowed_categories:
+        #     response = json.dumps(
+        #         {'error': 'Allowed categories are: {}'.format(', '.join(allowed_categories))}
+        #     )
+        #     abort(make_response(response, 422))
+        #
+        # try:
+        #     parsed_date = date_parser.parse(data['date'])
+        # except (ValueError, TypeError):
+        #     response = json.dumps({'error': 'The date you provided is not valid'})
+        #     abort(make_response(response, 422))
 
-    try:
-        parsed_date = date_parser.parse(data['date'])
-    except (ValueError, TypeError):
-        response = json.dumps({'error': 'The date you provided is not valid'})
-        abort(make_response(response, 422))
+        log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
+        log_file_name = '{}_{}_{}.log'.format(station_id,
+                                              record['category'],
+                                              datetime.datetime.now().isoformat()[:10])
+        log_file = os.path.join(log_folder, log_file_name)
+        log_line = '{date} | {category} {action} {argument}\n'.format(**data)
 
-    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
-    log_file_name = '{}_{}_{}.log'.format(station_id,
-                                  data['category'],
-                                  datetime.datetime.now().isoformat()[:10])
-    log_file = os.path.join(log_folder, log_file_name)
-    log_line = '{} | {category} {action} {argument}\n'.format(parsed_date, **data)
-
-    try:
-        with open(log_file, 'a+') as log:
-            log.write(log_line)
-    except IOError:
         try:
-            os.mkdir(log_folder)
             with open(log_file, 'a+') as log:
                 log.write(log_line)
-        except (OSError, IOError):
-            response = json.dumps({'error': 'Failed to create log'})
-            abort(make_response(response, 500))
-
-    response = {
-        'station_id': station_id,
-        'category': data['category'],
-        'argument': data['argument'],
-        'action': data['action'],
-        'date': data['date']
-    }
-    return response
+                response['status'] = True
+        except IOError:
+            try:
+                os.mkdir(log_folder)
+                with open(log_file, 'a+') as log:
+                    log.write(log_line)
+            except (OSError, IOError):
+                response['status'] = False
+                response['error'] = 'Failed to create log'
+                # abort(make_response(response, 200))
+        responses.append(response)
+    all_responses = {"results": responses}
+    return all_responses
