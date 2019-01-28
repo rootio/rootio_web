@@ -577,7 +577,7 @@ def station_log(station_id):
         response = json.dumps({'error': 'You must provide a valid JSON input'})
         abort(make_response(response, 400))
 
-    for record in data['analytic_data']:
+    for record in data['log_data']:
         response = dict()
         response['id'] = record['id']
         # del (record['id'])
