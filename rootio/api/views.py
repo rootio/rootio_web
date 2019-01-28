@@ -569,7 +569,7 @@ def music_playlist(station_id):
 def station_log(station_id):
     responses = []
     raw_data = request.get_data()
-    attributes = ['category', 'argument', 'action', 'date', 'id']
+    attributes = ['category', 'argument', 'event', 'eventdate', 'id']
     allowed_categories = ['media', 'sms', 'call', 'data_network', 'sip_call', 'sync', 'service']
 
     try:
@@ -602,7 +602,7 @@ def station_log(station_id):
             abort(make_response(response, 422))
 
         try:
-            parsed_date = date_parser.parse(record['date'])
+            parsed_date = date_parser.parse(record['eventdate'])
         except (ValueError, TypeError):
             response = json.dumps({'error': 'The date you provided is not valid'})
             abort(make_response(response, 422))
@@ -612,7 +612,7 @@ def station_log(station_id):
                                               record['category'],
                                               datetime.datetime.now().isoformat()[:10])
         log_file = os.path.join(log_folder, log_file_name)
-        log_line = '{date} | {category} {action} {argument}\n'.format(**record)
+        log_line = '{eventdate} | {category} {event} {argument}\n'.format(**record)
 
         try:
             with open(log_file, 'a+') as log:
