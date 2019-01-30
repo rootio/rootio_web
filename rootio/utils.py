@@ -74,6 +74,31 @@ def upload_to_s3(file, key,  acl="public-read"):
     return uri
 
 
+def save_uploaded_file(uploaded_file, directory, file_name=False):
+    date_part = datetime.now().strftime("%y%m%d%H%M%S")
+    if not file_name:
+        file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
+
+    if DefaultConfig.S3_UPLOADS:
+        try:
+            location = upload_to_s3(uploaded_file, file_name)
+        except:
+            flash(_('Media upload error (S3)'), 'error')
+            raise
+    else:
+        upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
+        make_dir(upload_directory)
+        file_path = os.path.join(upload_directory, file_name)
+        try:
+            uploaded_file.save(file_path)
+        except:
+            flash(_('Media upload error (filesystem)'), 'error')
+            raise
+        location = "{0}/{1}".format(directory, file_name)
+
+    return location
+
+
 def get_current_time():
     return datetime.utcnow()
 

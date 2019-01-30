@@ -6,19 +6,20 @@ import os
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.sql import func
 
 from dateutil import parser as date_parser
 
 from .utils import parse_datetime
 #from ..app import music_file_uploads
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
-    ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload
+    ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload, ContentUploads, ContentTrack
 from ..decorators import returns_json, restless_preprocessors, restless_postprocessors, api_key_or_auth_required
 from ..extensions import db, rest, csrf
 from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
 from ..telephony import PhoneNumber, Call, Message
 from ..user import User
-from ..utils import jquery_dt_paginator
+from ..utils import jquery_dt_paginator, save_uploaded_file
 from ..config import DefaultConfig
 
 # the web login api
@@ -621,3 +622,36 @@ def station_log(station_id):
         'date': data['date']
     }
     return response
+
+@api.route('/upload/media', methods=['POST'])
+# @api_key_or_auth_required
+@csrf.exempt
+@returns_json
+def upload_media():
+
+    uploaded_file = request.files.getlist('file')[0]
+    filename = uploaded_file.filename
+    track_id = request.form['track_id']
+    upload_directory = "{}/{}".format("media", str(request.form['track_id']))
+
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+
+    print "File {} uploaded for track {}".format(filename, track_id)
+
+    file_data = {}
+    file_data['uploaded_by'] = current_user.id
+    file_data['name'] = filename
+    file_data['type_id'] = track.type_id
+    file_data['track_id'] = track_id
+    file_data['order'] = db.session.query(
+        func.max(ContentUploads.order).label("max_order")
+    ).filter(ContentUploads.track_id==track.id).one().max_order + 1
+
+    file_data['uri']= save_uploaded_file(uploaded_file, upload_directory)
+
+    content_media = ContentUploads(**file_data)  # create new object from data
+
+    db.session.add(content_media)
+    db.session.commit()
+
+    return json.dumps(file_data)

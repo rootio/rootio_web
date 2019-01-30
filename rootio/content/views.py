@@ -10,7 +10,7 @@ from flask.ext.login import login_required, current_user
 from werkzeug.utils import secure_filename
 
 from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm, \
-    ContentAddsForm, ContentStreamForm, ContentMusicForm, CommunityMenuForm
+    ContentAddsForm, ContentStreamForm, CommunityMenuForm
 from .models import ContentMusicPlaylistItem, ContentMusicPlaylist, ContentTrack, ContentUploads, ContentStream, \
     ContentPodcast, CommunityMenu, CommunityContent
 from ..config import DefaultConfig
@@ -18,7 +18,7 @@ from ..extensions import db, csrf
 from ..radio.forms import PersonForm
 from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
-from ..utils import jquery_dt_paginator, upload_to_s3, make_dir
+from ..utils import jquery_dt_paginator, upload_to_s3, make_dir, save_uploaded_file
 
 ALLOWED_EXTENSIONS = set(['wav', 'mp3'])
 
@@ -38,6 +38,13 @@ def index():
     return render_template('content/index.html', content=contents)
 
 
+@content.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    form = ContentMusicForm(request.form)
+    return render_template('content/track_files_add.html', form=form)
+
+
 @content.route('/tracks/')
 @login_required
 def list_tracks():
@@ -50,6 +57,14 @@ def list_tracks():
 def list_track_files(track_id):
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
     return render_template('content/track_files.html', track=track, active='tracks')
+
+
+@content.route('/tracks/<int:track_id>/files/add', methods=['GET'])
+@login_required
+def track_files_add(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+    form = ContentUploadForm()
+    return render_template('content/track_files_add.html', track=track, form=form)
 
 
 @content.route('/tracks/<int:track_id>', methods=['GET', 'POST'])
@@ -113,29 +128,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-def save_uploaded_file(uploaded_file, directory, file_name=False):
-    date_part = datetime.now().strftime("%y%m%d%H%M%S")
-    if not file_name:
-        file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
-
-    if DefaultConfig.S3_UPLOADS:
-        try:
-            location = upload_to_s3(uploaded_file, file_name)
-        except:
-            flash(_('Media upload error (S3)'), 'error')
-            raise
-    else:
-        upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
-        make_dir(upload_directory)
-        file_path = os.path.join(upload_directory, file_name)
-        try:
-            uploaded_file.save(file_path)
-        except:
-            flash(_('Media upload error (filesystem)'), 'error')
-            raise
-        location = "{0}/{1}".format(directory, file_name)
-
-    return location
 
 
 @content.route('/uploads/add/', methods=['GET', 'POST'])
@@ -343,94 +335,10 @@ def content_ads_add():
     return render_template('content/content_ads_edit.html', ad=content_ad, form=form)
 
 
-@content.route('/medias/')
-@login_required
-def list_content_medias():
-    content_type = ContentType.query.filter(ContentType.name == 'Media').first()
-    medias = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by == current_user.id).filter(
-        ContentTrack.type_id == content_type.id).order_by(ContentUploads.order).all()
-    return render_template('content/content_medias.html', medias=medias)
-
-
-@content.route('/medias/<int:content_media_id>', methods=['GET', 'POST'])
-@login_required
-def content_media_definition(content_media_id):
-    content_media = ContentUploads.query.filter_by(id=content_media_id).first_or_404()
-    form = ContentMusicForm(obj=content_media, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(content_media)
-
-        # Save the uploaded file
-        file_path = os.path.join("media", str(form.data['track'].id))
-        if request.files['file']:
-            uri = save_uploaded_file(request.files['file'], file_path)
-            content_media.uri = uri
-            content_media.name = secure_filename(request.files['file'].filename)
-
-        db.session.add(content_media)
-        db.session.commit()
-        flash(_('Content updated.'), 'success')
-
-    return render_template('content/content_media.html', content_media=content_media, form=form)
-
-
-@content.route('/medias/add/', methods=['GET', 'POST'])
-@login_required
-def content_medias_add():
-    form = ContentMusicForm(request.form)
-    content_media = None
-    uploaded_count = failed_count = 0
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash(_('No file part'))
-            return redirect(request.url)
-        for uploaded_file in request.files.getlist('file'):
-            # if user does not select file, browser also
-            # submit a empty part without filename
-            if uploaded_file.filename == '':
-                flash(_('No selected file'))
-                return redirect(request.url)
-            if uploaded_file and allowed_file(uploaded_file.filename):
-                filename = secure_filename(uploaded_file.filename)
-            if form.validate_on_submit():
-                cleaned_data = form.data  # make a copy
-                cleaned_data.pop('file', None)
-                cleaned_data.pop('submit', None)  # remove submit field from list
-                cleaned_data['uploaded_by'] = current_user.id
-                cleaned_data['name'] = filename
-                # Fix this - Form should automatically go into db
-                cleaned_data['track_id'] = cleaned_data['track'].id
-
-                upload_directory = "{}/{}".format("media", str(cleaned_data['track_id']))
-                uri = save_uploaded_file(uploaded_file, upload_directory)
-
-                cleaned_data['uri'] = uri
-                content_media = ContentUploads(**cleaned_data)  # create new object from data
-
-                db.session.add(content_media)
-                db.session.commit()
-
-                uploaded_count += 1
-
-            else:
-                failed_count += 1
-
-        if uploaded_count:
-            flash(
-                _('Media Uploaded ({} files), {} errors'.format(uploaded_count, failed_count)),
-                'success')
-        else:
-            flash(_(form.errors.items()), 'error')
-
-    return render_template('content/content_media.html', content_media=content_media, form=form)
-
-
-@content.route('/medias/reorder/', methods=['GET', 'POST'])
+@content.route('/tracks/<int:track_id>/reorder/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt
-def medias_reorder():
+def medias_reorder(**kwargs):
     str_indexes = request.form['indexes']
     indexes = str_indexes.split(',')
     indexes = map(int, indexes)
@@ -441,7 +349,6 @@ def medias_reorder():
         i += 1
         db.session.add(music)
     db.session.commit()
-    flash(_('Media reordered.'), 'success')
     return str(indexes)
 
 

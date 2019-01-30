@@ -32,7 +32,7 @@ class ContentUploads(BaseMixin, db.Model):
     name = db.Column(db.String(STRING_LEN))
     uri = db.Column(db.String(200))
     ok_to_play = db.Column(db.Boolean)
-    order = db.Column(db.Integer)
+    order = db.Column(db.Integer, default=0)
 
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     track_id = db.Column(db.ForeignKey('content_track.id'))

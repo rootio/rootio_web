@@ -1,0 +1,57 @@
+.dm-uploader {
+  cursor:default;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none; -khtml-user-select:none;
+  -moz-user-select:none; -ms-user-select:none;
+  user-select:none
+}
+
+.dm-uploader .btn {
+  position:relative;
+  overflow:hidden
+}
+
+.dm-uploader .btn input[type=file] {
+  position:absolute;
+  top:0;
+  right:0;
+  margin:0;
+  border:solid transparent;
+  width:100%;
+  opacity:0;
+  cursor:pointer
+}
+
+.dm-uploader {
+	border: 0.25rem dashed #A5A5C7;
+}
+
+.dm-uploader.active {
+	border-color: green;
+	border-style: solid;
+}
+
+ul#files {
+  overflow-y: auto !important;
+  min-height: 320px;
+  max-height: 50rem;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  ul#files {min-height: 0;}
+}
+
+ul#files .progress {
+  height: 12px;
+  line-height: 100%;
+  font-size: 10px;
+}
+
+ul#files .file-item {
+  line-height: 100%;
+}
+
+ul#files .file-separator {
+  margin: 5px auto;
+}
