@@ -375,20 +375,6 @@ def content_media_definition(content_media_id):
     return render_template('content/content_media.html', content_media=content_media, form=form)
 
 
-@content.route('/medias/<int:content_media_id>/disable', methods=['GET', 'POST'])
-@login_required
-def content_media_disable(content_media_id):
-    content_media = ContentUploads.query.filter_by(id=content_media_id).first_or_404()
-
-    content_media.expiry_date = datetime.now().replace(tzinfo=pytz.UTC)
-
-    db.session.add(content_media)
-    db.session.commit()
-    flash(_('Content updated.'), 'success')
-
-    return redirect(request.referrer or '/')
-
-
 @content.route('/medias/add/', methods=['GET', 'POST'])
 @login_required
 def content_medias_add():
