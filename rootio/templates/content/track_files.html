@@ -3,6 +3,38 @@
 {% set warning_color = '#ffff9f' %}
 {% set ok_color = '#99ff99' %}
 
+{% block js_btm %}
+{{ super() }}
+<script>
+$( function() {
+  $( "tbody" ).sortable({
+    axis: 'y',
+    placeholder: "sortable-placeholder",
+    handle: ".grippy",
+    cursor: "move",
+    delay: 100,
+    stop: function (event, ui) {
+      var data = $(this).sortable('toArray').toString();
+      console.log(data);
+      // POST to server using $.post or $.ajax
+      $.ajax({
+        data: 'indexes='+ data,
+        type: 'POST',
+        url: 'reorder/',
+        error: function() {
+          toastr["error"]("Reordering error!")
+        },
+        success: function() {
+          toastr["success"]("Media reordered!")
+        }
+      });
+    }
+  });
+  $( "tbody" ).disableSelection();
+});
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
@@ -10,47 +42,48 @@
         <h3>{{ _('Track contents') }} ({{track.name}})</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('content.content_medias_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('content.track_files_add', track_id=track.id ) }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
+                <th>{{ _('#') }}</th>
                 <th>{{ _('File name') }}</th>
                 <th>{{ _('Uploaded date') }}</th>
-                <th>{{ _('Expiration date') }}</th>
                 <th>{{ _('Listen') }}</th>
-                <th></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% for media in track.track_uploads %}
 
-            {% if media.is_expired %} {% set status_color = warning_color %}
-            {% else %}                {% set status_color = ok_color %} {% endif %}
-
             <tr id="{{ media.id }}">
+              <td><span class="grippy"></span>{{ media.order }}</td>
               <td>{{ media.name }}</td>
-                <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
-                <td style="background-color: {{status_color}}">{{ media.expiry_date.strftime('%Y-%m-%d') }}</td>
-                <td>
-                    <audio preload="metadata" controls>
-                      {% if media.is_remote %}
-                        <source src="{{ media.uri }}" type="audio/mpeg">
-                        <source src="{{ media.uri }}" type="audio/ogg">
-                        <source src="{{ media.uri }}" type="audio/wav">
-                      {% else %}
-                        <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
-                        <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
-                        <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
-                      {% endif %}
-                    </audio>
-                </td>
-                <td><a href="{{ url_for('content.content_media_definition', content_media_id=media.id) }}">{{ _('Edit') }}</a></td>
-                <td><a href="{{ url_for('content.content_media_disable', content_media_id=media.id) }}">{{ _('Disable') }}</a></td>
+              <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <audio preload="metadata" controls>
+                  {% if media.is_remote %}
+                    <source src="{{ media.uri }}" type="audio/mpeg">
+                    <source src="{{ media.uri }}" type="audio/ogg">
+                    <source src="{{ media.uri }}" type="audio/wav">
+                  {% else %}
+                    <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
+                    <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
+                    <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                  {% endif %}
+                </audio>
+              </td>
+              <td>Archive</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<div class="row">
+  <dov class="span10 pull-1">
+    <small>Note: you can reorder files by dragging and dropping them. The "order" column will only show the updated numbers upon a page refresh.</small>
+  </dov>
 </div>
 {% endblock %}

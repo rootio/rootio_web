@@ -31,9 +31,8 @@ class ContentUploads(BaseMixin, db.Model):
 
     name = db.Column(db.String(STRING_LEN))
     uri = db.Column(db.String(200))
-    expiry_date = db.Column(db.DateTime(timezone=True))
     ok_to_play = db.Column(db.Boolean)
-    order = db.Column(db.Integer)
+    order = db.Column(db.Integer, default=0)
 
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     track_id = db.Column(db.ForeignKey('content_track.id'))
@@ -49,12 +48,6 @@ class ContentUploads(BaseMixin, db.Model):
     @hybrid_property
     def is_remote(self):
         return self.uri.startswith('http://') or self.uri.startswith('https://')
-    @hybrid_property
-    def is_expired(self):
-        # make datetime objects offset-aware so they can be compared
-        aware_expiry_date = self.expiry_date.replace(tzinfo=pytz.UTC)
-        aware_now = self.expiry_date.now().replace(tzinfo=pytz.UTC)
-        return aware_expiry_date < aware_now
 
 
 class CommunityMenu(BaseMixin, db.Model):

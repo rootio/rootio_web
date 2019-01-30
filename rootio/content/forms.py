@@ -3,7 +3,7 @@
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField
+from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField, HiddenField
 from flask_wtf.file import FileField, FileRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.ext.sqlalchemy.orm import model_form
@@ -60,22 +60,18 @@ def stations():
 class ContentUploadForm(Form):
     multipart = True
     file = MultipleFileField()
-    contenttrack_id = QuerySelectField(_('Track name'), query_factory=all_tracks, allow_blank=False)
-    submit = SubmitField(_('Save'))
 
 
 class ContentNewsForm(Form):
     multipart = True
     file = FileField()
     track = QuerySelectField(_('Track name'), [Required()], query_factory=news_tracks, allow_blank=False)
-    expiry_date = DateField(_('Expiration Date'))
     submit = SubmitField(_('Save'))
 
 
 class ContentAddsForm(Form):
     multipart = True
     track = QuerySelectField(_('Track name'), [Required()], query_factory=adds_tracks, allow_blank=False)
-    expiry_date = DateField(_('Expiration Date'))
     file = FileField(_('Ad File'))
     submit = SubmitField(_('Save'))
 
@@ -84,15 +80,6 @@ class ContentStreamsForm(Form):
     name = StringField(_('Name of the stream'), [Required()])
     track = QuerySelectField(_('Track name'), [Required()], query_factory=streams_tracks, allow_blank=False)
     uri = StringField(_('URL'))
-    expiry_date = DateField(_('Expiration Date'))
-    submit = SubmitField(_('Save'))
-
-
-class ContentMusicForm(Form):
-    multipart = True
-    track = QuerySelectField(_('Track name'), [Required()], query_factory=musics_tracks, allow_blank=False)
-    expiry_date = DateField(_('Expiration Date'))
-    file = MultipleFileField(_('File(s)'))
     submit = SubmitField(_('Save'))
 
 

@@ -118,28 +118,58 @@
 {% endmacro %}
 
 {% macro render_upload_multiple(field) %}
-<div class="control-group{% if field.errors %} error{% endif %}">
-  <label class="control-label {%if field.flags.required%}required{%endif%}"
-    for="{{ field.id }}">
-    {{ field.label }}
-  </label>
-  <div class="controls">
-    {{ field }}
-    <span class="help-inline">{{ field.description }}</span>
-    {% if field.errors -%}
-    {% for error in field.errors -%}
-    <span class="help-block error">{{ error }}</span>
-    {%- endfor %}
-    {%- endif %}
-  </div>
-  <script>
-   $('#{{field.id}}').pekeUpload({
-     'dragMode': true,
-     'bootstrap': true,
-     'onSubmit': true
-   });
+  <div class="row-fluid">
+
+    <div class="span6">
+
+      <div id="drag-and-drop-zone" class="dm-uploader p-5 text-center">
+        <h3>Drag &amp; drop Files here</h3>
+        <div class="btn btn-primary btn-block mb-5">
+          <span>Open the file Browser</span>
+          <input type="file" id="{{field.id}}" title='Click to add Files' />
+        </div>
+      </div><!-- /uploader -->
+
+      <div class="mt-2">
+        <a href="#" class="btn btn-primary" id="btnApiStart">
+          <i class="fa fa-play"></i> Start
+        </a>
+        <a href="#" class="btn btn-danger" id="btnApiCancel">
+          <i class="fa fa-stop"></i> Stop
+        </a>
+      </div>
+    </div>
+
+    <div class="span6">
+      <ul class="list-unstyled well p-2 d-flex flex-column col" id="files">
+        <li class="text-muted text-center empty">No files uploaded.</li>
+      </ul>
+    </div>
+  </div><!-- /file list -->
+
+
+  <!-- File item template -->
+  <script type="text/html" id="files-template">
+    <li class="file-item">
+        <p class="file-name">
+          <strong>%%filename%%</strong> - Status: <span class="text-muted">Waiting</span>
+        </p>
+        <!--
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+            role="progressbar"
+            style="width: 0%"
+            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          </div>
+        </div>
+        -->
+        <hr class="file-separator" />
+      </div>
+    </li>
   </script>
-</div>
+
+  <script src="{{ url_for('static', filename='js/vendor/jquery.dm-uploader.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/uploader.js') }}"></script>
 {% endmacro %}
 
 {% macro render_input(field) %}
