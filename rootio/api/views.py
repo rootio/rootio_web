@@ -645,6 +645,10 @@ def upload_media():
 
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
 
+    max_order = db.session.query(
+        func.max(ContentUploads.order).label("max_order")
+    ).filter(ContentUploads.track_id==track.id).one().max_order
+
     print "File {} uploaded for track {}".format(filename, track_id)
 
     file_data = {}
@@ -652,9 +656,11 @@ def upload_media():
     file_data['name'] = filename
     file_data['type_id'] = track.type_id
     file_data['track_id'] = track_id
-    file_data['order'] = db.session.query(
-        func.max(ContentUploads.order).label("max_order")
-    ).filter(ContentUploads.track_id==track.id).one().max_order + 1
+
+    if max_order:
+        file_data['order'] = max_order + 1
+    else:
+        file_data['order'] = 1
 
     file_data['uri']= save_uploaded_file(uploaded_file, upload_directory)
 

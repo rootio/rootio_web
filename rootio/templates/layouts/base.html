@@ -116,6 +116,7 @@
           });
 
           $('#offline_datatable').DataTable({
+            order: [[0, 'desc']],
             searching: true,
             lengthMenu: [ 25, 50, 100, 1000 ],
           });
@@ -170,6 +171,7 @@
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootbox.min.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js"></script>
     <script>
       window.addEventListener("load", function(){
