@@ -212,6 +212,8 @@ class CallHandler:
                 self.__radio_station.logger.info("GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
                 gw = self.__outgoing_gateways[str(self.__available_outgoing_gateways.pop())[-9:]]
                 self.__radio_station.logger.info("GWS after pop are {0}".format(str(self.__available_outgoing_gateways)))
+                if gw.gateway_prefix is None:
+                    gw.gateway_prefix = ''
                 call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string, gw.sofia_string,
                                                                                        gw.gateway_prefix, to_number,
                                                                                        program_action.program.id,
