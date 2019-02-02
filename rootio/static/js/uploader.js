@@ -76,7 +76,7 @@ $(function() {
   $('#drag-and-drop-zone').dmUploader({
     url: '/api/upload/media',
     dnd: true,
-    auto: false,
+    auto: true,
     queue: true,
     extraData: function() {
       return {

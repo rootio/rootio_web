@@ -192,6 +192,11 @@ span.grippy::after {
     border: 0 !important
 }
 
+.bootbox.modal {
+  margin-top: 20% !important;
+  margin-left: auto !important;
+}
+
 
 #api-placard {
 background-color: #efefef;

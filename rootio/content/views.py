@@ -352,6 +352,24 @@ def medias_reorder(**kwargs):
     return str(indexes)
 
 
+@content.route('/tracks/<int:track_id>/files/delete/<int:file_id>', methods=['GET'])
+@login_required
+@csrf.exempt
+def track_files_delete(track_id, file_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+    target = ContentUploads.query.filter_by(id=file_id).first_or_404()
+
+    target.deleted = True
+
+    try:
+        db.session.add(target)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @content.route('/ads/reorder/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt

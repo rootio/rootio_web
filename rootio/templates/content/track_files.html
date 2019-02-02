@@ -7,6 +7,32 @@
 {{ super() }}
 <script>
 $( function() {
+  $('.button-delete').click(function(){
+    var el = this;
+    var id = this.id;
+    var splitid = id.split("-");
+
+    // Delete id
+    var deleteid = splitid[1];
+
+    // Confirm box
+    bootbox.confirm("Are you sure want to delete?", function(result) {
+      if(result){
+        // AJAX Request
+        $.ajax({
+          url: 'files/delete/'+deleteid,
+          type: 'GET',
+          success: function(response){
+            $(el).closest('tr').css('background','tomato');
+            $(el).closest('tr').fadeOut(500, function(){
+              $(this).remove();
+            });
+          }
+        });
+      }
+    });
+  });
+
   $( "tbody" ).sortable({
     axis: 'y',
     placeholder: "sortable-placeholder",
@@ -55,28 +81,32 @@ $( function() {
             </tr>
         </thead>
         <tbody>
-            {% for media in track.track_uploads %}
+          {% for media in track.track_uploads %}
 
-            <tr id="{{ media.id }}">
-              <td><span class="grippy"></span>{{ media.order }}</td>
-              <td>{{ media.name }}</td>
-              <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
-              <td>
-                <audio preload="metadata" controls>
-                  {% if media.is_remote %}
-                    <source src="{{ media.uri }}" type="audio/mpeg">
-                    <source src="{{ media.uri }}" type="audio/ogg">
-                    <source src="{{ media.uri }}" type="audio/wav">
-                  {% else %}
-                    <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
-                    <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
-                    <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
-                  {% endif %}
-                </audio>
-              </td>
-              <td>Archive</td>
-            </tr>
-            {% endfor %}
+            {% if not media.deleted %}
+              <tr id="{{ media.id }}">
+                <td><span class="grippy"></span>{{ media.order }}</td>
+                <td>{{ media.name }}</td>
+                <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <audio preload="metadata" controls>
+                    {% if media.is_remote %}
+                      <source src="{{ media.uri }}" type="audio/mpeg">
+                      <source src="{{ media.uri }}" type="audio/ogg">
+                      <source src="{{ media.uri }}" type="audio/wav">
+                    {% else %}
+                      <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
+                      <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
+                      <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                    {% endif %}
+                  </audio>
+                </td>
+                <td>
+                  <button class='button-delete btn btn-danger' id='delete-{{media.id}}'>Delete</button>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
         </tbody>
     </table>
 </div>
