@@ -52,18 +52,20 @@ $(document).ready(function() {
                 inline_form.parents('.modal').modal('hide');
             },
             error: function(xhr, status, err) {
+              if (xhr.responseJSON && xhr.responseJSON.errors) {
                 var errors = xhr.responseJSON.errors;
 
                 //show user field validation
                 for (var field in errors) {
-                    var sel = input_prefix+field;
-                    var label = inline_form.find('label[for='+sel+']');
-                    label.parents('.control-group').addClass('error');
-                    //error goes on control-group
-                    var msg = $('<span class="help-block error">'+errors[field]+'</span>');
-                    label.siblings('.controls').append(msg);
-                    //message goes at end of controls
+                  var sel = input_prefix+field;
+                  var label = inline_form.find('label[for='+sel+']');
+                  label.parents('.control-group').addClass('error');
+                  //error goes on control-group
+                  var msg = $('<span class="help-block error">'+errors[field]+'</span>');
+                  label.siblings('.controls').append(msg);
+                  //message goes at end of controls
                 }
+              }
             },
         });
 
