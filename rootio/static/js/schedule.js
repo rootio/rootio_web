@@ -22,7 +22,7 @@ $(document).ready(function() {
   });
 
   //bind program selector to display information from API
-  $('.modal-body select#program').on('change', function(event) {
+  $('.modal-body #program').on('change', function(event) {
     val = this.value;
     program_extra = $('.modal-body ul#program_extra');
     if (val !== '__None') {
@@ -42,8 +42,14 @@ $(document).ready(function() {
 
   //close modal on recurring submit
   $('button#modal-save').click(function() {
-    $('.modal').hide();
-    $('.modal-backdrop').fadeOut();
+    $(document).ajaxComplete(function(event, request, settings) {
+      if (settings.type == 'POST') {
+        $('#calendar').fullCalendar('refetchEvents');
+        $('#calendar').fullCalendar('refresh');
+        $('.modal').hide();
+        $('.modal-backdrop').fadeOut();
+      }
+    });
   });
 
 
@@ -264,7 +270,7 @@ function save_event(event) {
       async: false
     })
     .success(function(data) {
-      toastr["success"]("Saved!")
+      toastr["success"]("Saved!");
       event.saved = true;
     });
 

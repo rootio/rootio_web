@@ -8,8 +8,7 @@
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
-  
+
 {% endblock %}
 
 
@@ -36,14 +35,14 @@
             $( "#program_structure" ).addClass('ui-widget-header')
             $( "#program_structure" ).attr('readonly','readonly')
             $( "#structure" ).hide()
-        }); 
+        });
 
         $(document).on('dblclick',"#program_structure",function(e){
             $( "#program_structure" ).html("")
             $( "#structure" ).html("")
             }
-        ); 
-             
+        );
+
         $( function() {
             $( "#draggable" ).draggable();
             $( "#program_structure" ).droppable({
@@ -51,9 +50,9 @@
                 drop: function( event, ui ) {
                     names = $( this ).html() + "," + ui.draggable.attr('data-name')
                     $( this ).html(names.replace(/(^,)|(,$)/g,""))
-                    current_text = document.getElementById("structure" ).innerHTML.replace(/(^\[)|(\]$)/g,"") 
+                    current_text = document.getElementById("structure" ).innerHTML.replace(/(^\[)|(\]$)/g,"")
                     document.getElementById("structure" ).innerHTML = "[" + (current_text + ","+ ui.draggable.attr('data-json')).replace(new RegExp("^[,]+"),"") + "]"
-               }   
+               }
            });
         } );
   </script>
@@ -89,7 +88,7 @@
                 <li id="draggable" class='external-event'
                   data-name="{{stream.name}}"
                   data-json='{"name":"{{ stream.name }}","type":"Stream", "stream_url":"{{ stream.uri}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
-                  {{ stream.name}} 
+                  {{ stream.name}}
                 </li>
                {%endfor%}
              </ul>

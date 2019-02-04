@@ -40,8 +40,10 @@ $(document).ready(function() {
                 //insert new option into the appropriate select
                 new_option = $('<option value='+data.result.id+'>'+data.result.string+'</option>');
                 main_input_id = input_prefix.replace('_inline-','');
-                $('select#'+main_input_id).append(new_option);
-                $('select#'+main_input_id).children('option').last().attr('selected','selected');
+                if (main_input_id) {
+                  $('select#'+main_input_id).append(new_option);
+                  $('select#'+main_input_id).children('option').last().attr('selected','selected');
+                }
 
                 //clear fields
                 form_inputs.val('');
@@ -50,18 +52,20 @@ $(document).ready(function() {
                 inline_form.parents('.modal').modal('hide');
             },
             error: function(xhr, status, err) {
+              if (xhr.responseJSON && xhr.responseJSON.errors) {
                 var errors = xhr.responseJSON.errors;
-                
+
                 //show user field validation
                 for (var field in errors) {
-                    var sel = input_prefix+field;
-                    var label = inline_form.find('label[for='+sel+']');
-                    label.parents('.control-group').addClass('error');
-                    //error goes on control-group
-                    var msg = $('<span class="help-block error">'+errors[field]+'</span>');
-                    label.siblings('.controls').append(msg);
-                    //message goes at end of controls
+                  var sel = input_prefix+field;
+                  var label = inline_form.find('label[for='+sel+']');
+                  label.parents('.control-group').addClass('error');
+                  //error goes on control-group
+                  var msg = $('<span class="help-block error">'+errors[field]+'</span>');
+                  label.siblings('.controls').append(msg);
+                  //message goes at end of controls
                 }
+              }
             },
         });
 
