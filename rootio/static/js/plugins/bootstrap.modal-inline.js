@@ -40,8 +40,10 @@ $(document).ready(function() {
                 //insert new option into the appropriate select
                 new_option = $('<option value='+data.result.id+'>'+data.result.string+'</option>');
                 main_input_id = input_prefix.replace('_inline-','');
-                $('select#'+main_input_id).append(new_option);
-                $('select#'+main_input_id).children('option').last().attr('selected','selected');
+                if (main_input_id) {
+                  $('select#'+main_input_id).append(new_option);
+                  $('select#'+main_input_id).children('option').last().attr('selected','selected');
+                }
 
                 //clear fields
                 form_inputs.val('');
@@ -51,7 +53,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, err) {
                 var errors = xhr.responseJSON.errors;
-                
+
                 //show user field validation
                 for (var field in errors) {
                     var sel = input_prefix+field;

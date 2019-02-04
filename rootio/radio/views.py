@@ -483,9 +483,12 @@ def schedule_recurring_program_ajax():
     if 'DTSTART=' in form.data['recurrence']:
         dtstart = re.search('DTSTART=([0-9]*T[0-9]*Z)', form.data['recurrence']).group(1)
         clean_rrule = re.sub(r'.DTSTART=[0-9]*T[0-9]*Z', '', form.data['recurrence'])
-    if 'UNTIL=' in form.data['recurrence']:
-        # "count" together with  "until" is deprecated as of datetime v2.7.5
-        clean_rrule = re.sub(r'.COUNT=', '', clean_rrule)
+        if 'UNTIL=' in form.data['recurrence']:
+            # "count" together with  "until" is deprecated as of datetime v2.7.5
+            clean_rrule = re.sub(r'.COUNT=', '', clean_rrule)
+    else:
+        clean_rrule = form.data['recurrence']
+        dtstart = str(datetime.now())
 
     # parse recurrence rule
     r = rrule.rrulestr(clean_rrule, dtstart=dateutil.parser.parse(dtstart))
@@ -501,7 +504,8 @@ def schedule_recurring_program_ajax():
 
     response = {'status': 'success', 'result': {}, 'status_code': 200}
     # elif request.method == "POST":
-    # response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
+    if form.errors:
+        response = {'status':'error','errors':error_dict(form.errors),'status_code':400}
     return response
 
 
