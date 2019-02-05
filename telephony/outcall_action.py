@@ -69,7 +69,7 @@ class OutcallAction:
         if not result[0]:
             self.stop(False)
 
-    def __request_station_call(self):  # call the number specified thru plivo
+    def __request_station_call(self):
         if self.program.radio_station.station.is_high_bandwidth:
             result = self.__call_station_via_sip()
             if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
@@ -83,7 +83,8 @@ class OutcallAction:
         result = None
         # Try a high bandwidth call first
         if self.program.radio_station.station.sip_username is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.__host.phone.raw_number, True,
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username,
+                                              self.__host.phone.raw_number, True,
                                               self.duration)
             self.program.log_program_activity("result of station call via SIP is " + str(result))
         return result
@@ -91,33 +92,35 @@ class OutcallAction:
     def __call_station_via_goip(self):
         result = None
         if self.program.radio_station.station.primary_transmitter_phone is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
-                                          self.__host.phone.raw_number, False,
-                                          self.duration)
-            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
-            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
-                result = self.__call_handler.call(self,
-                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+            result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.primary_transmitter_phone.raw_number,
                                               self.__host.phone.raw_number, False,
                                               self.duration)
+            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            if not result[
+                    0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+                result = self.__call_handler.call(self,
+                                                  self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                                  self.__host.phone.raw_number, False,
+                                                  self.duration)
                 self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
         return result
 
     def notify_call_answered(self, answer_info):
         if self.__host.phone.raw_number not in self.__available_calls:
-            self.__available_calls[answer_info['Caller-Destination-Number'][-9:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-11:]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
         else:  # This notification is from answering the host call
-            self.__available_calls[answer_info['Caller-Destination-Number'][-9:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-11:]] = answer_info
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-9:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
 
     def warn_number(self):
         seconds = self.duration - self.__warning_time
         if self.__host.phone.raw_number in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[
-            self.__host.phone.raw_number]:
+                self.__host.phone.raw_number]:
             result = self.__call_handler.speak(
                 'Your call will end in ' + str(seconds) + 'seconds',
                 self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
@@ -130,7 +133,7 @@ class OutcallAction:
     def notify_call_hangup(self, event_json):
         if 'Caller-Destination-Number' in event_json:
             if event_json[
-                'Caller-Destination-Number'] in self.__community_call_UUIDs:  # a community caller is hanging up
+                    'Caller-Destination-Number'] in self.__community_call_UUIDs:  # a community caller is hanging up
                 del self.__community_call_UUIDs[event_json['Caller-Destination-Number']]
                 self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
             else:  # It is a hangup by the station or the host
@@ -166,10 +169,12 @@ class OutcallAction:
         elif dtmf_digit == "3":  # put the station =in auto_answer
             if self.__phone_status != PhoneStatus.ANSWERING:
                 self.__phone_status = PhoneStatus.ANSWERING
-                self.__call_handler.speak('All incoming calls will be automatically answered', self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                self.__call_handler.speak('All incoming calls will be automatically answered',
+                                          self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             else:
                 self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.speak('All incoming calls will be rejected',self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                self.__call_handler.speak('All incoming calls will be rejected',
+                                          self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
 
         elif dtmf_digit == "4":  # disable auto answer, reject and record all incoming calls
             if self.__phone_status != PhoneStatus.QUEUING:
@@ -198,7 +203,8 @@ class OutcallAction:
             pass
 
         elif dtmf_digit == "7":  # Take a 5 min music break
-            self.__call_handler.speak('You will be called back in 5 minutes',self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            self.__call_handler.speak('You will be called back in 5 minutes',
+                                      self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             self.program.log_program_activity("Host is taking a break")
             self.__pause_call()
 
@@ -213,7 +219,9 @@ class OutcallAction:
     def notify_incoming_call(self, call_info):
         if self.__phone_status == PhoneStatus.ANSWERING:  # answer the phone call, join it to the conference
             if len(self.__community_call_UUIDs) == 0:
-                self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'], "{0}_{1}".format(self.program.id, self.program.radio_station.id))
+                self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'],
+                                                         "{0}_{1}".format(self.program.id,
+                                                                          self.program.radio_station.id))
                 self.__call_handler.register_for_call_hangup(self, call_info['Caller-Destination-Number'])
                 self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
                 self.program.log_program_activity(
@@ -235,7 +243,7 @@ class OutcallAction:
     def __schedule_host_callback(self):
         time_delta = timedelta(seconds=30)  # one minutes
         now = datetime.now()
-        callback_time = now + time_delta 
+        callback_time = now + time_delta
         self.__scheduler.add_date_job(getattr(self, 'request_host_call'), callback_time)
 
     def __schedule_warning(self):

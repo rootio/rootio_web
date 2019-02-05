@@ -39,7 +39,7 @@ class NewsAction:
         self.program.log_program_activity(
             "Received call answer notification for Media action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-9:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__listen_for_media_play_stop()
         self.__play_media(self.__call_answer_info)
 
@@ -121,8 +121,8 @@ class NewsAction:
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
-        self.__call_handler.register_for_media_playback_stop(self, str(self.__call_answer_info['Caller-Destination-Number'][-9:]))
+        self.__call_handler.register_for_media_playback_stop(self, str(self.__call_answer_info['Caller-Destination-Number'][-11:]))
   
     def __deregister_listeners(self):
-        self.__call_handler.deregister_for_media_playback_stop(str(self.__call_answer_info['Caller-Destination-Number'][-9:]))
-        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-9:])
+        self.__call_handler.deregister_for_media_playback_stop(str(self.__call_answer_info['Caller-Destination-Number'][-11:]))
+        self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-11:])
