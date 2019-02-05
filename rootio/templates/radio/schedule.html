@@ -60,8 +60,8 @@
         <div id='addable-programs' class="span2">
             <h4>{{ _('Add Programs') }}</h4>
             <ul>
-            {% for p in addable_programs %}
-                <li class='external-event'
+              {% for p in addable_programs | sort(attribute='id', reverse=True)%}
+                  <li class='external-event'
                     data-program-id="{{p.id}}"
                     data-station-id="{{station.id}}"
                     data-program-type-id="{{ p.program_type_id }}"
