@@ -85,7 +85,7 @@ class StationRunner():
             thrd.start()
 
     def __handle_tcp_connection(self, sck):  # TODO: handle json errors, else server will break due to rogue connection
-        data = sck.recv(102400)
+        data = sck.recv(10240000)
         try:
             event = json.loads(data)
         except ValueError:
