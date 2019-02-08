@@ -122,7 +122,7 @@ class ProgramHandler:
         sck.send(json.dumps({'station':self.__radio_station.station.id, 'action':'register'}))
 
         while True:
-            data = sck.recv(1024)
+            data = sck.recv(102400)
             try:
                  event = json.loads(data)
             except ValueError as e:
