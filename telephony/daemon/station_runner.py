@@ -89,7 +89,7 @@ class StationRunner():
         try:
             event = json.loads(data)
         except ValueError:
-            self.logger.error('JSON load error: \n{}'.format(data))
+            self.logger.error('JSON load error') #: \n{}'.format(data))
             return
 
         if "action" in event and "station" in event:
