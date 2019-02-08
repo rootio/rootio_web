@@ -461,12 +461,7 @@ def get_dict_from_rows(rows):
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
-    #from rootio.app import music_file_uploads
-    #music_file_uploads.append((station_id, request.data))
-    # t = threading.Thread(target=process_music_data, args=(station_id, request.data))
-    # t.start()
     process_music_data(station_id, request.data)
-
     return {'status': True}  # TODO: Make the status dependent on the result of the upload
 
 
@@ -482,7 +477,7 @@ def send_scheduling_event(message):
 
 
 def process_music_data(station_id, json_string):
-    send_scheduling_event(json.dumps({"action": "sync", "id": station_id, "music_data": json_string}))
+    send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string}))
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])

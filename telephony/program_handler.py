@@ -126,7 +126,7 @@ class ProgramHandler:
             try:
                  event = json.loads(data)
             except ValueError as e:
-                 continue
+                continue
             if "action" in event and "id" in event:
                 if event["action"] == "delete":
                     self.__delete_scheduled_job(event["id"])
@@ -161,11 +161,11 @@ class ProgramHandler:
         return result
 
     def __process_music_data(self, station_id, json_string):
-        songs_in_db = self.__get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
+        songs_in_db = self.__get_dict_from_rows(self.__radio_station.db.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
         artists_in_db = self.__get_dict_from_rows(
-            ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
+            self.__radio_station.db.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
         albums_in_db = self.__get_dict_from_rows(
-            ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
+            self.__radio_station.db.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
 
         data = json.loads(json_string)
         for artist in data:
@@ -177,6 +177,7 @@ class ProgramHandler:
                 artists_in_db[artist] = music_artist
                 self.__radio_station.db.add(music_artist)
                 try:
+                    self.__radio_station.db._model_changes = {}
                     self.__radio_station.db.commit()
                 except DatabaseError:
                     self.__radio_station.db.rollback()
@@ -191,6 +192,7 @@ class ProgramHandler:
                     albums_in_db[album] = music_album
                     self.__radio_station.db.add(music_album)
                     try:
+                        self.__radio_station.db._model_changes = {}
                         self.__radio_station.db.commit()
                     except DatabaseError:
                         self.__radio_station.db.rollback()
@@ -206,9 +208,10 @@ class ProgramHandler:
                         songs_in_db[song['title']] = music_song
                         self.__radio_station.db.add(music_song)
                     try:
-                        self.__radio_station.db.session.commit()
+                        self.__radio_station.db._model_changes = {}
+                        self.__radio_station.db.commit()
                     except DatabaseError:
-                        self.__radio_station.db.session.rollback()
+                        self.__radio_station.db.rollback()
                         continue
 
 
