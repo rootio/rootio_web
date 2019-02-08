@@ -149,8 +149,12 @@ class ProgramHandler:
                             "Scheduled program with id {0} has been moved to start at time {1}"
                             .format(event["id"], scheduled_program.start))
                 elif event["action"] == "sync":
+                    self.__radio_station.logger.info(
+                        "Syncing music for station {0}".format(event["id"]))
                     t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
                     self.__process_music_data
+                    t.start()
+
 
     def __get_dict_from_rows(self, rows):
         result = dict()
