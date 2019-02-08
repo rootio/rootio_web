@@ -68,20 +68,20 @@ def create_app(config=None, app_name=None, blueprints=None):
     configure_error_handlers(app)
     app.logger.info('application started')
 
-    @app.before_first_request
-    def handle_music_syncs():
-        lock = threading.Lock()
-        def handle_file():
-            while True:
-                lock.acquire()
-                while len(music_file_uploads) > 0:
-                    upload = music_file_uploads.pop(0)
-                    process_music_data(upload[0], upload[1])
-                lock.release()
-                time.sleep(3)
-
-        thread = threading.Thread(target=handle_file())
-        thread.start()
+    # @app.before_first_request
+    # def handle_music_syncs():
+    #     lock = threading.Lock()
+    #     def handle_file():
+    #         while True:
+    #             lock.acquire()
+    #             while len(music_file_uploads) > 0:
+    #                 upload = music_file_uploads.pop(0)
+    #                 process_music_data(upload[0], upload[1])
+    #             lock.release()
+    #             time.sleep(3)
+    #
+    #     thread = threading.Thread(target=handle_file())
+    #     thread.start()
 
     return app
 

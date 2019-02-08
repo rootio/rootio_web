@@ -10,6 +10,7 @@ from sqlalchemy.sql import func
 
 from dateutil import parser as date_parser
 
+from rootio.radio.views import send_scheduling_event
 from .utils import parse_datetime
 # from ..app import music_file_uploads
 from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, ContentMusicPlaylist, \
@@ -470,54 +471,57 @@ def music_sync(station_id):
 
 
 def process_music_data(station_id, json_string):
-    songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
-    artists_in_db = get_dict_from_rows(
-        ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
-    albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
+    # songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
+    # artists_in_db = get_dict_from_rows(
+    #     ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
+    # albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
 
-    data = json.loads(json_string)
-    for artist in data:
-        if artist in artists_in_db:
-            music_artist = artists_in_db[artist]
-        else:
-            # persist the artist
-            music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
-            artists_in_db[artist] = music_artist
-            db.session.add(music_artist)
-            try:
-                db.session.commit()
-            except DatabaseError:
-                db.session.rollback()
-                continue
+    #data = json.loads(json_string)
+    send_scheduling_event(json.dumps({"action": "sync", "id": station_id, "music_data": json_string}))
 
-        for album in data[artist]:
-            if album in albums_in_db:
-                music_album = albums_in_db[album]
-            else:
-                # persist the album
-                music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
-                albums_in_db[album] = music_album
-                db.session.add(music_album)
-                try:
-                    db.session.commit()
-                except DatabaseError:
-                    db.session.rollback()
-                    continue
 
-            for song in data[artist][album]['songs']:
-                if song['title'] in songs_in_db:
-                    music_song = songs_in_db[song['title']]
-                else:
-                    music_song = ContentMusic(
-                        **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
-                           'album_id': music_album.id, 'artist_id': music_artist.id})
-                    songs_in_db[song['title']] = music_song
-                db.session.add(music_song)
-                try:
-                    db.session.commit()
-                except DatabaseError:
-                    db.session.rollback()
-                    continue
+    # for artist in data:
+    #     if artist in artists_in_db:
+    #         music_artist = artists_in_db[artist]
+    #     else:
+    #         # persist the artist
+    #         music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
+    #         artists_in_db[artist] = music_artist
+    #         db.session.add(music_artist)
+    #         try:
+    #             db.session.commit()
+    #         except DatabaseError:
+    #             db.session.rollback()
+    #             continue
+    #
+    #     for album in data[artist]:
+    #         if album in albums_in_db:
+    #             music_album = albums_in_db[album]
+    #         else:
+    #             # persist the album
+    #             music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
+    #             albums_in_db[album] = music_album
+    #             db.session.add(music_album)
+    #             try:
+    #                 db.session.commit()
+    #             except DatabaseError:
+    #                 db.session.rollback()
+    #                 continue
+    #
+    #         for song in data[artist][album]['songs']:
+    #             if song['title'] in songs_in_db:
+    #                 music_song = songs_in_db[song['title']]
+    #             else:
+    #                 music_song = ContentMusic(
+    #                     **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
+    #                        'album_id': music_album.id, 'artist_id': music_artist.id})
+    #                 songs_in_db[song['title']] = music_song
+    #             db.session.add(music_song)
+    #             try:
+    #                 db.session.commit()
+    #             except DatabaseError:
+    #                 db.session.rollback()
+    #                 continue
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])
