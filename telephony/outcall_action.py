@@ -108,14 +108,14 @@ class OutcallAction:
 
     def notify_call_answered(self, answer_info):
         if self.__host.phone.raw_number not in self.__available_calls:
-            self.__available_calls[answer_info['Caller-Destination-Number'][-11:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
         else:  # This notification is from answering the host call
-            self.__available_calls[answer_info['Caller-Destination-Number'][-11:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
 
     def warn_number(self):
         seconds = self.duration - self.__warning_time
