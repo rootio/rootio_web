@@ -225,7 +225,7 @@ class CallHandler:
                                                                                            .radio_station.station.id)
                 self.__radio_station.logger.info(
                     "setting up new call for argument '{0}': {1}".format(argument, call_command))
-                self.__waiting_call_recipients[str(to_number)[-9:]] = program_action
+                self.__waiting_call_recipients[str(to_number)[-12:]] = program_action
                 result = self.__do_esl_command(call_command)
                 self.__radio_station.logger.info("Result of call ESL command is {0}".format(result))
                 if result is None or result.split(" ")[0] != "+OK":
