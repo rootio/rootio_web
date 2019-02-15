@@ -8,6 +8,7 @@ from flask import Blueprint, current_app, request, jsonify, abort, make_response
 from flask.ext.login import login_user, current_user, logout_user
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func
+from werkzeug.utils import secure_filename
 
 from dateutil import parser as date_parser
 
@@ -598,7 +599,7 @@ def station_log(station_id):
 @returns_json
 def upload_media():
     uploaded_file = request.files.getlist('file')[0]
-    filename = uploaded_file.filename
+    filename = secure_filename(uploaded_file.filename)
     track_id = request.form['track_id']
     upload_directory = "{}/{}".format("media", str(request.form['track_id']))
 
@@ -621,7 +622,7 @@ def upload_media():
     else:
         file_data['order'] = 1
 
-    file_data['uri'] = save_uploaded_file(uploaded_file, upload_directory)
+    file_data['uri'] = save_uploaded_file(uploaded_file, upload_directory, filename)
 
     content_media = ContentUploads(**file_data)  # create new object from data
 
