@@ -26,6 +26,7 @@
     $(document).ready(function() {
       //set timezone
       $('#calendar').fullCalendar({
+        firstDay: 1,
         timezone: '{{station.timezone}}',
       });
 

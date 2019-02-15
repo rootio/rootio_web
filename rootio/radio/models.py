@@ -351,6 +351,9 @@ class ScheduledProgram(BaseMixin, db.Model):
     deleted = db.Column(db.Boolean)
     station = db.relationship(u'Station')
 
+    # For recurring events - add a unique string to identify all items in the series
+    series_id = db.Column(db.String(STRING_LEN), nullable=True)
+
     @property
     def start_local(self):
         timezone = self.station.timezone
