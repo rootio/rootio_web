@@ -141,7 +141,7 @@ $(document).ready(function() {
 
     droppable: true,
     drop: function(date, allDay) {
-      //copied from fullcalendar/demos/external-dragging.html
+      var timezone = $('#calendar').data('timezone');
 
       // retrieve the dropped element's stored Event Object
       var originalEvent = $(this).data('eventObject');
@@ -239,9 +239,9 @@ $(document).ready(function() {
 function save_event(event) {
 
   cleaned_data = {
-    start: event.start,
-    end: event.end
-  }; //moment json-ifies to iso8601 natively
+    start: event.start.format('YYYY-MM-DD HH:mm:ss'),
+    end: event.end.format('YYYY-MM-DD HH:mm:ss')
+  };
 
   if (event.program) {
     cleaned_data.program = event.program;
@@ -257,8 +257,6 @@ function save_event(event) {
   if (event.id) {
     cleaned_data.scheduledprogram = event.id;
   }
-
-
 
   //post to flask
   $.ajax(action_url, {

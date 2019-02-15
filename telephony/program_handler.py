@@ -3,6 +3,7 @@ import socket
 import threading
 from time import sleep
 from datetime import date, datetime, timedelta, time
+import arrow
 
 import dateutil.tz
 import pytz
@@ -29,7 +30,7 @@ class ProgramHandler:
 
     def __prepare_schedule(self):
         self.__load_programs()
-        self.__scheduler = Scheduler()
+        self.__scheduler = Scheduler(timezone=pytz.utc)
         self.__scheduled_jobs = dict()
 
     def run_current_schedule(self):
@@ -59,10 +60,10 @@ class ProgramHandler:
                                                                                    scheduled_program.start))
 
     def __add_scheduled_job(self, scheduled_program):
+        start_time = self.__get_program_start_time(scheduled_program).replace(tzinfo=None)
         program = RadioProgram(scheduled_program, self.__radio_station)
         scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),
-                                                      self.__get_program_start_time(scheduled_program).replace(
-                                                          tzinfo=None))
+                                                      start_time)
         self.__scheduled_jobs[scheduled_program.id] = scheduled_job
 
     def __delete_scheduled_job(self, index):
@@ -87,7 +88,8 @@ class ProgramHandler:
         return
 
     def __load_programs(self):
-        date_filter = "((start >= now() and start < now() + interval '3 hour') or (start < now() and radio_scheduledprogram.end > now()))"
+        timezone = self.__radio_station.station.timezone
+        date_filter = "((start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '3 hour') or (start < now() at time zone '{tz}' and radio_scheduledprogram.end > now() at time zone '{tz}'))".format(tz=timezone)
         self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
             ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
             ScheduledProgram.deleted == False).all()
@@ -161,12 +163,12 @@ class ProgramHandler:
     """
 
     def __is_program_expired(self, scheduled_program):
-        now = pytz.utc.localize(datetime.utcnow())
-        return (scheduled_program.start + scheduled_program.program.duration) < (now + timedelta(minutes=1))
+        now = arrow.utcnow()
+        return (scheduled_program.start_utc + scheduled_program.program.duration) < (now + timedelta(minutes=1))
 
     def __get_program_start_time(self, scheduled_program):
-        now = datetime.now(dateutil.tz.tzlocal())
-        if scheduled_program.start < now:  # Time at which program begins is already past
+        now = arrow.utcnow().datetime
+        if scheduled_program.start_utc < now:  # Time at which program begins is already past
             return now + timedelta(seconds=5)  # 5 second scheduling allowance
         else:
-            return scheduled_program.start + timedelta(seconds=5)  # 5 second scheduling allowance
+            return scheduled_program.start_utc + timedelta(seconds=5)  # 5 second scheduling allowance

@@ -11,6 +11,7 @@ from flask import Blueprint, render_template, request, flash, json
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 from pytz import timezone
+import arrow
 
 from .forms import StationForm, StationTelephonyForm, NetworkForm, ProgramForm, BlockForm, LocationForm, \
     ScheduleProgramForm, PersonForm
@@ -441,8 +442,8 @@ def schedule_program_edit_ajax():
         return {'status': 'error', 'errors': 'scheduledprogram required', 'status_code': 400}
 
     scheduled_program = db.session.query(ScheduledProgram).get(data['scheduledprogram'])
-    scheduled_program.start = dateutil.parser.parse(data['start'])
-    scheduled_program.end = dateutil.parser.parse(data['end'])
+    scheduled_program.start = arrow.get(data['start']).datetime
+    scheduled_program.end = arrow.get(data['end']).datetime
     scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
