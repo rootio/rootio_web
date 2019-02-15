@@ -21,7 +21,7 @@ from sqlalchemy.orm import sessionmaker
 from ..radio_station import RadioStation
 
 
-class StationRunner():
+class StationRunner:
 
     def __init__(self, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         self.logger = logging.getLogger('station_runner')
@@ -85,18 +85,18 @@ class StationRunner():
             thrd.start()
 
     def __handle_tcp_connection(self, sck):  # TODO: handle json errors, else server will break due to rogue connection
-        data = sck.recv(1024)
+        data = sck.recv(10240000)
         try:
             event = json.loads(data)
         except ValueError:
-            self.logger.error('JSON load error: \n{}'.format(data))
+            self.logger.error('JSON load error')
             return
 
         if "action" in event and "station" in event:
             if event["action"] == "register":  # A station is registering
                 self.__station_sockets[event["station"]] = sck
                 self.logger.info("Station {0} has registered for schedule change events".format(event["station"]))
-            elif event["action"] in ["add", "delete", "update"] and "id" in event:  # Schedule is alerting of a change
+            elif event["action"] in ["add", "delete", "update", "sync"] and "id" in event:  # Schedule is alerting of a change
                 if event["station"] in self.__station_sockets:
                     try:
                         self.__station_sockets[event["station"]].send(data)

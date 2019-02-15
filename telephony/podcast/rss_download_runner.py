@@ -5,11 +5,11 @@
 __author__="HP Envy"
 __date__ ="$Nov 19, 2014 4:16:15 PM$"
 
-import sys, os
+import os
+import sys
 
 sys.path.append('/usr/local/rootio_web/')
-from rootio.config import DefaultConfig, BaseConfig
-from rootio.radio.models import Station
+from rootio.config import DefaultConfig
 from rss_agent import RSSAgent
 from datetime import datetime
 

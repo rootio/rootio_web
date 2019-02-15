@@ -2,6 +2,7 @@
 import datetime
 import json
 import os
+import socket
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
@@ -460,64 +461,23 @@ def get_dict_from_rows(rows):
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
-    from rootio.app import music_file_uploads
-    music_file_uploads.append((station_id, request.data))
-    # t = threading.Thread(target=process_music_data, args=(station_id, request.data))
-    # t.start()
-    # process_music_data(station_id, request.data)
-
+    process_music_data(station_id, request.data)
     return {'status': True}  # TODO: Make the status dependent on the result of the upload
 
 
+def send_scheduling_event(message):
+    try:
+        sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
+        sck.send(message)
+        # sck.recv(1024)
+        sck.close()
+    except IOError:  # Socket errors, maybe service is not running
+        return
+
+
 def process_music_data(station_id, json_string):
-    songs_in_db = get_dict_from_rows(ContentMusic.query.filter(ContentMusic.station_id == station_id).all())
-    artists_in_db = get_dict_from_rows(
-        ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).all())
-    albums_in_db = get_dict_from_rows(ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).all())
-
-    data = json.loads(json_string)
-    for artist in data:
-        if artist in artists_in_db:
-            music_artist = artists_in_db[artist]
-        else:
-            # persist the artist
-            music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
-            artists_in_db[artist] = music_artist
-            db.session.add(music_artist)
-            try:
-                db.session.commit()
-            except DatabaseError:
-                db.session.rollback()
-                continue
-
-        for album in data[artist]:
-            if album in albums_in_db:
-                music_album = albums_in_db[album]
-            else:
-                # persist the album
-                music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
-                albums_in_db[album] = music_album
-                db.session.add(music_album)
-                try:
-                    db.session.commit()
-                except DatabaseError:
-                    db.session.rollback()
-                    continue
-
-            for song in data[artist][album]['songs']:
-                if song['title'] in songs_in_db:
-                    music_song = songs_in_db[song['title']]
-                else:
-                    music_song = ContentMusic(
-                        **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
-                           'album_id': music_album.id, 'artist_id': music_artist.id})
-                    songs_in_db[song['title']] = music_song
-                db.session.add(music_song)
-                try:
-                    db.session.commit()
-                except DatabaseError:
-                    db.session.rollback()
-                    continue
+    send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string}))
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])
@@ -591,7 +551,7 @@ def station_log(station_id):
         if not set(attributes).issubset(record.keys()):
             print record.keys()
             response = json.dumps(
-            {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
+                {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
             )
             abort(make_response(response, 422))
 
@@ -637,7 +597,6 @@ def station_log(station_id):
 @csrf.exempt
 @returns_json
 def upload_media():
-
     uploaded_file = request.files.getlist('file')[0]
     filename = uploaded_file.filename
     track_id = request.form['track_id']
@@ -647,7 +606,7 @@ def upload_media():
 
     max_order = db.session.query(
         func.max(ContentUploads.order).label("max_order")
-    ).filter(ContentUploads.track_id==track.id).one().max_order
+    ).filter(ContentUploads.track_id == track.id).one().max_order
 
     print "File {} uploaded for track {}".format(filename, track_id)
 
@@ -662,7 +621,7 @@ def upload_media():
     else:
         file_data['order'] = 1
 
-    file_data['uri']= save_uploaded_file(uploaded_file, upload_directory)
+    file_data['uri'] = save_uploaded_file(uploaded_file, upload_directory)
 
     content_media = ContentUploads(**file_data)  # create new object from data
 
