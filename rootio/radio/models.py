@@ -486,10 +486,17 @@ class StationAnalytic(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id'))
 
     battery_level = db.Column(db.Integer) # percentage 0,100
+
     gsm_signal_1 = db.Column(db.Integer)  # signal strength in db (sim 1)
-    gsm_signal_2 = db.Column(db.Integer)  # signal strength in db (sim 2)
     gsm_network_type_1 = db.Column(db.String(30)) # gsm network type (edge / lte / hspa etc) (sim 1)
+    gsm_network_name_1 = db.Column(db.String(30)) # gsm network name for sim 1
+    gsm_network_connected_1 = db.Column(db.Boolean, default=False)
+
+    gsm_signal_2 = db.Column(db.Integer)  # signal strength in db (sim 2)
     gsm_network_type_2 = db.Column(db.String(30)) # gsm network type (edge / lte / hspa etc) (sim 2)
+    gsm_network_name_2 = db.Column(db.String(30)) # gsm network name for sim 2
+    gsm_network_connected_2 = db.Column(db.Boolean, default=False)
+
     wifi_connectivity = db.Column(db.Float)  # boolean 0/1
     memory_utilization = db.Column(db.Float)  # percentage 0,100
     storage_usage = db.Column(db.Float)  # percentage 0,100
