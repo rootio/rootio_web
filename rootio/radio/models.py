@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import pytz
+import arrow
+import sqlalchemy as sa
 from datetime import datetime, timedelta
 from coaster.sqlalchemy import BaseMixin
 from sqlalchemy_utils import JSONType
@@ -346,6 +349,24 @@ class ScheduledProgram(BaseMixin, db.Model):
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)
+    station = db.relationship(u'Station')
+
+    # For recurring events - add a unique string to identify all items in the series
+    series_id = db.Column(db.String(STRING_LEN), nullable=True)
+
+    @property
+    def start_local(self):
+        timezone = self.station.timezone
+        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
+        return result.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(timezone))
+
+    @property
+    def start_utc(self):
+        timezone = self.station.timezone
+        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
+        return result.replace(tzinfo=pytz.utc)
 
     @classmethod
     def after(cls, date):

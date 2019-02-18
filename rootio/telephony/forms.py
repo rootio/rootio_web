@@ -24,7 +24,7 @@ PhoneNumberFormBase = model_form(PhoneNumber,
 
 
 class PhoneNumberForm(PhoneNumberFormBase):
-    number = StringField(_('Phone Number'), [Required], default=" ")
+    number = StringField(_('Phone Number'), [Required()], default=" ")
     number_type = RadioField(_("Type"),
                              [AnyOf([str(val) for val in PHONE_NUMBER_TYPE.keys()])],
                              choices=[(str(val), label) for val, label in PHONE_NUMBER_TYPE.items()])

@@ -87,7 +87,7 @@ $( function() {
               <tr id="{{ media.id }}">
                 <td><span class="grippy"></span>{{ media.order }}</td>
                 <td>{{ media.name }}</td>
-                <td>{{ media.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>{{ media.created_at.strftime('%Y-%m-%d %H:%m') }}</td>
                 <td>
                   <audio preload="metadata" controls>
                     {% if media.is_remote %}

@@ -76,11 +76,28 @@ $(document).ready(function() {
 
   popoverPlacement = function(eventDate, calendarView) {
     var position = "right";
+    var fd = $('#calendar').fullCalendar('option', 'firstDay');
+
     if (calendarView.name === "agendaDay") {
+      if (eventDate.hours() > 12) {
+        position = "top";
+      } else {
+        position = "bottom";
+      }
       position = "bottom";
     } else if (calendarView.name === "agendaWeek") {
-      if (eventDate.isoWeekday() > 5) {
+      if (eventDate.isoWeekday() > 4) {
         position = "left";
+      }
+      if (eventDate.isoWeekday() == 7 && fd == 0) {
+        position = "right";
+      }
+    } else if (calendarView.name === "month") {
+      if (eventDate.isoWeekday() > 4) {
+        position = "left";
+      }
+      if (eventDate.isoWeekday() == 7 && fd == 0) {
+        position = "right";
       }
     }
     return position;
@@ -135,13 +152,14 @@ $(document).ready(function() {
       center: 'title',
       right: 'month,agendaWeek,agendaDay'
     },
-    firstDay: 1,
+    firstDay: 0,
+    weekNumberCalculation: 'ISO',
     allDayDefault: false,
     timezone: $('#calendar').data('timezone'),
 
     droppable: true,
     drop: function(date, allDay) {
-      //copied from fullcalendar/demos/external-dragging.html
+      var timezone = $('#calendar').data('timezone');
 
       // retrieve the dropped element's stored Event Object
       var originalEvent = $(this).data('eventObject');
@@ -199,6 +217,9 @@ $(document).ready(function() {
           popover_content += "<input id='newStart_" + event.id + "' type='text' value='" + event.start.format('LT') + "' placeholder='HH:MM'></p>";
           popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
           popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
+          if (event.series_id) {
+            popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+          }
           $(this).popover({
               trigger: 'manual',
               placement: popoverPlacement(event.start, view),
@@ -239,9 +260,9 @@ $(document).ready(function() {
 function save_event(event) {
 
   cleaned_data = {
-    start: event.start,
-    end: event.end
-  }; //moment json-ifies to iso8601 natively
+    start: event.start.format('YYYY-MM-DD HH:mm:ss'),
+    end: event.end.format('YYYY-MM-DD HH:mm:ss')
+  };
 
   if (event.program) {
     cleaned_data.program = event.program;
@@ -257,8 +278,6 @@ function save_event(event) {
   if (event.id) {
     cleaned_data.scheduledprogram = event.id;
   }
-
-
 
   //post to flask
   $.ajax(action_url, {
@@ -291,6 +310,15 @@ function delete_event(id) {
   }
 }
 
+function delete_series(id) {
+  if (confirm("Are you sure you want to delete all the events in this series?")) {
+    ask_to_delete_series(id);
+    $('#calendar').fullCalendar('removeEvents', function(event) {
+      return event.series_id == id;
+    });
+  }
+}
+
 function update_event(id, start) {
   var e = $("#calendar").fullCalendar('clientEvents', id)[0];
   var oldStart = e.start;
@@ -305,4 +333,8 @@ function update_event(id, start) {
 
 function ask_to_delete(id) {
   $.post('/radio/scheduleprogram/delete/' + id + '/')
+}
+
+function ask_to_delete_series(id) {
+  $.post('/radio/scheduleprogram/delete_series/' + id + '/')
 }

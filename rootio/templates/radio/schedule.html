@@ -10,8 +10,7 @@
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
@@ -27,6 +26,7 @@
     $(document).ready(function() {
       //set timezone
       $('#calendar').fullCalendar({
+        firstDay: 1,
         timezone: '{{station.timezone}}',
       });
 

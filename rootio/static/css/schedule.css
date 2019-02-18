@@ -30,8 +30,6 @@
     border:1px solid #ddd;
     background: #eee;
     list-style: none;
-  max-height: 500px;
-  overflow-y: auto;
 }
 
 #addable-programs li.external-event { /* try to mimick the look of a real event */

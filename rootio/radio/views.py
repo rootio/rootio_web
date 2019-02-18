@@ -3,6 +3,7 @@
 import json
 import socket
 from datetime import datetime
+import time
 import re
 
 import dateutil.parser
@@ -11,6 +12,7 @@ from flask import Blueprint, render_template, request, flash, json
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 from pytz import timezone
+import arrow
 
 from .forms import StationForm, StationTelephonyForm, NetworkForm, ProgramForm, BlockForm, LocationForm, \
     ScheduleProgramForm, PersonForm
@@ -415,6 +417,18 @@ def schedule_program_add_ajax():
     return {'status': data, 'result': 1, 'status_code': 200}
     # return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
+@radio.route('/scheduleprogram/delete_series/<_id>/', methods=['POST'])
+@login_required
+def delete_series(_id):
+    scheduled_programs = ScheduledProgram.query.filter(ScheduledProgram.series_id == _id).all()
+
+    for s in scheduled_programs:
+        s.deleted = True
+        db.session.add(s)
+        db.session.commit()
+        send_scheduling_event(
+            json.dumps({"action": "delete", "id": s.id, "station": s.station_id}))
+    return ""
 
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
@@ -441,8 +455,8 @@ def schedule_program_edit_ajax():
         return {'status': 'error', 'errors': 'scheduledprogram required', 'status_code': 400}
 
     scheduled_program = db.session.query(ScheduledProgram).get(data['scheduledprogram'])
-    scheduled_program.start = dateutil.parser.parse(data['start'])
-    scheduled_program.end = dateutil.parser.parse(data['end'])
+    scheduled_program.start = arrow.get(data['start']).datetime
+    scheduled_program.end = arrow.get(data['end']).datetime
     scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
@@ -478,6 +492,7 @@ def schedule_recurring_program_ajax():
     # if form.validate_on_submit():
     # save refs to form objects
     program = Program.query.filter(Program.id == form.data['program']).first()
+    series_id = time.time()
 
     # fix for some broken recurrence rules
     if 'DTSTART=' in form.data['recurrence']:
@@ -496,6 +511,7 @@ def schedule_recurring_program_ajax():
         scheduled_program = ScheduledProgram()
         scheduled_program.station_id = data['station']
         scheduled_program.program_id = data['program']
+        scheduled_program.series_id = series_id
         scheduled_program.deleted = False
         scheduled_program.start = datetime.combine(instance, air_time)  # combine instance day and air_time time
         scheduled_program.end = scheduled_program.start + program.duration
@@ -527,6 +543,7 @@ def scheduled_programs_json(station_id):
              'end': s.end.isoformat(),
              'id': s.id,
              'program_type_id': s.program.program_type_id,
+             'series_id': s.series_id,
              'status': s.status}
         resp.append(d)
     return resp

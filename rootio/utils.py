@@ -14,6 +14,7 @@ import boto3
 from flask import json
 from flask.ext.wtf import Form
 from sqlalchemy import or_
+from werkzeug.utils import secure_filename
 
 from .config import DefaultConfig
 
@@ -78,6 +79,7 @@ def save_uploaded_file(uploaded_file, directory, file_name=False):
     date_part = datetime.now().strftime("%y%m%d%H%M%S")
     if not file_name:
         file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
+        file_name = secure_filename(file_name)
 
     if DefaultConfig.S3_UPLOADS:
         try:
