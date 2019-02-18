@@ -1,19 +1,12 @@
 # import the necessary stuff here
-import urllib
-from datetime import datetime, timedelta
-from time import mktime
 
-import feedparser
+from datetime import datetime, timedelta
+from time import sleep
+
 from sqlalchemy.exc import SQLAlchemyError
 
 from rootio.config import *
 from rootio.content.models import CommunityContent
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
-import re
-import os
-from time import sleep
-from datetime import datetime, timedelta
 
 
 class CommunityMenu:
@@ -36,12 +29,12 @@ class CommunityMenu:
         self.__start_listener()
 
     def __start_listener(self):
-        self.__gateway = self.__get_gateway_used()
+        self.__gateway = str(self.__get_gateway_used())[-9:]
         if self.__gateway is not None:
             self.__radio_station.call_handler.register_for_incoming_calls(self, True)
             self.__radio_station.call_handler.register_for_call_hangup(self, str(self.__gateway))
-            self.__radio_station.call_handler.register_for_media_playback_stop(self, str(self.__gateway))
-            self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
+            # self.__radio_station.call_handler.register_for_media_playback_stop(self, str(self.__gateway))
+            # self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
 
     def __get_community_menu(self):
         if len(self.__radio_station.station.community_menu) > 0:
