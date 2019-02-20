@@ -9,7 +9,9 @@ import os
 import sys
 
 sys.path.append('/usr/local/rootio_web/')
-from rootio.config import DefaultConfig
+
+from rootio.config import DefaultConfig, BaseConfig
+from rootio.radio.models import Station #Even though intellij warns unused, do not remove this import. or you will get weird random errors
 from rss_agent import RSSAgent
 from datetime import datetime
 
