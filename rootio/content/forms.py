@@ -29,18 +29,6 @@ def all_tracks():
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).all()
 
 
-def news_tracks():
-    content_type = ContentType.query.filter(ContentType.name == 'News').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(
-        ContentTrack.type_id == content_type.id).all()
-
-
-def adds_tracks():
-    content_type = ContentType.query.filter(ContentType.name == 'Advertisements').first()
-    return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(
-        ContentTrack.type_id == content_type.id).all()
-
-
 def streams_tracks():
     content_type = ContentType.query.filter(ContentType.name == 'Streams').first()
     return ContentTrack.query.filter_by(uploaded_by=current_user.id).filter(
@@ -60,20 +48,6 @@ def stations():
 class ContentUploadForm(Form):
     multipart = True
     file = MultipleFileField()
-
-
-class ContentNewsForm(Form):
-    multipart = True
-    file = FileField()
-    track = QuerySelectField(_('Track name'), [Required()], query_factory=news_tracks, allow_blank=False)
-    submit = SubmitField(_('Save'))
-
-
-class ContentAddsForm(Form):
-    multipart = True
-    track = QuerySelectField(_('Track name'), [Required()], query_factory=adds_tracks, allow_blank=False)
-    file = FileField(_('Ad File'))
-    submit = SubmitField(_('Save'))
 
 
 class ContentStreamsForm(Form):

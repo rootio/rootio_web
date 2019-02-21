@@ -9,8 +9,7 @@ from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 from werkzeug.utils import secure_filename
 
-from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentNewsForm, \
-    ContentAddsForm, ContentStreamForm, CommunityMenuForm
+from .forms import ContentMusicPlaylistForm, ContentTrackForm, ContentUploadForm, ContentPodcastForm, ContentStreamForm, CommunityMenuForm
 from .models import ContentMusicPlaylistItem, ContentMusicPlaylist, ContentTrack, ContentUploads, ContentStream, \
     ContentPodcast, CommunityMenu, CommunityContent
 from ..config import DefaultConfig
@@ -128,8 +127,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-
-
 @content.route('/uploads/add/', methods=['GET', 'POST'])
 @login_required
 def content_upload_add():
@@ -178,163 +175,6 @@ def content_upload_add():
     return render_template('content/content_upload.html', content_uploads=content_uploads, form=form)
 
 
-@content.route('/news/', defaults={'page': 1})
-@content.route('/news/')
-@login_required
-def list_content_news():
-    content_type = ContentType.query.filter(ContentType.name == 'News').first()
-    content_news = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by == current_user.id).filter(
-        ContentTrack.type_id == content_type.id).all()
-    return render_template('content/content_news.html', content_news=content_news)
-
-
-@content.route('/news/<int:content_news_id>', methods=['GET', 'POST'])
-@login_required
-def content_news_edit(content_news_id):
-    content_news = ContentUploads.query.filter_by(id=content_news_id).first_or_404()
-    form = ContentNewsForm(obj=content_news, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(content_news)
-
-        # Save the uploaded file
-        uploaded_file = request.files['file']
-        track_id = str(form.data['track'].id)
-        upload_directory = os.path.join("news", track_id)
-        uri = save_uploaded_file(uploaded_file, upload_directory)
-
-        content_news.uri = uri
-        content_news.name = secure_filename(request.files['file'].filename)
-
-        db.session.add(content_news)
-        db.session.commit()
-        flash(_('Content updated.'), 'success')
-    return render_template('content/content_news_edit.html', content_news=content_news, form=form)
-
-
-@content.route('/news/add/', methods=['GET', 'POST'])
-@login_required
-def content_news_add():
-    form = ContentNewsForm(request.form)
-    content_news = None
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash(_('No file part'))
-            return redirect(request.url)
-        uploaded_file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if uploaded_file.filename == '':
-            flash(_('No selected file'))
-            return redirect(request.url)
-        if uploaded_file and allowed_file(uploaded_file.filename):
-            filename = secure_filename(uploaded_file.filename)
-        if form.validate_on_submit():
-            cleaned_data = form.data  # make a copy
-            cleaned_data.pop('file', None)
-            cleaned_data.pop('submit', None)  # remove submit field from list
-            cleaned_data['uploaded_by'] = current_user.id
-            cleaned_data['name'] = filename
-            cleaned_data['track_id'] = cleaned_data['track'].id
-
-            track_id = str(cleaned_data['track_id'])
-            upload_directory = os.path.join("news", track_id)
-            uri = save_uploaded_file(uploaded_file, upload_directory)
-
-            cleaned_data['uri'] = uri
-            content_news = ContentUploads(**cleaned_data)  # create new object from data
-
-            db.session.add(content_news)
-            db.session.commit()
-
-            flash(_('Content added.'), 'success')
-        else:
-            flash(_(form.errors.items()), 'error')
-
-    return render_template('content/content_news_edit.html', content_news=content_news, form=form)
-
-
-@content.route('/ads/')
-@login_required
-def list_content_ads():
-    content_type = ContentType.query.filter(ContentType.name == 'Advertisements').first()
-    content_ads = ContentUploads.query.join(ContentTrack).filter(ContentUploads.uploaded_by == current_user.id).filter(
-        ContentTrack.type_id == content_type.id).all()
-    return render_template('content/content_ads.html', ads=content_ads)
-
-
-@content.route('/ads/<int:ad_id>', methods=['GET', 'POST'])
-@login_required
-def content_ads_edit(ad_id):
-    content_ad = ContentUploads.query.filter_by(id=ad_id).first_or_404()
-    form = ContentAddsForm(obj=content_ad, next=request.args.get('next'))
-
-    if form.validate_on_submit():
-        form.populate_obj(content_ad)
-
-        # Save the uploaded file
-        uploaded_file = request.files['file']
-        track_id = str(form.data['track'].id)
-        upload_directory = "{}/{}".format("ads", track_id)
-        uri = save_uploaded_file(uploaded_file, upload_directory)
-
-        content_ad.uri = uri
-        content_ad.name = secure_filename(request.files['file'].filename)
-
-        db.session.add(content_ad)
-        db.session.commit()
-        flash(_('Content updated.'), 'success')
-    return render_template('content/content_ads_edit.html', ad=content_ad, form=form)
-
-
-@content.route('/ads/add/', methods=['GET', 'POST'])
-@login_required
-def content_ads_add():
-    form = ContentAddsForm(request.form)
-    content_ad = None
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash(_('No file selected'))
-            return redirect(request.url)
-        uploaded_file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if uploaded_file.filename == '':
-            flash(_('No selected file'))
-            return redirect(request.url)
-        if not uploaded_file or not allowed_file(uploaded_file.filename):
-            flash(_('Invalid file format'))
-            return redirect(request.url)
-    if form.validate_on_submit():
-        filename = secure_filename(uploaded_file.filename)
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('file', None)
-        cleaned_data.pop('submit', None)  # remove submit field from list
-        cleaned_data['uploaded_by'] = current_user.id
-        cleaned_data['name'] = filename
-        # cleaned_data['content_contenttypeid'] = cleaned_data['track_id'].content_contenttypeid
-        cleaned_data['track_id'] = cleaned_data['track'].id
-
-        # Save the uploaded file
-        track_id = str(cleaned_data['track_id'])
-        upload_directory = "{}/{}".format("ads", track_id)
-        uri = save_uploaded_file(uploaded_file, upload_directory)
-
-        cleaned_data['uri'] = uri
-        content_ad = ContentUploads(**cleaned_data)  # create new object from data
-
-        db.session.add(content_ad)
-        db.session.commit()
-
-        flash(_('Advertisement uploaded.'), 'success')
-    elif request.method == "POST":
-        flash(_(form.errors.items()), 'error')
-
-    return render_template('content/content_ads_edit.html', ad=content_ad, form=form)
-
-
 @content.route('/tracks/<int:track_id>/reorder/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt
@@ -368,24 +208,6 @@ def track_files_delete(track_id, file_id):
         return '{"result": "failed" }'
 
     return '{"result": "ok" }'
-
-
-@content.route('/ads/reorder/', methods=['GET', 'POST'])
-@login_required
-@csrf.exempt
-def ads_reorder():
-    str_indexes = request.form['indexes']
-    indexes = str_indexes.split(',')
-    indexes = map(int, indexes)
-    i = 1
-    for idx in indexes:
-        adds = ContentUploads.query.filter_by(id=idx).first_or_404()
-        adds.order = i
-        i += 1
-        db.session.add(adds)
-    db.session.commit()
-    flash(_('Ads reordered.'), 'success')
-    return str(indexes)
 
 
 @content.route('/hosts/')
