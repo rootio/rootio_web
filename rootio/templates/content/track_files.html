@@ -95,9 +95,9 @@ $( function() {
                       <source src="{{ media.uri }}" type="audio/ogg">
                       <source src="{{ media.uri }}" type="audio/wav">
                     {% else %}
-                      <source src="../../audio-content/{{ media.uri }}" type="audio/mpeg">
-                      <source src="../../audio-content/{{ media.uri }}" type="audio/ogg">
-                      <source src="../../audio-content/{{ media.uri }}" type="audio/wav">
+                      <source src="../../../audio-content/{{ media.uri }}" type="audio/mpeg">
+                      <source src="..././../audio-content/{{ media.uri }}" type="audio/ogg">
+                      <source src="../../../audio-content/{{ media.uri }}" type="audio/wav">
                     {% endif %}
                   </audio>
                 </td>
