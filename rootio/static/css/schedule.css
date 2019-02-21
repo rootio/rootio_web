@@ -39,6 +39,7 @@
     color: #fff;
     font-size: .85em;
     cursor: pointer;
+    min-width: 10%;
 }
 
 #addable-programs li.recurring-button {

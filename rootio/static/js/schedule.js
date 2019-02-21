@@ -67,11 +67,27 @@ $(document).ready(function() {
 
     // make the event draggable using jQuery UI
     $(this).draggable({
+      // appendTo: 'body',
+      // containment: 'window',
+      scroll: true,
+      helper: 'clone',
       zIndex: 999,
       revert: true, // will cause the event to go back to its
       revertDuration: 0 //  original position after the drag
     });
 
+  });
+
+  $('#filter-addable-programs').on('input', function() {
+    var filterText = this.value;
+    $('#addable-programs li.external-event').each(function() {
+      var title = $(this).text();
+      if (title.toUpperCase().includes(filterText.toUpperCase())) {
+        $(this).removeClass('hidden');
+      } else {
+        $(this).addClass('hidden');
+      }
+    });
   });
 
   popoverPlacement = function(eventDate, calendarView) {

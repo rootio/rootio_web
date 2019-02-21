@@ -59,7 +59,10 @@
     <div class="row-fluid">
         <div id='addable-programs' class="span2">
             <h4>{{ _('Add Programs') }}</h4>
-            <ul>
+            <h5>
+              <input style="width: 80%;" placeholder="Filter..." id="filter-addable-programs" type="text">
+            </h5>
+            <ul style="overflow: auto; max-height: 600px;">
               {% for p in addable_programs | sort(attribute='id', reverse=True)%}
                   <li class='external-event'
                     data-program-id="{{p.id}}"
