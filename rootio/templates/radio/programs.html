@@ -5,8 +5,19 @@
     <h2 class="pull-left">{{ _('Programs') }}</h2>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('radio.program_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <strong>Add content</strong>
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li> <a href="{{ url_for('content.track_add') }}">Track</a> </li>
+            <li> <a href="{{ url_for('content.hosts_add') }}">Host</a> </li>
+            <li> <a href="{{ url_for('content.content_podcast_add') }}">Podcast</a> </li>
+          </ul>
+        </div>
     </div>
-    
+
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>

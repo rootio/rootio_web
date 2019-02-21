@@ -5,8 +5,18 @@
     <h2 class="pull-left">{{ _('Music Programs') }}</h2>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('radio.music_program_add') }}"><strong>{{ _('Add') }} +</strong></a>
+        <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <strong>Add content</strong>
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li> <a href="{{ url_for('content.content_stream_add') }}">Stream</a> </li>
+            <li> <a href="{{ url_for('content.content_music_playlists') }}">Playlist</a> </li>
+          </ul>
+        </div>
     </div>
-    
+
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
             <tr>
