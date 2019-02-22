@@ -118,6 +118,8 @@ $.widget("rrule.recurringinput", {
     tmpl += '<input class="span2" name="until" type="date" />';
     tmpl += '<span class="add-on">(optional)</span>';
     tmpl += '</div>';
+    tmpl += '<br>';
+    tmpl += '<small><em>No end date will make the program run for an year</em></small>';
 
     // // Stop after a number of occurrences (works, temporarily disabled)
     // //
@@ -126,9 +128,11 @@ $.widget("rrule.recurringinput", {
     // // tmpl += '</label>';
 
     // summary
+    tmpl += '<div class="hidden">';
     tmpl += '<label for="output">Summary ';
     tmpl += '<em id="text-output"></em></label>'; // human readable
     tmpl += '<br><label>RRule <code id="rrule-output"></code></label>'; // ugly rrule
+    tmpl += '</div>';
     //TODO: show next few instances to help user debug
 
     //render template

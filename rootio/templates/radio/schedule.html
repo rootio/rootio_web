@@ -91,7 +91,7 @@
         <form>
         <div class="modal-body" id="recurrence-modal">
                 {{ form.hidden_tag() }}
-                <input type="text" readonly name="station" value="{{station.id}}" />
+                <input type="hidden" name="station" value="{{station.id}}" />
 
                 {{ render_input(form.program) }}
 
