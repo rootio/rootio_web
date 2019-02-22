@@ -46,7 +46,7 @@ $(document).ready(function() {
                 }
 
                 //clear fields
-                form_inputs.val('');
+                // form_inputs.val('');
 
                 //and close modal
                 inline_form.parents('.modal').modal('hide');
