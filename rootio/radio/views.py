@@ -507,7 +507,7 @@ def schedule_recurring_program_ajax():
 
     # parse recurrence rule
     r = rrule.rrulestr(clean_rrule, dtstart=dateutil.parser.parse(dtstart))
-    for instance in r[:30]:  # TODO: dynamically determine instance limit
+    for instance in r[:365]:  # TODO: dynamically determine instance limit
         scheduled_program = ScheduledProgram()
         scheduled_program.station_id = data['station']
         scheduled_program.program_id = data['program']
