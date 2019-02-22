@@ -2,6 +2,8 @@ $(document).ready(function() {
   //lock to prevent rapid save button click resulting in multiple processing
   var is_saving = false;
 
+  $('select#program').selectize();
+
   //set up recurrence presets
   $('input[name=preset-recurrence]').change(function(event) {
     var value = $(event.target).val();

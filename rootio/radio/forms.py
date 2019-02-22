@@ -327,7 +327,7 @@ class ScheduleProgramForm(Form):
     station = TextField(u'Station')
     program = QuerySelectField(query_factory=all_programs, allow_blank=True, blank_text='- select program -')
     # block = QuerySelectField(query_factory=all_blocks,allow_blank=False) #let user select block?
-    air_time = TimeField()
+    air_time = TimeField(u'')
     recurrence = HiddenField()
     # priority = IntegerField(description=_("Ascending values"))
     # other options for flexibility?

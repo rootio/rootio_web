@@ -5,10 +5,12 @@
 {% block css_style %}
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/vendor/selectize.bootstrap2.css') }}" rel='stylesheet' />
 {% endblock %}
 
 {% block js_btm %}
     {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
@@ -102,7 +104,10 @@
                     <li>{{ _('Update Frequency') }}: <span id="update_frequency"></span></li>
                 </ul>
 
-                {{ render_input(form.air_time) }}
+                <div class="input-append">
+                  <span class="add-on">Air time</span>
+                  <input class="span2" id="air_time" name="air_time" type="time" value="">
+                </div>
 
                 <div class="controls">
                     <!-- common schedules -->
