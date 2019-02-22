@@ -325,7 +325,19 @@ function delete_event(id) {
 
 function delete_series(id) {
   if (confirm("Are you sure you want to delete all the events in this series?")) {
-    ask_to_delete_series(id);
+    toastrOptions = {
+      timeOut: toastr.options.timeOut,
+      extendedTimeOut: toastr.options.extendedTimeOut
+    };
+    toastr.options.timeOut = 0;
+    toastr.options.extendedTimeOut = 0;
+    toastr["info"]("Deleting, please wait...");
+    ask_to_delete_series(id).then(function(){
+      toastr.clear();
+      toastr.options.timeOut = toastrOptions.timeOut;
+      toastr.options.extendedTimeOut = toastrOptions.extendedTimeOut;
+      toastr["success"]("Series deleted!");
+    });
     $('#calendar').fullCalendar('removeEvents', function(event) {
       return event.series_id == id;
     });
@@ -349,5 +361,5 @@ function ask_to_delete(id) {
 }
 
 function ask_to_delete_series(id) {
-  $.post('/radio/scheduleprogram/delete_series/' + id + '/')
+  return  $.post('/radio/scheduleprogram/delete_series/' + id + '/')
 }

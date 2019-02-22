@@ -10,7 +10,6 @@ $(document).ready(function() {
     //sitewide customizations here
 
     $('form#language-selector select').on('change',function() {
-        console.log('language changed');
         this.form.submit();
     });
 });
