@@ -59,6 +59,7 @@
     <div class="row-fluid">
         <div id='addable-programs' class="span2">
             <h4>{{ _('Add Programs') }}</h4>
+            <button type="button" class="btn" data-toggle="modal" data-target="#addRecurring-modal"><strong><i class="icon-plus"></i> {{ _('Add Recurring') }}</strong></button>
             <h5>
               <input style="width: 80%;" placeholder="Filter..." id="filter-addable-programs" type="text">
             </h5>
@@ -69,10 +70,7 @@
                     data-station-id="{{station.id}}"
                     data-program-type-id="{{ p.program_type_id }}"
                     data-duration-sec="{{render_duration_to_seconds(p.duration)}}">{{p.name}}</li>
-            {%endfor%}
-                <li class="recurring-button">
-                    <button type="button" class="btn" data-toggle="modal" data-target="#addRecurring-modal"><strong>{{ _('Recurring') }}</strong></button>
-                </li>
+              {%endfor%}
             </ul>
             <br />
         </div>
@@ -90,10 +88,10 @@
           <h4 class="modal-title">{{ _('Add Recurring Program to Schedule') }}</h4>
         </div>
 
-        <form action="POST">
-        <div class="modal-body">
+        <form>
+        <div class="modal-body" id="recurrence-modal">
                 {{ form.hidden_tag() }}
-                <input type="hidden" name="station" value="{{station.id}}" />
+                <input type="text" readonly name="station" value="{{station.id}}" />
 
                 {{ render_input(form.program) }}
 
@@ -106,15 +104,8 @@
 
                 {{ render_input(form.air_time) }}
 
-                <label class="control-label " for="recurrence">
-                    <label for="recurrence">Recurrence</label>
-                </label>
                 <div class="controls">
                     <!-- common schedules -->
-                        <label><input type="radio" name="preset-recurrence" value="FREQ=DAILY"/> {{ _('Daily') }}</label>
-                        <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" /> {{ _('Weekdays') }}</label>
-                        <label><input type="radio" name="preset-recurrence" value="FREQ=WEEKLY;BYDAY=SA,SU" /> {{ _('Weekends') }}</label>
-                        <label><input type="radio" name="preset-recurrence" value="custom" /> {{ _('Custom') }}</label>
                         <div id="recurringinput">
                             <!-- custom user inputs created here by rrule.recurringinput.js -->
                         </div>

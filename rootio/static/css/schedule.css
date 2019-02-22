@@ -48,7 +48,7 @@
 }
 
 #addable-programs button {
-    margin-bottom:30px;
+    margin-bottom: 1em;
     float:left;
 }
 
@@ -58,4 +58,29 @@
 }
 .tooltip {
     z-index: 10;
+}
+
+div#recurrence-modal {
+  max-height: inherit !important;
+}
+
+.weekdays-selector input {
+  display: none!important;
+}
+
+.weekdays-selector input[type=checkbox] + label {
+  display: inline-block;
+  border-radius: 6px;
+  background: #dddddd;
+  height: 30px;
+  width: 40px;
+  margin-right: 3px;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.weekdays-selector input[type=checkbox]:checked + label {
+  background: #2AD705;
+  color: #ffffff;
 }

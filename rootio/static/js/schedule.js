@@ -5,16 +5,11 @@ $(document).ready(function() {
   //set up recurrence presets
   $('input[name=preset-recurrence]').change(function(event) {
     var value = $(event.target).val();
-    if (value == "custom") {
-      $('#recurringinput').show();
-    } else {
-      $('#recurringinput').hide();
-      $('form input[name=recurrence]').val(value);
-    }
+    $('#recurringinput').show();
   });
 
   //init recurring input fieldset for custom schedules
-  $('#recurringinput').recurringinput().hide();
+  $('#recurringinput').recurringinput().show();
   //and watch for updates
   $('#recurringinput').on('rrule-update', function(event) {
     var rrule = $('#recurringinput #rrule-output').html();
@@ -40,6 +35,7 @@ $(document).ready(function() {
     }
   });
 
+
   //close modal on recurring submit
   $('button#modal-save').click(function() {
     $(document).ajaxComplete(function(event, request, settings) {
@@ -48,6 +44,8 @@ $(document).ready(function() {
         $('#calendar').fullCalendar('refresh');
         $('.modal').hide();
         $('.modal-backdrop').fadeOut();
+        $('.modal-body #program').val('__None');
+        $('.modal-body #program').trigger('change');
       }
     });
   });
@@ -75,7 +73,6 @@ $(document).ready(function() {
       revert: true, // will cause the event to go back to its
       revertDuration: 0 //  original position after the drag
     });
-
   });
 
   $('#filter-addable-programs').on('input', function() {
