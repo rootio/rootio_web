@@ -19,7 +19,8 @@ class RSSAgent:
             engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
             session = sessionmaker(bind=engine)()
             return session.query(ContentPodcast).all()
-        except:
+        except Exception as e:
+            print e
             return []
         finally:
             try:
