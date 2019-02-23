@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/jquery.dm-uploader.min.css') }}">
+    <link href="{{ url_for('static', filename='css/vendor/selectize.bootstrap2.css') }}" rel='stylesheet' />
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -28,6 +29,7 @@
     {% endblock %}
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
     {% block js_top %}
     {% endblock %}
 </head>
