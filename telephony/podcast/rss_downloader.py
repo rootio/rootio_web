@@ -20,6 +20,7 @@ class RSSDownloader:
     def download(self):
         base_date = self.__get_last_publish_date()
         podcast_list = self.__get_podcast_list(base_date)
+        print "found podcasts {0}".format(podcast_list)
         self.__download_podcasts(podcast_list)
         self.__close_db_connection()
 
@@ -74,11 +75,13 @@ class RSSDownloader:
             if not os.path.exists(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id))):
                 os.makedirs(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id)))
         except Exception as e:
+            print e
             return  # path does not exist, could not be created. No point proceeding to download
         for podcast in podcasts:
             for link in podcast.links:
                 try:
                     if link.type == u'audio/mpeg':
+                        print "downloading podcast {0}".format(link.href)
                         # print "{0} {1} {2}".format(podcast.published, podcast.published_parsed, datetime.fromtimestamp(mktime(podcast.published_parsed)))
                         urllib.urlretrieve(link.href,
                                            os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
