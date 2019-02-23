@@ -29,7 +29,6 @@
     {% endblock %}
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
-    <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
     {% block js_top %}
     {% endblock %}
 </head>
@@ -168,6 +167,7 @@
     {% block js_btm %}{% endblock %}
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
 
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
