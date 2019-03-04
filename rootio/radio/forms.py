@@ -280,6 +280,7 @@ class NetworkForm(NetworkFormBase):
 
 
 PersonFormBase = model_form(Person, db_session=db.session, base_class=Form,
+                            exclude=['deleted'],
                             field_args={'phone': {'validators': [HasInlineForm, ]}})
 
 

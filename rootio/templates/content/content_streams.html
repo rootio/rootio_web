@@ -8,8 +8,7 @@
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
@@ -20,6 +19,7 @@
     <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 
 {% endblock %}
 
@@ -44,23 +44,29 @@
                 <th>{{ _('URL') }}</th>
                 <th>{{ _('Listen') }}</th>
                 <th>{{ _('Edit') }}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
         {% for content_stream in content_streams %}
-        <tr>
-            <td>{{ content_stream.name }}</td>
-            <td>{{ content_stream.description }}</td>
-            <td>{{ content_stream.uri }}</td>
-            <td>
-                <audio controls>
-                    <source src="{{ content_stream.uri }}" type="audio/mpeg">
-                    <source src="{{ content_stream.uri }}" type="audio/ogg">
-                    <source src="{{ content_stream.uri }}" type="audio/wav">
-                </audio>
-            </td>
-            <td><a href="{{ url_for('content.content_stream_definition', content_stream_id=content_stream.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
+          {% if not content_stream.deleted %}
+            <tr>
+                <td>{{ content_stream.name }}</td>
+                <td>{{ content_stream.description }}</td>
+                <td>{{ content_stream.uri }}</td>
+                <td>
+                    <audio controls>
+                        <source src="{{ content_stream.uri }}" type="audio/mpeg">
+                        <source src="{{ content_stream.uri }}" type="audio/ogg">
+                        <source src="{{ content_stream.uri }}" type="audio/wav">
+                    </audio>
+                </td>
+                <td><a href="{{ url_for('content.content_stream_definition', content_stream_id=content_stream.id) }}">{{ _('Edit') }}</a></td>
+                <td>
+                  <button class='button-delete btn btn-danger' id='delete-{{content_stream.id}}'>Delete</button>
+                </td>
+            </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>

@@ -270,6 +270,7 @@ class Program(BaseMixin, db.Model):
     description = db.Column(db.Text, nullable=True)
     structure = db.Column(db.Text, nullable=True)
     duration = db.Column(db.Interval)
+    deleted = db.Column(db.Boolean)
     update_recurrence = db.Column(db.Text())  # when new content updates are available
 
     language_id = db.Column(db.ForeignKey('radio_language.id'))
@@ -439,6 +440,8 @@ class Person(BaseMixin, db.Model):
     network_id = db.Column(db.ForeignKey('radio_network.id'))
     networks = db.relationship(u'Network', secondary=u'radio_personnetwork', backref=db.backref('people'))
     gender_code = db.Column(db.Integer)
+
+    deleted = db.Column(db.Boolean)
 
     @property
     def gender(self):

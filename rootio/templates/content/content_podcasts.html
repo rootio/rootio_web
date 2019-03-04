@@ -8,8 +8,7 @@
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
@@ -20,6 +19,7 @@
     <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 
     <script type="text/javascript">
     $(document).ready(function() {
@@ -101,17 +101,23 @@
                 <th>{{ _('URL') }}</th>
                 <th>{{ _('Downloads') }}</th>
                 <th>{{ _('Edit') }}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
         {% for content_podcast in content_podcasts %}
-        <tr>
-            <td>{{ content_podcast.name }}</td>
-            <td>{{ content_podcast.description }}</td>
-            <td>{{ content_podcast.uri }}</td>
-            <td><a href="#" id="podcastDownloadCount{{ content_podcast.id }}" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
-            <td><a href="{{ url_for('content.content_podcast_definition', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
+          {% if not content_podcast.deleted %}
+            <tr>
+                <td>{{ content_podcast.name }}</td>
+                <td>{{ content_podcast.description }}</td>
+                <td>{{ content_podcast.uri }}</td>
+                <td><a href="#" id="podcastDownloadCount{{ content_podcast.id }}" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
+                <td><a href="{{ url_for('content.content_podcast_definition', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td>
+                <td>
+                  <button class='button-delete btn btn-danger' id='delete-{{content_podcast.id}}'>Delete</button>
+                </td>
+            </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>

@@ -1,5 +1,10 @@
 {% extends "content/layout.html" %}
 
+{% block js_btm %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
@@ -18,16 +23,22 @@
                 <th>{{ _('Content Type') }}</th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         {% for track in tracks %}
-        <tr>
-            <td>{{ track.name }}</td>
-            <td>{{ track.description }}</td>
-            <td>{{ track.content_type }}</td>
-            <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|length}} {{ _('Files') }}</a></td>
-            <td><a href="{{ url_for('content.track', track_id=track.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
+          {% if not track.deleted %}
+            <tr>
+                <td>{{ track.name }}</td>
+                <td>{{ track.description }}</td>
+                <td>{{ track.content_type }}</td>
+                <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|length}} {{ _('Files') }}</a></td>
+                <td><a href="{{ url_for('content.track', track_id=track.id) }}">{{ _('Edit') }}</a></td>
+                <td>
+                  <button class='button-delete btn btn-danger' id='delete-{{track.id}}'>Delete</button>
+                </td>
+            </tr>
+          {% endif %}
         {% endfor %}
     </table>
 </div>

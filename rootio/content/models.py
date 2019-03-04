@@ -18,6 +18,7 @@ class ContentTrack(BaseMixin, db.Model):
     # add array
     type_id = db.Column(db.ForeignKey('content_type.id'))
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
+    deleted = db.Column(db.Boolean)
 
     content_type = db.relationship(u'ContentType', backref=db.backref('track_content'))
 
@@ -94,6 +95,7 @@ class ContentPodcast(BaseMixin, db.Model):
     created_by = db.Column(db.ForeignKey('user_user.id'))
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    deleted = db.Column(db.Boolean)
 
 
 class ContentPodcastDownload(BaseMixin, db.Model):
@@ -154,6 +156,7 @@ class ContentMusicPlaylist(BaseMixin, db.Model):
     description = db.Column(db.Text)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('playlists'))
+    deleted = db.Column(db.Boolean)
 
 
 class ContentMusicPlayListItemType(BaseMixin, db.Model):
@@ -192,3 +195,5 @@ class ContentStream(BaseMixin, db.Model):
     created_by = db.Column(db.ForeignKey('user_user.id'))
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
+    deleted = db.Column(db.Boolean)

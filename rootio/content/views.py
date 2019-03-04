@@ -51,6 +51,23 @@ def list_tracks():
     return render_template('content/tracks.html', tracks=tracks, active='tracks')
 
 
+@content.route('/tracks/<int:track_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def track_delete(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+
+    track.deleted = True
+
+    try:
+        db.session.add(track)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @content.route('/tracks/<int:track_id>/files', methods=['GET'])
 @login_required
 def list_track_files(track_id):
@@ -273,6 +290,23 @@ def host_edit(host_id):
     return render_template('content/content_host.html', host=host, form=form)
 
 
+@content.route('/hosts/<int:host_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def host_delete(host_id):
+    host = Person.query.filter(Person.id == host_id).first()
+
+    host.deleted = True
+
+    try:
+        db.session.add(host)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @content.route('/community_content/', methods=['GET', 'POST'])
 @login_required
 def community_content():
@@ -302,6 +336,23 @@ def content_podcast_definition(content_podcast_id):
         db.session.commit()
         flash(_('Podcast updated'), 'success')
     return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form)
+
+
+@content.route('/podcasts/<int:content_podcast_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def content_podcast_delete(content_podcast_id):
+    content_podcast = ContentPodcast.query.filter_by(id=content_podcast_id).first_or_404()
+
+    content_podcast.deleted = True
+
+    try:
+        db.session.add(content_podcast)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
 
 
 @content.route('/podcasts/add/', methods=['GET', 'POST'])
@@ -348,6 +399,23 @@ def content_stream_definition(content_stream_id):
         db.session.commit()
         flash(_('Stream updated'), 'success')
     return render_template('content/content_stream.html', content_stream=content_stream, form=form)
+
+
+@content.route('/streams/<int:content_stream_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def content_stream_delete(content_stream_id):
+    content_stream = ContentStream.query.filter_by(id=content_stream_id).first_or_404()
+
+    content_stream.deleted = True
+
+    try:
+        db.session.add(content_stream)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
 
 
 @content.route('/streams/add/', methods=['GET', 'POST'])
@@ -546,6 +614,23 @@ def content_musicplaylist_remove_item(playlist_id, item_type, item_id):
         cmpli.deleted = True
         db.session.add(cmpli)
     db.session.commit()
+
+    return '{"result": "ok" }'
+
+
+@content.route('/playlist/<int:content_musicplaylist_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def content_musicplaylist_delete(content_musicplaylist_id):
+    content_musicplaylist = ContentMusicPlaylist.query.filter_by(id=content_musicplaylist_id).first_or_404()
+
+    content_musicplaylist.deleted = True
+
+    try:
+        db.session.add(content_musicplaylist)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
 
     return '{"result": "ok" }'
 

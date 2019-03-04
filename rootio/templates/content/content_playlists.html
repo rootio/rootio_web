@@ -8,8 +8,7 @@
 {% block js_btm %}
     {{ super() }}
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
@@ -20,6 +19,7 @@
     <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 
     <script type="text/javascript">
 
@@ -111,18 +111,24 @@
                 <th>{{ _('Songs') }}</th>
                 <th>{{ _('Albums') }}</th>
                 <th>{{ _('Artists') }}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
         {% for content_musicplaylist in content_musicplaylists %}
-        <tr>
-            <td>{{ content_musicplaylist.station }}</td>
-            <td>{{ content_musicplaylist.playlist }}</td>
-            <td>{{ content_musicplaylist.description }}</td>
-            <td><a href="#" id="playlistCount" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="songs" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.songs }} {{ _('Songs') }}</a></td>
-            <td><a href="#" id="playlistCountAlbums{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="albums" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.albums }} {{ _('Albums') }}</a></td>
-            <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
-        </tr>
+          {% if not content_musicplaylist.deleted %}
+            <tr>
+              <td>{{ content_musicplaylist.station }}</td>
+              <td>{{ content_musicplaylist.playlist }}</td>
+              <td>{{ content_musicplaylist.description }}</td>
+              <td><a href="#" id="playlistCount" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="songs" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.songs }} {{ _('Songs') }}</a></td>
+              <td><a href="#" id="playlistCountAlbums{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="albums" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.albums }} {{ _('Albums') }}</a></td>
+              <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
+              <td>
+                <button class='button-delete btn btn-danger' id='delete-{{content_musicplaylist.id}}'>Delete</button>
+              </td>
+            </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>
