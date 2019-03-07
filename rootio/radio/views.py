@@ -21,7 +21,7 @@ from ..config import DefaultConfig
 from ..content.models import ContentMusicPlaylist, ContentTrack, ContentPodcast, ContentStream
 from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
-from ..extensions import db
+from ..extensions import db, csrf
 from ..user.models import User, RootioUser
 from ..utils import error_dict, fk_lookup_form_data
 
@@ -194,6 +194,23 @@ def program_add():
                            medias=medias, community_contents=community_contents["data"], form=form)
 
 
+@radio.route('/program/<int:program_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def program_delete(program_id):
+    program = Program.query.filter_by(id=program_id).first_or_404()
+
+    program.deleted = True
+
+    try:
+        db.session.add(program)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @radio.route('/music_program/', methods=['GET'])
 def list_music_programs():
     music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
@@ -257,6 +274,23 @@ def music_program_definition(music_program_id):
 
     return render_template('radio/music_program.html', music_program=music_program, playlists=playlists,
                            streams=streams, form=form)
+
+
+@radio.route('/music_program/<int:music_program_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def music_program_delete(music_program_id):
+    music_program = Program.query.filter_by(id=music_program_id).first_or_404()
+
+    music_program.deleted = True
+
+    try:
+        db.session.add(music_program)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
 
 
 @radio.route('/people/', methods=['GET'])

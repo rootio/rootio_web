@@ -1,5 +1,10 @@
 {% extends "radio/layout.html" %}
 
+{% block js_btm %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 <div class="container">
     <h2 class="pull-left">{{ _('Programs') }}</h2>
@@ -26,17 +31,21 @@
                 <th>{{ _('Language') }}</th>
                 <th>{{ _('Episodes Aired') }}</th>
                 <th>{{ _('Edit') }}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
         {% for program in programs %}
-        <tr>
-            <td>{{ program.name }}</td>
-            <td>{{ program.duration }}</td>
-            <td>{{ program.language }}</td>
-            <td>{{ program.episodes_aired()|length }}</td>
-            <td><a href="{{ url_for('radio.program_definition',program_id=program.id) }}">{{ _('Edit') }}</a></td>
-        </tr>
+          {% if not program.deleted %}
+            <tr>
+                <td>{{ program.name }}</td>
+                <td>{{ program.duration }}</td>
+                <td>{{ program.language }}</td>
+                <td>{{ program.episodes_aired()|length }}</td>
+                <td><a href="{{ url_for('radio.program_definition',program_id=program.id) }}">{{ _('Edit') }}</a></td>
+                <td> <button class='button-delete btn btn-danger' id='delete-{{program.id}}'>Delete</button> </td>
+            </tr>
+          {% endif %}
         {% endfor %}
         </tbody>
     </table>

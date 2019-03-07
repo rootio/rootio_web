@@ -455,7 +455,7 @@ def content_music_playlists():
                       'from content_musicplaylist join radio_station on content_musicplaylist.station_id = ' \
                       'radio_station.id join radio_network on radio_station.network_id = radio_network.id join ' \
                       'radio_networkusers on radio_network.id = radio_networkusers.network_id join user_user on ' \
-                      'radio_networkusers.user_id = user_user.id where user_user.id = :user_id'
+                      'radio_networkusers.user_id = user_user.id where user_user.id = :user_id and deleted is not true'
     params = {'user_id': current_user.id}
     content_musicplaylists = db.session.execute(playlists_query, params)
     return render_template('content/content_playlists.html', content_musicplaylists=content_musicplaylists)
