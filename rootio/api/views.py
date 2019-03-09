@@ -531,7 +531,7 @@ def station_log(station_id):
     responses = []
     raw_data = request.get_data()
     attributes = ['category', 'argument', 'event', 'eventdate', 'id']
-    allowed_categories = ['media', 'sms', 'call', 'data_network', 'sip_call', 'sync', 'service']
+    allowed_categories = ['MEDIA', 'SMS', 'CALL', 'MEDIA', 'SIP_CALL', 'SYNC', 'SERVICES', 'DATA_NETWORK']
 
     try:
         data = json.loads(raw_data)
