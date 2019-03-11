@@ -534,7 +534,7 @@ def station_log(station_id):
     allowed_categories = ['MEDIA', 'SMS', 'CALL', 'MEDIA', 'SIP_CALL', 'SYNC', 'SERVICES', 'DATA_NETWORK']
 
     try:
-        data = json.loads(raw_data)
+        data = json.loads(raw_data.encode('utf8'))
     except (ValueError, AttributeError):
         response = json.dumps({'error': 'You must provide a valid JSON input'})
         abort(make_response(response, 400))
@@ -587,6 +587,9 @@ def station_log(station_id):
             except (OSError, IOError):
                 response['status'] = False
                 response['error'] = 'Failed to create log'
+            except UnicodeEncodeError:
+                response['status'] = False
+                response['error'] = 'Encoding error encountered'
                 # abort(make_response(response, 200))
         responses.append(response)
     all_responses = {"results": responses}
