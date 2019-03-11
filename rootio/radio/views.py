@@ -5,6 +5,9 @@ import socket
 from datetime import datetime
 import time
 import re
+import os
+import glob
+from itertools import islice
 
 import dateutil.parser
 from dateutil import rrule
@@ -607,6 +610,37 @@ def scheduled_block_json(station_id):
                  }
             resp.append(d)
     return resp
+
+
+@radio.route('/station/<int:station_id>/logs', methods=['GET'])
+def station_logs(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
+    pattern = "{}/{}_*.log".format(log_folder, station_id)
+    log_files = glob.glob(pattern)
+    logs = []
+    for f in log_files:
+        l = os.path.basename(f).replace('.log', '')
+        parts = l.split('_')
+        logs.append(
+            {
+                "name": l,
+                "station_id": parts[0],
+                "type": parts[1],
+                "date": parts[2]
+            }
+        )
+    return render_template('radio/logs.html', station=station, logs=logs)
+
+
+@radio.route('/station/<int:station_id>/log/<string:log>', methods=['GET'])
+def station_log_view(station_id, log):
+    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
+    log_file = "{}/{}.log".format(log_folder, log)
+    num_lines = 100
+    with open(log_file) as l:
+        contents = list(islice(l, num_lines))
+    return render_template('radio/log.html', station_id=station_id, log=log, contents=contents)
 
 
 @radio.route('/schedule/', methods=['GET'])
