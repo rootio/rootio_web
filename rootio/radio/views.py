@@ -638,8 +638,11 @@ def station_log_view(station_id, log):
     log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
     log_file = "{}/{}.log".format(log_folder, log)
     num_lines = 100
-    with open(log_file) as l:
-        contents = list(islice(l, num_lines))
+    try:
+        with open(log_file) as l:
+            contents = list(islice(l, num_lines))
+    except IOError:
+        contents = ['No such file']
     return render_template('radio/log.html', station_id=station_id, log=log, contents=contents)
 
 
