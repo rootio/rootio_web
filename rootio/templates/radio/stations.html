@@ -16,9 +16,9 @@
                 <th>{{ _('Phone Numbers') }}</th>
                 <th>{{ _('Languages') }}</th>
                 {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
-                <th>{{ _('Edit') }}</th>
+                  <th>{{ _('Edit') }}</th>
                 {% endif %}
-                
+                <th>{{ _('Logs') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -29,8 +29,9 @@
             <td>{{ station.primary_transmitter_phone }}, {{station.secondary_transmitter_phone}}</td>
             <td>{%for lang in station.languages%}{{lang}}{%if not loop.last%}, {%endif%}{%endfor%}</td>
             {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
-            <td><a href="{{ url_for('radio.station_definition', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+              <td><a href="{{ url_for('radio.station_definition', station_id=station.id) }}">{{ _('Edit') }}</a></td>
             {% endif %}
+            <td><a href="{{ url_for('radio.station_logs', station_id=station.id) }}">{{ _('View logs') }}</a></td>
         </tr>
         {% endfor %}
         </tbody>

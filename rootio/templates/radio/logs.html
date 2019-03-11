@@ -1,0 +1,35 @@
+{% extends "radio/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel='stylesheet' />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h2 class="pull-left">{{ _('Station logs') }}</h2>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Type') }}</th>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('View') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.name }}</td>
+            <td>{{ log.type }}</td>
+            <td>{{ log.date }}</td>
+            <td><a href="{{ url_for('radio.station_log_view', station_id=station.id, log=log.name) }}">{{ _('View') }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </div>
+{% endblock %}
