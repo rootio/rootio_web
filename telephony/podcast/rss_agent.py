@@ -30,10 +30,13 @@ class RSSAgent:
 
     def run(self):
         while True:
-            self.__logger.info("Checking for new podcasts")
-            for podcast_track in self.__get_podcast_tracks():
-                pd = RSSDownloader(podcast_track.id)
-                thr = threading.Thread(target=pd.download)
-                thr.daemon = True
-                thr.start()
-            sleep(300)  # 5 minutes
+            try:
+                self.__logger.info("Checking for new podcasts")
+                for podcast_track in self.__get_podcast_tracks():
+                    pd = RSSDownloader(podcast_track.id, self.__logger)
+                    thr = threading.Thread(target=pd.download)
+                    thr.daemon = True
+                    thr.start()
+                sleep(300)  # 5 minutes
+            except Exception as e:
+                self.__logger.error(e.message)
