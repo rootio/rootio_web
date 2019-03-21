@@ -231,9 +231,9 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
 
 
 class StationTtsForm(StationSynchronizationFormBase):
-    tts_voice = QuerySelectField(get_pk=lambda item: item.id, get_label=lambda item: "{0} ({1}-{2})".format(item.name, item.language.name, item.language.locale_code), query_factory=all_ttsvoices, allow_blank=True, blank_text=_('-select-'))
-    tts_samplerate = QuerySelectField(get_pk=lambda item: item.id, get_label=lambda item: item.value,query_factory=all_ttssamplerates, allow_blank=True, blank_text=_('-select-'))
-    tts_audioformat = QuerySelectField(get_pk=lambda item: item.id, get_label=lambda item: item.name,query_factory=all_ttsaudioformats, allow_blank=True, blank_text=_('-select-'))
+    tts_voice = QuerySelectField(_('TTS Voice'), get_pk=lambda item: item.id, get_label=lambda item: "{0} ({1}-{2})".format(item.name, item.language.name, item.language.locale_code), query_factory=all_ttsvoices, allow_blank=True, blank_text=_('-select-'))
+    tts_samplerate = QuerySelectField(_('Audio Quality'), get_pk=lambda item: item.id, get_label=lambda item: str(item.value) + " KHz",query_factory=all_ttssamplerates, allow_blank=True, blank_text=_('-select-'))
+    tts_audioformat = QuerySelectField(_('Audio Format'), get_pk=lambda item: item.id, get_label=lambda item: item.name,query_factory=all_ttsaudioformats, allow_blank=True, blank_text=_('-select-'))
     submit = SubmitField(_('Save'))
 
 
@@ -251,7 +251,7 @@ class ProgramForm(Form):
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     # language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     # program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
-    networks = QuerySelectMultipleField('Networks', [Required()], query_factory=all_networks)
+    networks = QuerySelectMultipleField(_('Networks'), [Required()], query_factory=all_networks)
     submit = SubmitField(_('Save'))
 
 

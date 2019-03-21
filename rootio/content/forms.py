@@ -3,7 +3,7 @@
 from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField, HiddenField
+from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField, HiddenField, TextField, BooleanField
 from flask_wtf.file import FileField, FileRequired
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.ext.sqlalchemy.orm import model_form
@@ -59,13 +59,21 @@ class ContentStreamsForm(Form):
 
 class CommunityMenuForm(Form):
     multipart = True
+    use_tts = BooleanField(_('Use Text-to-Speech'))
     station = QuerySelectField(_('Station'), [Required()], query_factory=stations, allow_blank=False)
-    welcome_message = FileField(_('Welcome message'))
-    message_type_prompt = FileField(_('Message type'))
-    days_prompt = FileField(_('Days prompt'))
-    record_prompt = FileField(_('Record Prompt'))
-    finalization_prompt = FileField(_('Finalization prompt'))
-    goodbye_message = FileField(_('Goodbye message'))
+    welcome_message = FileField(_('Welcome message (recorded file)'))
+    message_type_prompt = FileField(_('Message type (recorded file)'))
+    days_prompt = FileField(_('Days prompt (recorded file)'))
+    record_prompt = FileField(_('Record Prompt (recorded file)'))
+    finalization_prompt = FileField(_('Finalization prompt (recorded file)'))
+    goodbye_message = FileField(_('Goodbye message (recorded file)'))
+
+    welcome_message_txt = TextField(_('Welcome message (text)'))
+    message_type_prompt_txt = TextField(_('Message type (text)'))
+    days_prompt_txt = TextField(_('Days prompt (text)'))
+    record_prompt_txt = TextField(_('Record Prompt (text)'))
+    finalization_prompt_txt = TextField(_('Finalization prompt (text)'))
+    goodbye_message_txt = TextField(_('Goodbye message (text)'))
     submit = SubmitField(_('Save'))
 
 
