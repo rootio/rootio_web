@@ -21,15 +21,19 @@ class CereprocRestAgent:
     def __do_cprc_request(self, data):  # raise error if http error, if network failure
         headers = {'Content-type': 'text/xml'}
         response = requests.post(self._cereproc_url, headers=headers, data=data)
+        print self._cereproc_url
         return etree.fromstring(response.text)
 
     def __generate_request_xml(self, root, data):
-        rt = etree.Element(root)
-        for key in data:
-            itm = etree.Element(str(key))
-            itm.text = str(data[key])
-            rt.append(itm)
-        return etree.tostring(rt, xml_declaration=True)
+        try:
+            rt = etree.Element(root)
+            for key in data:
+                itm = etree.Element(str(key))
+                itm.text = str(data[key]).decode('utf-8')
+                rt.append(itm)
+            return etree.tostring(rt, xml_declaration=True)
+        except Exception  as e:
+            print "Exception in generate_request_xml" + e.message
 
     def cprc_list_voices(self):
         requestxml = self.__generate_request_xml("listVoices", {'accountID': self._cereproc_username,
@@ -57,6 +61,7 @@ class CereprocRestAgent:
                                                                   'audioFormat': audio_format,
                                                                   'sampleRate': sample_rate, 'audio3D': '',
                                                                   'metadata': metadata, 'text': text})
+        print requestxml
         responsexml = self.__do_cprc_request(requestxml)
 
         if responsexml.findtext('resultCode') != '1':
