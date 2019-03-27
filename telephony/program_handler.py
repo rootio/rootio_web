@@ -41,7 +41,7 @@ class ProgramHandler:
         self.__scheduler.start()
         self.__schedule_programs()
         self.__schedule_next_schedule()
-        print self.__scheduler.get_jobs()
+
 
     def stop(self):
         self.__stop_program()
