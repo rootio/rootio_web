@@ -16,6 +16,7 @@ from rootio.utils import MALE
 
 from alembic import command
 from alembic.config import Config
+from rootio.config import DefaultConfig
 
 def _make_context():
     from rootio.extensions import db
@@ -155,6 +156,29 @@ def list_routes():
 
     for line in sorted(output):
         print line
+
+@manager.command
+def i18n_extract_strings():
+    subprocess.call(["pybabel", "extract", "-o", "rootio/messages.pot", "rootio"])
+
+@manager.command
+def i18n_update_translation(lang):
+    f = open("./rootio/translations/{}/LC_MESSAGES/messages.po".format(lang), "w")
+    subprocess.call([
+        "curl",
+        "-s",
+        "-L",
+        "--user",
+        "api:{}".format(DefaultConfig.TRANSIFEX_API_KEY),
+        "-X",
+        "GET",
+        "https://www.transifex.com/api/2/project/rootio_web/resource/messagespo/translation/{}/?file".format(lang)
+    ], stdout=f)
+
+@manager.command
+def i18n_update_translations():
+    for lang in ['ro', 'pt']:
+        i18n_update_translation(lang)
 
 if __name__ == "__main__":
     manager.run()
