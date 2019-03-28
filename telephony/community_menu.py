@@ -1,4 +1,5 @@
-# import the necessary stuff here
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
 from time import sleep
@@ -6,10 +7,11 @@ from time import sleep
 from sqlalchemy.exc import SQLAlchemyError
 
 from rootio.config import *
-from rootio.content.models import CommunityContent
+from rootio.content.models import CommunityContent, CommunityMenu
+from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 
 
-class CommunityMenu:
+class CommunityIVRMenu:
 
     def __init__(self, radio_station):
         # Load GWs for ths station
@@ -26,6 +28,7 @@ class CommunityMenu:
         self.__is_speaking = False
         self.__is_playing_audio = False
         self.__menu = self.__get_community_menu()  # is a 1:1 mapping between the two tables
+        self.__cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
         self.__start_listener()
 
     def __start_listener(self):
@@ -37,8 +40,8 @@ class CommunityMenu:
             # self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
 
     def __get_community_menu(self):
-        if len(self.__radio_station.station.community_menu) > 0:
-            return self.__radio_station.station.community_menu[0]
+        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()) > 0:
+            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()[0]
         else:
             return None
 
@@ -111,7 +114,7 @@ class CommunityMenu:
 
     '''
     This plays an audio prompt and then gets the digits entered.
-    Will wait for a maximum of timeout_secs to return the entered DTMF digits
+    Will wait for a maximum of timeout_secs to return the entered DTMF digits   
     '''
 
     def __play_and_get_max_dtmf(self, call_uuid, audio_prompt, max_int, timeout_secs, num_attempts):
@@ -185,31 +188,44 @@ class CommunityMenu:
     def __start(self,
                 call_uuid):  # called by the call handler upon receiving a call on the extension for which this is
         # registered
+        self.__menu = self.__get_community_menu()
         try:
             if self.__menu is not None:
                 self.__radio_station.call_handler.register_for_media_playback_stop(self, str(self.__gateway))
                 self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
 
-                self.__play(call_uuid, os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.welcome_message))
+                if self.__menu.use_tts:
+                    welcome_message = self.__cereproc_agent.get_cprc_tts(self.__menu.welcome_message_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    welcome_message = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.welcome_message)
+                self.__play(call_uuid, welcome_message)
 
                 # get the category of the message being left
-                self.__category_id = self.__play_and_get_specific_dtmf(call_uuid, os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                                       self.__menu.message_type_prompt),
-                                                               ["1", "2", "3"], 15, 3)
+                if self.__menu.use_tts:
+                    message_type_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.message_type_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    message_type_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.message_type_prompt)
+                self.__category_id = self.__play_and_get_specific_dtmf(call_uuid, message_type_prompt, ["1", "2", "3"], 15, 3)
                 if self.__category_id is None:
                     self.__finalize()
                     return
 
                 # get the number of days for which valid
-                self.__num_days = self.__play_and_get_max_dtmf(call_uuid,
-                                                       os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.days_prompt),
-                                                       14, 15, 3)
+                if self.__menu.use_tts:
+                    days_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.days_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    days_prompt = os.path.join(DefaultConfig.CONTENT_DIR,self.__menu.days_prompt)
+                self.__num_days = self.__play_and_get_max_dtmf(call_uuid, days_prompt, 14, 5, 3)
                 if self.__num_days is None:
                     self.__finalize()
                     return
 
                 # instruct the person to record their message
-                self.__play(call_uuid, os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.record_prompt))
+                if self.__menu.use_tts:
+                    record_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.record_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    record_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.record_prompt)
+                self.__play(call_uuid,  record_prompt)
                 filename = "{0}_{1}_recording.wav".format(self.__call['Caller-ANI'],
                                                   datetime.strftime(datetime.now(), "%Y%M%d%H%M%S"))
                 audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content", str(self.__radio_station.station.id),
@@ -236,10 +252,13 @@ class CommunityMenu:
                 # Ask what to do with the recording
                 ctr = 0
                 is_finalized = False
+
+                if self.__menu.use_tts:
+                    finalization_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.finalization_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    finalization_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.finalization_prompt)
                 while ctr < 3 and not is_finalized:
-                    self.__post_recording_option = self.__play_and_get_specific_dtmf(call_uuid,
-                                                                             os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                                          self.__menu.finalization_prompt),
+                    self.__post_recording_option = self.__play_and_get_specific_dtmf(call_uuid, finalization_prompt,
                                                                              ["1", "2", "3"], 15, 3)
                     if self.__post_recording_option is None:
                         self.__finalize()
@@ -256,10 +275,14 @@ class CommunityMenu:
                     ctr = ctr + 1
 
                 # play that last thank you, goodbye message
-                self.__play(call_uuid, os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.goodbye_message))
+                if self.__menu.use_tts:
+                    goodbye_message = self.__cereproc_agent.get_cprc_tts(self.__menu.goodbye_message_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                else:
+                    goodbye_message = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.goodbye_message)
+                self.__play(call_uuid, goodbye_message)
 
                 # clean up, hangup
                 self.__finalize()
 
-        except:  # Keyerror, Null pointers
+        except Exception as e:  # Keyerror, Null pointers
             return

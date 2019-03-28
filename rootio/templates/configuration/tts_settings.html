@@ -13,10 +13,11 @@
         <thead>
             <tr>
                 <th>{{ _('Station') }}</th>
-                <th>{{ _('TTS Language') }}</th>
                 <th>{{ _('TTS Accent') }}</th>
-                <th>{{ _('TTS Audio Format') }}</th>
-                <th>{{ _('TTS Sample Rate') }}</th>
+                <th>{{ _('Language') }}</th>
+                <th>{{ _('Variant') }}</th>
+                <th>{{ _('Audio Quality (KHz') }}</th>
+                <th>{{ _('Audio Format') }}</th>
                  {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
                 <th>{{ _('Edit') }}</th>
                 {% endif %}
@@ -26,10 +27,19 @@
         {% for station in stations %}
         <tr>
             <td>{{ station.name}} </td>
-            <td>{{ station.tts_language}} </td>
-            <td>{{ station.tts_accent}} </td>
-            <td>{{ station.tts_audio_format}} </td>
-            <td>{{ station.tts_sample_rate}} </td>
+            <td>{{ station.tts_voice.name}} </td>
+            <td>
+                {% if station.tts_voice and station.tts_voice.language  %}
+                    {{ station.tts_voice.language.name}}
+                {% endif %}
+            </td>
+            <td>
+                {% if station.tts_voice  and station.tts_voice.language  %}
+                    {{ station.tts_voice.language.iso639_1}} - {{ station.tts_voice.language.locale_code}}
+                {% endif %}
+                </td>
+            <td>{{ station.tts_samplerate.value}} </td>
+            <td>{{ station.tts_audioformat.name}} </td>
                 {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
             <td><a href="{{ url_for('configuration.tts_setting', station_id=station.id) }}">{{ _('Edit') }}</a></td>
             {% endif %}

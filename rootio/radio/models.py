@@ -93,11 +93,12 @@ class Station(BaseMixin, db.Model):
     media_amplification_factor = db.Column(db.Integer, default=0)
 
     # TTS settings
-    # TODO: make these fields foreign keys once we figure out how the values would look like
-    tts_accent = db.Column(db.String(STRING_LEN))
-    tts_gender = db.Column(db.String(STRING_LEN))
-    tts_audio_format = db.Column(db.String(STRING_LEN))
-    tts_sample_rate = db.Column(db.String(STRING_LEN))
+    tts_voice_id = db.Column(db.ForeignKey('radio_ttsvoice.id'))
+    tts_samplerate_id = db.Column(db.ForeignKey('radio_ttssamplerate.id'))
+    tts_audioformat_id = db.Column(db.ForeignKey('radio_ttsaudioformat.id'))
+    tts_voice = db.relationship('TtsVoice', backref=db.backref('stations'))
+    tts_samplerate = db.relationship('TtsSampleRate', backref=db.backref('stations'))
+    tts_audioformat = db.relationship('TtsAudioFormat', backref=db.backref('stations'))
 
     #SIP settings
     sip_username = db.Column(db.String(STRING_LEN))
@@ -109,7 +110,7 @@ class Station(BaseMixin, db.Model):
     sip_protocol = db.Column(db.String(STRING_LEN), default="udp")
 
     # foreign keys
-    tts_language_id = db.Column(db.ForeignKey('radio_language.id'))
+    #tts_language_id = db.Column(db.ForeignKey('radio_language.id'))
     owner_id = db.Column(db.ForeignKey('user_user.id'))
     network_id = db.Column(db.ForeignKey('radio_network.id'), nullable=False)
     location_id = db.Column(db.ForeignKey('radio_location.id'))
@@ -122,7 +123,6 @@ class Station(BaseMixin, db.Model):
 
     # relationships
     owner = db.relationship(u'User')
-    tts_language = db.relationship(u'Language')
     location = db.relationship(u'Location')
     primary_transmitter_phone = db.relationship(u'PhoneNumber',
                                                 backref=db.backref('station_primary_transmitter_phone', uselist=False),
@@ -521,3 +521,24 @@ class ContentType(BaseMixin, db.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class TtsAudioFormat(BaseMixin, db.Model):
+    __tablename__ = 'radio_ttsaudioformat'
+
+    name = db.Column(db.String(30), nullable=False)
+
+
+class TtsSampleRate(BaseMixin, db.Model):
+    __tablename__ = 'radio_ttssamplerate'
+
+    value = db.Column(db.Integer(), nullable=False)
+
+
+class TtsVoice(BaseMixin, db.Model):
+    __tablename__ = 'radio_ttsvoice'
+
+    name = db.Column(db.String(30), nullable=False)
+    language_id = db.Column(db.ForeignKey('radio_language.id'))
+    gender_code = db.Column(db.Integer())
+    language = db.relationship('Language', backref=db.backref('tts_voices'))

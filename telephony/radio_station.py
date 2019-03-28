@@ -4,7 +4,7 @@ from rootio.radio.models import Station
 
 from call_handler import CallHandler
 from program_handler import ProgramHandler
-from community_menu import CommunityMenu
+from community_menu import CommunityIVRMenu
 
 
 class RadioStation:
@@ -27,6 +27,6 @@ class RadioStation:
         self.id = station.id
         self.__program_handler = ProgramHandler(self)
         self.call_handler = CallHandler(self)
-        self.__community_handler = CommunityMenu(self)
+        self.__community_handler = CommunityIVRMenu(self)
         self.logger.info("Starting up station {0}".format(self.station.name))
         return

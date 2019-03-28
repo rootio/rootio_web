@@ -380,7 +380,7 @@ class CallHandler:
                         del self.__available_calls[str(event_json['Caller-Destination-Number'])[-12:]]
                         self.__release_gateway(event_json)
                         loggable = True
-                    if str(event_json['Caller-Destination-Number'])[-9:] in self.__available_calls:
+                    elif str(event_json['Caller-Destination-Number'])[-9:] in self.__available_calls:
                         self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(
                             str(event_json['Caller-Destination-Number'])[-9:], self.__available_calls.keys()))
                         del self.__available_calls[str(event_json['Caller-Destination-Number'])[-9:]]
@@ -409,7 +409,7 @@ class CallHandler:
                                          args=(event_json,)).start()
                     elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
                         self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
-                    if event_json['Caller-Destination-Number'][
+                    elif event_json['Caller-Destination-Number'][
                        -12:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                         threading.Thread(target=self.__incoming_call_recipients[
                             str(event_json['Caller-Destination-Number'])[-12:]].notify_incoming_call,

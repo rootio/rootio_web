@@ -24,12 +24,15 @@ class CereprocRestAgent:
         return etree.fromstring(response.text)
 
     def __generate_request_xml(self, root, data):
-        rt = etree.Element(root)
-        for key in data:
-            itm = etree.Element(str(key))
-            itm.text = str(data[key])
-            rt.append(itm)
-        return etree.tostring(rt, xml_declaration=True)
+        try:
+            rt = etree.Element(root)
+            for key in data:
+                itm = etree.Element(str(key))
+                itm.text = str(data[key]).decode('utf-8')
+                rt.append(itm)
+            return etree.tostring(rt, xml_declaration=True)
+        except Exception as e:
+            raise e
 
     def cprc_list_voices(self):
         requestxml = self.__generate_request_xml("listVoices", {'accountID': self._cereproc_username,

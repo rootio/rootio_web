@@ -14,7 +14,8 @@ from wtforms_components.fields import TimeField
 
 
 from .fields import DurationField, InlineFormField, JSONField
-from .models import Station, Network, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType
+from .models import Station, Network, Program, ProgramType, ScheduledBlock, Person, Language, Location, ContentType, \
+    TtsVoice, TtsAudioFormat, TtsSampleRate
 from .validators import HasInlineForm
 from ..extensions import db
 from ..telephony.forms import PhoneNumberForm
@@ -55,8 +56,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                       'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate', 'call_volume', 'audio_volume',
+                                               'tts_voice', 'tts_samplerate','tts_audioformat', 'call_volume', 'audio_volume',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
                                                'broadcast_port', 'last_accessed_mobile', 'tts_language',
@@ -94,8 +94,7 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate','call_volume', 'audio_volume', 'sip_username',
+                                               'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'sip_username',
                                                'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
                                                'sip_reregister_period', 'sip_protocol', 'media_amplification_factor','is_high_bandwidth'])
 
@@ -117,8 +116,7 @@ StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_cl
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate','call_volume', 'audio_volume', 'scheduled_programs',
+                                               'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'scheduled_programs',
                                                'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
@@ -144,8 +142,8 @@ StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_cla
                                                'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate', 'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
+                                               'tts_voice', 'tts_samplerate','tts_audioformat',
+                                               'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
                                                'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone','call_volume', 'audio_volume',
@@ -176,6 +174,7 @@ StationSynchronizationFormBase = model_form(Station, db_session=db.session, base
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
                                                'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'tts_voice', 'tts_samplerate','tts_audioformat',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
@@ -198,6 +197,16 @@ class StationSynchronizationForm(StationSynchronizationFormBase):
                                              default=60)
     submit = SubmitField(_('Save'))
 
+def all_ttsvoices():
+    return TtsVoice.query.all()
+
+
+def all_ttssamplerates():
+    return TtsSampleRate.query.all()
+
+
+def all_ttsaudioformats():
+    return TtsAudioFormat.query.all()
 
 StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                       field_args={
@@ -209,8 +218,7 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'tts_language', 'tts_accent','tts_gender', 'tts_audio_format',
-                                               'tts_sample_rate', 'scheduled_programs',
+                                               'scheduled_programs',
                                                'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
@@ -223,7 +231,9 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
 
 
 class StationTtsForm(StationSynchronizationFormBase):
-
+    tts_voice = QuerySelectField(_('TTS Voice'), get_pk=lambda item: item.id, get_label=lambda item: "{0} ({1}-{2})".format(item.name, item.language.name, item.language.locale_code), query_factory=all_ttsvoices, allow_blank=True, blank_text=_('-select-'))
+    tts_samplerate = QuerySelectField(_('Audio Quality'), get_pk=lambda item: item.id, get_label=lambda item: str(item.value) + " KHz",query_factory=all_ttssamplerates, allow_blank=True, blank_text=_('-select-'))
+    tts_audioformat = QuerySelectField(_('Audio Format'), get_pk=lambda item: item.id, get_label=lambda item: item.name,query_factory=all_ttsaudioformats, allow_blank=True, blank_text=_('-select-'))
     submit = SubmitField(_('Save'))
 
 
@@ -241,7 +251,7 @@ class ProgramForm(Form):
     duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
     # language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     # program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
-    networks = QuerySelectMultipleField('Networks', [Required()], query_factory=all_networks)
+    networks = QuerySelectMultipleField(_('Networks'), [Required()], query_factory=all_networks)
     submit = SubmitField(_('Save'))
 
 

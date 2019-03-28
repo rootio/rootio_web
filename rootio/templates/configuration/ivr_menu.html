@@ -2,6 +2,45 @@
 
 {% extends "configuration/layout.html" %}
 
+
+
+{% block js_top %}
+<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      toggleUseTts($(':checkbox').is(':checked'))
+
+      $(':checkbox').click(function(){
+          toggleUseTts($(this).is(':checked'))
+          });
+
+  });
+
+  function toggleUseTts(useTts)
+  {
+       if(useTts)
+       {
+           //disable all file inputs with their labels
+           $(':file').parent().parent().css('display', 'none')
+
+
+           //show TTS options
+           $(":text[name$='txt']").parent().parent().css('display', 'block')
+       }
+       else
+       {
+           //show all file inputs
+           $(':file').parent().parent().css('display', 'block')
+
+           //show TTS options
+           $(":text[name$='txt']").parent().parent().css('display', 'none')
+       }
+  }
+
+
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="container">
     {%if community_menu %}

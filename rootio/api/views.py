@@ -149,12 +149,6 @@ def station(station_id):
                                     "sip_protocol": station.sip_protocol,
                                     "sip_reregister_period": station.sip_reregister_period,
                                     "sip_stun": station.sip_stun_server, "call_volume": station.call_volume}
-        response["tts_accent"] = station.tts_accent
-        response["tts_gender"] = station.tts_gender
-        if station.tts_language is not None:
-            response["tts_language"] = station.tts_language.name
-        response["tts_audio_format"] = station.tts_audio_format
-        response["tts_sample_rate"] = station.tts_sample_rate
         response["media_volume"] = station.audio_volume
     responses = dict()
     responses["station"] = response
@@ -573,7 +567,7 @@ def station_log(station_id):
                                               record['category'],
                                               datetime.datetime.now().isoformat()[:10])
         log_file = os.path.join(log_folder, log_file_name)
-        log_line = '{eventdate} | {category} {event} {argument}\n'.format(**record)
+        log_line = '{0} | {1} {2} {3}\n'.format(record['eventdate'].encode('utf8'), record['category'].encode('utf8'), record['event'].encode('utf8'), record['argument'].encode('utf8'))
 
         try:
             with open(log_file, 'a+') as log:
@@ -587,6 +581,9 @@ def station_log(station_id):
             except (OSError, IOError):
                 response['status'] = False
                 response['error'] = 'Failed to create log'
+            except UnicodeEncodeError:
+                response['status'] = False
+                response['error'] = 'Encoding error encountered'
                 # abort(make_response(response, 200))
         responses.append(response)
     all_responses = {"results": responses}

@@ -12,14 +12,16 @@ import re
 
 class RSSDownloader:
 
-    def __init__(self, podcast_id):
+    def __init__(self, podcast_id, logger):
         self.__podcast_id = podcast_id
+        self.__logger = logger
         self.__db = self.__get_db_connection()
         self.__get_podcast()
 
     def download(self):
         base_date = self.__get_last_publish_date()
         podcast_list = self.__get_podcast_list(base_date)
+        self.__logger.info("Getting podcasts from these sources:{0}".format(podcast_list))
         self.__download_podcasts(podcast_list)
         self.__close_db_connection()
 
@@ -30,7 +32,8 @@ class RSSDownloader:
     def __close_db_connection(self):
         try:
             self.__db.close()
-        except:
+        except Exception as e:
+            self.__logger.error("error in __close_db_connection: {0}".format(e.message))
             return
 
     def __get_podcast(self):
@@ -44,9 +47,9 @@ class RSSDownloader:
             if last_podcast is not None:
                 return last_podcast.date_created
             else:  # default to last 1 week, in case of weeklies
-                return datetime.utcnow() + timedelta(days=-7)
+                return datetime.utcnow() + timedelta(days=-3)
         except Exception as e:
-            print e
+            self.__logger.error("error in __get_last_publish_date: {0}".format(e.message))
 
     def __get_podcast_list(self, base_date):
         podcasts = []
@@ -65,8 +68,8 @@ class RSSDownloader:
                     #f published_date > base_date.replace(tzinfo=None):
                         podcasts.append(entry)
                 except Exception as e:
-                    print e
-                    pass  # continue to the next entry. TODO: introduce logging here
+                    self.__logger.error("error in __get_podcast_list: {0}".format(e.message))
+                    pass  # continue to the next entry.
         return podcasts
 
     def __download_podcasts(self, podcasts):
@@ -74,7 +77,9 @@ class RSSDownloader:
             if not os.path.exists(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id))):
                 os.makedirs(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id)))
         except Exception as e:
+            self.__logger.error("error in __download_podcasts(1): {0}".format(e.message))
             return  # path does not exist, could not be created. No point proceeding to download
+        self.__logger.info("trying to download podcasts: {0}".format(podcasts))
         for podcast in podcasts:
             for link in podcast.links:
                 try:
@@ -87,8 +92,9 @@ class RSSDownloader:
                                                     re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3",
                                                     podcast.summary,
                                                     datetime.fromtimestamp(mktime(podcast.published_parsed)))
+                        self.__logger.info("downloaded a file to {0}".format(re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3"))
                 except Exception as e:  # Download error, DB error
-                    print e
+                    self.__logger.error("error in __download_podcasts(2): {0}".format(e.message))
                     pass
 
     def __log_podcast_download(self, title, duration, file_name, summary, date_created):
@@ -105,5 +111,6 @@ class RSSDownloader:
             self.__db._model_changes = {}
             self.__db.add(podcast_download)
             self.__db.commit()
-        except:
+        except Exception as e:
+            self.__logger.error("error in __log_podcast_download: {0}".format(e.message))
             self.__db.rollback()
