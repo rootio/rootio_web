@@ -149,12 +149,6 @@ def station(station_id):
                                     "sip_protocol": station.sip_protocol,
                                     "sip_reregister_period": station.sip_reregister_period,
                                     "sip_stun": station.sip_stun_server, "call_volume": station.call_volume}
-        response["tts_accent"] = station.tts_accent
-        response["tts_gender"] = station.tts_gender
-        if station.tts_language is not None:
-            response["tts_language"] = station.tts_language.name
-        response["tts_audio_format"] = station.tts_audio_format
-        response["tts_sample_rate"] = station.tts_sample_rate
         response["media_volume"] = station.audio_volume
     responses = dict()
     responses["station"] = response
