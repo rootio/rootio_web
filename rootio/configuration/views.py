@@ -14,7 +14,7 @@ from ..extensions import db
 from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
 from ..radio.models import Station, Network
 from ..user.models import User
-from ..utils import upload_to_s3, make_dir
+from ..utils import upload_to_s3, make_dir, save_uploaded_file
 
 configuration = Blueprint('configuration', __name__, url_prefix='/configuration')
 
@@ -160,29 +160,29 @@ def ivr_menu():
     return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station)
 
 
-def save_uploaded_file(uploaded_file, directory, file_name=False):
-    date_part = datetime.now().strftime("%y%m%d%H%M%S")
-    if not file_name:
-        file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
-
-    if DefaultConfig.S3_UPLOADS:
-        try:
-            location = upload_to_s3(uploaded_file, file_name)
-        except:
-            flash(_('Media upload error (S3)'), 'error')
-            raise
-    else:
-        upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
-        make_dir(upload_directory)
-        file_path = os.path.join(upload_directory, file_name)
-        try:
-            uploaded_file.save(file_path)
-        except:
-            flash(_('Media upload error (filesystem)'), 'error')
-            raise
-        location = "{0}/{1}".format(directory, file_name)
-
-    return location
+# def save_uploaded_file(uploaded_file, directory, file_name=False):
+#     date_part = datetime.now().strftime("%y%m%d%H%M%S")
+#     if not file_name:
+#         file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
+#
+#     if DefaultConfig.S3_UPLOADS:
+#         try:
+#             location = upload_to_s3(uploaded_file, file_name)
+#         except:
+#             flash(_('Media upload error (S3)'), 'error')
+#             raise
+#     else:
+#         upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
+#         make_dir(upload_directory)
+#         file_path = os.path.join(upload_directory, file_name)
+#         try:
+#             uploaded_file.save(file_path)
+#         except:
+#             flash(_('Media upload error (filesystem)'), 'error')
+#             raise
+#         location = "{0}/{1}".format(directory, file_name)
+#
+#     return location
 
 
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
