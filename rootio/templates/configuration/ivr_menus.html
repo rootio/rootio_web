@@ -50,7 +50,7 @@
         {% else %}
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls="false">
+                    <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/wav">
@@ -59,7 +59,7 @@
             </td>
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls="false">
+                    <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/wav">
@@ -68,7 +68,7 @@
             </td>
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls="false">
+                    <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/wav">
@@ -77,7 +77,7 @@
             </td>
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls="false">
+                    <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/wav">
@@ -86,7 +86,7 @@
             </td>
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls="false">
+                    <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/wav">
@@ -95,7 +95,7 @@
             </td>
             <td>
                 <div id="wrapper">
-                    <audio preload="metadata" controls>
+                    <audio name="audio_player" preload="metadata" controls>
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/wav">
@@ -111,9 +111,14 @@
     </table>
     <script src="../../static/js/audioplayer.js"></script>
     <script>
-			$(function() {
-				$('audio').audioPlayer();
-			});
+
+
+			$('#offline_datatable').on( 'draw.dt', function () {
+
+                $('audio').audioPlayer();
+                $('audio').remove('audio');
+
+             } );
 
     </script>
 </div>

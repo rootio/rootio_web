@@ -14,7 +14,7 @@ import boto3
 import sox
 from flask import json
 from flask.ext.wtf import Form
-from sqlalchemy import or_
+from sqlalchemy import or_, text
 from werkzeug.utils import secure_filename
 
 from .config import DefaultConfig
@@ -299,9 +299,8 @@ class Paginator():
     def get_records(self, base_query, searchable_columns, request):
         # sorting
         base_query = base_query.order_by(
-            '{0} {1}'.format(base_query.column_descriptions[int(request.args['order[0][column]'])]['name'],
-                             request.args['order[0][dir]']))
-
+            text('{0} {1}'.format(base_query.column_descriptions[int(request.args['order[0][column]'])]['name'],
+                             request.args['order[0][dir]'])))
         # searching
         filters = []
         for col in searchable_columns:
