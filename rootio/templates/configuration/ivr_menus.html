@@ -49,8 +49,8 @@
 
         {% else %}
             <td>
-                <div id="wrapper">
-                    <audio name="audio_player" preload="metadata" controls="false">
+                <div id="wrapper" title="{{ community_menu.welcome_message_txt }}">
+                    <audio name="audio_player" preload="metadata" controls="false" >
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/wav">
@@ -58,7 +58,7 @@
                 </div>
             </td>
             <td>
-                <div id="wrapper">
+                <div id="wrapper" title="{{ community_menu.message_type_prompt_txt }}">
                     <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/ogg">
@@ -67,7 +67,7 @@
                 </div>
             </td>
             <td>
-                <div id="wrapper">
+                <div id="wrapper" title="{{ community_menu.days_prompt_txt }}">
                     <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/ogg">
@@ -76,7 +76,7 @@
                 </div>
             </td>
             <td>
-                <div id="wrapper">
+                <div id="wrapper" title="{{ community_menu.record_prompt_txt }}">
                     <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/ogg">
@@ -85,7 +85,7 @@
                 </div>
             </td>
             <td>
-                <div id="wrapper">
+                <div id="wrapper" title="{{ community_menu.finalization_prompt_txt }}">
                     <audio name="audio_player" preload="metadata" controls="false">
                         <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/ogg">
@@ -94,8 +94,8 @@
                 </div>
             </td>
             <td>
-                <div id="wrapper">
-                    <audio name="audio_player" preload="metadata" controls>
+                <div id="wrapper" title="{{ community_menu.goodbye_message_txt }}">
+                    <audio name="audio_player" preload="metadata" controls >
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/mpeg">
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/ogg">
                         <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/wav">
