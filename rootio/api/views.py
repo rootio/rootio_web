@@ -606,8 +606,6 @@ def upload_media():
         func.max(ContentUploads.order).label("max_order")
     ).filter(ContentUploads.track_id == track.id).one().max_order
 
-    print "File {} uploaded for track {}".format(filename, track_id)
-
     file_data = {}
     file_data['uploaded_by'] = current_user.id
     file_data['name'] = filename

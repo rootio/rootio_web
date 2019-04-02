@@ -68,6 +68,7 @@ class CommunityMenuForm(Form):
     finalization_prompt = FileField(_('Finalization prompt (recorded file)'))
     goodbye_message = FileField(_('Goodbye message (recorded file)'))
 
+    prefetch_tts = BooleanField(_('Pre-fetch TTS'))
     welcome_message_txt = TextField(_('Welcome message (text)'))
     message_type_prompt_txt = TextField(_('Message type (text)'))
     days_prompt_txt = TextField(_('Days prompt (text)'))

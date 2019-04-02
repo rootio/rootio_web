@@ -44,7 +44,8 @@
             cssClass[subName] = params.classPrefix + '-' + cssClassSub[subName];
 
         this.each(function() {
-            if ($(this).prop('tagName').toLowerCase() != 'audio')
+
+            if ($(this).attr('name').toLowerCase() != 'audio_player')
                 return false;
 
             var $this = $(this),
@@ -177,7 +178,6 @@
                 }
                 return false;
             });
-
             $this.replaceWith(thePlayer);
         });
         return this;

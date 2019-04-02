@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+import urllib
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, jsonify
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 
 from rootio.config import DefaultConfig
+from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 from ..content.forms import CommunityMenuForm
 from ..content.models import CommunityMenu
 from ..extensions import db
 from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
 from ..radio.models import Station, Network
 from ..user.models import User
-from ..utils import upload_to_s3, make_dir
+from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
 
 configuration = Blueprint('configuration', __name__, url_prefix='/configuration')
 
@@ -129,12 +131,26 @@ def ivr_menus():
     return render_template('configuration/ivr_menus.html', community_menus=community_menus)
 
 
+@configuration.route('/ivr_menus/records', methods=['GET'])
+# @returns_json
+def ivr_menu_records(**kwargs):
+    from ..user.models import User
+    from ..radio.models import Station, Network
+    cols = [CommunityMenu.station, CommunityMenu.use_tts, CommunityMenu.welcome_message, CommunityMenu.welcome_message_txt, CommunityMenu.days_prompt, CommunityMenu.days_prompt_txt, CommunityMenu.record_prompt, CommunityMenu.record_prompt_txt,
+            CommunityMenu.finalization_prompt, CommunityMenu.finalization_prompt_txt, CommunityMenu.goodbye_message, CommunityMenu.goodbye_message_txt]
+    ivr_menus = CommunityMenu.query.with_entities(*cols).join(Station).join(Network).join(User, Network.networkusers).filter(
+        User.id == current_user.id)
+
+    records = jquery_dt_paginator.get_records(ivr_menus, [CommunityMenu.welcome_message_txt, CommunityMenu.message_type_prompt_txt, CommunityMenu.days_prompt_txt, CommunityMenu.record_prompt_txt, CommunityMenu.finalization_prompt_txt, CommunityMenu.goodbye_message_txt], request)
+    return jsonify(records)
+
+
 @configuration.route('/ivr_menu', methods=['GET', 'POST'])
 @login_required
 def ivr_menu():
     form = CommunityMenuForm(request.form)
-    community_menu = None
     station = form.station
+    community_menu = None
     if request.method == 'POST':
         pass  # validate files here
     if form.validate_on_submit():
@@ -149,6 +165,24 @@ def ivr_menu():
 
         community_menu = CommunityMenu(**cleaned_data)  # create new object from data
 
+        if cleaned_data['use_tts'] and cleaned_data['prefetch_tts']:
+            cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
+            prompts_fetched = True
+            for key in cleaned_data.keys():
+                if prompts_fetched and str(key).endswith("txt"):
+                    try:
+                        file_url = cereproc_agent.get_cprc_tts(cleaned_data[key].encode('utf-8'), community_menu.station.tts_voice.name, community_menu.station.tts_samplerate.value, community_menu.station.tts_audioformat.name)[0]
+                        dest_file = os.path.join(file_path, file_url.split('/').pop())
+                        urllib.urlretrieve(file_url, os.path.join(DefaultConfig.CONTENT_DIR, dest_file))
+                        setattr(community_menu, key[:-4], dest_file)
+                        prompts_fetched = True
+                    except Exception as e:
+                        print e
+                        prompts_fetched = False
+
+            if prompts_fetched:
+                setattr(community_menu, 'use_tts', False)
+
         db.session.add(community_menu)
         db.session.commit()
 
@@ -158,31 +192,6 @@ def ivr_menu():
         flash(_(form.errors.items()), 'error')
 
     return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station)
-
-
-def save_uploaded_file(uploaded_file, directory, file_name=False):
-    date_part = datetime.now().strftime("%y%m%d%H%M%S")
-    if not file_name:
-        file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
-
-    if DefaultConfig.S3_UPLOADS:
-        try:
-            location = upload_to_s3(uploaded_file, file_name)
-        except:
-            flash(_('Media upload error (S3)'), 'error')
-            raise
-    else:
-        upload_directory = os.path.join(DefaultConfig.CONTENT_DIR, directory)
-        make_dir(upload_directory)
-        file_path = os.path.join(upload_directory, file_name)
-        try:
-            uploaded_file.save(file_path)
-        except:
-            flash(_('Media upload error (filesystem)'), 'error')
-            raise
-        location = "{0}/{1}".format(directory, file_name)
-
-    return location
 
 
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
