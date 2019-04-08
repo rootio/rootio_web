@@ -100,13 +100,13 @@ class StationRunner:
                 if event["station"] in self.__station_sockets:
                     try:
                         self.__station_sockets[event["station"]].send(data)
-                        self.logger.info("Event of type {0} sent to station {1} on scheduled program {2}"
-                                         .format(event["action"], event["station"], event["id"]))
+                        #self.logger.info("Event of type {0} sent to station {1} on scheduled program {2}"
+                                         #.format(event["action"], event["station"], event["id"]))
                     except Exception as e:
-                        self.logger.error("Event of type {0} failed for station {1} on scheduled program {2}"
-                                         .format(event["action"], event["station"], event["id"]))
-                        self.logger.error("Event scheduler error: {0}".format(e))
-                        self.logger.error("Broken socket: {}".format(self.__station_sockets[event['station']]))
+                        #self.logger.error("Event of type {0} failed for station {1} on scheduled program {2}"
+                              #           .format(event["action"], event["station"], event["id"]))
+                       # self.logger.error("Event scheduler error: {0}".format(e))
+                        self.logger.error("Broken socket: {0}".format(self.__station_sockets[event['station']]))
 
 
 if __name__ == "__main__":
