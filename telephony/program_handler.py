@@ -26,10 +26,13 @@ class ProgramHandler:
         self.__scheduler = None
         self.__scheduled_jobs = None
         self.__start_listeners()
+        self.__is_starting_up = True
+        self.__interval_hours = 3  # Time after which to schedule again
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
     def run(self):
         self.run_current_schedule()
+        self.__is_starting_up = False
 
     def __prepare_schedule(self):
         self.__load_programs()
@@ -42,7 +45,6 @@ class ProgramHandler:
         self.__schedule_programs()
         self.__schedule_next_schedule()
 
-
     def stop(self):
         self.__stop_program()
         # any clean up goes here
@@ -50,7 +52,7 @@ class ProgramHandler:
 
     def __schedule_next_schedule(self):
         base_date = datetime.now()
-        next_schedule_date = base_date + timedelta(0, 0, 0, 0, 0, 3)  # 3 hours
+        next_schedule_date = base_date + timedelta(0, 0, 0, 0, 0, self.__interval_hours)  # 3 hours
         self.__scheduler.add_date_job(getattr(self, 'run_current_schedule'), next_schedule_date)
 
     def __schedule_programs(self):
@@ -92,10 +94,15 @@ class ProgramHandler:
 
     def __load_programs(self):
         timezone = self.__radio_station.station.timezone
-        date_filter = "((start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '3 hour') or (start < now() at time zone '{tz}' and radio_scheduledprogram.end > now() at time zone '{tz}'))".format(tz=timezone)
-        self.__scheduled_programs = self.__radio_station.db.query(ScheduledProgram).filter(
+        if self.__is_starting_up:
+            date_filter = "((start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour') or (start < now() at time zone '{tz}' and radio_scheduledprogram.end > now() at time zone '{tz}'))".format(tz=timezone, interval=self.__interval_hours)
+        else:
+            date_filter = "(start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour')".format(
+                tz=timezone, interval=self.__interval_hours)
+        query = self.__radio_station.db.query(ScheduledProgram).filter(
             ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
-            ScheduledProgram.deleted == False).all()
+            ScheduledProgram.deleted == False)
+        self.__scheduled_programs = query.all()
         self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
