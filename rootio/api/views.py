@@ -543,12 +543,13 @@ def station_log(station_id):
             del record['gsm_signal']
         except KeyError:
             pass
-        if not set(attributes).issubset(record.keys()):
-            print record.keys()
-            response = json.dumps(
-                {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
-            )
-            abort(make_response(response, 422))
+        #TODO: Revisit the below. Not safe - blocks sync forever
+        # if not set(attributes).issubset(record.keys()):
+        #     print record.keys()
+        #     response = json.dumps(
+        #         {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
+        #     )
+        #     abort(make_response(response, 422))
 
         if record['category'] not in allowed_categories:
             response = json.dumps(
