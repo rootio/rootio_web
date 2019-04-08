@@ -557,18 +557,19 @@ def station_log(station_id):
             )
             abort(make_response(response, 422))
 
-        try:
-            parsed_date = date_parser.parse(record['eventdate'])
-        except (ValueError, TypeError):
-            response = json.dumps({'error': 'The date you provided is not valid'})
-            abort(make_response(response, 422))
+        #TODO: potential to perpetually block sync. revisit
+        # try:
+        #     parsed_date = date_parser.parse(record['eventdate'])
+        # except (ValueError, TypeError):
+        #     response = json.dumps({'error': 'The date you provided is not valid'})
+        #     abort(make_response(response, 422))
 
         log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
         log_file_name = '{}_{}_{}.log'.format(station_id,
                                               record['category'],
                                               datetime.datetime.now().isoformat()[:10])
         log_file = os.path.join(log_folder, log_file_name)
-        log_line = '{0} | {1} {2} {3}\n'.format(record['eventdate'].encode('utf8'), record['category'].encode('utf8'), record['event'].encode('utf8'), record['argument'].encode('utf8'))
+        log_line = '{0} | {1} {2} {3}\n'.format(record.get('eventdate', '').encode('utf8'), record['category'].encode('utf8'), record.get('event', '').encode('utf8'), record.get('argument', '').encode('utf8'))
 
         try:
             with open(log_file, 'a+') as log:
