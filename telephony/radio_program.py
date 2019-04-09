@@ -142,7 +142,7 @@ class RadioProgram:
             except:
                 return
         except Exception as e:
-            self.radio_station.logger.error(e.message)
+            self.radio_station.logger.error("Error {err} in radio_program.__log_program_status".format(err=e.message))
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
