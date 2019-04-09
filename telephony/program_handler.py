@@ -43,7 +43,7 @@ class ProgramHandler:
         self.__prepare_schedule()
         self.__scheduler.start()
         self.__schedule_programs()
-        self.__schedule_next_schedule()
+        #self.__schedule_next_schedule()
 
     def stop(self):
         self.__stop_program()
@@ -94,11 +94,11 @@ class ProgramHandler:
 
     def __load_programs(self):
         timezone = self.__radio_station.station.timezone
-        if self.__is_starting_up:
-            date_filter = "((start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour') or (start < now() at time zone '{tz}' and radio_scheduledprogram.end > now() at time zone '{tz}'))".format(tz=timezone, interval=self.__interval_hours)
-        else:
-            date_filter = "(start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour')".format(
-                tz=timezone, interval=self.__interval_hours)
+        #if self.__is_starting_up:
+        date_filter = "((date(start) = date(now())) or (start < now() and radio_scheduledprogram.end > now()))"
+        #else:
+        #   date_filter = "(start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour')".format(
+        #        tz=timezone, interval=self.__interval_hours)
         query = self.__radio_station.db.query(ScheduledProgram).filter(
             ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
             ScheduledProgram.deleted == False)
@@ -128,7 +128,7 @@ class ProgramHandler:
                     "[Station #{}] Could not connect to server, retrying in 30..."
                     .format(self.__radio_station.id))
                 sleep(30)
-        sck.send(json.dumps({'station':self.__radio_station.station.id, 'action':'register'}))
+        sck.send(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
 
         while True:
             data = sck.recv(10240000)
@@ -161,7 +161,6 @@ class ProgramHandler:
                     #self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
                     t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
                     t.start()
-
 
     def __get_dict_from_rows(self, rows):
         result = dict()

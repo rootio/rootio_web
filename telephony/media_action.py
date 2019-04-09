@@ -1,7 +1,6 @@
 from rootio.config import *
 from rootio.content.models import ContentUploads
 from rootio.radio.models import ScheduledProgram
-import json
 
 
 class MediaAction:
@@ -113,7 +112,7 @@ class MediaAction:
                                                    os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception, e:
-            self.program.radio_station.logger.error(str(e))
+            self.program.radio_station.logger.error("error {err} in media_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):
