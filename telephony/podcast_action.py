@@ -6,6 +6,7 @@ class PodcastAction:
 
     def __init__(self, podcast_id, start_time, duration, program):
         self.__podcast_id = podcast_id
+        self.__podcast = None
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
@@ -16,8 +17,12 @@ class PodcastAction:
         self.program.log_program_activity("Done initialising Podcast action for program {0}".format(self.program.name))
 
     def start(self):
-        call_result = self.__request_station_call()
-        if call_result is None or not call_result[0]:  # !!
+        self.__load_podcast()
+        if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
+            call_result = self.__request_station_call()
+            if call_result is None or not call_result[0]:  # !!
+                self.stop(False)
+        else:
             self.stop(False)
 
     def pause(self):

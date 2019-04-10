@@ -23,7 +23,7 @@ class CommunityAction:
         try:
             self.__load_track()
             if self.__content is None or len(self.__content) < 1:  # If no content, do not even call
-                self.stop(True)
+                self.stop(False)
                 return
             call_result = self.__request_station_call()
             if not call_result:  # !!

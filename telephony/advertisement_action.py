@@ -7,6 +7,7 @@ class AdvertisementAction:
 
     def __init__(self, track_id, start_time, duration, program):
         self.__track_id = track_id
+        self.__track = None
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
@@ -17,8 +18,12 @@ class AdvertisementAction:
         self.program.log_program_activity("Done initing ads action for program {0}".format(self.program.name))
 
     def start(self):
-        call_result = self.__request_station_call()
-        if not call_result:  # !!
+        self.__load_track()
+        if self.__track is not None and len(self.__track.track_uploads) > 0:
+            call_result = self.__request_station_call()
+            if not call_result:  # !!
+                self.stop(False)
+        else:  # Track exists but contains no content
             self.stop(False)
 
     def stop(self, graceful=True, call_info=None):
@@ -32,7 +37,6 @@ class AdvertisementAction:
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__play_media(self.__call_answer_info)
-        self.__listen_for_media_play_stop()
 
     def __load_track(self):  # load the media to be played
         self.__track = self.program.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
@@ -70,7 +74,7 @@ class AdvertisementAction:
         return result
 
     def __play_media(self, call_info):  # play the media in the array
-        self.__load_track()
+        #self.__load_track()
         self.program.log_program_activity(
             "Playing media {0}".format(self.__track.track_uploads[len(self.__track.track_uploads) - 1].name))
         self.__listen_for_media_play_stop()

@@ -7,6 +7,7 @@ class NewsAction:
 
     def __init__(self, track_id, start_time, duration, program):
         self.__track_id = track_id
+        self.__track = None
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
@@ -17,14 +18,13 @@ class NewsAction:
         self.program.log_program_activity("Done initialising news action for program {0}".format(self.program.name))
 
     def start(self):
-        try:
-        # if self.__is_valid:
-        # self.program.set_running_action(self)
+        self.__load_track()
+        if self.__track is not None and len(self.__track.track_uploads) > 0:
             call_result = self.__request_station_call()
-            if not call_result[0]:  # !!
+            if not call_result:  # !!
                 self.stop(False)
-        except Exception as e:
-            self.program.radio_station.logger.error("error {err} in news_action.start".format(err=e.message))
+        else:  # Track exists but contains no content
+            self.stop(False)
 
     def pause(self):
         self.__pause_media()
@@ -81,7 +81,6 @@ class NewsAction:
         return result
 
     def __play_media(self, call_info):  # play the media in the array
-        self.__load_track()
         self.program.log_program_activity(
             "Playing media {0}".format(self.__track.track_uploads[0].name))
         self.__listen_for_media_play_stop()

@@ -20,9 +20,12 @@ class MediaAction:
     def start(self):
         episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
         self.__media = self.__load_media(episode_number)
-        call_result = self.__request_station_call()
-        if not call_result[0]:  # !!
-            self.stop()
+        if self.__media is not None:
+            call_result = self.__request_station_call()
+            if not call_result[0]:  # !!
+                self.stop(False)
+        else:
+            self.stop(False)
 
     def pause(self):
         self.__pause_media()
@@ -38,7 +41,6 @@ class MediaAction:
                                           .format(self.program.name))
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
-        self.__listen_for_media_play_stop()
         self.__play_media(self.__call_answer_info)
 
     def __load_media(self, episode_number):  # load the media to be played
