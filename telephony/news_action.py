@@ -24,13 +24,14 @@ class NewsAction:
             if not call_result[0]:  # !!
                 self.stop(False)
         except Exception as e:
-            print e
+            self.program.radio_station.logger.error("error {err} in news_action.start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()
 
     def stop(self, graceful=True, call_info=None):
-        self.__stop_media(call_info)
+        if call_info is not None:
+            self.__stop_media(call_info)
         self.__deregister_listeners()
         # Fix this - clash of names btn programs and scheduled instances
         self.program.notify_program_action_stopped(graceful, call_info)
@@ -42,7 +43,6 @@ class NewsAction:
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__listen_for_media_play_stop()
         self.__play_media(self.__call_answer_info)
-
 
     def __load_track(self):  # load the media to be played
         self.__track = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
@@ -104,8 +104,8 @@ class NewsAction:
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    self.__track.track_uploads[0].uri)
             self.program.log_program_activity('result of stop play is ' + result)
-        except Exception, e:
-            self.program.radio_station.logger.error(str(e))
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in news_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):

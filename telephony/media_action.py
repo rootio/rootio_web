@@ -28,7 +28,8 @@ class MediaAction:
         self.__pause_media()
 
     def stop(self, graceful=True, call_info=None):
-        self.__stop_media(call_info)
+        if call_info is not None:
+            self.__stop_media(call_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 
@@ -111,7 +112,7 @@ class MediaAction:
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
             self.program.log_program_activity('result of stop play is ' + result)
-        except Exception, e:
+        except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__stop_media".format(err=e.message))
             return
 

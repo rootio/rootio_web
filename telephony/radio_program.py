@@ -128,7 +128,7 @@ class RadioProgram:
                 self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
-            self.radio_station.logger.error("Error {err} in send program summary for {prg}".format(err=e.message, prg=self.scheduled_program.program.name))
+            self.radio_station.logger.error("Error {er} {err} in send program summary for {prg}".format(er=str(e), err=e.message, prg=self.scheduled_program.program.name))
 
     def __log_program_status(self):
         try:
@@ -136,13 +136,15 @@ class RadioProgram:
             self.scheduled_program.status = self.__status
             self.radio_station.db.add(self.scheduled_program)
             self.radio_station.db.commit()
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             try:
+                self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
                 self.radio_station.db.rollback()
-            except:
+            except Exception as e:
+                self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
                 return
         except Exception as e:
-            self.radio_station.logger.error("Error {err} in radio_program.__log_program_status".format(err=e.message))
+            self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers

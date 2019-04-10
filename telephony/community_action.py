@@ -17,32 +17,29 @@ class CommunityAction:
         self.__media_index = 0
         self.__call_handler = self.program.radio_station.call_handler
         self.__call_answer_info = None
-        self.program.log_program_activity("Done initialising Media action for program {0}".format(self.program.name))
+        self.program.log_program_activity("Done initialising Community action for program {0}".format(self.program.name))
 
     def start(self):
         try:
-            print "requesting call"
             self.__load_track()
             if self.__content is None or len(self.__content) < 1:  # If no content, do not even call
-                print "No content"
                 self.stop(True)
                 return
             call_result = self.__request_station_call()
-            print call_result
             if not call_result:  # !!
-                print "call_result is not true!!"
                 self.stop(False)
         except Exception as e:
-            print e
+            self.program.radio_station.logger.error("error {err} in community_action.__start".format(err=e.message))
 
     def stop(self, graceful=True, call_info=None):
         self.__media_expected_to_stop = True
-        self.__stop_media(call_info)
+        if call_info is not None:
+            self.__stop_media(call_info)
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity(
-            "Received call answer notification for Media action of {0} program".format(self.program.name))
+            "Received call answer notification for community action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
         self.__play_media(self.__call_answer_info, self.__media_index)
@@ -103,8 +100,8 @@ class CommunityAction:
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    self.__content[self.__media_index])
             self.program.log_program_activity('result of stop play is ' + result)
-        except Exception, e:
-            self.program.radio_station.logger.error(str(e))
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in community_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):

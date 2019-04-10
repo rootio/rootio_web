@@ -13,7 +13,7 @@ class PodcastAction:
         self.__media_expected_to_stop = False
         self.__call_answer_info = None
         self.__call_handler = self.program.radio_station.call_handler
-        self.program.log_program_activity("Done initialising Media action for program {0}".format(self.program.name))
+        self.program.log_program_activity("Done initialising Podcast action for program {0}".format(self.program.name))
 
     def start(self):
         call_result = self.__request_station_call()
@@ -24,7 +24,8 @@ class PodcastAction:
         self.__pause_media()
 
     def stop(self, graceful=True, call_info=None):
-        self.__stop_media(call_info)
+        if call_info is not None:
+            self.__stop_media(call_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 
@@ -99,8 +100,8 @@ class PodcastAction:
                                                                 str(self.__podcast.id),
                                                                 self.__podcast.podcast_downloads[0].file_name))
             self.program.log_program_activity('result of stop play is ' + result)
-        except Exception, e:
-            self.program.radio_station.logger.error(str(e))
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in podcast_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):
