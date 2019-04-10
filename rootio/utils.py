@@ -10,6 +10,7 @@ import string
 import urllib
 from datetime import datetime, time, timedelta
 
+import yaml
 import boto3
 import sox
 from flask import json
@@ -48,6 +49,22 @@ GENDER_TYPE = {
 # Model
 STRING_LEN = 100
 
+
+def format_log_line(line):
+    parts = line.split('|')
+    text = parts[1].strip().split(' ')
+
+    action = text[1]
+    details = yaml.load(
+        ' '.join(text[2:]).replace(', ', '\n')
+    )
+
+    return {
+        'date': parts[0],
+        'type': text[0],
+        'action': action,
+        'details': details,
+    }
 
 def upload_to_s3(file, key,  acl="public-read"):
     bucket_name = DefaultConfig.S3_BUCKET_NAME

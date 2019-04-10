@@ -4,6 +4,7 @@ import json
 import socket
 from datetime import datetime
 import time
+import io
 import re
 import os
 import glob
@@ -26,7 +27,7 @@ from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
 from ..user.models import User, RootioUser
-from ..utils import error_dict, fk_lookup_form_data
+from ..utils import error_dict, fk_lookup_form_data, format_log_line
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -615,21 +616,15 @@ def scheduled_block_json(station_id):
 @radio.route('/station/<int:station_id>/logs', methods=['GET'])
 def station_logs(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
-    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
-    pattern = "{}/{}_*.log".format(log_folder, station_id)
-    log_files = glob.glob(pattern)
-    logs = []
-    for f in log_files:
-        l = os.path.basename(f).replace('.log', '')
-        parts = l.split('_')
-        logs.append(
-            {
-                "name": l,
-                "station_id": parts[0],
-                "type": parts[1],
-                "date": parts[2]
-            }
-        )
+    events = station.events
+
+    import ipdb
+    ipdb.set_trace()
+
+
+    # logs = db.session.query(Station
+
+
     return render_template('radio/logs.html', station=station, logs=logs)
 
 
@@ -638,12 +633,18 @@ def station_log_view(station_id, log):
     log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
     log_file = "{}/{}.log".format(log_folder, log)
     num_lines = 100
+    table = []
     try:
-        with open(log_file) as l:
+        with io.open(log_file, 'r', encoding='utf8') as l:
             contents = list(islice(l, num_lines))
     except IOError:
         contents = ['No such file']
-    return render_template('radio/log.html', station_id=station_id, log=log, contents=contents)
+
+    for line in contents:
+        destructured = format_log_line(line)
+        table.append(destructured)
+
+    return render_template('radio/log.html', station_id=station_id, log=log, contents=table)
 
 
 @radio.route('/schedule/', methods=['GET'])

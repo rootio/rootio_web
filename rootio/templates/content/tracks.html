@@ -3,6 +3,19 @@
 {% block js_btm %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+<script>
+ $(document).ready(function() {
+   $('#show_only').change(function() {
+     var network = $(this).val();
+     var url = window.location.href.split('?')[0];
+     if (network === '*') {
+       window.location = url;
+     } else {
+       window.location = url + '?show_only=' + network;
+     }
+   });
+ });
+</script>
 {% endblock %}
 
 {% block body %}
@@ -10,6 +23,18 @@
     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
         <h3>{{ _('Tracks') }}</h3>
+        <br/>
+        Network: 
+        <select id="show_only" name="show_only">
+          <option value="*">All</option>
+          {% for network in networks %}
+          {% if show_only|string() == network.id|string() %}
+          <option value="{{ network.id }}" selected>{{ network.name }}</option>
+          {% else %}
+          <option value="{{ network.id }}">{{ network.name }}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
     </div>
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.track_add') }}"><strong>{{ _('Add') }} +</strong></a>
@@ -19,6 +44,7 @@
         <thead>
             <tr>
                 <th>{{ _('Name') }}</th>
+                <th>{{ _('Networks') }}</th>
                 <th>{{ _('Description') }}</th>
                 <th>{{ _('Content Type') }}</th>
                 <th></th>
@@ -30,6 +56,7 @@
           {% if not track.deleted %}
             <tr>
                 <td>{{ track.name }}</td>
+                <td>{{ track.networks | join(', ') }}</td>
                 <td>{{ track.description }}</td>
                 <td>{{ track.content_type }}</td>
                 <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|length}} {{ _('Files') }}</a></td>
