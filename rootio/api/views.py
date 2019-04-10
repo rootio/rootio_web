@@ -18,7 +18,7 @@ from ..content import ContentMusic, ContentMusicAlbum, ContentMusicArtist, Conte
     ContentMusicPlaylistItem, ContentPodcast, ContentPodcastDownload, ContentUploads, ContentTrack
 from ..decorators import returns_json, restless_preprocessors, restless_postprocessors, api_key_or_auth_required
 from ..extensions import db, rest, csrf
-from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic
+from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic, StationEvent
 from ..telephony import PhoneNumber, Call, Message
 from ..user import User
 from ..utils import jquery_dt_paginator, save_uploaded_file
@@ -562,30 +562,34 @@ def station_log(station_id):
             response = json.dumps({'error': 'The date you provided is not valid'})
             abort(make_response(response, 422))
 
-        log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
-        log_file_name = '{}_{}_{}.log'.format(station_id,
-                                              record['category'],
-                                              datetime.datetime.now().isoformat()[:10])
-        log_file = os.path.join(log_folder, log_file_name)
-        log_line = '{0} | {1} {2} {3}\n'.format(record['eventdate'].encode('utf8'), record['category'].encode('utf8'), record['event'].encode('utf8'), record['argument'].encode('utf8'))
+        try:
+            json.loads(record['argument'])
+        except:
+            response = json.dumps({'error': 'The event content has to be valid JSON'})
+            abort(make_response(response, 422))
+
+        log_record = {
+            'station_id': station_id,
+            'date': record['eventdate'].encode('utf8'),
+            'category': record['category'].encode('utf8'),
+            'action': record['event'].encode('utf8'),
+            'content': record['argument'].encode('utf8')
+        }
 
         try:
-            with open(log_file, 'a+') as log:
-                log.write(log_line)
-                response['status'] = True
-        except IOError:
-            try:
-                os.mkdir(log_folder)
-                with open(log_file, 'a+') as log:
-                    log.write(log_line)
-            except (OSError, IOError):
-                response['status'] = False
-                response['error'] = 'Failed to create log'
-            except UnicodeEncodeError:
-                response['status'] = False
-                response['error'] = 'Encoding error encountered'
-                # abort(make_response(response, 200))
-        responses.append(response)
+            station_event = StationEvent(**log_record)
+            db.session.add(station_event)
+            response['status'] = True
+        except UnicodeEncodeError:
+            response['status'] = False
+            response['error'] = 'Encoding error encountered'
+
+        try:
+            db.session.commit()
+            responses.append(response)
+        except:
+            abort(make_response({'status': 422, 'error': 'Unprocessable entity'}, 422))
+
     all_responses = {"results": responses}
     return all_responses
 
