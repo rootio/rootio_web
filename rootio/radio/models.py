@@ -358,15 +358,15 @@ class ScheduledProgram(BaseMixin, db.Model):
 
     @property
     def start_local(self):
-        timezone = self.station.timezone
-        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        timezone = pytz.timezone(self.station.timezone)
+        offset = int(timezone.localize(datetime.now()).strftime('%z')[:3])
         result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
-        return result.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(timezone))
+        return result.replace(tzinfo=pytz.utc).astimezone(timezone)
 
     @property
     def start_utc(self):
-        timezone = self.station.timezone
-        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        timezone = pytz.timezone(self.station.timezone)
+        offset = int(timezone.localize(datetime.now()).strftime('%z')[:3])
         result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
         return result.replace(tzinfo=pytz.utc)
 
