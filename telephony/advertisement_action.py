@@ -14,34 +14,60 @@ class AdvertisementAction:
         self.__media_expected_to_stop = False
         self.__call_answer_info = None
         self.__call_handler = self.program.radio_station.call_handler
-        self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
+        self.program.log_program_activity("Done initing ads action for program {0}".format(self.program.name))
 
     def start(self):
-        print "requesting call"
-        call_result = self.__request_call()
-        print call_result
+        call_result = self.__request_station_call()
         if not call_result:  # !!
-            print "call_result is not true!!"
             self.stop(False)
 
     def stop(self, graceful=True, call_info=None):
-        self.__stop_media(call_info)
+        if call_info is not None:
+            self.__stop_media(call_info)
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity(
-            "Received call answer notification for Media action of {0} program".format(self.program.name))
+            "Received call answer notification for ads action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-10:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__play_media(self.__call_answer_info)
         self.__listen_for_media_play_stop()
 
     def __load_track(self):  # load the media to be played
         self.__track = self.program.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
 
-    def __request_call(self):
-        return self.__call_handler.call(self, self.program.radio_station.station.transmitter_phone.number, 'play',
-                                        self.__track_id, self.duration)
+    def __request_station_call(self):  # call the number specified thru plivo
+        if self.program.radio_station.station.is_high_bandwidth:
+            result = self.__call_station_via_sip()
+            if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)
+                result = self.__call_station_via_goip()
+        else:
+            result = self.__call_station_via_goip()
+        return result
+
+    def __call_station_via_sip(self):
+        # Try a high bandwidth call first
+        if self.program.radio_station.station.sip_username is not None:
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name, True,
+                                              self.duration)
+            self.program.log_program_activity("result of station call via SIP is " + str(result))
+            return result
+
+    def __call_station_via_goip(self):
+        result = None
+        if self.program.radio_station.station.primary_transmitter_phone is not None:
+            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
+                                              self.program.name, False,
+                                          self.duration)
+            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+                result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                                  self.program.name, False,
+                                              self.duration)
+                self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
+        return result
 
     def __play_media(self, call_info):  # play the media in the array
         self.__load_track()
@@ -61,11 +87,11 @@ class AdvertisementAction:
         try:
             self.program.log_program_activity(
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
-            self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-10:])
+            self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-11:])
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__track.id)
             self.program.log_program_activity('result of stop play is ' + result)
-        except Exception, e:
-            self.program.radio_station.logger.error(str(e))
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in ads_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):
@@ -75,7 +101,6 @@ class AdvertisementAction:
     def notify_media_play_stop(self, event_json):
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
-        self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
         if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[
             len(self.__track.track_uploads) - 1].uri):
             self.stop(True, event_json)  # program.notify_program_action_stopped(self)

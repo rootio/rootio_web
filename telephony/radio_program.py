@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 
 import dateutil.tz
 from apscheduler.scheduler import Scheduler
+from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
 
 from advertisement_action import AdvertisementAction
 from community_action import CommunityAction
@@ -11,6 +13,7 @@ from media_action import MediaAction
 from news_action import NewsAction
 from outcall_action import OutcallAction
 from podcast_action import PodcastAction
+from rootio.config import DefaultConfig
 from rootio_mailer.rootio_mail_message import RootIOMailMessage
 
 
@@ -122,7 +125,7 @@ class RadioProgram:
         try:
             self.__rootio_mail_message.set_subject(
                 '[%s] %s ' % (self.radio_station.station.name, self.scheduled_program.program.name))
-            self.__rootio_mail_message.set_from('RootIO')  # This will come from DB in future
+            self.__rootio_mail_message.set_from('info@rootio.org')  # This will come from DB in future
             users = self.__get_network_users()
             for user in users:
                 self.__rootio_mail_message.add_to_address(user.email)
@@ -132,19 +135,27 @@ class RadioProgram:
 
     def __log_program_status(self):
         try:
-            self.radio_station.db._model_changes = {}
+            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+            session = sessionmaker(bind=engine)()
+            session._model_changes = {}
             self.scheduled_program.status = self.__status
-            self.radio_station.db.add(self.scheduled_program)
-            self.radio_station.db.commit()
+            session.add(self.scheduled_program)
+            session.commit()
         except SQLAlchemyError as e:
             try:
                 self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
-                self.radio_station.db.rollback()
+                session.rollback()
             except Exception as e:
                 self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
                 return
         except Exception as e:
             self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
+        finally:
+            try:
+                session.close()
+            except Exception as e:
+                self.radio_station.logger.error(
+                    "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
