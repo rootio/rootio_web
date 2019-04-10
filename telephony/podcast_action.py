@@ -40,7 +40,6 @@ class PodcastAction:
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__play_media(self.__call_answer_info)
-        self.__listen_for_media_play_stop()
 
     def __load_podcast(self):  # load the media to be played
         self.__podcast = self.program.radio_station.db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
@@ -79,7 +78,6 @@ class PodcastAction:
         return result
 
     def __play_media(self, call_info):  # play the media in the array
-        self.__load_podcast()
         self.program.log_program_activity("Playing media {0}".format(
             self.__podcast.podcast_downloads[0].file_name))
         self.__listen_for_media_play_stop()

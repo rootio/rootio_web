@@ -43,7 +43,6 @@ class CommunityAction:
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
         self.__play_media(self.__call_answer_info, self.__media_index)
-        self.__listen_for_media_play_stop()
 
     def __load_track(self):  # load the media to be played
         self.__content = self.program.radio_station.db.query(CommunityContent).filter(
@@ -83,6 +82,7 @@ class CommunityAction:
 
     def __play_media(self, call_info, idx):  # play the media in the array
         self.program.log_program_activity("Playing media {0}".format(self.__content[idx].message))
+        self.__listen_for_media_play_stop()
         result = self.__call_handler.play(call_info['Channel-Call-UUID'],
                                           os.path.join(DefaultConfig.CONTENT_DIR, "community-content",
                                                        str(self.program.radio_station.station.id),

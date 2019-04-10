@@ -67,9 +67,11 @@ class ProgramHandler:
     def __add_scheduled_job(self, scheduled_program):
         start_time = self.__get_program_start_time(scheduled_program).replace(tzinfo=None)
         program = RadioProgram(scheduled_program, self.__radio_station)
-        scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),
-                                                      start_time)
-        self.__scheduled_jobs[scheduled_program.id] = scheduled_job
+        try:
+            scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),  start_time)
+            self.__scheduled_jobs[scheduled_program.id] = scheduled_job
+        except Exception as e:
+            self.__radio_station.logger.error("Error {err} in __add_scheduled_job".format(err=e.message))
 
     def __delete_scheduled_job(self, index):
         if not self.__scheduled_jobs:

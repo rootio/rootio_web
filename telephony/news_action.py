@@ -41,7 +41,6 @@ class NewsAction:
             "Received call answer notification for Media action of {0} program".format(self.program.name))
         self.__call_answer_info = answer_info
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
-        self.__listen_for_media_play_stop()
         self.__play_media(self.__call_answer_info)
 
     def __load_track(self):  # load the media to be played
