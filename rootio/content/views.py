@@ -47,8 +47,16 @@ def upload():
 @content.route('/tracks/')
 @login_required
 def list_tracks():
-    tracks = ContentTrack.query.filter_by(uploaded_by=current_user.id).all()
-    return render_template('content/tracks.html', tracks=tracks, active='tracks')
+    networks = current_user.networks
+    network_ids = [network.id for network in networks]
+    show_only = request.args.get('show_only', '')
+
+    if show_only:
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter_by(id = show_only)
+    else:
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(Network.id.in_(network_ids))
+
+    return render_template('content/tracks.html', tracks=tracks, networks=networks, active='tracks', show_only=show_only)
 
 
 @content.route('/tracks/<int:track_id>/delete', methods=['GET'])

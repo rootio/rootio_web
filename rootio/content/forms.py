@@ -5,7 +5,7 @@ from flask.ext.login import current_user
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField, HiddenField, TextField, BooleanField
 from flask_wtf.file import FileField, FileRequired
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.fields.html5 import DateField
 from wtforms.validators import Required
@@ -13,6 +13,7 @@ from wtforms.validators import Required
 from .models import ContentTrack
 from ..extensions import db
 from ..radio.models import ContentType, Station, Network
+from ..radio.forms import all_networks
 from ..user.models import User
 
 ContentTrackFormBase = model_form(ContentTrack, db_session=db.session, base_class=Form,
@@ -22,6 +23,7 @@ ContentTrackFormBase = model_form(ContentTrack, db_session=db.session, base_clas
 class ContentTrackForm(ContentTrackFormBase):
     name = StringField(u'Name', [Required()])
     description = TextAreaField()
+    networks = QuerySelectMultipleField('Networks', [Required()], query_factory=all_networks)
     submit = SubmitField(_('Save'))
 
 
