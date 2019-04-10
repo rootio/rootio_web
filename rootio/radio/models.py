@@ -133,6 +133,7 @@ class Station(BaseMixin, db.Model):
                                                   foreign_keys=[secondary_transmitter_phone_id])
     # TODO, create m2m here for all whitelisted phone numbers?
 
+    events = db.relationship(u'StationEvent', backref=db.backref('station'))
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station', uselist=False),
                                          lazy='dynamic')
@@ -357,15 +358,15 @@ class ScheduledProgram(BaseMixin, db.Model):
 
     @property
     def start_local(self):
-        timezone = self.station.timezone
-        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        timezone = pytz.timezone(self.station.timezone)
+        offset = int(timezone.localize(datetime.now()).strftime('%z')[:3])
         result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
-        return result.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(timezone))
+        return result.replace(tzinfo=pytz.utc).astimezone(timezone)
 
     @property
     def start_utc(self):
-        timezone = self.station.timezone
-        offset = int(pytz.timezone(timezone).localize(datetime(2011,1,1)).strftime('%z')[:3])
+        timezone = pytz.timezone(self.station.timezone)
+        offset = int(timezone.localize(datetime.now()).strftime('%z')[:3])
         result = self.start.replace(tzinfo=None) - timedelta(hours=offset)
         return result.replace(tzinfo=pytz.utc)
 
@@ -542,3 +543,14 @@ class TtsVoice(BaseMixin, db.Model):
     language_id = db.Column(db.ForeignKey('radio_language.id'))
     gender_code = db.Column(db.Integer())
     language = db.relationship('Language', backref=db.backref('tts_voices'))
+
+
+class StationEvent(BaseMixin, db.Model):
+    __tablename__ = 'radio_stationevent'
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    station_id = db.Column(db.ForeignKey('radio_station.id'))
+    date = db.Column(db.DateTime(timezone=True))
+    category = db.Column(db.String(STRING_LEN), nullable=False)
+    action = db.Column(db.String(STRING_LEN), nullable=False)
+    content = db.Column(db.Text, nullable=False)

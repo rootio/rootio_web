@@ -8,6 +8,13 @@ from ..extensions import db
 from ..utils import STRING_LEN
 
 
+t_tracknetwork = db.Table(
+    u'content_tracknetwork',
+    db.Column(u'track_id', db.ForeignKey('content_track.id')),
+    db.Column(u'network_id', db.ForeignKey('radio_network.id'))
+)
+
+
 class ContentTrack(BaseMixin, db.Model):
     """A track to which audio content is added"""
     __tablename__ = u'content_track'
@@ -21,6 +28,7 @@ class ContentTrack(BaseMixin, db.Model):
     deleted = db.Column(db.Boolean)
 
     content_type = db.relationship(u'ContentType', backref=db.backref('track_content'))
+    networks = db.relationship(u'Network', secondary=u'content_tracknetwork', backref=db.backref('tracks'))
 
     def __unicode__(self):
         return self.name

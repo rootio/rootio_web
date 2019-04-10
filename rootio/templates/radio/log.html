@@ -14,9 +14,26 @@
   </div>
   <div class="container">
     <div class="col-sm-12">
-      {% for line in contents %}
-      <code>{{ line }}</code><br/>
-      {% endfor %}
+      <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+          <tr>
+            <th>{{ _('Date') }}</th>
+            <th>{{ _('Type') }}</th>
+            <th>{{ _('Action') }}</th>
+            <th>{{ _('Text') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in contents %}
+          <tr>
+            <td>{{ line.date }}</td>
+            <td>{{ line.type }}</td>
+            <td>{{ line.action }}</td>
+            <td>{{ line.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 {% endblock %}

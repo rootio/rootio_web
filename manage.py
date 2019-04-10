@@ -177,8 +177,11 @@ def i18n_update_translation(lang):
 
 @manager.command
 def i18n_update_translations():
-    for lang in ['ro', 'pt']:
-        i18n_update_translation(lang)
+    languages = [l for l in DefaultConfig.ACCEPT_LANGUAGES]
+    skip_languages = ['en']
+    for lang in languages:
+        if lang not in skip_languages:
+            i18n_update_translation(lang)
 
 if __name__ == "__main__":
     manager.run()
