@@ -1,4 +1,5 @@
 import urllib
+import sox
 from datetime import datetime, timedelta
 from time import mktime
 
@@ -21,7 +22,7 @@ class RSSDownloader:
     def download(self):
         base_date = self.__get_last_publish_date()
         podcast_list = self.__get_podcast_list(base_date)
-        self.__logger.info("Getting podcasts from these sources:{0}".format(podcast_list))
+        #self.__logger.info("Getting podcasts from these sources:{0}".format(podcast_list))
         self.__download_podcasts(podcast_list)
         self.__close_db_connection()
 
@@ -79,7 +80,7 @@ class RSSDownloader:
         except Exception as e:
             self.__logger.error("error in __download_podcasts(1): {0}".format(e.message))
             return  # path does not exist, could not be created. No point proceeding to download
-        self.__logger.info("trying to download podcasts: {0}".format(podcasts))
+        #self.__logger.info("trying to download podcasts: {0}".format(podcasts))
         for podcast in podcasts:
             for link in podcast.links:
                 try:
@@ -88,10 +89,19 @@ class RSSDownloader:
                         urllib.urlretrieve(link.href,
                                            os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
                                                         re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3"))
-                        self.__log_podcast_download(podcast.title, podcast.itunes_duration,
-                                                    re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3",
+                        # Try and normalize the downloaded files
+                        if self.__normalize_audio_file(os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
+                                                        re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3"), os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
+                                                        re.sub(r'[^\w\d-]', '_', podcast.title[0:45]) + "_norm.mp3")):
+                            self.__log_podcast_download(podcast.title, podcast.itunes_duration,
+                                                    re.sub(r'[^\w\d-]', '_', podcast.title[0:45]) + "_norm.mp3",
                                                     podcast.summary,
                                                     datetime.fromtimestamp(mktime(podcast.published_parsed)))
+                        else:
+                            self.__log_podcast_download(podcast.title, podcast.itunes_duration,
+                                                        re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3",
+                                                        podcast.summary,
+                                                        datetime.fromtimestamp(mktime(podcast.published_parsed)))
                         self.__logger.info("downloaded a file to {0}".format(re.sub(r'[^\w\d-]', '_', podcast.title[0:50]) + ".mp3"))
                 except Exception as e:  # Download error, DB error
                     self.__logger.error("error in __download_podcasts(2): {0}".format(e.message))
@@ -114,3 +124,18 @@ class RSSDownloader:
         except Exception as e:
             self.__logger.error("error in __log_podcast_download: {0}".format(e.message))
             self.__db.rollback()
+
+    def __normalize_audio_file(self, input_file, output_file):
+        try:
+            transformer = sox.Transformer()
+            transformer.norm(0)
+            transformer.build(input_file, output_file)
+            return True
+        except Exception as e:
+            self.__logger.error("error in __normalize_audio_file {0}".format(e.message))
+
+
+
+
+
+

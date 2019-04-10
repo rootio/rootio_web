@@ -8,9 +8,9 @@
 <script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      toggleUseTts($(':checkbox').is(':checked'))
+      toggleUseTts($(":checkbox[name='use_tts']").is(':checked'))
 
-      $(':checkbox').click(function(){
+      $(":checkbox[name='use_tts']").click(function(){
           toggleUseTts($(this).is(':checked'))
           });
 
@@ -26,6 +26,7 @@
 
            //show TTS options
            $(":text[name$='txt']").parent().parent().css('display', 'block')
+           $(":checkbox[name='prefetch_tts']").parent().parent().css('display', 'block')
        }
        else
        {
@@ -33,6 +34,7 @@
            $(':file').parent().parent().css('display', 'block')
 
            //show TTS options
+           $(":checkbox[name='prefetch_tts']").parent().parent().css('display', 'none')
            $(":text[name$='txt']").parent().parent().css('display', 'none')
        }
   }

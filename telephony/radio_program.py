@@ -100,9 +100,9 @@ class RadioProgram:
         self.__running_action = running_action
 
     def log_program_activity(self, program_activity):
+        self.radio_station.logger.info(program_activity)
         self.__rootio_mail_message.append_to_body(
             '%s %s' % (datetime.now().strftime('%y-%m-%d %H:%M:%S'), program_activity))
-        pass
 
     def __run_program_action(self):
         if self.__program_actions is not None and len(self.__program_actions) > 0:
@@ -128,7 +128,7 @@ class RadioProgram:
                 self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
-            self.radio_station.logger.error(e.message)
+            self.radio_station.logger.error("Error {err} in send program summary for {prg}".format(err=e.message, prg=self.scheduled_program.program.name))
 
     def __log_program_status(self):
         try:
@@ -142,7 +142,7 @@ class RadioProgram:
             except:
                 return
         except Exception as e:
-            self.radio_station.logger.error(e.message)
+            self.radio_station.logger.error("Error {err} in radio_program.__log_program_status".format(err=e.message))
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers

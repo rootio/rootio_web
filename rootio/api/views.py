@@ -543,12 +543,13 @@ def station_log(station_id):
             del record['gsm_signal']
         except KeyError:
             pass
-        if not set(attributes).issubset(record.keys()):
-            print record.keys()
-            response = json.dumps(
-                {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
-            )
-            abort(make_response(response, 422))
+        #TODO: Revisit the below. Not safe - blocks sync forever
+        # if not set(attributes).issubset(record.keys()):
+        #     print record.keys()
+        #     response = json.dumps(
+        #         {'error': 'Missing any of {} properties'.format(', '.join(str(v) for v in attributes))}
+        #     )
+        #     abort(make_response(response, 422))
 
         if record['category'] not in allowed_categories:
             response = json.dumps(
@@ -556,26 +557,19 @@ def station_log(station_id):
             )
             abort(make_response(response, 422))
 
-        try:
-            parsed_date = date_parser.parse(record['eventdate'])
-        except (ValueError, TypeError):
-            response = json.dumps({'error': 'The date you provided is not valid'})
-            abort(make_response(response, 422))
+        #TODO: potential to perpetually block sync. revisit
+        # try:
+        #     parsed_date = date_parser.parse(record['eventdate'])
+        # except (ValueError, TypeError):
+        #     response = json.dumps({'error': 'The date you provided is not valid'})
+        #     abort(make_response(response, 422))
 
-        try:
-            json.loads(record['argument'])
-        except:
-            response = json.dumps({'error': 'The event content has to be valid JSON'})
-            abort(make_response(response, 422))
-
-        log_record = {
-            'station_id': station_id,
-            'date': record['eventdate'].encode('utf8'),
-            'category': record['category'].encode('utf8'),
-            'action': record['event'].encode('utf8'),
-            'content': record['argument'].encode('utf8')
-        }
-
+        log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
+        log_file_name = '{}_{}_{}.log'.format(station_id,
+                                              record['category'],
+                                              datetime.datetime.now().isoformat()[:10])
+        log_file = os.path.join(log_folder, log_file_name)
+        log_line = '{0} | {1} {2} {3}\n'.format(record.get('eventdate', '').encode('utf8'), record['category'].encode('utf8'), record.get('event', '').encode('utf8'), record.get('argument', '').encode('utf8'))
         try:
             station_event = StationEvent(**log_record)
             db.session.add(station_event)
@@ -609,8 +603,6 @@ def upload_media():
     max_order = db.session.query(
         func.max(ContentUploads.order).label("max_order")
     ).filter(ContentUploads.track_id == track.id).one().max_order
-
-    print "File {} uploaded for track {}".format(filename, track_id)
 
     file_data = {}
     file_data['uploaded_by'] = current_user.id
