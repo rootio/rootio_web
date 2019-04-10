@@ -1,14 +1,14 @@
 """add networks to tracks
 
 Revision ID: 62b8dd615a3
-Revises: 44601d05789b
+Revises: 4027a704578e
 Create Date: 2019-04-10 10:06:20.086696
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '62b8dd615a3'
-down_revision = '44601d05789b'
+down_revision = '4027a704578e'
 
 from alembic import op
 import sqlalchemy as sa
