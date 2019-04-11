@@ -18,13 +18,16 @@ class AdvertisementAction:
         self.program.log_program_activity("Done initing ads action for program {0}".format(self.program.name))
 
     def start(self):
-        self.__load_track()
-        if self.__track is not None and len(self.__track.track_uploads) > 0:
-            call_result = self.__request_station_call()
-            if not call_result:  # !!
+        try:
+            self.__load_track()
+            if self.__track is not None and len(self.__track.track_uploads) > 0:
+                call_result = self.__request_station_call()
+                if not call_result:  # !!
+                    self.stop(False)
+            else:  # Track exists but contains no content
                 self.stop(False)
-        else:  # Track exists but contains no content
-            self.stop(False)
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in ads_action.__start".format(err=e.message))
 
     def stop(self, graceful=True, call_info=None):
         if call_info is not None:
@@ -39,7 +42,7 @@ class AdvertisementAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_track(self):  # load the media to be played
-        self.__track = self.program.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
+        self.__track = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
 
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:

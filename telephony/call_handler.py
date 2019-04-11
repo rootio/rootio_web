@@ -187,6 +187,8 @@ class CallHandler:
             if self.__radio_station.station.is_high_bandwidth and use_sip and len(self.__outgoing_sip_gateways) > 0:
                 self.__radio_station.logger.info(
                     "SIP GWS before pop are {0}".format(str(self.__outgoing_sip_gateways)))
+                if len(self.__outgoing_sip_gateways) == 0:
+                    return False, None
                 gw = self.__outgoing_sip_gateways.values()[0]
                 self.__radio_station.logger.info(
                     "SIP GWS after pop are {0}".format(str(self.__outgoing_sip_gateways)))
@@ -212,6 +214,8 @@ class CallHandler:
             else:
                 self.__radio_station.logger.info(
                     "GWS before pop are {0}".format(str(self.__available_outgoing_gateways)))
+                if len(self.__available_outgoing_gateways) == 0:
+                    return False, None
                 gw = self.__outgoing_gateways[str(self.__available_outgoing_gateways.pop())[-12:]]
                 self.__radio_station.logger.info(
                     "GWS after pop are {0}".format(str(self.__available_outgoing_gateways)))
