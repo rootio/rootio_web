@@ -94,7 +94,7 @@ class AdvertisementAction:
         try:
             self.program.log_program_activity(
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
-            self.__call_handler.deregister_for_call_hangup(self, event_json['Caller-Destination-Number'][-11:])
+            self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'][-11:])
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__track.id)
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
