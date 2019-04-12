@@ -29,6 +29,7 @@ class CommunityAction:
             if not call_result:  # !!
                 self.stop(False)
         except Exception as e:
+            self.stop(False)
             self.program.radio_station.logger.error("error {err} in community_action.__start".format(err=e.message))
 
     def stop(self, graceful=True, call_info=None):

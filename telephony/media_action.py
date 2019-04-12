@@ -18,14 +18,18 @@ class MediaAction:
         self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
 
     def start(self):
-        episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
-        self.__media = self.__load_media(episode_number)
-        if self.__media is not None:
-            call_result = self.__request_station_call()
-            if not call_result[0]:  # !!
+        try:
+            episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
+            self.__media = self.__load_media(episode_number)
+            if self.__media is not None:
+                call_result = self.__request_station_call()
+                if not call_result[0]:  # !!
+                    self.stop(False)
+            else:
                 self.stop(False)
-        else:
+        except Exception as e:
             self.stop(False)
+            self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()

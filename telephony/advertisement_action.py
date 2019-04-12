@@ -27,6 +27,7 @@ class AdvertisementAction:
             else:  # Track exists but contains no content
                 self.stop(False)
         except Exception as e:
+            self.stop(False)
             self.program.radio_station.logger.error("error {err} in ads_action.__start".format(err=e.message))
 
     def stop(self, graceful=True, call_info=None):

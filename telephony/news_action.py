@@ -18,13 +18,17 @@ class NewsAction:
         self.program.log_program_activity("Done initialising news action for program {0}".format(self.program.name))
 
     def start(self):
-        self.__load_track()
-        if self.__track is not None and len(self.__track.track_uploads) > 0:
-            call_result = self.__request_station_call()
-            if not call_result:  # !!
+        try:
+            self.__load_track()
+            if self.__track is not None and len(self.__track.track_uploads) > 0:
+                call_result = self.__request_station_call()
+                if not call_result:  # !!
+                    self.stop(False)
+            else:  # Track exists but contains no content
                 self.stop(False)
-        else:  # Track exists but contains no content
+        except Exception as e:
             self.stop(False)
+            self.program.radio_station.logger.error("error {err} in news_action.__start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()

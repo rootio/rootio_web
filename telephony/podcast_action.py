@@ -17,13 +17,17 @@ class PodcastAction:
         self.program.log_program_activity("Done initialising Podcast action for program {0}".format(self.program.name))
 
     def start(self):
-        self.__load_podcast()
-        if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
-            call_result = self.__request_station_call()
-            if call_result is None or not call_result[0]:  # !!
+        try:
+            self.__load_podcast()
+            if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
+                call_result = self.__request_station_call()
+                if call_result is None or not call_result[0]:  # !!
+                    self.stop(False)
+            else:
                 self.stop(False)
-        else:
+        except Exception as e:
             self.stop(False)
+            self.program.radio_station.logger.error("error {err} in podcast_action.__start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()
