@@ -74,7 +74,7 @@
         <tr>
           <td>
             <select id="filter_type" name="type">
-              {% for filter in ['ALL', 'CALL', 'MEDIA', 'SYNC'] %}
+              {% for filter in ['ALL', 'CALL', 'MEDIA', 'SYNC', 'SIP_CALL'] %}
                 <option value="{{filter}}"
                   {% if event_type == filter %} selected {% endif %}>
                   {{filter}}

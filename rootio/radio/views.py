@@ -4,6 +4,7 @@ import json
 import socket
 from datetime import datetime
 import time
+import re
 import io
 import re
 import os
@@ -631,15 +632,20 @@ def station_logs(station_id):
     if date_end:
         events = events.filter(StationEvent.date <= date_end)
 
-
-        # import ipdb; ipdb.set_trace()
     for event in events:
         try:
             event.content = json.loads(event.content)
             keys.extend(event.content.keys())
         except JSONDecodeError:
-            event.content = {'text': event.content}
-            keys.append('text')
+            attributes = re.split(r'[,](?=\s[a-z\s]+:\s)', event.content)
+            event.content = {}
+            for attribute in attributes:
+                pair = attribute.split(': ')
+                try:
+                    event.content[pair[0]] = pair[1]
+                except IndexError:
+                    event.content['raw_data'] = pair[0]
+                keys.extend(event.content.keys())
         except AttributeError:
             event.content = {'text': event}
             keys.append('text')
