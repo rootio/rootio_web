@@ -8,28 +8,126 @@
 
 {% endblock %}
 
+{% block js_btm %}
+  {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+  <script>
+   function selectOneDay(when) {
+     $(this).click(function(){
+       var moments = {
+         yesterday: moment().subtract(1, "days").format('YYYY-MM-DD'),
+         today: moment().format('YYYY-MM-DD'),
+         all: undefined
+       }
+
+       $('#filter_start').val(moments[when]);
+       $('#filter_end').val(moments[when]);
+
+       $('#filter_start').trigger('change');
+     });
+   }
+
+    $(document).ready(function() {
+      $('#filters-container select, #filters-container input').change(function() {
+        /* var value = $(this).val(); */
+        /* var param = $(this).attr('name'); */
+        var url = window.location.href.split('?')[0] + '?';
+
+        var params = {
+          type: $('#filter_type').val(),
+          start: $('#filter_start').val(),
+          end: $('#filter_end').val()
+        }
+
+        // ES5 compatible
+        Object.keys(params).forEach(function (k) {
+          url = url + k + '=' + params[k] + '&';
+        });
+
+        window.location = url;
+      });
+
+    });
+  </script>
+{% endblock %}
+
 {% block body %}
   <div class="container">
     <h2 class="pull-left">{{ log }}</h2>
   </div>
   <div class="container">
+    <div class="col-sm-12" id="filters-container">
+      <table border="0">
+        <thead>
+          <tr>
+            <th colspan="3" style="text-align: left;"> <i> <b>Filters:</b> </i> </th>
+          </tr>
+        </thead>
+        <tr>
+          <td>Type</td>
+          <td>Start date</td>
+          <td>End date (optional)</td>
+          <td>Presets</td>
+        </tr>
+        <tr>
+          <td>
+            <select id="filter_type" name="type">
+              {% for filter in ['ALL', 'CALL', 'MEDIA', 'SYNC'] %}
+                <option value="{{filter}}"
+                  {% if event_type == filter %} selected {% endif %}>
+                  {{filter}}
+                </option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <input id="filter_start" name="start" type="date" value="{{ date_start }}"/>
+          </td>
+          <td>
+            <input id="filter_end" name="end" type="date" value="{{ date_end }}"/>
+          </td>
+          <td>
+            <button class="btn btn-small" onclick="selectOneDay('yesterday')" id="filter_preset_yesterday">Yesterday</button>
+            <button class="btn btn-small" onclick="selectOneDay('today')" id="filter_preset_today">Today</button>
+            <button class="btn btn-small" onclick="selectOneDay('all')" id="filter_preset_all">All time</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-sm-12">
+      {% if event_type != 'ALL' %}
+      <i>Warning: showing only events of type: {{ event_type }}</i>
+      {% endif %}
+    </div>
     <div class="col-sm-12">
       <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
           <tr>
             <th>{{ _('Date') }}</th>
+            <th>{{ _('ID') }}</th>
+            {% if not event_type or event_type == 'ALL' %}
             <th>{{ _('Type') }}</th>
+            {% endif %}
             <th>{{ _('Action') }}</th>
-            <th>{{ _('Text') }}</th>
+            {% for key in keys %}
+              <th>{{ key }}</th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>
-          {% for line in contents %}
+          {% for event in events %}
           <tr>
-            <td>{{ line.date }}</td>
-            <td>{{ line.type }}</td>
-            <td>{{ line.action }}</td>
-            <td>{{ line.details }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.id }}</td>
+            {% if not event_type or event_type == 'ALL' %}
+            <td>{{ event.category }}</td>
+            {% endif %}
+            <td>{{ event.action }}</td>
+            {% for key in keys %}
+              <th>{{ event.content[key] }}</th>
+            {% endfor %}
           </tr>
           {% endfor %}
         </tbody>

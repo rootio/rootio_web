@@ -133,7 +133,7 @@ class Station(BaseMixin, db.Model):
                                                   foreign_keys=[secondary_transmitter_phone_id])
     # TODO, create m2m here for all whitelisted phone numbers?
 
-    events = db.relationship(u'StationEvent', backref=db.backref('station'))
+    events = db.relationship(u'StationEvent', backref=db.backref('station'), lazy='dynamic')
     blocks = db.relationship(u'ScheduledBlock', backref=db.backref('station'))
     scheduled_programs = db.relationship(u'ScheduledProgram', backref=db.backref('station', uselist=False),
                                          lazy='dynamic')

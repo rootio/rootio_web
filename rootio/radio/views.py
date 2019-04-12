@@ -9,6 +9,7 @@ import re
 import os
 import glob
 from itertools import islice
+from simplejson.scanner import JSONDecodeError
 
 import dateutil.parser
 from dateutil import rrule
@@ -20,7 +21,7 @@ import arrow
 
 from .forms import StationForm, StationTelephonyForm, NetworkForm, ProgramForm, BlockForm, LocationForm, \
     ScheduleProgramForm, PersonForm
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network
+from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network, StationEvent
 from ..config import DefaultConfig
 from ..content.models import ContentMusicPlaylist, ContentTrack, ContentPodcast, ContentStream
 from .models import ContentType
@@ -613,38 +614,47 @@ def scheduled_block_json(station_id):
     return resp
 
 
-@radio.route('/station/<int:station_id>/logs', methods=['GET'])
+@radio.route('/station/<int:station_id>/log', methods=['GET'])
 def station_logs(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
+    keys = []
+
+    date_start = request.args.get('start', '')
+    date_end = request.args.get('end', '')
+    event_type = request.args.get('type', '')
+
     events = station.events
-
-    import ipdb
-    ipdb.set_trace()
-
-
-    # logs = db.session.query(Station
-
-
-    return render_template('radio/logs.html', station=station, logs=logs)
+    if event_type and event_type != 'ALL':
+        events = events.filter_by(category=event_type)
+    if date_start:
+        events = events.filter(StationEvent.date >= date_start)
+    if date_end:
+        events = events.filter(StationEvent.date <= date_end)
 
 
-@radio.route('/station/<int:station_id>/log/<string:log>', methods=['GET'])
-def station_log_view(station_id, log):
-    log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
-    log_file = "{}/{}.log".format(log_folder, log)
-    num_lines = 100
-    table = []
-    try:
-        with io.open(log_file, 'r', encoding='utf8') as l:
-            contents = list(islice(l, num_lines))
-    except IOError:
-        contents = ['No such file']
+        # import ipdb; ipdb.set_trace()
+    for event in events:
+        try:
+            event.content = json.loads(event.content)
+            keys.extend(event.content.keys())
+        except JSONDecodeError:
+            event.content = {'text': event.content}
+            keys.append('text')
+        except AttributeError:
+            event.content = {'text': event}
+            keys.append('text')
 
-    for line in contents:
-        destructured = format_log_line(line)
-        table.append(destructured)
 
-    return render_template('radio/log.html', station_id=station_id, log=log, contents=table)
+        keys = list(dict.fromkeys(keys))  # remove duplicates
+
+    return render_template('radio/log.html',
+                           station=station,
+                           events=events,
+                           keys=keys,
+                           event_type=event_type,
+                           date_start=date_start,
+                           date_end=date_end,
+    )
 
 
 @radio.route('/schedule/', methods=['GET'])
