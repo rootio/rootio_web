@@ -36,7 +36,7 @@ class CommunityAction:
         self.__media_expected_to_stop = True
         if call_info is not None:
             self.__stop_media(call_info)
-            self.__deregister_listeners()
+        self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def notify_call_answered(self, answer_info):

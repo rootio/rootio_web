@@ -23,6 +23,7 @@ class RadioProgram:
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
         self.__status = True
+        self.__call_info = None
         self.id = program.id
         self.name = program.id
         self.scheduled_program = program
@@ -113,9 +114,12 @@ class RadioProgram:
 
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
         self.__status = self.__status and played_successfully
+        if call_info is not None and 'Channel-Call-UUID' in call_info:
+            self.__call_info = call_info
         if len(self.__program_actions) == 0:  # all program actions have run
-            if call_info is not None and 'Channel-Call-UUID' in call_info:
-                self.radio_station.call_handler.hangup(call_info['Channel-Call-UUID'])
+            self.radio_station.logger.info(call_info)
+            if self.__call_info is not None:
+                self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
             self.__log_program_status()
             self.__send_program_summary()
         else:
