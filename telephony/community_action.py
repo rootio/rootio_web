@@ -36,6 +36,7 @@ class CommunityAction:
         self.__media_expected_to_stop = True
         if call_info is not None:
             self.__stop_media(call_info)
+            self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def notify_call_answered(self, answer_info):
@@ -98,9 +99,9 @@ class CommunityAction:
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
             self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'][-12:])
             self.__call_handler.deregister_for_media_playback_stop(event_json['Caller-Destination-Number'][-12:])
-            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
-                                                   self.__content[self.__media_index])
-            self.program.log_program_activity('result of stop play is ' + result)
+            #result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
+                                                  # self.__content[self.__media_index])
+            #self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in community_action.__stop_media".format(err=e.message))
             return
@@ -126,3 +127,8 @@ class CommunityAction:
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-12:])
+
+    def __deregister_listeners(self):
+        if self.__call_answer_info is not None:
+            self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'][-11:])
+            self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-11:])
