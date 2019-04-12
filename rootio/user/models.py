@@ -47,8 +47,8 @@ class RootioUser(db.Model):
 
     role_code = Column(db.SmallInteger, default=NETWORK_USER)
     status_code = Column(db.SmallInteger, default=INACTIVE)
+    receive_station_notifications = Column(db.Boolean, default=False)
     user_detail_id = Column(db.Integer, db.ForeignKey("user_details.id"))
-
 
 
 class User(RootioUser, UserMixin):

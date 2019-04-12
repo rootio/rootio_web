@@ -6,7 +6,7 @@ from flask.ext.wtf import Form
 from flask_wtf.html5 import URLField, EmailField, TelField
 from wtforms import (HiddenField, TextField,
                      PasswordField, SubmitField, TextAreaField, IntegerField, RadioField,
-                     FileField)
+                     FileField, BooleanField)
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import (ValidationError, AnyOf, Optional,
                                 Required, Length, EqualTo, Email, NumberRange, URL)
@@ -23,6 +23,7 @@ class ProfileForm(Form):
     email = EmailField(_('Email'), [Required(), Email()])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(_("Avatar"), [Optional()])
+    receive_station_notifications = BooleanField(_('Receive Program Notifications'))
     gender_code = RadioField(_("Gender"), [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
                              choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     age = IntegerField(_('Age'), [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
@@ -51,8 +52,10 @@ class ProfileCreateForm(Form):
     name = TextField(_('Name'), [Required(), Length(max=100)])
     password = PasswordField(_('Password'), [Required(), Length(max=100)])
     password1 = PasswordField(_('Retype-password'), [Required(), Length(max=100)])
+
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(_("Avatar"), [Optional()])
+    receive_station_notifications = BooleanField(_('Receive Program Notifications'))
     gender_code = RadioField(_("Gender"), [AnyOf([str(val) for val in GENDER_TYPE.keys()])],
                              choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
     age = IntegerField(_('Age'), [Optional(), NumberRange(AGE_MIN, AGE_MAX)])

@@ -128,7 +128,8 @@ class RadioProgram:
             self.__rootio_mail_message.set_from('info@rootio.org')  # This will come from DB in future
             users = self.__get_network_users()
             for user in users:
-                self.__rootio_mail_message.add_to_address(user.email)
+                if user.receive_station_notifications:
+                    self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
             self.radio_station.logger.error("Error {er} {err} in send program summary for {prg}".format(er=str(e), err=e.message, prg=self.scheduled_program.program.name))
