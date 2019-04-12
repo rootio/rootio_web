@@ -558,11 +558,11 @@ def station_log(station_id):
             abort(make_response(response, 422))
 
         #TODO: potential to perpetually block sync. revisit
-        # try:
-        #     parsed_date = date_parser.parse(record['eventdate'])
-        # except (ValueError, TypeError):
-        #     response = json.dumps({'error': 'The date you provided is not valid'})
-        #     abort(make_response(response, 422))
+        try:
+            parsed_date = date_parser.parse(record['eventdate'])
+        except (ValueError, TypeError):
+            response = json.dumps({'error': 'The date you provided is not valid'})
+            abort(make_response(response, 422))
 
         log_folder = os.path.join(DefaultConfig.LOG_FOLDER, 'station')
         log_file_name = '{}_{}_{}.log'.format(station_id,
@@ -570,8 +570,46 @@ def station_log(station_id):
                                               datetime.datetime.now().isoformat()[:10])
         log_file = os.path.join(log_folder, log_file_name)
         log_line = '{0} | {1} {2} {3}\n'.format(record.get('eventdate', '').encode('utf8'), record['category'].encode('utf8'), record.get('event', '').encode('utf8'), record.get('argument', '').encode('utf8'))
+
         try:
-            station_event = StationEvent(**log_record)
+            parsed_date = date_parser.parse(record['eventdate'])
+        except (ValueError, TypeError):
+            response = json.dumps({'error': 'The date you provided is not valid'})
+            abort(make_response(response, 422))
+
+        try:
+            json.loads(record['argument'])
+        except:
+            pass
+
+
+        try:
+            with open(log_file, 'a+') as log:
+                log.write(log_line)
+                response['status'] = True
+        except IOError:
+            try:
+                os.mkdir(log_folder)
+                with open(log_file, 'a+') as log:
+                    log.write(log_line)
+            except (OSError, IOError):
+                response['status'] = False
+                response['error'] = 'Failed to write to log file'
+            except UnicodeEncodeError:
+                response['status'] = False
+                response['error'] = 'Encoding error encountered'
+                abort(make_response(response, 200))
+
+        event_source = {
+            'station_id': station_id,
+            'date': record['eventdate'].encode('utf8'),
+            'category': record['category'].encode('utf8'),
+            'action': record['event'].encode('utf8'),
+            'content': record['argument'].encode('utf8')
+        }
+
+        try:
+            station_event = StationEvent(**event_source)
             db.session.add(station_event)
             response['status'] = True
         except UnicodeEncodeError:
