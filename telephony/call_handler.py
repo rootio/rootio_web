@@ -508,15 +508,19 @@ class CallHandler:
 
     def __release_gateway(self, event_json):
         # if it was an incoming call
-        if event_json['Caller-Destination-Number'][:-12] in self.__outgoing_gateways.keys():
-            self.__radio_station.logger.info("Putting back gateway {0} to available gateways {1}".format(
-                event_json['Caller-Destination-Number'][:-12], self.__outgoing_gateways))
-            self.__available_outgoing_gateways.append(event_json['Caller-Destination-Number'])
-        # if it is an outbound call
-        if 'Caller-ANI' in event_json and event_json['Caller-ANI'][-12:] in self.__outgoing_gateways.keys():
-            self.__radio_station.logger.info(
-                "Putting back gateway {0} to available gateways {1}".format(event_json['Caller-ANI'][:-12],
-                                                                            self.__outgoing_gateways))
-            self.__available_outgoing_gateways.append(int(event_json['Caller-ANI'][-12:]))
-        self.__available_outgoing_gateways.sort()
+        for i in range(7, 13, 1):  # Phone numbers can be from 7 - 12 digits
+            try:
+                if event_json['Caller-Destination-Number'][-i:] in self.__outgoing_gateways.keys():
+                    self.__radio_station.logger.info("Putting back gateway {0} to available gateways {1}".format(
+                        event_json['Caller-Destination-Number'][-i:], self.__outgoing_gateways))
+                    self.__available_outgoing_gateways.append(event_json['Caller-Destination-Number'][-i:])
+                # if it is an outbound call
+                if 'Caller-ANI' in event_json and event_json['Caller-ANI'][-i:] in self.__outgoing_gateways.keys():
+                    self.__radio_station.logger.info(
+                        "Putting back gateway {0} to available gateways {1}".format(event_json['Caller-ANI'][-i:],
+                                                                                self.__outgoing_gateways))
+                    self.__available_outgoing_gateways.append(int(event_json['Caller-ANI'][-i:]))
+                self.__available_outgoing_gateways.sort()
+            except Exception as e:
+                self.__radio_station.logger.error('error in __log_call: {0}'.format(e.message))
 

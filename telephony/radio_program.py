@@ -117,7 +117,6 @@ class RadioProgram:
         if call_info is not None and 'Channel-Call-UUID' in call_info:
             self.__call_info = call_info
         if len(self.__program_actions) == 0:  # all program actions have run
-            self.radio_station.logger.info(call_info)
             if self.__call_info is not None:
                 self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
             self.__log_program_status()
