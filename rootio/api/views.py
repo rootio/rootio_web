@@ -3,11 +3,14 @@ import datetime
 import json
 import os
 import socket
+import re 
+from simplejson.scanner import JSONDecodeError
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
 from flask.ext.login import login_user, current_user, logout_user
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func
+from sqlalchemy import or_
 from werkzeug.utils import secure_filename
 
 from dateutil import parser as date_parser
@@ -21,7 +24,7 @@ from ..extensions import db, rest, csrf
 from ..radio.models import Network, Station, Person, Program, ScheduledProgram, Episode, Recording, StationAnalytic, StationEvent
 from ..telephony import PhoneNumber, Call, Message
 from ..user import User
-from ..utils import jquery_dt_paginator, save_uploaded_file
+from ..utils import jquery_dt_paginator, save_uploaded_file, events_action_display_map
 from ..config import DefaultConfig
 
 # the web login api
@@ -515,6 +518,103 @@ def music_playlist(station_id):
         play_list.append(pl)
 
     return play_list
+
+
+@api.route('/station/<int:station_id>/events', methods=['GET'])
+@csrf.exempt
+@returns_json
+def station_events(station_id):
+
+    start = int(request.args.get('start', 0))
+    length = int(request.args.get('length', 5))
+    search = request.args.get('search[value]', '')
+    date_start = request.args.get('date_start', None)
+    date_end = request.args.get('date_end', None)
+    event_type = request.args.get('event_type', None)
+
+    columns_map = {
+        '1': 'category',
+        '2': 'action',
+        '3': 'content',
+        '4': 'date'
+    }
+
+    try:
+        order_direction = str([ v for k,v in request.args.items() if 'order[' in k and '[dir]' in k][0])
+        order_column = int([ v for k,v in request.args.items() if 'order[' in k and '[column]' in k][0])
+    except KeyError:
+        pass
+
+    events = db.session.query(StationEvent).filter_by(station_id=station_id)
+
+    if event_type and event_type != 'ALL':
+        events = events.filter_by(category=event_type)
+    if date_start:
+        events = events.filter(StationEvent.date >= date_start)
+    if date_end:
+        events = events.filter(StationEvent.date <= date_end)
+
+    events = events.filter(or_(
+                           StationEvent.action.like('%{}%'.format(search)),
+                           StationEvent.content.like('%{}%'.format(search))
+                       ))\
+
+    total_count = events.count()
+
+    events = events.order_by(
+        '{} {}'.format(columns_map['{}'.format(order_column)],
+            order_direction)
+    ).limit(length)
+
+    if start < total_count:
+        events = events.offset(start)
+
+    filtered_count = events.count()
+
+    events_list = []
+    keys = []
+
+    for event in events:
+
+        try:
+            if events_action_display_map[event.category][event.action]:
+                event.action = events_action_display_map[event.category][event.action]
+        except:
+            pass
+
+        extra_keys = re.findall('(?!\s)[a-zA-Z\s]+:\s(?!\s)', event.content)
+        extra_values = re.split('(?!\s)[a-zA-Z\s]+:\s(?!\s)', event.content)[1:]
+
+
+        ev = {
+            'category': event.category,
+            'action': event.action,
+            'date': event.date.strftime('%H:%M:%S, %d %b %Y'),
+            'extra': zip(
+                map(lambda s: re.sub(r': $', '', s),
+                    extra_keys),
+                map(lambda s: re.sub(r', $', '', s),
+                    extra_values),
+            ),
+        }
+
+        if event.category == 'MEDIA':
+            ev['content'] = '{} ({})'.format(ev['extra'][0][1], ev['extra'][1][1])
+        elif event.category == 'SYNC':
+            ev['content'] = '{}'.format(
+                ev['extra'][3][1].split('?')[0].split('/')[-1]
+            )
+        else:
+            ev['content'] = event.content
+
+        # import ipdb; ipdb.set_trace()
+        events_list.append(ev)
+
+    return {
+        "recordsTotal": total_count,
+        "recordsFiltered": total_count,
+        "data": events_list
+    }
 
 
 @api.route('/station/<int:station_id>/log', methods=['POST'])

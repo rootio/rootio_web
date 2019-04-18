@@ -21,34 +21,95 @@
          today: moment().format('YYYY-MM-DD'),
          all: undefined
        }
-
        $('#filter_start').val(moments[when]);
        $('#filter_end').val(moments[when]);
-
        $('#filter_start').trigger('change');
      });
    }
 
     $(document).ready(function() {
-      $('#filters-container select, #filters-container input').change(function() {
-        /* var value = $(this).val(); */
-        /* var param = $(this).attr('name'); */
-        var url = window.location.href.split('?')[0] + '?';
+      var api = '/api/station/{{station.id}}/events';
 
-        var params = {
-          type: $('#filter_type').val(),
-          start: $('#filter_start').val(),
-          end: $('#filter_end').val()
-        }
+      $('#filter_type').val(localStorage.getItem('rootio_log_filter_type'));
+      $('#filter_start').val(localStorage.getItem('rootio_log_filter_start'));
+      $('#filter_end').val(localStorage.getItem('rootio_log_filter_end'));
 
-        // ES5 compatible
-        Object.keys(params).forEach(function (k) {
-          url = url + k + '=' + params[k] + '&';
+      var tableOptions = {
+        stateSave: true,
+        serverSide: true,
+        processing: '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i> <span class="sr-only">Loading...</span>',
+        searching: true,
+        ajax: {
+          url: api,
+          data: function(d){
+            d.event_type = localStorage.getItem('rootio_log_filter_type');
+            d.date_start = localStorage.getItem('rootio_log_filter_start');
+            d.date_end   = localStorage.getItem('rootio_log_filter_end');
+          }
+        },
+        columns: [
+          {
+            className:      'details-control',
+            orderable:      false,
+            data:           null,
+            defaultContent: '<i style="cursor: pointer; color: lightblue;" class="fa fa-plus-square" aria-hidden="true"></i>'
+          },
+          { data: "category" },
+          { data: "action" },
+          { data: "content" },
+          { data: "date" },
+        ],
+        order: [[ 4, "desc" ]],
+        autoWidth: false,
+        columnDefs: [
+          {width: '5%', targets: 0},
+          {width: '10%', targets: 1},
+          {width: '10%', targets: 2},
+          {width: '55%', targets: 3},
+          {width: '20%', targets: 4},
+        ],
+        lengthMenu: [10, 25, 50, 100, 500, 1000],
+        pageLength: 50,
+      };
+
+      var datatable = $('#events_table').DataTable(tableOptions);
+
+      $.fn.dataTableExt.errMode = 'ignore'
+
+      function format ( d ) {
+        // `d` is the original data object for the row
+        var tbl = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'
+        d.extra.forEach(function(pair){
+          tbl += '<tr><td>';
+          tbl += pair[0] + '</td><td>' + pair[1];
+          tbl += '</td></tr>';
         });
+        tbl += '</table>';
+        return tbl;
+      }
 
-        window.location = url;
+      $('#events_table tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = datatable.row( tr );
+        if ( row.child.isShown() ) {
+          // This row is already open - close it
+          row.child.hide();
+          tr.removeClass('shown');
+        }
+        else {
+          // Open this row
+          row.child( format(row.data()) ).show();
+          tr.addClass('shown');
+        }
+      } );
+
+      $('#filters-container select, #filters-container input').change(function() {
+        var filter_type = localStorage.setItem('rootio_log_filter_type', $('#filter_type').val());
+        var filter_start = localStorage.setItem('rootio_log_filter_start', $('#filter_start').val());
+        var filter_end = localStorage.setItem('rootio_log_filter_end', $('#filter_end').val());
+        datatable.destroy();
+        datatable = $('#events_table').DataTable(tableOptions);
       });
-
     });
   </script>
 {% endblock %}
@@ -97,40 +158,16 @@
       </table>
     </div>
     <div class="col-sm-12">
-      {% if event_type != 'ALL' %}
-      <i>Warning: showing only events of type: {{ event_type }}</i>
-      {% endif %}
-    </div>
-    <div class="col-sm-12">
-      <table id="offline_datatable" class='table table-bordered table-hover'>
+      <table id="events_table" class='table table-bordered table-hover'>
         <thead>
           <tr>
-            <th>{{ _('Date') }}</th>
-            <th>{{ _('ID') }}</th>
-            {% if not event_type or event_type == 'ALL' %}
+            <th></th>
             <th>{{ _('Type') }}</th>
-            {% endif %}
-            <th>{{ _('Action') }}</th>
-            {% for key in keys %}
-              <th>{{ key }}</th>
-            {% endfor %}
+            <th></th>
+            <th>{{ _('Content') }}</th>
+            <th>{{ _('Date') }}</th>
           </tr>
         </thead>
-        <tbody>
-          {% for event in events %}
-          <tr>
-            <td>{{ event.date }}</td>
-            <td>{{ event.id }}</td>
-            {% if not event_type or event_type == 'ALL' %}
-            <td>{{ event.category }}</td>
-            {% endif %}
-            <td>{{ event.action }}</td>
-            {% for key in keys %}
-              <th>{{ event.content[key] }}</th>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
       </table>
     </div>
   </div>

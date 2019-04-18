@@ -29,7 +29,7 @@ from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
 from ..user.models import User, RootioUser
-from ..utils import error_dict, fk_lookup_form_data, format_log_line
+from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -620,46 +620,9 @@ def station_logs(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     keys = []
 
-    date_start = request.args.get('start', '')
-    date_end = request.args.get('end', '')
-    event_type = request.args.get('type', '')
-
-    events = station.events
-    if event_type and event_type != 'ALL':
-        events = events.filter_by(category=event_type)
-    if date_start:
-        events = events.filter(StationEvent.date >= date_start)
-    if date_end:
-        events = events.filter(StationEvent.date <= date_end)
-
-    for event in events:
-        try:
-            event.content = json.loads(event.content)
-            keys.extend(event.content.keys())
-        except JSONDecodeError:
-            attributes = re.split(r'[,](?=\s[a-z\s]+:\s)', event.content)
-            event.content = {}
-            for attribute in attributes:
-                pair = attribute.split(': ')
-                try:
-                    event.content[pair[0]] = pair[1]
-                except IndexError:
-                    event.content['raw_data'] = pair[0]
-                keys.extend(event.content.keys())
-        except AttributeError:
-            event.content = {'text': event}
-            keys.append('text')
-
-
-        keys = list(dict.fromkeys(keys))  # remove duplicates
-
     return render_template('radio/log.html',
                            station=station,
-                           events=events,
-                           keys=keys,
-                           event_type=event_type,
-                           date_start=date_start,
-                           date_end=date_end,
+                           events_map=events_action_display_map
     )
 
 

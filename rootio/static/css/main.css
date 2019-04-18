@@ -208,3 +208,9 @@ border: 1px solid #afafaf;
 .top-20 { margin-top:20px; }
 .top-25 { margin-top:25px; }
 .top-30 { margin-top:30px; }
+
+.details-control {
+  cursor: pointer;
+  vertical-align: middle !important;
+  text-align: center !important;
+}

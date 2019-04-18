@@ -49,6 +49,28 @@ GENDER_TYPE = {
 # Model
 STRING_LEN = 100
 
+events_action_display_map = {
+    'CALL': {
+        'START': '<i class="fa fa-phone" style="color: green" aria-hidden="true"></i>',
+        'STOP': '<i class="fa fa-phone" style="color: red" aria-hidden="true"></i>',
+        'RINGING': '<i class="fa fa-volume-control-phone" aria-hidden="true"></i>'
+    },
+    'MEDIA': {
+        'START': '<i class="fa fa-play" aria-hidden="true"></i>',
+        'PAUSE': '<i class="fa fa-pause" aria-hidden="true"></i>',
+        'STOP': '<i class="fa fa-stop" aria-hidden="true"></i>'
+    },
+    'SIP_CALL': {
+        'REGISTRATION': '<i class="fa fa-plug" style="color: green" aria-hidden="true"></i>',
+        'START': '<i class="fa fa-phone" style="color: green" aria-hidden="true"></i>',
+        'STOP': '<i class="fa fa-phone" style="color: red" aria-hidden="true"></i>',
+        'RINGING': '<i class="fa fa-volume-control-phone" aria-hidden="true"></i>'
+    },
+    'SYNC': {
+        'START': '<i class="fa fa-refresh" style="color: green" aria-hidden="true"></i>',
+    }
+}
+
 
 def format_log_line(line):
     parts = line.split('|')
