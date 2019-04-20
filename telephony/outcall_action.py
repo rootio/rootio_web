@@ -1,4 +1,3 @@
-import json
 from datetime import timedelta, datetime
 from sets import Set
 
@@ -28,9 +27,12 @@ class OutcallAction:
         self.__in_talkshow_setup = False
         self.__host = None
         self.__community_call_UUIDs = dict()
+        self.__invitee_call_UUIDs = dict()
         self.__call_handler = self.program.radio_station.call_handler
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
+        self.__collecting_digits_to_call = False
+        self.__invitee_number = False
 
     def start(self):
         try:
@@ -111,6 +113,9 @@ class OutcallAction:
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
+        elif 'Caller-Destination-Number' in answer_info and answer_info['Caller-Destination-Number'][-12:] == self.__invitee_number:
+            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
+            self.__invitee_number = "";
         else:  # This notification is from answering the host call
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             # result1 = self.__schedule_warning()
@@ -156,57 +161,81 @@ class OutcallAction:
     def notify_incoming_dtmf(self, dtmf_info):
         dtmf_json = dtmf_info
         dtmf_digit = dtmf_json["DTMF-Digit"]
-        if dtmf_digit == "1" and self.__in_talkshow_setup:
-            self.program.log_program_activity("Host is ready, we are calling the station")
-            self.__request_station_call()
-            self.__in_talkshow_setup = False
+        if dtmf_digit == "*":  # enter a number to be called followed by the # key
+            self.__collecting_digits_to_call = not self.__collecting_digits_to_call
+            if not self.__collecting_digits_to_call:
+                self.__invitee_number = ""
+        elif not self.__collecting_digits_to_call:
+            if dtmf_digit == "1" and self.__in_talkshow_setup:
+                self.program.log_program_activity("Host is ready, we are calling the station")
+                self.__request_station_call()
+                self.__in_talkshow_setup = False
 
-        elif dtmf_digit == "2" and self.__in_talkshow_setup:  # stop the music, put this live on air
-            self.program.log_program_activity("Host is not ready. We will hangup Arghhh!")
-            self.hangup_call()
-            self.__in_talkshow_setup = False
+            elif dtmf_digit == "2" and self.__in_talkshow_setup:  # stop the music, put this live on air
+                self.program.log_program_activity("Host is not ready. We will hangup Arghhh!")
+                self.hangup_call()
+                self.__in_talkshow_setup = False
 
-        elif dtmf_digit == "3":  # put the station =in auto_answer
-            if self.__phone_status != PhoneStatus.ANSWERING:
-                self.__phone_status = PhoneStatus.ANSWERING
-                self.__call_handler.speak('All incoming calls will be automatically answered',
+            elif dtmf_digit == "3":  # put the station =in auto_answer
+                if self.__phone_status != PhoneStatus.ANSWERING:
+                    self.__phone_status = PhoneStatus.ANSWERING
+                    self.__call_handler.speak('All incoming calls will be automatically answered',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                else:
+                    self.__phone_status = PhoneStatus.REJECTING
+                    self.__call_handler.speak('All incoming calls will be rejected',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+
+            elif dtmf_digit == "4":  # disable auto answer, reject and record all incoming calls
+                if self.__phone_status != PhoneStatus.QUEUING:
+                    self.__phone_status = PhoneStatus.QUEUING
+                    self.__call_handler.speak(
+                        'All incoming calls will be queued for call back',
+                        self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                else:
+                    self.__phone_status = PhoneStatus.REJECTING
+                    self.__call_handler.speak(
+                        'All incoming calls will be rejected',
+                        self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+
+            elif dtmf_digit == "5":  # dequeue and call from queue of calls that were queued
+                for caller in self.__interested_participants:
+                    result = self.__call_handler.call(self, caller, None, None, self.duration)
+                    self.program.log_program_activity("result of participant call is {0}".format(str(result)))
+                    self.__community_call_UUIDs[caller] = result[1]
+                    self.__call_handler.register_for_call_hangup(self, caller)
+                    self.__interested_participants.discard(caller)
+                    return
+
+            elif dtmf_digit == "6":  # terminate the current caller
+                for community_call_UUID in self.__community_call_UUIDs:
+                    self.__call_handler.hangup(self.__community_call_UUIDs[community_call_UUID])
+                pass
+
+            elif dtmf_digit == "7":  # terminate the current caller (invitee)
+                for invitee_call_key in self.__invitee_call_UUIDs:
+                    self.__call_handler.hangup(self.__community_call_UUIDs[invitee_call_key])
+                pass
+
+            elif dtmf_digit == "9":  # Take a 5 min music break
+                self.__call_handler.speak('You will be called back in 5 minutes',
                                           self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-            else:
-                self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.speak('All incoming calls will be rejected',
-                                          self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-
-        elif dtmf_digit == "4":  # disable auto answer, reject and record all incoming calls
-            if self.__phone_status != PhoneStatus.QUEUING:
-                self.__phone_status = PhoneStatus.QUEUING
-                self.__call_handler.speak(
-                    'All incoming calls will be queued for call back',
-                    self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-            else:
-                self.__phone_status = PhoneStatus.REJECTING
-                self.__call_handler.speak(
-                    'All incoming calls will be rejected',
-                    self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-
-        elif dtmf_digit == "5":  # dequeue and call from queue of calls that were queued
-            for caller in self.__interested_participants:
-                result = self.__call_handler.call(self, caller, None, None, self.duration)
-                self.program.log_program_activity("result of participant call is {0}".format(str(result)))
-                self.__community_call_UUIDs[caller] = result[1]
-                self.__call_handler.register_for_call_hangup(self, caller)
-                self.__interested_participants.discard(caller)
-                return
-
-        elif dtmf_digit == "6":  # terminate the current caller
-            for community_call_UUID in self.__community_call_UUIDs:
-                self.__call_handler.hangup(self.__community_call_UUIDs[community_call_UUID])
-            pass
-
-        elif dtmf_digit == "7":  # Take a 5 min music break
-            self.__call_handler.speak('You will be called back in 5 minutes',
-                                      self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-            self.program.log_program_activity("Host is taking a break")
-            self.__pause_call()
+                self.program.log_program_activity("Host is taking a break")
+                self.__pause_call()
+        else:
+            if dtmf_digit == "#":  # Call invitee number
+                if self.__invitee_number == "":
+                    self.__call_handler.speak('no number found to call',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                else:
+                    self.__call_handler.speak('You are calling {0}'.format(self.__invitee_number),
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                    result = self.__call_handler.call(self, self._invitee_number, self.__host.phone.raw_number, False, self.duration)
+                    self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
+                    if result[0]:
+                        self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
+            else:  # Collect digits to call
+                self.__invitee_number = "{0}{1}".format(self.__invitee_number, dtmf_digit)
 
     def notify_host_call(self, call_info):
         # hangup the call
