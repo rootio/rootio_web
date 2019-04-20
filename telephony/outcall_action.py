@@ -234,6 +234,10 @@ class OutcallAction:
                     self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
                     if result[0]:
                         self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
+                    else:
+                        self.__call_handler.speak('The call to {0} failed. Please pres the hash key to try again'.format(self.__invitee_number),
+                                                  self.__available_calls[self.__host.phone.raw_number][
+                                                      'Channel-Call-UUID'])
             else:  # Collect digits to call
                 self.__invitee_number = "{0}{1}".format(self.__invitee_number, dtmf_digit)
 
