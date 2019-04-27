@@ -225,12 +225,12 @@ class OutcallAction:
         else:
             if dtmf_digit == "#":  # Call invitee number
                 if self.__invitee_number == "":
-                    self.__call_handler.speak('no number found to call',
+                    self.__call_handler.speak('Please enter the number to call and press the # key to dial',
                                               self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                 else:
                     self.__call_handler.speak('You are calling {0}'.format(self.__invitee_number),
                                               self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-                result = self.__call_handler.call(self, self._invitee_number, self.__host.phone.raw_number, False, self.duration)
+                result = self.__call_handler.call(self, self.__invitee_number, self.__host.phone.raw_number, False, self.duration)
                 self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
                 if result[0]:
                     self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
