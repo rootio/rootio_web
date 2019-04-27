@@ -32,7 +32,7 @@ class OutcallAction:
         self.__phone_status = PhoneStatus.QUEUING
         self.__interested_participants = Set([])
         self.__collecting_digits_to_call = False
-        self.__invitee_number = False
+        self.__invitee_number = ""
 
     def start(self):
         try:
@@ -230,12 +230,12 @@ class OutcallAction:
                 else:
                     self.__call_handler.speak('You are calling {0}'.format(self.__invitee_number),
                                               self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
-                result = self.__call_handler.call(self, self.__invitee_number, self.__host.phone.raw_number, False, self.duration)
-                self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
-                if result[0]:
-                    self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
-                else:
-                    self.__call_handler.speak('The call to {0} failed. Please pres the hash key to try again'.format(self.__invitee_number),
+                    result = self.__call_handler.call(self, self.__invitee_number, self.__host.phone.raw_number, False, self.duration)
+                    self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
+                    if result[0]:
+                        self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
+                    else:
+                        self.__call_handler.speak('The call to {0} failed. Please pres the hash key to try again'.format(self.__invitee_number),
                                                   self.__available_calls[self.__host.phone.raw_number][
                                                       'Channel-Call-UUID'])
             else:  # Collect digits to call
