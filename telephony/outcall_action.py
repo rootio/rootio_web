@@ -141,6 +141,9 @@ class OutcallAction:
                     'Caller-Destination-Number'] in self.__community_call_UUIDs:  # a community caller is hanging up
                 del self.__community_call_UUIDs[event_json['Caller-Destination-Number']]
                 self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
+            elif event_json['Caller-Destination-Number'] in self.__invitee_call_UUIDs:
+                del self.__invitee_call_UUIDs[event_json['Caller-Destination-Number']]
+                self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
             else:  # It is a hangup by the station or the host
                 self.program.log_program_activity(
                     "Program terminated because {0} hangup".format(event_json['Caller-Destination-Number']))
@@ -214,7 +217,7 @@ class OutcallAction:
 
             elif dtmf_digit == "7":  # terminate the current caller (invitee)
                 for invitee_call_key in self.__invitee_call_UUIDs:
-                    self.__call_handler.hangup(self.__community_call_UUIDs[invitee_call_key])
+                    self.__call_handler.hangup(self.__invitee_call_UUIDs[invitee_call_key])
                 pass
 
             elif dtmf_digit == "9":  # Take a 5 min music break
