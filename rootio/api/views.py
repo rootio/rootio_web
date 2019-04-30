@@ -12,6 +12,7 @@ from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func
 from sqlalchemy import or_
 from werkzeug.utils import secure_filename
+import flask_excel as excel
 
 from dateutil import parser as date_parser
 
@@ -520,57 +521,60 @@ def music_playlist(station_id):
     return play_list
 
 
-@api.route('/station/<int:station_id>/events', methods=['GET'])
-@csrf.exempt
-@returns_json
-def station_events(station_id):
-
-    start = int(request.args.get('start', 0))
-    length = int(request.args.get('length', 5))
-    search = request.args.get('search[value]', '')
-    date_start = request.args.get('date_start', None)
-    date_end = request.args.get('date_end', None)
-    event_type = request.args.get('event_type', None)
-
+def get_log_events(station_id, start=0, search='', date_start=None, date_end=None, event_type=None, length=5):
     columns_map = {
-        '1': 'category',
-        '2': 'action',
-        '3': 'content',
-        '4': 'date'
+        '1': 'action',
+        '2': 'content',
+        '3': 'date'
     }
+
+    events = db.session.query(StationEvent).filter_by(station_id=station_id)
+
+    if str(event_type) != 'ALL':
+        events = events.filter_by(category=event_type)
+
+    events = events.filter(StationEvent.date.between(date_start, date_end),
+                           or_(StationEvent.action.like('%{}%'.format(search)),
+                               StationEvent.content.like('%{}%'.format(search))))
+
+    total_count = events.count()
 
     try:
         order_direction = str([ v for k,v in request.args.items() if 'order[' in k and '[dir]' in k][0])
         order_column = int([ v for k,v in request.args.items() if 'order[' in k and '[column]' in k][0])
-    except KeyError:
+        events = events.order_by('{} {}'.format(columns_map['{}'.format(order_column)], order_direction))
+    except (KeyError, IndexError):
         pass
 
-    events = db.session.query(StationEvent).filter_by(station_id=station_id)
+    if length > 0:
+        events = events.limit(length)
 
-    if event_type and event_type != 'ALL':
-        events = events.filter_by(category=event_type)
-    if date_start:
-        events = events.filter(StationEvent.date >= date_start)
-    if date_end:
-        events = events.filter(StationEvent.date <= date_end)
-
-    events = events.filter(or_(
-                           StationEvent.action.like('%{}%'.format(search)),
-                           StationEvent.content.like('%{}%'.format(search))
-                       ))\
-
-    total_count = events.count()
-
-    events = events.order_by(
-        '{} {}'.format(columns_map['{}'.format(order_column)],
-            order_direction)
-    ).limit(length)
-
-    if start < total_count:
+    if start and start < total_count:
         events = events.offset(start)
 
     filtered_count = events.count()
 
+    return (events, total_count)
+
+
+@api.route('/station/<int:station_id>/events', methods=['GET'])
+@csrf.exempt
+@returns_json
+def station_events(station_id):
+    start = int(request.args.get('start', 0))
+    search = request.args.get('search[value]', '')
+    date_start = request.args.get('date_start', None)
+    date_end = request.args.get('date_end', None)
+    event_type = request.args.get('event_type', None)
+    length = int(request.args.get('length', 5))
+
+    events, total_count = get_log_events(station_id=station_id,
+                            start=start,
+                            search=search,
+                            date_start=date_start,
+                            date_end=date_end,
+                            event_type=event_type,
+                            length=length)
     events_list = []
     keys = []
 
@@ -587,7 +591,6 @@ def station_events(station_id):
 
 
         ev = {
-            'category': event.category,
             'action': event.action,
             'date': event.date.strftime('%H:%M:%S, %d %b %Y'),
             'extra': zip(
@@ -607,7 +610,6 @@ def station_events(station_id):
         else:
             ev['content'] = event.content
 
-        # import ipdb; ipdb.set_trace()
         events_list.append(ev)
 
     return {
@@ -615,6 +617,32 @@ def station_events(station_id):
         "recordsFiltered": total_count,
         "data": events_list
     }
+
+
+@api.route('/station/<int:station_id>/events/download', methods=['GET'])
+@csrf.exempt
+def station_events_download(station_id):
+    start = int(request.args.get('start', 0))
+    search = request.args.get('search[value]', '')
+    date_start = request.args.get('date_start', None)
+    date_end = request.args.get('date_end', None)
+    event_type = request.args.get('event_type', None)
+    length = int(request.args.get('length', -1))
+
+    events, total_count = get_log_events(station_id=station_id, start=start, search=search, date_start=date_start,
+                            date_end=date_end, event_type=event_type, length=length)
+
+    column_names = ["date", "category", "action", "content"]
+    excel.init_excel(current_app)
+
+    events_list = []
+    file_name = "log_{}".format(station_id)
+    for v in [event_type, date_start, date_end]:
+        if v:
+            file_name += "_{}".format(v)
+    file_name += ".xlsx"
+
+    return excel.make_response_from_query_sets(events.all(), column_names, "xlsx", file_name=file_name)
 
 
 @api.route('/station/<int:station_id>/log', methods=['POST'])
@@ -651,11 +679,11 @@ def station_log(station_id):
         #     )
         #     abort(make_response(response, 422))
 
-        if record['category'] not in allowed_categories:
-            response = json.dumps(
-                {'error': 'Allowed categories are: {}'.format(', '.join(allowed_categories))}
-            )
-            abort(make_response(response, 422))
+        # if record['category'] not in allowed_categories:
+        #     response = json.dumps(
+        #         {'error': 'Allowed categories are: {}'.format(', '.join(allowed_categories))}
+        #     )
+        #     abort(make_response(response, 422))
 
         #TODO: potential to perpetually block sync. revisit
         try:
