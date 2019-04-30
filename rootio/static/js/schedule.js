@@ -40,14 +40,18 @@ $(document).ready(function() {
 
   //close modal on recurring submit
   $('button#modal-save').click(function() {
+    $('button#modal-save').val('Saving...');
+    $('button#modal-save').attr('disabled', true);
     $(document).ajaxComplete(function(event, request, settings) {
       if (settings.type == 'POST') {
         $('#calendar').fullCalendar('refetchEvents');
         $('#calendar').fullCalendar('refresh');
         $('.modal').hide();
         $('.modal-backdrop').fadeOut();
-        $('.modal-body #program').val('__None');
+        $('.modal-body #program').val();
         $('.modal-body #program').trigger('change');
+        $('button#modal-save').val('Save');
+        $('button#modal-save').attr('disabled', false);
       }
     });
   });

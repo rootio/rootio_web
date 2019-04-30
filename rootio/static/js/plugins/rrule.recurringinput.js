@@ -40,11 +40,11 @@ $.widget("rrule.recurringinput", {
 
     tmpl += '<br>';
 
-    tmpl += '<div class="input-prepend input-append">';
-    tmpl += '<span class="add-on">Every</span>';
-    tmpl += '<input type="number" class="span2" value="1" min="1" max="100" name="interval"/>';
-    tmpl += '<span class="add-on" id="frequency_name"></span>';
-    tmpl += '</div>';
+    /* tmpl += '<div class="input-prepend input-append">'; */
+    /* tmpl += '<span class="add-on">Every</span>'; */
+    /* tmpl += '<input type="number" class="span2" value="1" min="1" max="100" name="interval"/>'; */
+    /* tmpl += '<span class="add-on" id="frequency_name"></span>'; */
+    /* tmpl += '</div>'; */
 
 
     // repeat options, frequency specific
@@ -68,8 +68,11 @@ $.widget("rrule.recurringinput", {
 
     _.each(RRule.DAYCODES, function(element, index) {
       var d = window['RRule'][element];
+      if(element != 'SA' && element != 'SU') {
+        var selected = 'checked';
+      }
 
-      tmpl += '<input type="checkbox" name="byweekday" id="weekday-'+d.weekday+'" class="weekday" value="'+d.weekday+'" />';
+      tmpl += '<input type="checkbox" name="byweekday" id="weekday-'+d.weekday+'" class="weekday" value="'+d.weekday+'" ' + selected + ' />';
       tmpl += '<label for="weekday-'+d.weekday+'">'+RRule.DAYNAMES[index].slice(0,3)+'</label>';
     });
     tmpl += '</div>';
@@ -139,8 +142,9 @@ $.widget("rrule.recurringinput", {
     this.element.append(tmpl);
 
     //save input references to widget for later use
+    this.program_select = this.element.find('select[name="program"]');
     this.frequency_select = this.element.find('select[name="freq"]');
-    this.interval_input = this.element.find('input[name="interval"]');
+    /* this.interval_input = this.element.find('input[name="interval"]'); */
     this.start_input = this.element.find('input[name="dtstart"]');
     this.end_input = this.element.find('input[type="radio"][name="end"]');
 
@@ -151,7 +155,7 @@ $.widget("rrule.recurringinput", {
 
     //set sensible defaults
     this.frequency_select.val(2);
-    this.interval_input.val(1);
+    /* this.interval_input.val(1); */
     this.start_input.val(moment().format('YYYY-MM-DD'));
 
     //refresh
@@ -165,9 +169,9 @@ $.widget("rrule.recurringinput", {
     // fill in frequency-name span
     this.element.find('#frequency_name').text(RRule.FREQUENCY_NAMES[frequency.val()]);
     // and pluralize
-    if (this.interval_input.val() > 1) {
-      this.element.find('#frequency_name').append('s');
-    }
+    /* if (this.interval_input.val() > 1) { */
+    /* this.element.find('#frequency_name').append('s'); */
+    /* } */
 
     // display appropriate repeat options
     var repeatOptions = this.element.find('.repeat-options');
@@ -183,23 +187,6 @@ $.widget("rrule.recurringinput", {
       nonSelectedOptions.find('input[type=checkbox]:checked').removeAttr('checked');
       nonSelectedOptions.find('select').val('');
     }
-
-    // //reset end
-    // switch (this.end_input.filter(':checked').val()) {
-    //   case "0":
-    //     //never, clear count and until
-    //     this.end_input.siblings('input[name=count]').val('');
-    //     this.end_input.siblings('input[name=until]').val('');
-    //     break;
-    //   case "1":
-    //     //after, clear until
-    //     this.end_input.siblings('input[name=until]').val('');
-    //     break;
-    //   case "2":
-    //     //date, clear count
-    //     this.end_input.siblings('input[name=count]').val('');
-    //     break;
-    // }
 
     //determine rrule
     var rrule = this._getRRule();
@@ -260,9 +247,9 @@ $.widget("rrule.recurringinput", {
       if (k === 'wkst') {
         v = getDay(v);
       }
-      if (k === 'interval' && v === 1) {
-        continue;
-      }
+      /* if (k === 'interval' && v === 1) { */
+      /* continue; */
+      /* } */
       options[k] = v;
     }
     try {
@@ -285,7 +272,7 @@ $.widget("rrule.recurringinput", {
   destroy: function() {
     // remove references
     this.frequency_select.remove();
-    this.interval_input.remove();
+    /* this.interval_input.remove(); */
 
     // unbind events
 
