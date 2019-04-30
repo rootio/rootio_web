@@ -423,6 +423,7 @@ def send_scheduling_event(message):
 
 @radio.route('/scheduleprogram/add/ajax/', methods=['POST'])
 @login_required
+@csrf.exempt
 @returns_json
 def schedule_program_add_ajax():
     data = json.loads(request.data)
@@ -486,6 +487,7 @@ def delete_program(_id):
 
 @radio.route('/scheduleprogram/edit/ajax/', methods=['POST'])
 @login_required
+@csrf.exempt
 @returns_json
 def schedule_program_edit_ajax():
 
@@ -511,6 +513,7 @@ def schedule_program_edit_ajax():
 
 @radio.route('/scheduleprogram/add/recurring_ajax/', methods=['POST'])
 @login_required
+@csrf.exempt
 @returns_json
 def schedule_recurring_program_ajax():
     """Schedule a recurring program"""
