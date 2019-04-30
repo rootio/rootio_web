@@ -602,10 +602,10 @@ def station_events(station_id):
         }
 
         if event.category == 'MEDIA':
-            ev['content'] = '{} ({})'.format(ev['extra'][0][1], ev['extra'][1][1])
+            ev['content'] = '{} ({})'.format(str(ev['extra'][0][1]), str(ev['extra'][1][1]))
         elif event.category == 'SYNC':
             ev['content'] = '{}'.format(
-                ev['extra'][3][1].split('?')[0].split('/')[-1]
+                str(ev['extra'][3][1]).split('?')[0].split('/')[-1]
             )
         else:
             ev['content'] = event.content
