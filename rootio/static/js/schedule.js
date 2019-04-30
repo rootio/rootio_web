@@ -235,10 +235,15 @@ $(document).ready(function() {
           if (event.series_id) {
             popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
           }
+          if(program['program_type_id'] == 2) {
+            edit_url = '/radio/music_program/' + program['id'];
+          } else {
+            edit_url = '/radio/program/' + program['id'];
+          }
           $(this).popover({
               trigger: 'manual',
               placement: popoverPlacement(event.start, view),
-              title: event.title,
+              title: '<a href="' + edit_url + '">' + event.title + '</a>',
               content: popover_content,
               html: true
             })
