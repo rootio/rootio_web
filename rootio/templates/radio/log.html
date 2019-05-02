@@ -6,45 +6,80 @@
     <link href="{{ url_for('static', filename='css/main.css') }}" rel='stylesheet' />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 {% endblock %}
 
 {% block js_btm %}
   {{ super() }}
-    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
   <script>
-   function selectOneDay(when) {
-     $(this).click(function(){
-       var moments = {
-         yesterday: moment().subtract(1, "days").format('YYYY-MM-DD'),
-         today: moment().format('YYYY-MM-DD'),
-         all: undefined
-       }
-       $('#filter_start').val(moments[when]);
-       $('#filter_end').val(moments[when]);
-       $('#filter_start').trigger('change');
-     });
-   }
-
     $(document).ready(function() {
+
+      var filter_type = 'ALL';
+      var filter_start = moment().format('YYYY-MM-DD');
+      var filter_end = moment().add(1, 'day').format('YYYY-MM-DD');
+
+      $('input[name="dates"]').daterangepicker({
+        opens: 'left'
+      }, function(start, end, label) {
+        filter_start = start.format('YYYY-MM-DD');
+        filter_end = end.add(1, 'day').format('YYYY-MM-DD');
+        console.log(filter_start);
+        console.log(filter_end);
+      });
+
       var api = '/api/station/{{station.id}}/events';
 
-      $('#filter_type').val(localStorage.getItem('rootio_log_filter_type'));
-      $('#filter_start').val(localStorage.getItem('rootio_log_filter_start'));
-      $('#filter_end').val(localStorage.getItem('rootio_log_filter_end'));
-
       var tableOptions = {
-        stateSave: true,
+        dom: 'Blfrtip',
+        buttons: [
+          {
+            text: 'Export',
+            action: function ( e, dt, node, config ) {
+              var target = dt.ajax.url() + '/download';
+              target += '?event_type='
+              target += dt.ajax.params().event_type;
+              target += '&date_start='
+              target += dt.ajax.params().date_start;
+              target += '&date_end='
+              target += dt.ajax.params().date_end;
+
+              console.log(filter_start);
+              console.log(filter_end);
+
+              console.log(target);
+
+              window.location = target;
+            }
+          },
+          {
+            text: 'Reload',
+            action: function ( e, dt, node, config ) {
+              dt.ajax.reload();
+            }
+          }
+        ],
+        stateSave: false,
         serverSide: true,
         processing: '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i> <span class="sr-only">Loading...</span>',
         searching: true,
         ajax: {
           url: api,
           data: function(d){
-            d.event_type = localStorage.getItem('rootio_log_filter_type');
-            d.date_start = localStorage.getItem('rootio_log_filter_start');
-            d.date_end   = localStorage.getItem('rootio_log_filter_end');
+            d.event_type = filter_type || $('#filter_type').val();
+            d.date_start = filter_start;
+            d.date_end   = filter_end;
           }
         },
         columns: [
@@ -54,22 +89,20 @@
             data:           null,
             defaultContent: '<i style="cursor: pointer; color: lightblue;" class="fa fa-plus-square" aria-hidden="true"></i>'
           },
-          { data: "category" },
           { data: "action" },
           { data: "content" },
           { data: "date" },
         ],
-        order: [[ 4, "desc" ]],
+        order: [[ 3, "desc" ]],
         autoWidth: false,
         columnDefs: [
           {width: '5%', targets: 0},
-          {width: '10%', targets: 1},
-          {width: '10%', targets: 2},
-          {width: '55%', targets: 3},
-          {width: '20%', targets: 4},
+          {width: '5%', targets: 1, class: 'text-center'},
+          {width: '70%', targets: 2},
+          {width: '20%', targets: 3},
         ],
-        lengthMenu: [10, 25, 50, 100, 500, 1000],
-        pageLength: 50,
+        lengthMenu: [10, 25, 50, 100],
+        pageLength: 10,
       };
 
       var datatable = $('#events_table').DataTable(tableOptions);
@@ -104,9 +137,7 @@
       } );
 
       $('#filters-container select, #filters-container input').change(function() {
-        var filter_type = localStorage.setItem('rootio_log_filter_type', $('#filter_type').val());
-        var filter_start = localStorage.setItem('rootio_log_filter_start', $('#filter_start').val());
-        var filter_end = localStorage.setItem('rootio_log_filter_end', $('#filter_end').val());
+        filter_type = $('#filter_type').val();
         datatable.destroy();
         datatable = $('#events_table').DataTable(tableOptions);
       });
@@ -128,9 +159,7 @@
         </thead>
         <tr>
           <td>Type</td>
-          <td>Start date</td>
-          <td>End date (optional)</td>
-          <td>Presets</td>
+          <td>Date range</td>
         </tr>
         <tr>
           <td>
@@ -144,15 +173,7 @@
             </select>
           </td>
           <td>
-            <input id="filter_start" name="start" type="date" value="{{ date_start }}"/>
-          </td>
-          <td>
-            <input id="filter_end" name="end" type="date" value="{{ date_end }}"/>
-          </td>
-          <td>
-            <button class="btn btn-small" onclick="selectOneDay('yesterday')" id="filter_preset_yesterday">Yesterday</button>
-            <button class="btn btn-small" onclick="selectOneDay('today')" id="filter_preset_today">Today</button>
-            <button class="btn btn-small" onclick="selectOneDay('all')" id="filter_preset_all">All time</button>
+            <input name="dates" type="text" />
           </td>
         </tr>
       </table>
@@ -162,7 +183,6 @@
         <thead>
           <tr>
             <th></th>
-            <th>{{ _('Type') }}</th>
             <th></th>
             <th>{{ _('Content') }}</th>
             <th>{{ _('Date') }}</th>

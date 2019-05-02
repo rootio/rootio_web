@@ -61,7 +61,7 @@ events_action_display_map = {
         'STOP': '<i class="fa fa-stop" aria-hidden="true"></i>'
     },
     'SIP_CALL': {
-        'REGISTRATION': '<i class="fa fa-plug" style="color: green" aria-hidden="true"></i>',
+        'REGISTRATION': '<i class="fa fa-check-circle-o" style="color: green" aria-hidden="true"></i>',
         'START': '<i class="fa fa-phone" style="color: green" aria-hidden="true"></i>',
         'STOP': '<i class="fa fa-phone" style="color: red" aria-hidden="true"></i>',
         'RINGING': '<i class="fa fa-volume-control-phone" aria-hidden="true"></i>'
