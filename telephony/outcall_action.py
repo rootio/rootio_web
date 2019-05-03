@@ -116,6 +116,7 @@ class OutcallAction:
         elif 'Caller-Destination-Number' in answer_info and answer_info['Caller-Destination-Number'][-12:] == self.__invitee_number:
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             self.__invitee_number = "";
+            self.__collecting_digits_to_call = False
         else:  # This notification is from answering the host call
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             # result1 = self.__schedule_warning()
@@ -272,7 +273,7 @@ class OutcallAction:
                 "Call from community caller {0} was queued".format(call_info['Caller-Destination-Number']))
 
         elif self.__phone_status == PhoneStatus.REJECTING:  # Hangup the call
-            self.__call_handler.hangup(call_info['Channel-Call-UUID']);
+            self.__call_handler.hangup(call_info['Channel-Call-UUID'])
             self.program.log_program_activity(
                 "Call from community caller {0} was rejected".format(call_info['Caller-Destination-Number']))
 
