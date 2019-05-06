@@ -13,7 +13,8 @@ from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 from ..content.forms import CommunityMenuForm
 from ..content.models import CommunityMenu
 from ..extensions import db
-from ..radio.forms import StationForm, StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
+from ..radio.forms import StationForm
+from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
