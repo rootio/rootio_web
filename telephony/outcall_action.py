@@ -145,7 +145,12 @@ class OutcallAction:
             elif event_json['Caller-Destination-Number'] in self.__invitee_call_UUIDs:
                 del self.__invitee_call_UUIDs[event_json['Caller-Destination-Number']]
                 self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
-            else:  # It is a hangup by the station or the host
+            elif event_json['Caller-Destination-Number'] == self.__host.phone.raw_number or \
+                    event_json['Caller-Destination-Number'] in \
+                    [self.program.radio_station.station.sip_username,
+                     self.program.radio_station.station.primary_transmitter_phone.raw_number,
+                     self.program.radio_station.station.secondary_transmitter_phone.raw_number]:  # It is a hangup by
+                #  the station or the host
                 self.program.log_program_activity(
                     "Program terminated because {0} hangup".format(event_json['Caller-Destination-Number']))
                 self.stop(True)
