@@ -52,3 +52,5 @@ tests/.cache/
 .ropeproject
 
 *.wsgi
+/.vs
+/venv-rootio
