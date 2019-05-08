@@ -117,8 +117,10 @@ class OutcallAction:
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
             self.__invitee_number = "";
             self.__collecting_digits_to_call = False
-        else:  # This notification is from answering the host call
+        else:  # This notification is from station answering call
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
+            self.__call_handler.speak('You are now on air',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
@@ -176,7 +178,10 @@ class OutcallAction:
                 self.__invitee_number = ""
         elif not self.__collecting_digits_to_call:
             if dtmf_digit == "1" and self.__in_talkshow_setup:
+
                 self.program.log_program_activity("Host is ready, we are calling the station")
+                self.__call_handler.speak('Please wait while we connect you to the radio station',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                 self.__request_station_call()
                 self.__in_talkshow_setup = False
 
