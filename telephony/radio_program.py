@@ -142,16 +142,14 @@ class RadioProgram:
         try:
             engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
             session = sessionmaker(bind=engine)()
-            #scd_prg = session.merge(self.scheduled_program)
-            current_session = session.object_session(self.scheduled_program)
-            current_session.add(self.scheduled_program)
-            current_session._model_changes = {}
-            #session.add(self.scheduled_program)
-            current_session.commit()
+            scd_prg = session.merge(self.scheduled_program)
+            session.add(scd_prg)
+            session._model_changes = {}
+            session.commit()
         except SQLAlchemyError as e:
             try:
                 self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
-                current_session.rollback()
+                session.rollback()
             except Exception as e:
                 self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
                 return
@@ -159,7 +157,7 @@ class RadioProgram:
             self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
         finally:
             try:
-                current_session.close()
+                session.close()
             except Exception as e:
                 self.radio_station.logger.error(
                     "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
