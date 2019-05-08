@@ -138,18 +138,20 @@ class RadioProgram:
             self.radio_station.logger.error("Error {er} {err} in send program summary for {prg}".format(er=str(e), err=e.message, prg=self.scheduled_program.program.name))
 
     def __log_program_status(self):
+        self.scheduled_program.status = self.__status
         try:
             engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
             session = sessionmaker(bind=engine)()
             #scd_prg = session.merge(self.scheduled_program)
-            session._model_changes = {}
-            self.scheduled_program.status = self.__status
-            session.add(self.scheduled_program)
-            session.commit()
+            current_session = session.object_session(self.scheduled_program)
+            current_session.add(self.scheduled_program)
+            current_session._model_changes = {}
+            #session.add(self.scheduled_program)
+            current_session.commit()
         except SQLAlchemyError as e:
             try:
                 self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
-                session.rollback()
+                current_session.rollback()
             except Exception as e:
                 self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
                 return
@@ -157,7 +159,7 @@ class RadioProgram:
             self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
         finally:
             try:
-                session.close()
+                current_session.close()
             except Exception as e:
                 self.radio_station.logger.error(
                     "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
