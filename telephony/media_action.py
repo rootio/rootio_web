@@ -49,6 +49,8 @@ class MediaAction:
 
     def __load_media(self, episode_number):  # load the media to be played
         episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
+        if episode_count == 0:
+            return None
         if episode_number > episode_count:
             index = episode_number % episode_count
         else:

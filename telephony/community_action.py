@@ -26,7 +26,7 @@ class CommunityAction:
                 self.stop(False)
                 return
             call_result = self.__request_station_call()
-            if not call_result:  # !!
+            if not call_result[0]:  # !!
                 self.stop(False)
         except Exception as e:
             self.stop(False)

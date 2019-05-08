@@ -22,7 +22,7 @@ class RadioProgram:
     def __init__(self, program, radio_station):
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
-        self.__status = True
+        self.__status = False
         self.__call_info = None
         self.id = program.id
         self.name = program.id
@@ -113,7 +113,7 @@ class RadioProgram:
             self.__program_actions.pop().start()
 
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
-        self.__status = self.__status and played_successfully
+        self.__status = self.__status or played_successfully #For program with multiple actions, if one succeeds then flagged as success!
         if call_info is not None and 'Channel-Call-UUID' in call_info:
             self.__call_info = call_info
         if len(self.__program_actions) == 0:  # all program actions have run
