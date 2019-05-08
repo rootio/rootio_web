@@ -143,8 +143,8 @@ class RadioProgram:
             session = sessionmaker(bind=engine)()
             #scd_prg = session.merge(self.scheduled_program)
             session._model_changes = {}
-            scheduled_program.status = self.__status
-            session.add(scheduled_program)
+            self.scheduled_program.status = self.__status
+            session.add(self.scheduled_program)
             session.commit()
         except SQLAlchemyError as e:
             try:
