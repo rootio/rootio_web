@@ -20,6 +20,7 @@ class CommunityAction:
         self.program.log_program_activity("Done initialising Community action for program {0}".format(self.program.name))
 
     def start(self):
+        self.program.set_running_action(self)
         try:
             self.__load_track()
             if self.__content is None or len(self.__content) < 1:  # If no content, do not even call
@@ -36,6 +37,8 @@ class CommunityAction:
         self.__media_expected_to_stop = True
         if call_info is not None:
             self.__stop_media(call_info)
+        elif self.__call_answer_info is not None:
+            self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 

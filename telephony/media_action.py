@@ -18,6 +18,7 @@ class MediaAction:
         self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
 
     def start(self):
+        self.program.set_running_action(self)
         try:
             episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
             self.__media = self.__load_media(episode_number)
@@ -37,6 +38,8 @@ class MediaAction:
     def stop(self, graceful=True, call_info=None):
         if call_info is not None:
             self.__stop_media(call_info)
+        elif self.__call_answer_info is not None:
+            self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 

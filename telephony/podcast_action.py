@@ -17,6 +17,7 @@ class PodcastAction:
         self.program.log_program_activity("Done initialising Podcast action for program {0}".format(self.program.name))
 
     def start(self):
+        self.program.set_running_action(self)
         try:
             self.__load_podcast()
             if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
@@ -35,6 +36,8 @@ class PodcastAction:
     def stop(self, graceful=True, call_info=None):
         if call_info is not None:
             self.__stop_media(call_info)
+        elif self.__call_answer_info is not None:
+            self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
 

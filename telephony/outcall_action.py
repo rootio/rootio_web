@@ -41,7 +41,7 @@ class OutcallAction:
             if self.__host is None or self.__host.phone is None:
                 self.stop(False)
                 return
-            # self.program.set_running_action(self)
+            self.program.set_running_action(self)
             self.__scheduler.start()
             self.__call_handler.register_for_incoming_calls(self)
             self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
