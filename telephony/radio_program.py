@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from sqlalchemy.pool import NullPool
 
 import dateutil.tz
 from apscheduler.scheduler import Scheduler
@@ -140,7 +141,7 @@ class RadioProgram:
     def __log_program_status(self):
         self.scheduled_program.status = self.__status
         try:
-            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI, poolclass=NullPool)
             session = sessionmaker(bind=engine)()
             scd_prg = session.merge(self.scheduled_program)
             session.add(scd_prg)
