@@ -159,6 +159,7 @@ class RadioProgram:
         finally:
             try:
                 session.close()
+                engine.dispose()
             except Exception as e:
                 self.radio_station.logger.error(
                     "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
