@@ -13,6 +13,7 @@ class PhoneStatus:
     CONFERENCING = 4
     IVR = 5
     RINGING = 6
+    WAKE = 7
 
 
 class OutcallAction:
@@ -158,7 +159,12 @@ class OutcallAction:
                 self.stop(True)
 
     def __inquire_host_readiness(self):
-        self.__call_handler.speak(
+        if self.__phone_status == PhoneStatus.WAKE:
+            self.__call_handler.speak(
+            'You have a caller on the line. To connect to the station, press one, to cancel, press two',
+            self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+        else:
+            self.__call_handler.speak(
             'You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',
             self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
         self.program.log_program_activity("Asking if host is ready")
@@ -189,6 +195,17 @@ class OutcallAction:
                 self.program.log_program_activity("Host is not ready. We will hangup Arghhh!")
                 self.hangup_call()
                 self.__in_talkshow_setup = False
+
+            elif dtmf_digit == "1":  # Wake mode, the station will wake host when someone calls in and host is off air
+                if self.__phone_status != PhoneStatus.WAKE:
+                    self.__phone_status = PhoneStatus.WAKE
+                    self.__call_handler.speak('Your call will be terminated and you will be called when someone calls into the station',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                    self.hangup_call()
+                else:
+                    self.__phone_status = PhoneStatus.REJECTING
+                    self.__call_handler.speak('All incoming calls will be rejected',
+                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
 
             elif dtmf_digit == "3":  # put the station =in auto_answer
                 if self.__phone_status != PhoneStatus.ANSWERING:
@@ -286,6 +303,17 @@ class OutcallAction:
             self.__call_handler.hangup(call_info['Channel-Call-UUID'])
             self.program.log_program_activity(
                 "Call from community caller {0} was rejected".format(call_info['Caller-Destination-Number']))
+
+        elif self.__phone_status == PhoneStatus.WAKE:  # Hangup the call
+            if len(self.__community_call_UUIDs) == 0:
+                self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'],
+                                                         "{0}_{1}".format(self.program.id,
+                                                                          self.program.radio_station.id))
+                self.__call_handler.register_for_call_hangup(self, call_info['Caller-Destination-Number'])
+                self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
+                self.program.log_program_activity(
+                    "Call from community caller {0} was auto-answered".format(call_info['Caller-Destination-Number']))
+                self.request_host_call()
 
     def __schedule_host_callback(self):
         time_delta = timedelta(seconds=30)  # one minutes
