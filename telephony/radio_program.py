@@ -1,4 +1,5 @@
 import json
+import psycopg2
 from datetime import datetime, timedelta
 from sqlalchemy.pool import NullPool
 
@@ -139,31 +140,27 @@ class RadioProgram:
             self.radio_station.logger.error("Error {er} {err} in send program summary for {prg}".format(er=str(e), err=e.message, prg=self.scheduled_program.program.name))
 
     def __log_program_status(self):
-        return
-        #self.scheduled_program.status = self.__status
-        #try:
-        #    engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
-        #    session = sessionmaker(bind=engine)()
-        #    scd_prg = session.merge(self.scheduled_program)
-        #    session.add(scd_prg)
-        #    session._model_changes = {}
-        #    session.commit()
-        #except SQLAlchemyError as e:
-        #    try:
-        #        self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
-        #        session.rollback()
-        #    except Exception as e:
-        #        self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
-        #        return
-        #except Exception as e:
-        #    self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
-        #finally:
-        #    try:
-        #        session.close()
-        #        engine.dispose()
-        #    except Exception as e:
-        #        self.radio_station.logger.error(
-        #            "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
+        try:
+            conn = psycopg2.connect(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+            cur = conn.cursor()
+            cur.execute("update radio_scheduledprogram set status = %s where id = %s", (self.__status, self.scheduled_program.id))
+            conn.commit()
+
+        except psycopg2.Error as e:
+            try:
+                self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
+            except Exception as e:
+                self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
+                return
+        except Exception as e:
+            self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
+        finally:
+            try:
+                cur.close()
+                conn.close()
+            except Exception as e:
+                self.radio_station.logger.error(
+                       "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
