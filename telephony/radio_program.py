@@ -150,7 +150,6 @@ class RadioProgram:
             try:
                 self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
             except Exception as e:
-                self.radio_station.logger.error("Error(2) {err} in radio_program.__log_program_status".format(err=e.message))
                 return
         except Exception as e:
             self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
