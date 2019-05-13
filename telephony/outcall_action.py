@@ -316,7 +316,7 @@ class OutcallAction:
                 self.request_host_call()
 
     def __schedule_host_callback(self):
-        time_delta = timedelta(seconds=30)  # one minutes
+        time_delta = timedelta(seconds=300)  # one minutes
         now = datetime.now()
         callback_time = now + time_delta
         self.__scheduler.add_date_job(getattr(self, 'request_host_call'), callback_time)
