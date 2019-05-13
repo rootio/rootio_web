@@ -23,7 +23,7 @@ class NewsAction:
             self.__load_track()
             if self.__track is not None and len(self.__track.track_uploads) > 0:
                 call_result = self.__request_station_call()
-                if not call_result:  # !!
+                if not call_result[0]:  # !!
                     self.stop(False)
             else:  # Track exists but contains no content
                 self.stop(False)
