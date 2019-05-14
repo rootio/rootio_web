@@ -125,7 +125,7 @@
               <td><a href="#" id="playlistCountAlbums{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="albums" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.albums }} {{ _('Albums') }}</a></td>
               <td><a href="#" id="playlistCount{{ content_musicplaylist.id }}" data-playlist-name="{{ content_musicplaylist.playlist }}" data-playlist-id="{{ content_musicplaylist.id }}" data-item-type="artists" data-toggle="modal" data-target="#playlists-modal"> {{ content_musicplaylist.artists }} {{ _('Artists') }}</a></td>
               <td>
-                <button class='button-delete btn btn-danger' id='delete-{{content_musicplaylist.id}}'>Delete</button>
+                <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{content_musicplaylist.id}})" id='delete-{{content_musicplaylist.id}}'>Delete</button>
               </td>
             </tr>
           {% endif %}

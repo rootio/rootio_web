@@ -114,7 +114,7 @@
                 <td><a href="#" id="podcastDownloadCount{{ content_podcast.id }}" data-podcast-name="{{ content_podcast.name }}" data-podcast-id="{{ content_podcast.id }}" data-toggle="modal" data-target="#podcastDownloads-modal"> {{ content_podcast.podcast_downloads|length }} {{ _('Files') }}</a></td>
                 <td><a href="{{ url_for('content.content_podcast_definition', content_podcast_id=content_podcast.id) }}">{{ _('Edit') }}</a></td>
                 <td>
-                  <button class='button-delete btn btn-danger' id='delete-{{content_podcast.id}}'>Delete</button>
+                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{content_podcast.id}})" id='delete-{{content_podcast.id}}'>Delete</button>
                 </td>
             </tr>
           {% endif %}

@@ -1,12 +1,4 @@
-$( function() {
-  $('.button-delete').click(function(){
-    var el = this;
-    var id = this.id;
-    var splitid = id.split("-");
-
-    // Delete id
-    var deleteid = splitid[1];
-
+function deleteTableItem(el, deleteid) {
     // Confirm box
     bootbox.confirm("Are you sure want to delete?", function(result) {
       if(result){
@@ -23,5 +15,4 @@ $( function() {
         });
       }
     });
-  });
-});
+  };

@@ -43,7 +43,7 @@
                 <td>{{ program.language }}</td>
                 <td>{{ program.episodes_aired()|length }}</td>
                 <td><a href="{{ url_for('radio.program_definition',program_id=program.id) }}">{{ _('Edit') }}</a></td>
-                <td> <button class='button-delete btn btn-danger' id='delete-{{program.id}}'>Delete</button> </td>
+                <td> <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{program.id}})" id='delete-{{program.id}}'>Delete</button> </td>
             </tr>
           {% endif %}
         {% endfor %}

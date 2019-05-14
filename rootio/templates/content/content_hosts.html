@@ -47,7 +47,7 @@
                   <a href="{{ url_for('content.host_edit', host_id=host.id) }}">{{ _('Edit') }}</a>
                 </td>
                 <td>
-                  <button class='button-delete btn btn-danger' id='delete-{{host.id}}'>Delete</button>
+                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{host.id}})" id='delete-{{host.id}}'>Delete</button>
                 </td>
             </tr>
           {% endif %}
