@@ -86,7 +86,8 @@ def api_key_or_auth_required(f):
         api_key = request.args.get('api_key')
         if api_key:
             if 'station_id' in kwargs:
-                station = Station.query.get(kwargs['station_id'])
+                station_id = kwargs['station_id']
+                station = Station.query.filter_by(id=station_id).first_or_404()
                 if station and station.api_key == api_key:
                     # valid
                     station.last_accessed_mobile = datetime.now()
