@@ -12,8 +12,8 @@
 
 {% block body %}
 <div class="container">
-     <div class="pull-right" style="float:right; width:50%">
 {%if station%}
+  <div class="pull-right" style="float:right; width:50%">
         <table cellpadding="10px" id="api-placard">
             <thead>
                 <h3>{{ _('Connection Information') }}</h3>
@@ -56,17 +56,16 @@
                 </td>
             </tr>
         </table>
-
+  </div>
+{%endif%}
+{%if station%}
+  <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
+  {{ render_form(url_for('radio.station_definition', station_id=station.id), form) }}
+{%else%}
+  <h2>{{ _('Add') }} {{ _('Station') }}</h2>
+  {{ render_form(url_for('radio.station_add'), form) }}
+{%endif%}
 </div>
-     {%endif%}
-    {%if station%}
-        <h2>{{ _('Edit') }} {{ _('Station') }}</h2>
-        {{ render_form(url_for('radio.station_definition', station_id=station.id), form) }}
-    {%else%}
-        <h2>{{ _('Add') }} {{ _('Station') }}</h2>
-        {{ render_form(url_for('radio.station_add'), form) }}
-    {%endif%}
-    </div>
 
 
 {% endblock %}
