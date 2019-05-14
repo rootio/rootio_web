@@ -59,7 +59,7 @@
                 <td>{{ track.networks | join(', ') }}</td>
                 <td>{{ track.description }}</td>
                 <td>{{ track.content_type }}</td>
-                <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|length}} {{ _('Files') }}</a></td>
+                <td><a href="{{ url_for('content.list_track_files', track_id=track.id) }}">{{track.track_uploads|rejectattr('deleted')|list|length}} {{ _('Files') }}</a></td>
                 <td><a href="{{ url_for('content.track', track_id=track.id) }}">{{ _('Edit') }}</a></td>
                 <td>
                   <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{track.id}})" id='delete-{{track.id}}'>Delete</button>
