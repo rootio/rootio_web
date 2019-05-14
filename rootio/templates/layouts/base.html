@@ -18,17 +18,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/jquery.dm-uploader.min.css') }}">
-    <link href="{{ url_for('static', filename='css/vendor/selectize.bootstrap2.css') }}" rel='stylesheet' />
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/selectize.bootstrap2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/cookieconsent.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     {% endblock %}
 
     {% block css_style %}
     {% endblock %}
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/modernizr.min.js') }}"></script>
     {% block js_top %}
     {% endblock %}
 </head>
@@ -104,8 +105,8 @@
     <script>window.jQuery.ui || document.write('<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"><\/script>')</script>
 
     {% block paging_js %}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.3/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/jquery.dataTables.css') }}">
+    <script src="{{ url_for('static', filename='js/vendor/jquery.dataTables.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
           $('#datatable').DataTable({
@@ -168,12 +169,9 @@
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
-
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/toastr.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/cookieconsent.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootbox.min.js') }}"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js"></script>
     <script>
       window.addEventListener("load", function(){
       window.cookieconsent.initialise({

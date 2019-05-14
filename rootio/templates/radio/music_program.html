@@ -7,15 +7,15 @@
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel='stylesheet' />
 
 {% endblock %}
 
 
 {% block js_btm %}
     {{ super() }}
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-1.12.4.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
