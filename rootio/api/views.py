@@ -264,6 +264,18 @@ def station_programs(station_id):
         except (ValueError, TypeError):
             message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
             abort(make_response(message, 400))
+    elif request.args.get('start'):
+        try:
+            start = parse_datetime(request.args.get('start'))
+            records = 1000
+            if request.args.get('records'):
+                records = request.args.get('records')
+            scheduled_programs = db.session.query(Program, ScheduledProgram).filter(
+                ScheduledProgram.station_id == station_id).filter(ScheduledProgram.program_id == Program.id).filter(
+                ScheduledProgram.start >= start).order_by(ScheduledProgram.id.asc()).limit(records).all()
+        except (ValueError, TypeError):
+            message = jsonify(flag='error', msg="Unable to parse updated_since parameter. Must be ISO datetime format")
+            abort(make_response(message, 400))
     elif request.args.get('base_id'):
         try:
             base_id = request.args.get('base_id')
