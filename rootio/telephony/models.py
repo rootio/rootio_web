@@ -80,6 +80,7 @@ class Gateway(BaseMixin, db.Model):
     extra_string = db.Column(db.String(300))
     gateway_prefix = db.Column(db.String(20))
     is_goip = db.Column(db.Boolean)
+    sharable = db.Column(db.Boolean, default=False)
 
     def __unicode__(self):
         return self.name
