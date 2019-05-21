@@ -97,6 +97,7 @@ def track(track_id):
     tracks = ContentTrack.query.filter_by(id=track_id).first_or_404()
     form = ContentTrackForm(obj=tracks, next=request.args.get('next'))
 
+
     if form.validate_on_submit():
         form.populate_obj(tracks)
 
@@ -321,6 +322,26 @@ def community_content():
     community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     return render_template('content/community_content.html', community_contents=community_contents)
+
+
+@content.route('/community_content/<int:community_content_id>/<string:state>', methods=['GET'])
+@login_required
+@csrf.exempt
+def community_content_toggle(community_content_id, state):
+    community_content = CommunityContent.query.filter_by(id=community_content_id).first_or_404()
+
+    if state == 'enable':
+        community_content.approved = True
+    else:
+        community_content.approved = False
+
+    try:
+        db.session.add(community_content)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
 
 
 @content.route('/podcasts/')

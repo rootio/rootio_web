@@ -1,7 +1,8 @@
 {% extends "content/layout.html" %}
 
 {% block js_btm %}
-    {{ super() }}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -23,6 +24,7 @@
                 <th>{{ _('Duration') }}</th>
                 <th>{{ _('Message Type') }}</th>
                 <th>{{ _('Valid until') }}</th>
+                <th>{{ _('Approved') }}</th>
                 <th>{{ _('Station') }}</th>
             </tr>
         </thead>
@@ -49,6 +51,19 @@
                    {% endif %}
                 </td>
                 <td>{{ community_content.valid_until.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <small>
+                    {% if community_content.approved %}
+                      Approved
+                      <a href="#" onclick="toggleTableItem(this, 'disable', {{community_content.id}})">
+                        (discard) </a>
+                    {% else %}
+                      Not approved
+                        <a href="#" onclick="toggleTableItem(this, 'enable', {{community_content.id}})">
+                          (approve) </a>
+                    {% endif %}
+                  </small>
+                </td>
                 <td>{{ community_content.station }}</td>
             </tr>
             {% endfor %}
