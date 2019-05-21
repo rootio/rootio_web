@@ -323,7 +323,11 @@ def station_analytics(station_id):
     """API method to get or post analytics for a station"""
 
     station = Station.query.filter_by(id=station_id).first_or_404()
-    data = json.loads(request.data)
+    try:
+        data = json.loads(request.data)
+    except:
+        data = {"analytic_data": []}
+
     responses = []
 
     for single_analytic_data in data['analytic_data']:
@@ -395,7 +399,10 @@ def frequency_update(station_id):
 def call_data(station_id):
     """API method to get or post analytics for a station"""
 
-    data = json.loads(request.data)
+    try:
+        data = json.loads(request.data)
+    except:
+        data = {"call_data": []}
     responses = []
 
     for single_call_data in data['call_data']:
