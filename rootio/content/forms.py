@@ -17,7 +17,7 @@ from ..radio.forms import all_networks
 from ..user.models import User
 
 ContentTrackFormBase = model_form(ContentTrack, db_session=db.session, base_class=Form,
-                                  exclude=['created_at', 'updated_at', 'track_uploads', 'uploaded_by', 'uri'])
+                                  exclude=['created_at', 'updated_at', 'files', 'uploaded_by', 'uri', 'deleted'])
 
 
 class ContentTrackForm(ContentTrackFormBase):

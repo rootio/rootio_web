@@ -26,6 +26,7 @@ class ContentTrack(BaseMixin, db.Model):
     type_id = db.Column(db.ForeignKey('content_type.id'))
     uploaded_by = db.Column(db.ForeignKey('user_user.id'))
     deleted = db.Column(db.Boolean)
+    continuous_play = db.Column(db.Boolean)
 
     content_type = db.relationship(u'ContentType', backref=db.backref('track_content'))
     networks = db.relationship(u'Network', secondary=u'content_tracknetwork', backref=db.backref('tracks'))
