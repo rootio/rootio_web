@@ -4,7 +4,7 @@ import os
 import pytz
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, flash, redirect, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, jsonify, url_for
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -81,6 +81,31 @@ def track_delete(track_id):
 def list_track_files(track_id):
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
     return render_template('content/track_files.html', track=track, active='tracks')
+
+
+@content.route('/tracks/<int:track_id>/files/empty', methods=['GET'])
+@login_required
+def track_files_empty(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+
+    paths = []
+
+    for uploaded_file in track.files:
+        paths.append(
+            '{}/{}'.format(DefaultConfig.CONTENT_DIR, uploaded_file.uri)
+        )
+        db.session.delete(uploaded_file)
+
+
+    try:
+        db.session.commit()
+        for file_path in paths:
+            os.remove(file_path)
+    except:
+        pass
+        # import ipdb; ipdb.set_trace()
+
+    return redirect(url_for('content.list_track_files', track_id=track.id))
 
 
 @content.route('/tracks/<int:track_id>/files/add', methods=['GET'])

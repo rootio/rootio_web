@@ -6,7 +6,15 @@
 {% block js_btm %}
 {{ super() }}
 <script>
+
 $( function() {
+  $('#empty-track-button').click(function(){
+    bootbox.confirm("Are you sure want to empty this track?", function(result) {
+      if (result) {
+        window.location = "{{ url_for('content.track_files_empty', track_id=track.id ) }}";
+      }
+    });
+  });
   $('.button-delete').click(function(){
     var el = this;
     var id = this.id;
@@ -70,6 +78,7 @@ $( function() {
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('content.track_files_add', track_id=track.id ) }}"><strong>{{ _('Add') }} +</strong></a>
         <a class="btn btn-info" href="{{ url_for('radio.programs') }}"><strong>{{ _('Go to programs') }}</strong></a>
+        <a class="btn btn-danger" id="empty-track-button" href="#"><i class="fas fa-trash"></i> <strong>{{ _('Empty this track') }}</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
@@ -82,7 +91,7 @@ $( function() {
             </tr>
         </thead>
         <tbody>
-          {% for media in track.track_uploads %}
+          {% for media in track.files %}
 
             {% if not media.deleted %}
               <tr id="{{ media.id }}">
@@ -103,7 +112,7 @@ $( function() {
                   </audio>
                 </td>
                 <td>
-                  <button class='button-delete btn btn-danger' id='delete-{{media.id}}'>Delete</button>
+                  <button class='button-delete btn btn-danger' id='delete-{{media.id}}'><i class="fas fa-trash"></i> Delete</button>
                 </td>
               </tr>
             {% endif %}

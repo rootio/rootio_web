@@ -50,7 +50,7 @@ class ContentUploads(BaseMixin, db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
-    track = db.relationship(u'ContentTrack', backref=db.backref('track_uploads'))
+    track = db.relationship(u'ContentTrack', backref=db.backref('files'))
 
     def __unicode__(self):
         return self.name
