@@ -6,8 +6,8 @@
 {% block css_style %}
     <link href="{{ url_for('static', filename='css/vendor/bootstrap-formhelpers.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/vendor/jquery-ui.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
-    <link href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel='stylesheet' />
 
 {% endblock %}
 
@@ -17,8 +17,7 @@
     <script src="{{ url_for('static', filename='js/vendor/jquery-1.12.4.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
@@ -29,6 +28,7 @@
     <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filter-column.js') }}"></script>
     <script>
 
         $(document ).ready(function(){
@@ -65,7 +65,10 @@
         <div style="flow:v-flow">
             <div id='addable-programs' class="addables-holder">
               <h4>{{ _('Hosts') }}</h4>
-               <ul>
+              <h5>
+                <input style="width: 80%;" placeholder="Filter..." id="filter-hosts" type="text" onkeyup="filterListItems(this)">
+              </h5>
+              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-hosts">
                {% for host in hosts %}
                 <li id="draggable" class='external-event'
                   data-name="{{host}}"
@@ -78,7 +81,10 @@
            </div>
               <div id='addable-programs' class="addables-holder">
               <h4>{{ _('News') }}</h4>
-              <ul>
+              <h5>
+                <input style="width: 80%;" placeholder="Filter..." id="filter-news" type="text" onkeyup="filterListItems(this)">
+              </h5>
+              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-news">
                {% for new in news %}
                 <li id="draggable" class='external-event'
                   data-new-id="{{new.id}}"
@@ -91,7 +97,10 @@
             </div>
             <div id='addable-programs' class="addables-holder">
              <h4>{{ _('Ads') }}</h4>
-             <ul>
+             <h5>
+               <input style="width: 80%;" placeholder="Filter..." id="filter-ads" type="text" onkeyup="filterListItems(this)">
+             </h5>
+             <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-ads">
                {% for ad in ads %}
                 <li id="draggable" class='external-event'
                   data-new-id="{{ad.id}}"
@@ -103,7 +112,10 @@
             </div>
              <div id='addable-programs' class="addables-holder">
              <h4>{{ _('Media') }}</h4>
-             <ul>
+             <h5>
+               <input style="width: 80%;" placeholder="Filter..." id="filter-media" type="text" onkeyup="filterListItems(this)">
+             </h5>
+             <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-media">
                {% for media in medias %}
                 <li id="draggable" class='external-event'
                   data-new-id="{{media.id}}"
@@ -117,7 +129,10 @@
 
              <div id='addable-programs' class="addables-holder">
              <h4>{{ _('Podcasts') }}</h4>
-             <ul>
+             <h5>
+               <input style="width: 80%;" placeholder="Filter..." id="filter-podcasts" type="text" onkeyup="filterListItems(this)">
+             </h5>
+             <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-podcasts">
                {% for podcast in podcasts %}
                 <li id="draggable" class='external-event'
                   data-new-id="{{podcast.id}}"
@@ -132,7 +147,10 @@
 
              <div id='addable-programs' class="addables-holder">
              <h4>{{ _('Commmunity') }}</h4>
-             <ul>
+             <h5>
+               <input style="width: 80%;" placeholder="Filter..." id="filter-community" type="text" onkeyup="filterListItems(this)">
+             </h5>
+             <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-community">
                {% for community_content in community_contents %}
                 <li id="draggable" class='external-event'
                   data-name="{{community_content.type}}"

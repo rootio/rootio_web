@@ -106,7 +106,6 @@
 
     {% block paging_js %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/jquery.dataTables.css') }}">
-    <script src="{{ url_for('static', filename='js/vendor/jquery.dataTables.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
           $('#datatable').DataTable({
@@ -166,6 +165,7 @@
 
     <script src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
     {% block js_btm %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/vendor/jquery.dataTables.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins/bootstrap.modal-inline.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/selectize.js') }}"></script>
