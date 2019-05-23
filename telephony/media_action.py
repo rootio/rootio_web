@@ -36,9 +36,9 @@ class MediaAction:
         self.__pause_media()
 
     def stop(self, graceful=True, call_info=None):
-        if call_info is not None:
+        if call_info is not None and not graceful:
             self.__stop_media(call_info)
-        elif self.__call_answer_info is not None:
+        elif self.__call_answer_info is not None and not graceful:
             self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
         self.program.notify_program_action_stopped(graceful, call_info)
@@ -133,8 +133,9 @@ class MediaAction:
 
     def notify_media_play_stop(self, event_json):
         if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri) and self.__is_valid:
+            self.__is_valid = False
             self.stop(True, event_json)
-        self.__is_valid = False
+        
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-11:])
