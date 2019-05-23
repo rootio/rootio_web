@@ -1,5 +1,5 @@
 from rootio.config import *
-from rootio.content.models import ContentUploads
+from rootio.content.models import ContentUploads, ContentTrack
 from rootio.radio.models import ScheduledProgram
 
 
@@ -16,11 +16,15 @@ class MediaAction:
         self.__call_answer_info = None
         self.__call_handler = self.program.radio_station.call_handler
         self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
+        self.__continuous_play = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first().continuous_play
+        self.__continuous_play_limit = 1
+        self.__continuous_play_counter = 1
+        self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
 
     def start(self):
         self.program.set_running_action(self)
         try:
-            episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
+            episode_number = self.__episode_number
             self.__media = self.__load_media(episode_number)
             if self.__media is not None:
                 call_result = self.__request_station_call()
@@ -52,6 +56,7 @@ class MediaAction:
 
     def __load_media(self, episode_number):  # load the media to be played
         episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
+        self.__continuous_play_limit = episode_count
         if episode_count == 0:
             return None
         if episode_number > episode_count:
@@ -60,16 +65,25 @@ class MediaAction:
             index = episode_number
         if index == 0:
             index = index + 1
-        media = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id) \
-            .filter(ContentUploads.order == index).first()
+
+        if self.__continuous_play:
+            index = self.__continuous_play_counter
+
+        media = self.program.radio_station.db.query(ContentUploads)\
+                                             .filter(ContentUploads.track_id == self.__track_id)\
+                                             .filter(ContentUploads.order == index)\
+                                             .first()
+
+        media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
+
         return media
 
     def __get_episode_number(self, program_id):
         # Fix this below - Make RadioProgram inherit scheduled_program, rename it
-        count = self.program.radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.status == True).filter(ScheduledProgram
-                                                                                                       .program_id ==
-                                                                                                       program_id) \
-            .count()
+        count = self.program.radio_station.db.query(ScheduledProgram)\
+                                             .filter(ScheduledProgram.status == True)\
+                                             .filter(ScheduledProgram.program_id == program_id)\
+                                             .count()
         return count + 1
 
     def __request_station_call(self):  # call the number specified thru plivo
@@ -105,10 +119,10 @@ class MediaAction:
         return result
 
     def __play_media(self, call_info):  # play the media in the array
+
         self.program.log_program_activity("Playing media {0}".format(self.__media.name))
         self.__listen_for_media_play_stop()
-        result = self.__call_handler.play(call_info['Channel-Call-UUID'],
-                                          os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
+        result = self.__call_handler.play(call_info['Channel-Call-UUID'], self.__media.uri)
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
             self.stop(False, call_info)
@@ -120,8 +134,7 @@ class MediaAction:
         try:
             self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}"
                                               .format(self.program.name))
-            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
-                                                   os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
+            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__media.uri)
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__stop_media".format(err=e.message))
@@ -132,9 +145,21 @@ class MediaAction:
         self.stop(False)
 
     def notify_media_play_stop(self, event_json):
-        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri):
-            self.stop(True, event_json)
-        self.__is_valid = False
+        if event_json["Media-Bug-Target"] == self.__media.uri:
+            if self.__continuous_play:
+                self.program.log_program_activity(
+                    'continuous play is on, will move on to the rest of the episodes ({})'.format(self.__continuous_play_limit))
+                if self.__continuous_play_counter < self.__continuous_play_limit:
+                    self.__continuous_play_counter = self.__continuous_play_counter + 1
+                    self.__episode_number = self.__continuous_play_counter
+                    self.program.log_program_activity('will now play episode #{}'.format(self.__continuous_play_counter))
+                    self.start()
+                else:
+                    self.stop(True, event_json)
+                    self.__is_valid = False
+            else:
+                self.stop(True, event_json)
+                self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-11:])
