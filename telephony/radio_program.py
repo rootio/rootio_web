@@ -56,20 +56,35 @@ class RadioProgram:
                     if "track_id" in action and "start_time" in action and "duration" in action:
                         self.__program_actions.insert(0, AdvertisementAction(action["track_id"], action["start_time"],
                                                                              action["duration"], self))
+                        self.radio_station.logger.info(
+                            "Advertisements program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
+
                 if action['type'] == "Media":
                     if "track_id" in action and "start_time" in action and "duration" in action:
                         self.__program_actions.insert(0,
                                                   MediaAction(action["track_id"], action["start_time"],
                                                               action["duration"],
                                                               self))
+                        self.radio_station.logger.info(
+                            "Media program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
+
                 if action['type'] == "Community":
                     if "category_id" in action and "start_time" in action and "duration" in action:
                         self.__program_actions.insert(0, CommunityAction(action["category_id"], action["start_time"],
                                                                      action["duration"], self))
+                        self.radio_station.logger.info(
+                            "Community program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
                 if action['type'] == "Podcast":
                     if "track_id" in action and "start_time" in action and "duration" in action:
                         self.__program_actions.insert(0, PodcastAction(action["track_id"], action["start_time"],
                                                                    action["duration"], self))
+                        self.radio_station.logger.info(
+                            "Podcast program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
+
                 if action['type'] == "Music":
                     if "start_time" in action and "duration" in action:
                         self.radio_station.logger.info(
@@ -82,12 +97,19 @@ class RadioProgram:
                                                   NewsAction(action["track_id"], action["start_time"],
                                                              action["duration"],
                                                              self))
+                        self.radio_station.logger.info(
+                            "News program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
+
                 if action['type'] == "Outcall":
                     if "host_id" in action and "start_time" in action and "duration" in action:
                         self.__program_actions.insert(0,
                                                   OutcallAction(action['host_id'], action["start_time"],
                                                                 action['duration'],
                                                                 self))
+                        self.radio_station.logger.info(
+                            "Outcall program scheduled to start at {0} for a duration  {1}".format(action["start_time"],
+                                                                                             action["duration"]))
         return
 
     '''
