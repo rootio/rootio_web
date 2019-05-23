@@ -123,8 +123,8 @@ class RadioProgram:
                                           misfire_grace_time=program_action.duration)
 
     def set_running_action(self, running_action):
-        if self.__running_action is not None:
-            self.__running_action.stop()  # clean up any stuff that is not necessary anymore
+        #if self.__running_action is not None:
+        #    self.__running_action.stop()  # clean up any stuff that is not necessary anymore
         self.__running_action = running_action
 
     def log_program_activity(self, program_activity):
