@@ -132,7 +132,7 @@ class MediaAction:
         self.stop(False)
 
     def notify_media_play_stop(self, event_json):
-        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri):
+        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri) and self.__is_valid:
             self.stop(True, event_json)
         self.__is_valid = False
 
