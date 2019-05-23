@@ -50,9 +50,12 @@ class CommunityAction:
         self.__play_media(self.__call_answer_info, self.__media_index)
 
     def __load_track(self):  # load the media to be played
-        self.__content = self.program.radio_station.db.query(CommunityContent).filter(
-            CommunityContent.type_code == self.__type_code).filter(
-            CommunityContent.station_id == self.program.radio_station.station.id).filter(CommunityContent.valid_until >= datetime.datetime.now()).all()
+        self.__content = self.program.radio_station.db.query(CommunityContent)\
+                                                      .filter(CommunityContent.type_code == self.__type_code)\
+                                                      .filter(CommunityContent.approved == True)\
+                                                      .filter(CommunityContent.station_id == self.program.radio_station.station.id)\
+                                                      .filter(CommunityContent.valid_until >= datetime.datetime.now())\
+                                                      .all()
         
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
