@@ -133,6 +133,7 @@ def save_uploaded_file(uploaded_file, directory, file_name=False, process_audio=
         file_path = os.path.join(upload_directory, file_name)
         try:
             uploaded_file.save(file_path)
+            os.chmod(file_path, 0755)
         except:
             flash(_('Media upload error (filesystem)'), 'error')
             raise

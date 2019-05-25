@@ -31,6 +31,7 @@ def record_message(session, prompt, filename, station_id, category_id, max_lengt
     start_time = datetime.utcnow()
     session.recordFile("{0}/{1}/{2}/{3}/{4}".format(DefaultConfig.CONTENT_DIR, "community-content", station_id,
                                                     category_id, filename), max_length, audible_threshold, max_silence)
+    os.chmod(filename, 0755)
     return (datetime.utcnow() - start_time).seconds
 
 

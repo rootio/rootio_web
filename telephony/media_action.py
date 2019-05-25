@@ -18,7 +18,7 @@ class MediaAction:
         self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
         self.__continuous_play = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first().continuous_play
         self.__continuous_play_limit = 1
-        self.__continuous_play_counter = 1
+        self.__play_counter = 1
         self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
 
     def start(self):
@@ -60,14 +60,12 @@ class MediaAction:
         if episode_count == 0:
             return None
         if episode_number > episode_count:
-            index = episode_number % episode_count
+            index = (episode_number % episode_count) + 1
         else:
             index = episode_number
-        if index == 0:
-            index = index + 1
 
         if self.__continuous_play:
-            index = self.__continuous_play_counter
+            index = self.__play_counter
 
         media = self.program.radio_station.db.query(ContentUploads)\
                                              .filter(ContentUploads.track_id == self.__track_id)\
@@ -76,7 +74,16 @@ class MediaAction:
 
         media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
 
-        return media
+        if media.deleted:
+            self.__episode_number = self.__episode_number + 1
+            if self.__play_counter <= episode_count:
+                self.__play_counter = self.__play_counter + 1
+                return self.__load_media(self.__episode_number)
+            else:
+                self.program.log_program_activity("No media found, aborting playback.")
+                self.stop(False)
+        else:
+            return media
 
     def __get_episode_number(self, program_id):
         # Fix this below - Make RadioProgram inherit scheduled_program, rename it
@@ -149,10 +156,10 @@ class MediaAction:
             if self.__continuous_play:
                 self.program.log_program_activity(
                     'continuous play is on, will move on to the rest of the episodes ({})'.format(self.__continuous_play_limit))
-                if self.__continuous_play_counter < self.__continuous_play_limit:
-                    self.__continuous_play_counter = self.__continuous_play_counter + 1
-                    self.__episode_number = self.__continuous_play_counter
-                    self.program.log_program_activity('will now play episode #{}'.format(self.__continuous_play_counter))
+                if self.__play_counter < self.__continuous_play_limit:
+                    self.__play_counter = self.__play_counter + 1
+                    self.__episode_number = self.__play_counter
+                    self.program.log_program_activity('will now play episode #{}'.format(self.__play_counter))
                     self.start()
                 else:
                     self.stop(True, event_json)
@@ -168,3 +175,4 @@ class MediaAction:
         if self.__call_answer_info is not None:
             self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'][-11:])
             self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-11:])
+
