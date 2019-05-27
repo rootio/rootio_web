@@ -11,6 +11,7 @@ import os
 import glob
 from itertools import islice
 from simplejson.scanner import JSONDecodeError
+from sqlalchemy import Date, cast
 
 import dateutil.parser
 from dateutil import rrule
