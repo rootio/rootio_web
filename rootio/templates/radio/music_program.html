@@ -29,6 +29,7 @@
     <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filter-column.js') }}"></script>
     <script>
 
         $(document ).ready(function(){
@@ -65,8 +66,11 @@
         <div style="flow:v-flow">
 
             <div id='addable-programs' class="addables-holder">
-             <h4>{{ _('Playlists') }}</h4>
-             <ul>
+              <h4>{{ _('Playlists') }}</h4>
+              <h5>
+                <input style="width: 80%;" placeholder="Filter..." id="filter-playlists" type="text" onkeyup="filterListItems(this)">
+              </h5>
+              <ul style="overflow: auto; max-height: 600px;" data-filtered-by="filter-playlists">
                {% for playlist in playlists %}
                 <li id="draggable" class='external-event'
                   data-name="{{playlist.title}}"
@@ -82,8 +86,11 @@
         <div style="flow:v-flow">
 
             <div id='addable-programs' class="addables-holder">
-             <h4>{{ _('Streams') }}</h4>
-             <ul>
+              <h4>{{ _('Streams') }}</h4>
+              <h5>
+                <input style="width: 80%;" placeholder="Filter..." id="filter-streams" type="text" onkeyup="filterListItems(this)">
+              </h5>
+              <ul style="overflow: auto; max-height: 600px;" data-filtered-by="filter-streams">
                {% for stream in streams %}
                 <li id="draggable" class='external-event'
                   data-name="{{stream.name}}"

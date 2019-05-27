@@ -133,11 +133,38 @@ class ProgramHandler:
         sck.send(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
 
         while True:
+
+            incomplete_data = False
             data = sck.recv(10240000)
+
             try:
-                 event = json.loads(data)
-            except ValueError as e:
-                continue
+                event = json.loads(data)
+            except:
+                incomplete_data = True
+                total_data=[]
+                total_data.append(data)
+
+                while incomplete_data:
+                    try:
+                        partial_data = sck.recv(10240000)
+                    except Exception as e:
+                        self.__radio_station.logger.error('Failed to get all data chunks... {}'.format(e.message))
+                    if partial_data:
+                        total_data.append(partial_data)
+
+                    try:
+                        json.loads(''.join(total_data))
+                        incomplete_data = False
+                    except:
+                        pass
+
+                data = ''.join(total_data)
+                try:
+                    event = json.loads(data)
+                except:
+                    self.__radio_station.logger.info('JSON load error (program handler)')
+                    return
+
             if "action" in event and "id" in event:
                 if event["action"] == "delete":
                     self.__delete_scheduled_job(event["id"])

@@ -11,6 +11,7 @@ import os
 import glob
 from itertools import islice
 from simplejson.scanner import JSONDecodeError
+from sqlalchemy import Date, cast
 
 import dateutil.parser
 from dateutil import rrule
@@ -156,6 +157,15 @@ def program_definition(program_id):
         form.populate_obj(program)
 
         db.session.add(program)
+
+        scheduled_programs = ScheduledProgram.query\
+                                             .filter_by(program_id=program_id)\
+                                             .filter(cast(ScheduledProgram.start, Date) >= datetime.now())\
+                                             .all()
+        for prg in scheduled_programs:
+            prg.updated_at=datetime.now()
+            db.session.add(prg)
+
         db.session.commit()
         flash(_('Program updated.'), 'success')
 
@@ -287,6 +297,14 @@ def music_program_definition(music_program_id):
     form = ProgramForm(obj=music_program, program_structure=program_actions, next=request.args.get('next'))
     if form.validate_on_submit():
         form.populate_obj(music_program)
+
+        scheduled_programs = ScheduledProgram.query\
+                                             .filter_by(program_id=music_program_id)\
+                                             .filter(cast(ScheduledProgram.start, Date) >= datetime.now())\
+                                             .all()
+        for prg in scheduled_programs:
+            prg.updated_at=datetime.now()
+            db.session.add(prg)
 
         db.session.add(music_program)
         db.session.commit()

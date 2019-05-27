@@ -84,13 +84,34 @@ class StationRunner:
             thrd.daemon = True
             thrd.start()
 
+
     def __handle_tcp_connection(self, sck):  # TODO: handle json errors, else server will break due to rogue connection
-        data = sck.recv(10240000)
+
+        data=[]
+        while True:
+            partial_data = sck.recv(10240000)
+            if not partial_data: break
+            data.append(partial_data)
+
+        data = ''.join(data)
+
         try:
             event = json.loads(data)
         except ValueError:
-            self.logger.error('JSON load error')
-            return
+            total_data=[]
+            total_data.append(data)
+            while True:
+                import time; time.sleep(1)
+                partial_data = sck.recv(10240000)
+                if not partial_data: break
+                total_data.append(partial_data)
+
+            data = ''.join(total_data)
+            try:
+                event = json.loads(data)
+            except ValueError:
+                self.logger.error('JSON load error')
+                return
 
         if "action" in event and "station" in event:
             if event["action"] == "register":  # A station is registering
