@@ -80,14 +80,15 @@ class CommunityIVRMenu:
 
     def notify_incoming_dtmf(self, event_json):
         try:
+            print event_json["DTMF-Digit"]
             if self.__accumulated_dtmf is None:
                 self.__accumulated_dtmf = event_json["DTMF-Digit"]
             else:
                 self.__accumulated_dtmf = self.__accumulated_dtmf + event_json["DTMF-Digit"]
         except KeyError as e:  # Event JSON does not have the 'DTMF-Digit' key
-            pass
+            print e 
         except exception as ex:  # Null pointer, event_json not a dict etc
-            pass
+            print ex
 
     def notify_speak_stop(self, event_json):
         self.__last_speak_time = datetime.now()
@@ -136,6 +137,7 @@ class CommunityIVRMenu:
             while datetime.now() < start_time + timedelta(0, timeout_secs) and self.__accumulated_dtmf is None:
                 pass  # wait
 
+            print self.__accumulated_dtmf
             #  self.__radio_station.call_handler.deregister_for_incoming_dtmf(str(self.__gateway))
             if self.__accumulated_dtmf is not None and self.__accumulated_dtmf in allowed_digits:
                 dtmf = self.__accumulated_dtmf

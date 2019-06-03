@@ -388,6 +388,10 @@ class CallHandler:
                                                                                   event_json[
                                                                                       'Caller-ANI'],
                                                                                   self.__incoming_dtmf_recipients))
+                        threading.Thread(target=self.__incoming_dtmf_recipients[
+                            str(event_json['Caller-ANI'])[-9:]].notify_incoming_dtmf,
+                                         args=(event_json,)).start()
+
                 except e:
                     self.__radio_station.logger.error('error in DTMF detection: {0}'.format(e.message))
 
