@@ -51,7 +51,7 @@ class CommunityIVRMenu:
     def __finalize(self):
         # hangup, clean variables, deregister for DTMF
         try:
-            self.__radio_station.call_handler.hangup(self.__call['Channel-Call-UUID'])
+            self.__radio_station.call_handler.hangup(self.__call_json['Channel-Call-UUID'])
         except:
             pass
         self.__radio_station.call_handler.deregister_for_incoming_dtmf(self.__call_json['Caller-ANI'][-9:])
@@ -73,7 +73,7 @@ class CommunityIVRMenu:
         try:
             self.__call_json = call_json
             # Assuming Goip, no two calls are possible to menu at same time. Otherwise make below more exclusive
-            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], self.__radio_station.station.id)
+            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], "{0}_{1}".format(self.__radio_station.station.id, call_json['Caller-ANI'][-9:]))
             self.__start(self.__call_json)
         except:  # Key error, event_json is null etc
             pass
@@ -84,9 +84,9 @@ class CommunityIVRMenu:
                 self.__accumulated_dtmf = event_json["DTMF-Digit"]
             else:
                 self.__accumulated_dtmf = self.__accumulated_dtmf + event_json["DTMF-Digit"]
-        except KeyError:  # Event JSON does not have the 'DTMF-Digit' key
+        except KeyError as e:  # Event JSON does not have the 'DTMF-Digit' key
             pass
-        except:  # Null pointer, event_json not a dict etc
+        except exception as ex:  # Null pointer, event_json not a dict etc
             pass
 
     def notify_speak_stop(self, event_json):
@@ -218,19 +218,19 @@ class CommunityIVRMenu:
                 else:
                     record_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.record_prompt)
                 self.__play(event_json['Channel-Call-UUID'],  record_prompt)
-                filename = "{0}_{1}_recording.wav".format(self.__call['Caller-ANI'],
+                filename = "{0}_{1}_recording.wav".format(self.__call_json['Caller-ANI'],
                                                   datetime.strftime(datetime.now(), "%Y%M%d%H%M%S"))
                 audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content", str(self.__radio_station.station.id),
                                   self.__category_id, filename)
                 self.__record_audio_file(event_json['Channel-Call-UUID'], audio_path)
-                self.__radio_station.call_handler.register_for_speak_stop(self, event_json['Caller-ANI'][-9:])
-                self.__radio_station.call_handler.register_for_speak_start(self, event_json['Caller-ANI'][-9:])
+                #self.__radio_station.call_handler.register_for_speak_stop(self, event_json['Caller-ANI'][-9:])
+                #self.__radio_station.call_handler.register_for_speak_start(self, event_json['Caller-ANI'][-9:])
                 self.__radio_station.call_handler.register_for_incoming_dtmf(self, event_json['Caller-ANI'][-9:])
 
                 self.__recording_start_time = datetime.now()
-                self.__is_speaking = True
+                #self.__is_speaking = True
                 self.__last_speak_time = datetime.now()
-                while (self.__is_speaking and self.__last_speak_time + timedelta(0, 30) > datetime.now()) and not (
+                while ((self.__last_speak_time) + timedelta(0, 30) > datetime.now()) and not (
                     self.__accumulated_dtmf is not None and "#" in self.__accumulated_dtmf):  # duration of 30 sec, # key
                     #  or silence of 5 seconds will result in end of recording
                     pass
@@ -257,7 +257,7 @@ class CommunityIVRMenu:
                     elif self.__post_recording_option == "1":  # Listen to the recording
                         self.__play(event_json['Channel-Call-UUID'], audio_path)
                     elif self.__post_recording_option == "2":  # save the recording
-                        self.__save_message(filename, self.__call['Caller-ANI'], datetime.now(),
+                        self.__save_message(filename, self.__call_json['Caller-ANI'], datetime.now(),
                                     (self.__recording_stop_time - self.__recording_start_time).seconds,
                                     int(self.__category_id), datetime.now() + timedelta(int(self.__num_days), 0),
                                     self.__radio_station.station)
@@ -277,4 +277,5 @@ class CommunityIVRMenu:
                 self.__finalize()
 
         except Exception as e:  # Keyerror, Null pointers
+            print e
             return

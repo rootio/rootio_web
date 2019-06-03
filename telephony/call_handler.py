@@ -476,11 +476,11 @@ class CallHandler:
                     self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
                         event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
                         self.__host_call_recipients))
-                    if event_json['Caller-Destination-Number'][-9:] == self.__community_ivr_number: # Someone calling into the community
-                        community_menu = CommunityIVRMenu(self.__radio_station.station)
+                    if self.__community_ivr_number is not None and event_json['Caller-Destination-Number'][-9:] == self.__community_ivr_number[-9:]: # Someone calling into the community
+                        community_menu = CommunityIVRMenu(self.__radio_station)
                         self.__community_menu_sessions[event_json['Caller-ANI'][-9:]] = community_menu
-                        threading.Thread(target=self.__community_menu_sessions[event_json['Caller-ANI']].notify_incoming_call,
-                                         args=(event_json['Channel-Call-UUID'],)).start()
+                        threading.Thread(target=self.__community_menu_sessions[event_json['Caller-ANI'][-9:]].notify_incoming_call,
+                                         args=(event_json,)).start()
                     elif event_json['Caller-Destination-Number'][
                        -9:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                         threading.Thread(target=self.__incoming_call_recipients[

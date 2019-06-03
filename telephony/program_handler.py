@@ -143,8 +143,10 @@ class ProgramHandler:
                 incomplete_data = True
                 total_data=[]
                 total_data.append(data)
+                self.__radio_station.logger.debug(data)
 
                 while incomplete_data:
+                    self.__radio_station.logger.debug('getting chunks...')
                     try:
                         partial_data = sck.recv(10240000)
                     except Exception as e:
@@ -162,8 +164,10 @@ class ProgramHandler:
                 try:
                     event = json.loads(data)
                 except:
-                    self.__radio_station.logger.info('JSON load error (program handler)')
+                    self.__radio_station.logger.error('JSON load error (program handler)')
                     return
+
+            self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
 
             if "action" in event and "id" in event:
                 if event["action"] == "delete":

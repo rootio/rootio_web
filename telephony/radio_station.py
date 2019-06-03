@@ -29,7 +29,7 @@ class RadioStation:
         self.call_handler = CallHandler(self)
         community_menu_gw = self.__get_gateway_used()
         if community_menu_gw is not None:
-            self.call_handler.register_for_incoming_calls(community_menu_gw, True)
+            self.call_handler.register_community_ivr_number(str(community_menu_gw)[-9:])
         #self.__community_handler = CommunityIVRMenu(self)
 
         self.logger.info("Starting up station {0}".format(self.station.name))

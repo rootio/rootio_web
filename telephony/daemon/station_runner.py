@@ -87,13 +87,7 @@ class StationRunner:
 
     def __handle_tcp_connection(self, sck):  # TODO: handle json errors, else server will break due to rogue connection
 
-        data=[]
-        while True:
-            partial_data = sck.recv(10240000)
-            if not partial_data: break
-            data.append(partial_data)
-
-        data = ''.join(data)
+        data = sck.recv(10240000)
 
         try:
             event = json.loads(data)
@@ -101,7 +95,6 @@ class StationRunner:
             total_data=[]
             total_data.append(data)
             while True:
-                import time; time.sleep(1)
                 partial_data = sck.recv(10240000)
                 if not partial_data: break
                 total_data.append(partial_data)
@@ -121,12 +114,12 @@ class StationRunner:
                 if event["station"] in self.__station_sockets:
                     try:
                         self.__station_sockets[event["station"]].send(data)
-                        #self.logger.info("Event of type {0} sent to station {1} on scheduled program {2}"
-                                         #.format(event["action"], event["station"], event["id"]))
+                        self.logger.info("Event of type {0} sent to station {1} on scheduled program {2}"
+                                         .format(event["action"], event["station"], event["id"]))
                     except Exception as e:
-                        #self.logger.error("Event of type {0} failed for station {1} on scheduled program {2}"
-                              #           .format(event["action"], event["station"], event["id"]))
-                       # self.logger.error("Event scheduler error: {0}".format(e))
+                        self.logger.error("Event of type {0} failed for station {1} on scheduled program {2}"
+                                         .format(event["action"], event["station"], event["id"]))
+                        self.logger.error("Event scheduler error: {0}".format(e))
                         self.logger.error("Broken socket: {0}".format(self.__station_sockets[event['station']]))
 
 

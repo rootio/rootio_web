@@ -160,7 +160,7 @@ def program_definition(program_id):
 
         scheduled_programs = ScheduledProgram.query\
                                              .filter_by(program_id=program_id)\
-                                             .filter(cast(ScheduledProgram.start, Date) >= datetime.now())\
+                                             .filter(cast(ScheduledProgram.end, Date) >= datetime.now())\
                                              .all()
         for prg in scheduled_programs:
             prg.updated_at=datetime.now()
@@ -256,7 +256,7 @@ def music_program_add():
 
     # Playlists and streams in my network
     playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()  # Playlist->Station->Network->user
+        User.id == current_user.id).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
     streams = ContentStream.query.join(User, Network.networkusers).filter(
         User.id == current_user.id).all()  # created by -> user -> Network
 
@@ -300,7 +300,7 @@ def music_program_definition(music_program_id):
 
         scheduled_programs = ScheduledProgram.query\
                                              .filter_by(program_id=music_program_id)\
-                                             .filter(cast(ScheduledProgram.start, Date) >= datetime.now())\
+                                             .filter(cast(ScheduledProgram.end, Date) >= datetime.now())\
                                              .all()
         for prg in scheduled_programs:
             prg.updated_at=datetime.now()
