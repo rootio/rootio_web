@@ -7,6 +7,7 @@ from time import sleep
 from sqlalchemy.exc import SQLAlchemyError
 
 from rootio.config import *
+from rootio.utils import get_amplified_file, get_normalized_file
 from rootio.content.models import CommunityContent, CommunityMenu
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 
@@ -230,6 +231,7 @@ class CommunityIVRMenu:
                                                   datetime.strftime(datetime.now(), "%Y%M%d%H%M%S"))
                 audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content", str(self.__radio_station.station.id),
                                   self.__category_id, filename)
+
                 self.__record_audio_file(call_uuid, audio_path)
                 self.__radio_station.call_handler.register_for_speak_stop(self, str(self.__gateway))
                 self.__radio_station.call_handler.register_for_speak_start(self, str(self.__gateway))
@@ -265,7 +267,11 @@ class CommunityIVRMenu:
                     elif self.__post_recording_option == "1":  # Listen to the recording
                         self.__play(call_uuid, audio_path)
                     elif self.__post_recording_option == "2":  # save the recording
-                        self.__save_message(filename, self.__call['Caller-ANI'], datetime.now(),
+                        try:
+                            amplified_file = get_amplified_file(audio_path)
+                        except:
+                            amplified_file = filename
+                        self.__save_message(amplified_file, self.__call['Caller-ANI'], datetime.now(),
                                     (self.__recording_stop_time - self.__recording_start_time).seconds,
                                     int(self.__category_id), datetime.now() + timedelta(int(self.__num_days), 0),
                                     self.__radio_station.station)
