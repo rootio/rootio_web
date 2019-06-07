@@ -650,18 +650,21 @@ def station_events(station_id):
             ),
         }
 
-        if event.category == 'MEDIA':
-            media_title = u''.join((ev['extra'][0][1], '')).encode('utf-8').strip()
-            media_artist = u''.join((ev['extra'][1][1], '')).encode('utf-8').strip()
-            ev['content'] = '{} ({})'.format(media_title, media_artist)
-        elif event.category == 'SYNC':
-            ev['content'] = '{}'.format(
-                str(ev['extra'][3][1]).split('?')[0].split('/')[-1]
-            )
-        else:
-            ev['content'] = event.content
+        try:
+            if event.category == 'MEDIA':
+                media_title = u''.join((ev['extra'][0][1], '')).encode('utf-8').strip()
+                media_artist = u''.join((ev['extra'][1][1], '')).encode('utf-8').strip()
+                ev['content'] = '{} ({})'.format(media_title, media_artist)
+            elif event.category == 'SYNC':
+                ev['content'] = '{}'.format(
+                    str(ev['extra'][3][1]).split('?')[0].split('/')[-1]
+                )
+            else:
+                ev['content'] = event.content
 
-        events_list.append(ev)
+            events_list.append(ev)
+        except IndexError:
+            pass
 
     return {
         "recordsTotal": total_count,
