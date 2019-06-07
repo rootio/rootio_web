@@ -143,6 +143,10 @@ def save_uploaded_file(uploaded_file, directory, file_name=False, process_audio=
         amplified_file_data = get_amplified_file(file_path, 0.0, True, True, None)
         if amplified_file_data[0]:
             location = "{0}/{1}".format(directory, amplified_file_data[1].split("/").pop())  # only UNIX safe!
+        try:
+            os.chmod(file_path, 0755)
+        except:
+            pass
     return location
 
 
