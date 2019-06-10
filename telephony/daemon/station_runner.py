@@ -50,7 +50,7 @@ class StationRunner:
             '================ Station runner service started at {0} =============='.format(datetime.utcnow()))
 
     def __get_logger(self, station_id):
-        logger = logging.getLogger('station_runner')
+        logger = logging.getLogger('station_runner_{0}'.format(station_id))
         log_folder = DefaultConfig.LOG_FOLDER
         file_hdlr = TimedRotatingFileHandler(os.path.join(log_folder, 'stations_{0}.log'.format(station_id)), when='midnight', interval=1)
 
