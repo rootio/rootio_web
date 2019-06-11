@@ -21,20 +21,23 @@ from rootio_mailer.rootio_mail_message import RootIOMailMessage
 
 class RadioProgram:
 
-    def __init__(self, program, radio_station):
+    def __init__(self, program, radio_station, program_handler):
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
         self.__status = False
         self.__call_info = None
         self.id = program.id
         self.name = program.id
+        self.__program_handler = program_handler
         self.scheduled_program = program
         self.radio_station = radio_station
+        self.__shutting_down = False
         self.__scheduler = Scheduler()
         self.__running_action = None
         return
 
     def start(self):
+        self.__program_handler.set_running_program(self)
         self.__load_program_actions()
         self.__run_program_action()  # will call the next one when done
         return
@@ -122,6 +125,10 @@ class RadioProgram:
                                           self.__get_start_datetime(program_action.start_time).replace(tzinfo=None),
                                           misfire_grace_time=program_action.duration)
 
+    def stop(self):
+        self.__shutting_down = True
+        self.__running_action.stop()
+
     def set_running_action(self, running_action):
         #if self.__running_action is not None:
         #    self.__running_action.stop()  # clean up any stuff that is not necessary anymore
@@ -138,16 +145,20 @@ class RadioProgram:
             self.__program_actions.pop().start()
 
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
-        self.__status = self.__status or played_successfully #For program with multiple actions, if one succeeds then flagged as success!
-        if call_info is not None and 'Channel-Call-UUID' in call_info:
-            self.__call_info = call_info
-        if len(self.__program_actions) == 0:  # all program actions have run
-            if self.__call_info is not None:
-                self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
+        if self.__shutting_down:
+            self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
             self.__log_program_status()
-            self.__send_program_summary()
         else:
-            self.__run_program_action()
+            self.__status = self.__status or played_successfully #For program with multiple actions, if one succeeds then flagged as success!
+            if call_info is not None and 'Channel-Call-UUID' in call_info:
+                self.__call_info = call_info
+            if len(self.__program_actions) == 0:  # all program actions have run
+                if self.__call_info is not None:
+                    self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
+                self.__log_program_status()
+                #self.__send_program_summary()
+            else:
+                self.__run_program_action()
 
     def __send_program_summary(self):
         try:

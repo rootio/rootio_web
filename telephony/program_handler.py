@@ -27,6 +27,7 @@ class ProgramHandler:
         self.__scheduled_jobs = None
         self.__start_listeners()
         self.__is_starting_up = True
+        self.__running_program = None
         self.__interval_hours = 3  # Time after which to schedule again
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
@@ -44,6 +45,10 @@ class ProgramHandler:
         self.__scheduler.start()
         self.__schedule_programs()
         #self.__schedule_next_schedule()
+
+    def set_running_program(self, running_program):
+        self.__stop_program()
+        self.__running_program = running_program
 
     def stop(self):
         self.__stop_program()
@@ -66,7 +71,7 @@ class ProgramHandler:
 
     def __add_scheduled_job(self, scheduled_program):
         start_time = self.__get_program_start_time(scheduled_program).replace(tzinfo=None)
-        program = RadioProgram(scheduled_program, self.__radio_station)
+        program = RadioProgram(scheduled_program, self.__radio_station, self)
         try:
             scheduled_job = self.__scheduler.add_date_job(getattr(program, 'start'),  start_time)
             self.__scheduled_jobs[scheduled_program.id] = scheduled_job
@@ -87,7 +92,8 @@ class ProgramHandler:
             del self.__scheduled_jobs[index]
 
     def __stop_program(self):
-        # self.__running_program.stop()
+        if self.__running_program is not None:
+            self.__running_program.stop()
         return
 
     def __run_program(self):
