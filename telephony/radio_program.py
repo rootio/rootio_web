@@ -127,7 +127,8 @@ class RadioProgram:
 
     def stop(self):
         self.__shutting_down = True
-        self.__running_action.stop()
+        if self.__running_action is not None:
+            self.__running_action.stop()
 
     def set_running_action(self, running_action):
         #if self.__running_action is not None:

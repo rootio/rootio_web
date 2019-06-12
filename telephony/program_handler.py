@@ -92,9 +92,11 @@ class ProgramHandler:
             del self.__scheduled_jobs[index]
 
     def __stop_program(self):
-        if self.__running_program is not None:
-            self.__running_program.stop()
-        return
+        try:
+            if self.__running_program is not None:
+                self.__running_program.stop()
+        except:
+            return
 
     def __run_program(self):
         # self.__running_program.run()
