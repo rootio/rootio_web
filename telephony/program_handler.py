@@ -171,37 +171,40 @@ class ProgramHandler:
                 data = ''.join(total_data)
                 try:
                     event = json.loads(data)
-                except:
-                    self.__radio_station.logger.error('JSON load error (program handler)')
+                except Exception as e:
+                    self.__radio_station.logger.error("Error 1 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
                     return
 
-            self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
+            #  self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
 
-            if "action" in event and "id" in event:
-                if event["action"] == "delete":
-                    self.__delete_scheduled_job(event["id"])
-                    self.__radio_station.logger.info(
-                        "Scheduled program with id {0} has been deleted"
-                        .format(event["id"]))
-                elif event["action"] == "add":
-                    scheduled_program = self.__load_program(event["id"])
-                    if not self.__is_program_expired(scheduled_program):
-                        self.__add_scheduled_job(scheduled_program)
+            try:
+                if "action" in event and "id" in event:
+                    if event["action"] == "delete":
+                        self.__delete_scheduled_job(event["id"])
                         self.__radio_station.logger.info(
-                            "Scheduled program with id {0} has been added at time {1}"
-                            .format(event["id"], scheduled_program.start))
-                elif event["action"] == "update":
-                    self.__delete_scheduled_job(event["id"])
-                    scheduled_program = self.__load_program(event["id"])
-                    if not self.__is_program_expired(scheduled_program):
-                        self.__add_scheduled_job(scheduled_program)
-                        self.__radio_station.logger.info(
-                            "Scheduled program with id {0} has been moved to start at time {1}"
-                            .format(event["id"], scheduled_program.start))
-                elif event["action"] == "sync":
-                    #self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
-                    t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
-                    t.start()
+                            "Scheduled program with id {0} has been deleted"
+                                .format(event["id"]))
+                    elif event["action"] == "add":
+                        scheduled_program = self.__load_program(event["id"])
+                        if not self.__is_program_expired(scheduled_program):
+                            self.__add_scheduled_job(scheduled_program)
+                            self.__radio_station.logger.info(
+                                "Scheduled program with id {0} has been added at time {1}"
+                                    .format(event["id"], scheduled_program.start))
+                    elif event["action"] == "update":
+                        self.__delete_scheduled_job(event["id"])
+                        scheduled_program = self.__load_program(event["id"])
+                        if not self.__is_program_expired(scheduled_program):
+                            self.__add_scheduled_job(scheduled_program)
+                            self.__radio_station.logger.info(
+                                "Scheduled program with id {0} has been moved to start at time {1}"
+                                    .format(event["id"], scheduled_program.start))
+                    elif event["action"] == "sync":
+                        #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
+                        t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
+                        t.start()
+            except Exception as e:
+                self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
 
     def __get_dict_from_rows(self, rows):
         result = dict()
@@ -231,6 +234,8 @@ class ProgramHandler:
                 except DatabaseError:
                     self.__radio_station.db.rollback()
                     continue
+                except:
+                    continue
 
             for album in data[artist]:
                 if album in albums_in_db:
@@ -245,6 +250,8 @@ class ProgramHandler:
                         self.__radio_station.db.commit()
                     except DatabaseError:
                         self.__radio_station.db.rollback()
+                        continue
+                    except:
                         continue
 
                 for song in data[artist][album]['songs']:
@@ -261,6 +268,8 @@ class ProgramHandler:
                         self.__radio_station.db.commit()
                     except DatabaseError:
                         self.__radio_station.db.rollback()
+                        continue
+                    except:
                         continue
 
 
