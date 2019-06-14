@@ -222,7 +222,7 @@ class CommunityIVRMenu:
                     record_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.record_prompt)
                 self.__play(event_json['Channel-Call-UUID'],  record_prompt)
                 filename = "{0}_{1}_recording.wav".format(self.__call_json['Caller-ANI'],
-                                                  datetime.strftime(datetime.now(), "%Y%M%d%H%M%S"))
+                                                  datetime.strftime(datetime.now(), "%Y%m%d%H%M%S"))
                 audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content", str(self.__radio_station.station.id),
                                   self.__category_id, filename)
                 self.__record_audio_file(event_json['Channel-Call-UUID'], audio_path)
