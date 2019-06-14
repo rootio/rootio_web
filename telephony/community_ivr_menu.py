@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from rootio.config import *
 from rootio.content.models import CommunityContent, CommunityMenu
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
+from telephony.utils.audio import get_normalized_file
 
 
 class CommunityIVRMenu:
@@ -259,7 +260,9 @@ class CommunityIVRMenu:
                     elif self.__post_recording_option == "1":  # Listen to the recording
                         self.__play(event_json['Channel-Call-UUID'], audio_path)
                     elif self.__post_recording_option == "2":  # save the recording
-                        self.__save_message(filename, self.__call_json['Caller-ANI'], datetime.now(),
+                        normalized_file_parts = get_normalized_file(audio_path)[1].split('/')
+                        norm_file = normalized_file_parts[len(normalized_file_parts) - 1]
+                        self.__save_message(norm_file, self.__call_json['Caller-ANI'], datetime.now(),
                                     (self.__recording_stop_time - self.__recording_start_time).seconds,
                                     int(self.__category_id), datetime.now() + timedelta(int(self.__num_days), 0),
                                     self.__radio_station.station)
