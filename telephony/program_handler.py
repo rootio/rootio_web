@@ -95,6 +95,7 @@ class ProgramHandler:
         try:
             if self.__running_program is not None:
                 self.__running_program.stop()
+                sleep(2)
         except:
             return
 

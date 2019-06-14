@@ -44,8 +44,9 @@ class MediaAction:
             self.__stop_media(call_info)
         elif self.__call_answer_info is not None and not graceful:
             self.__stop_media(self.__call_answer_info)
+        self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
-        self.program.notify_program_action_stopped(graceful, call_info)
+        self.program.notify_program_action_stopped(graceful, self.__call_answer_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity("Received call answer notification for Media action of {0} program"
