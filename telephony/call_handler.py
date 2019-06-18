@@ -312,6 +312,12 @@ class CallHandler:
             # print event_name
             if event_name == "CHANNEL_ANSWER" and 'Caller-Destination-Number' in event_json:
                 try:
+                    if 'Channel-Call-UUID' in event_json:
+                        self.schedule_hangup(3600, event_json['Channel-Call-UUID'])  # no call more than 1 hour
+                except:
+                    pass
+
+                try:
                     self.__radio_station.logger.info("received answer for {0} with waiting recipients {1}".format(
                         event_json['Caller-Destination-Number'], self.__waiting_call_recipients.keys()))
                     if str(event_json['Caller-Destination-Number'])[-12:] in self.__waiting_call_recipients:
@@ -476,6 +482,11 @@ class CallHandler:
 
             # This should use 9 digits not 12!
             elif event_name == "CHANNEL_PARK" and 'Caller-Destination-Number' in event_json:
+                try:
+                    if 'Channel-Call-UUID' in event_json:
+                        self.schedule_hangup(3600, event_json['Channel-Call-UUID'])  # no call more than 1 hour
+                except:
+                    pass
                 try:
                     self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
                         event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
