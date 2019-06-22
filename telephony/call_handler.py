@@ -222,6 +222,10 @@ class CallHandler:
                 if result is not None and result.split(" ")[0] == "+OK":
                     return True, result.split(" ")[1]
                 else:
+                    try:
+                        del self.__waiting_call_recipients[str(to_number)[-9:]]
+                    except:
+                        pass
                     return False, None
             else:
                 self.__radio_station.logger.info(
@@ -252,6 +256,10 @@ class CallHandler:
                 if result is not None and result.split(" ")[0] == "+OK":
                     return True, result.split(" ")[1]
                 else:
+                    try:
+                        del self.__waiting_call_recipients[str(to_number)[-12:]]
+                    except:
+                        pass
                     return False, None
 
     def bridge_incoming_call(self, call_uuid, call_id):
