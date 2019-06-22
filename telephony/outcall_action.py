@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 from sets import Set
+from time import sleep
 
 from apscheduler.scheduler import Scheduler
 
@@ -275,6 +276,7 @@ class OutcallAction:
     def notify_host_call(self, call_info):
         # hangup the call
         self.__call_handler.hangup(call_info['Channel-Call-UUID'])
+        sleep(10)
         # reset program
         # self.stop()
         # restart program
