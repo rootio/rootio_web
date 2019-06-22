@@ -64,12 +64,12 @@ class OutcallAction:
         host = self.program.radio_station.db.query(Person).filter(Person.id == host_id).first()
         return host
 
-    def request_host_call(self):
+    def request_host_call(self, guest_triggered=False):
         self.__in_talkshow_setup = True
         result = self.__call_handler.call(self, self.__host.phone.raw_number, None, False,
                                           15)  # call ends in 15 mins max
         self.program.log_program_activity("result of host call is " + str(result))
-        if not result[0]:
+        if not result[0] and not guest_triggered:
             self.stop(False)
 
     def __request_station_call(self):
@@ -313,7 +313,8 @@ class OutcallAction:
                 self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
                 self.program.log_program_activity(
                     "Call from community caller {0} was auto-answered".format(call_info['Caller-Destination-Number']))
-                self.request_host_call()
+                self.request_host_call(True)
+                self.__call_handler.speak('Please wait while we connect you to the host', call_info['Channel-Call-UUID'])
 
     def __schedule_host_callback(self):
         time_delta = timedelta(seconds=300)  # one minutes
