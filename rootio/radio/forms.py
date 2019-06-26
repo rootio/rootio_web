@@ -61,7 +61,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                       'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
                                                'broadcast_port', 'last_accessed_mobile', 'tts_language',
                                       'is_high_bandwidth', 'sip_username', 'sip_password', 'sip_server',
-                                      'sip_port','sip_stun_server', 'sip_reregister_period', 'sip_protocol', 'media_amplification_factor',
+                                      'sip_port','sip_stun_server', 'sip_reregister_period', 'sip_protocol', 'media_amplification_factor', 'jingle_interval',
                                       'events'])
 
 

@@ -28,7 +28,7 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
-                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip', 'jingle_interval',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'sip_username',
@@ -50,7 +50,7 @@ StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_cl
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
-                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip', 'jingle_interval',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'scheduled_programs',
@@ -96,6 +96,7 @@ class StationAudioLevelsForm(StationAudioLevelsFormBase):
     audio_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 15, 1)], default="8")
     call_volume = SelectField(choices=[(str(val), str(val)) for val in range(1, 6, 1)], default="6")
     media_amplification_factor = SelectField(choices=[(str(val), str(val)) for val in range(0, 3, 1)], default="0")
+    jingle_interval = IntegerField(_('Jingle play interval'), [NumberRange(1, 1440, _('1 - 1440'))])
     submit = SubmitField(_('Save'))
 
 
@@ -109,7 +110,7 @@ StationSynchronizationFormBase = model_form(Station, db_session=db.session, base
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
-                                               'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
+                                               'scheduled_programs','client_update_frequency', 'analytic_update_frequency', 'jingle_interval',
                                                'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events',
                                       'tts_voice', 'tts_samplerate','tts_audioformat',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
@@ -149,7 +150,7 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                       field_args={
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
-                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'jingle_interval',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',

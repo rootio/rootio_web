@@ -139,6 +139,7 @@ def station(station_id):
     if station is not None:
         response["name"] = station.name
         response["frequency"] = station.frequency
+        response["jingle_interval"] = station.jingle_interval
         if station.location is not None:
             response["location"] = {"name": station.location.name, "latitude": station.location.latitude,
                                     "longitude": station.location.longitude}
