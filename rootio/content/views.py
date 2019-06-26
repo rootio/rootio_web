@@ -80,7 +80,7 @@ def track_delete(track_id):
 @login_required
 def list_track_files(track_id):
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
-    return render_template('content/track_files.html', track=track, active='tracks')
+    return render_template('content/track_files.html', track=track, active='tracks', content_dir=DefaultConfig.CONTENT_DIR)
 
 
 @content.route('/tracks/<int:track_id>/files/empty', methods=['GET'])
