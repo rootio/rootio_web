@@ -504,20 +504,21 @@ class CallHandler:
                         self.__community_menu_sessions[event_json['Caller-ANI'][-9:]] = community_menu
                         threading.Thread(target=self.__community_menu_sessions[event_json['Caller-ANI'][-9:]].notify_incoming_call,
                                          args=(event_json,)).start()
+                    elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
+                        self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
+                    elif event_json['Caller-ANI'][-12:] in self.__host_call_recipients:
+                        self.__host_call_recipients[event_json['Caller-ANI'][-12:]].notify_host_call(event_json)
                     elif event_json['Caller-Destination-Number'][
                        -9:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                         threading.Thread(target=self.__incoming_call_recipients[
                             str(event_json['Caller-Destination-Number'])[-9:]].notify_incoming_call,
                                          args=(event_json,)).start()
-                    elif event_json['Caller-ANI'][-9:] in self.__host_call_recipients:
-                        self.__host_call_recipients[event_json['Caller-ANI'][-9:]].notify_host_call(event_json)
                     elif event_json['Caller-Destination-Number'][
                        -12:] in self.__incoming_call_recipients:  # Someone calling into a talk show
                         threading.Thread(target=self.__incoming_call_recipients[
                             str(event_json['Caller-Destination-Number'])[-12:]].notify_incoming_call,
                                          args=(event_json,)).start()
-                    elif event_json['Caller-ANI'][-12:] in self.__host_call_recipients:
-                        self.__host_call_recipients[event_json['Caller-ANI'][-12:]].notify_host_call(event_json)
+
                 except e:
                     self.__radio_station.logger.error('error in channel park: {0}'.format(e.message))
 

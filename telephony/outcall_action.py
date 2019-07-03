@@ -24,7 +24,7 @@ class OutcallAction:
         self.start_time = start_time
         self.duration = duration
         self.program = program
-        self.__scheduler = Scheduler()
+        self.__scheduler = None
         self.__available_calls = dict()
         self.__in_talkshow_setup = False
         self.__host = None
@@ -44,6 +44,7 @@ class OutcallAction:
                 self.stop(False)
                 return
             self.program.set_running_action(self)
+            self.__scheduler = Scheduler()
             self.__scheduler.start()
             self.__call_handler.register_for_incoming_calls(self)
             self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
@@ -315,8 +316,10 @@ class OutcallAction:
                 self.__community_call_UUIDs[call_info['Caller-Destination-Number']] = call_info['Channel-Call-UUID']
                 self.program.log_program_activity(
                     "Call from community caller {0} was auto-answered".format(call_info['Caller-Destination-Number']))
+                self.__call_handler.speak('Please wait while we connect you to the host of this program',
+                                          call_info['Channel-Call-UUID'])
                 self.request_host_call(True)
-                self.__call_handler.speak('Please wait while we connect you to the host', call_info['Channel-Call-UUID'])
+                #self.__call_handler.speak('Please wait while we connect you to the host', call_info['Channel-Call-UUID'])
 
     def __schedule_host_callback(self):
         time_delta = timedelta(seconds=300)  # one minutes
