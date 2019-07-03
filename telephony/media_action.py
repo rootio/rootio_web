@@ -73,7 +73,7 @@ class MediaAction:
                                              .filter(ContentUploads.order == index)\
                                              .first()
 
-        media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
+        #media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
 
         if media.deleted:
             self.__episode_number = self.__episode_number + 1
@@ -130,7 +130,7 @@ class MediaAction:
 
         self.program.log_program_activity("Playing media {0}".format(self.__media.name))
         self.__listen_for_media_play_stop()
-        result = self.__call_handler.play(call_info['Channel-Call-UUID'], self.__media.uri)
+        result = self.__call_handler.play(call_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR, media.uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
             self.stop(False, call_info)
@@ -142,7 +142,7 @@ class MediaAction:
         try:
             self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}"
                                               .format(self.program.name))
-            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], self.__media.uri)
+            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR, media.uri))
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__stop_media".format(err=e.message))
@@ -153,7 +153,7 @@ class MediaAction:
         self.stop(False)
 
     def notify_media_play_stop(self, event_json):
-        if event_json["Media-Bug-Target"] == self.__media.uri and self.__is_valid:
+        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, media.uri) and self.__is_valid:
             if self.__continuous_play:
                 self.program.log_program_activity(
                     'continuous play is on, will move on to the rest of the episodes ({})'.format(self.__continuous_play_limit))
