@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2018 ORGANIZATION
+# Copyright (C) 2019 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # 
 # Translators:
 # Victor Nițu <victor@debian.org.ro>, 2018
@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-07 20:34+0300\n"
+"POT-Creation-Date: 2019-03-28 10:15+0200\n"
 "PO-Revision-Date: 2018-05-31 12:36+0000\n"
 "Last-Translator: ANDREEA BONEA <andreea.bonea@gmail.com>, 2018\n"
 "Language-Team: Romanian (https://www.transifex.com/rootio/teams/86903/ro/)\n"
@@ -23,1420 +23,636 @@ msgstr ""
 "Language: ro\n"
 "Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
-#: utils.py:148 radio/views.py:301
+#: rootio/utils.py:88 rootio/configuration/views.py:172
+msgid "Media upload error (S3)"
+msgstr ""
+
+#: rootio/utils.py:97 rootio/configuration/views.py:181
+msgid "Media upload error (filesystem)"
+msgstr ""
+
+#: rootio/utils.py:206 rootio/radio/views.py:351
 msgid "Invalid "
 msgstr "Nevalid"
 
-#: content/forms.py:24 content/forms.py:63 content/forms.py:71
-#: content/forms.py:79 content/forms.py:87 content/forms.py:95
-#: content/forms.py:107 content/forms.py:114 content/forms.py:121
-#: content/forms.py:128 frontend/forms.py:54 radio/forms.py:28
-#: radio/forms.py:65 radio/forms.py:85 radio/forms.py:105 radio/forms.py:118
-#: radio/forms.py:128 radio/forms.py:139 radio/forms.py:151 radio/forms.py:161
-#: radio/forms.py:174 radio/forms.py:194 radio/forms.py:201
-#: settings/forms.py:33 settings/forms.py:63 settings/forms.py:80
-#: telephony/forms.py:30 telephony/forms.py:48
-#: templates/radio/schedule.html:80 user/forms.py:34
-msgid "Save"
-msgstr "Salvează"
-
-#: content/forms.py:62 content/forms.py:69 content/forms.py:76
-#: content/forms.py:84 content/forms.py:92
-#: templates/content/content_ads.html:35
-#: templates/content/content_medias.html:35
-#: templates/content/content_news.html:18
-#: templates/content/content_uploads.html:16
-msgid "Track name"
-msgstr "Numele clipului"
-
-#: content/forms.py:70 content/forms.py:77 content/forms.py:86
-#: content/forms.py:93
-msgid "Expiration Date"
-msgstr "Data de expirare"
-
-#: content/forms.py:78
-msgid "Ad File"
-msgstr "Adauga fisier"
-
-#: content/forms.py:83 content/forms.py:125
-msgid "Name of the stream"
-msgstr "Numele stream-ului"
-
-#: content/forms.py:85 content/forms.py:112 content/forms.py:126
-#: settings/forms.py:30 settings/forms.py:60
-#: templates/content/content_podcasts.html:100
-#: templates/content/content_streams.html:43
-msgid "URL"
-msgstr "URL"
-
-#: content/forms.py:94
-msgid "File(s)"
-msgstr "Fisier(e)"
-
-#: content/forms.py:100 content/forms.py:119
-#: templates/content/content_playlists.html:107 templates/radio/station.html:8
-#: templates/radio/station.html:11 templates/radio/station_telephony.html:8
-#: templates/radio/station_telephony.html:11 templates/telephony/calls.html:15
-#: templates/telephony/gateways.html:69 templates/telephony/index.html:13
-#: templates/telephony/messages.html:14
-msgid "Station"
-msgstr "Statie radio"
-
-#: content/forms.py:101
-msgid "Welcome message"
-msgstr "Mesaj de bun venit"
-
-#: content/forms.py:102
-msgid "Days prompt"
+#: rootio/configuration/views.py:56 rootio/radio/views.py:94
+msgid "Station updated."
 msgstr ""
 
-#: content/forms.py:103
-msgid "Message type"
-msgstr "Tip de mesaj"
-
-#: content/forms.py:104
-msgid "Record Prompt"
+#: rootio/configuration/views.py:76 rootio/radio/views.py:114
+msgid "Station added."
 msgstr ""
 
-#: content/forms.py:105
-msgid "Finalization prompt"
-msgstr ""
-
-#: content/forms.py:106
-msgid "Goodbye message"
-msgstr "Mesaj de la revedere"
-
-#: content/forms.py:111
-msgid "Name of the podcast"
-msgstr "Numele podcast-ului"
-
-#: content/forms.py:113 content/forms.py:120 content/forms.py:127
-#: templates/content/content_playlists.html:109
-#: templates/content/content_podcasts.html:99
-#: templates/content/content_streams.html:42 templates/content/tracks.html:16
-#: templates/radio/schedule.html:109 templates/rootio/content_types.html:13
-#: templates/rootio/program_types.html:13
-msgid "Description"
-msgstr "Descriere"
-
-#: content/forms.py:118
-msgid "Name of the playlist"
-msgstr "Numele playlist-ului"
-
-#: content/views.py:58
-msgid "Track updated."
-msgstr "Clip actualizat"
-
-#: content/views.py:75
-msgid "Track added."
-msgstr "Clip adăugat"
-
-#: content/views.py:77 content/views.py:487 content/views.py:510
-#: radio/views.py:65 radio/views.py:109 radio/views.py:182 radio/views.py:214
-#: radio/views.py:285 radio/views.py:355 radio/views.py:617 rootio/views.py:95
-#: rootio/views.py:142 rootio/views.py:192 telephony/views.py:71
+#: rootio/configuration/views.py:78 rootio/content/views.py:116
+#: rootio/content/views.py:263 rootio/content/views.py:289
+#: rootio/radio/views.py:72 rootio/radio/views.py:116
+#: rootio/radio/views.py:194 rootio/radio/views.py:247
+#: rootio/radio/views.py:335 rootio/radio/views.py:405
+#: rootio/rootio/views.py:95 rootio/rootio/views.py:142
+#: rootio/rootio/views.py:192 rootio/telephony/views.py:71
 msgid "Validation error"
 msgstr "Eroare de validare"
 
-#: content/views.py:99 content/views.py:201 content/views.py:284
-#: content/views.py:370 content/views.py:674
-msgid "Content updated."
-msgstr "Conținut actualizat."
-
-#: content/views.py:124 content/views.py:213 content/views.py:383
-msgid "No file part"
+#: rootio/configuration/views.py:94
+msgid "SIP details updated."
 msgstr ""
 
-#: content/views.py:130 content/views.py:219 content/views.py:305
-#: content/views.py:389
-msgid "No selected file"
-msgstr "Nici un fisier selectat"
+#: rootio/configuration/views.py:115
+msgid "Audio levels updated."
+msgstr ""
 
-#: content/views.py:159 content/views.py:247
-msgid "Content added."
-msgstr "Conținut adăugat."
-
-#: content/views.py:299
-msgid "No file selected"
-msgstr "Nici un fisier selectat"
-
-#: content/views.py:308
-msgid "Invalid file format"
-msgstr "Format de fisier nevalid"
-
-#: content/views.py:336
-msgid "Advertisement uploaded."
-msgstr "Reclamă încărcată."
-
-#: content/views.py:414
-msgid "Media Uploaded"
-msgstr "Fișier media încărcat"
-
-#: content/views.py:435
-msgid "Media reordered."
-msgstr "Fișierele media au fost reordonate."
-
-#: content/views.py:453
-msgid "Ads reordered."
-msgstr "Reclamele au fost reordonate."
-
-#: content/views.py:485
-msgid "Host added."
-msgstr "Nod adăugat."
-
-#: content/views.py:508
-msgid "Host edited."
-msgstr "Nodul a fost actualizat."
-
-#: content/views.py:543
+#: rootio/configuration/views.py:155
 msgid "Configuration saved."
 msgstr "Configurația a fost salvată."
 
-#: content/views.py:570
+#: rootio/configuration/views.py:206
+msgid "TTS settings updated."
+msgstr ""
+
+#: rootio/configuration/views.py:229
+msgid "Synchronization settings updated."
+msgstr ""
+
+#: rootio/content/forms.py:25 rootio/content/forms.py:57
+#: rootio/content/forms.py:77 rootio/content/forms.py:84
+#: rootio/content/forms.py:91 rootio/content/forms.py:98
+#: rootio/frontend/forms.py:55 rootio/radio/forms.py:32
+#: rootio/radio/forms.py:83 rootio/radio/forms.py:106
+#: rootio/radio/forms.py:132 rootio/radio/forms.py:162
+#: rootio/radio/forms.py:198 rootio/radio/forms.py:237
+#: rootio/radio/forms.py:255 rootio/radio/forms.py:268
+#: rootio/radio/forms.py:278 rootio/radio/forms.py:289
+#: rootio/radio/forms.py:302 rootio/radio/forms.py:312
+#: rootio/radio/forms.py:325 rootio/radio/forms.py:345
+#: rootio/radio/forms.py:352 rootio/settings/forms.py:33
+#: rootio/settings/forms.py:63 rootio/settings/forms.py:80
+#: rootio/telephony/forms.py:31 rootio/telephony/forms.py:49
+#: rootio/user/forms.py:34
+msgid "Save"
+msgstr "Salvează"
+
+#: rootio/content/forms.py:54 rootio/content/forms.py:95
+msgid "Name of the stream"
+msgstr "Numele stream-ului"
+
+#: rootio/content/forms.py:55
+msgid "Track name"
+msgstr "Numele clipului"
+
+#: rootio/content/forms.py:56 rootio/content/forms.py:82
+#: rootio/content/forms.py:96 rootio/settings/forms.py:30
+#: rootio/settings/forms.py:60
+msgid "URL"
+msgstr "URL"
+
+#: rootio/content/forms.py:62
+msgid "Use Text-to-Speech"
+msgstr ""
+
+#: rootio/content/forms.py:63 rootio/content/forms.py:89
+msgid "Station"
+msgstr "Statie radio"
+
+#: rootio/content/forms.py:64
+msgid "Welcome message (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:65
+msgid "Message type (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:66
+msgid "Days prompt (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:67
+msgid "Record Prompt (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:68
+msgid "Finalization prompt (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:69
+msgid "Goodbye message (recorded file)"
+msgstr ""
+
+#: rootio/content/forms.py:71
+msgid "Welcome message (text)"
+msgstr ""
+
+#: rootio/content/forms.py:72
+msgid "Message type (text)"
+msgstr ""
+
+#: rootio/content/forms.py:73
+msgid "Days prompt (text)"
+msgstr ""
+
+#: rootio/content/forms.py:74
+msgid "Record Prompt (text)"
+msgstr ""
+
+#: rootio/content/forms.py:75
+msgid "Finalization prompt (text)"
+msgstr ""
+
+#: rootio/content/forms.py:76
+msgid "Goodbye message (text)"
+msgstr ""
+
+#: rootio/content/forms.py:81
+msgid "Name of the podcast"
+msgstr "Numele podcast-ului"
+
+#: rootio/content/forms.py:83 rootio/content/forms.py:90
+#: rootio/content/forms.py:97
+msgid "Description"
+msgstr "Descriere"
+
+#: rootio/content/forms.py:88
+msgid "Name of the playlist"
+msgstr "Numele playlist-ului"
+
+#: rootio/content/views.py:97
+msgid "Track updated."
+msgstr "Clip actualizat"
+
+#: rootio/content/views.py:114
+msgid "Track added."
+msgstr "Clip adăugat"
+
+#: rootio/content/views.py:138
+msgid "Content updated."
+msgstr "Conținut actualizat."
+
+#: rootio/content/views.py:155
+msgid "No file part"
+msgstr ""
+
+#: rootio/content/views.py:161
+msgid "No selected file"
+msgstr "Nici un fisier selectat"
+
+#: rootio/content/views.py:187
+msgid "Content added."
+msgstr "Conținut adăugat."
+
+#: rootio/content/views.py:261
+msgid "Host added."
+msgstr "Nod adăugat."
+
+#: rootio/content/views.py:287
+msgid "Host edited."
+msgstr "Nodul a fost actualizat."
+
+#: rootio/content/views.py:337
 msgid "Podcast updated"
 msgstr "Podcast actualizat"
 
-#: content/views.py:590
+#: rootio/content/views.py:374
 msgid "Podcast added."
 msgstr "Podcast adaugat"
 
-#: content/views.py:616
+#: rootio/content/views.py:400
 msgid "Stream updated"
 msgstr "Stream actualizat"
 
-#: content/views.py:636
+#: rootio/content/views.py:437
 msgid "Stream added."
 msgstr "Stream adaugat"
 
-#: content/views.py:774
+#: rootio/content/views.py:475
+msgid "Playlist updated."
+msgstr ""
+
+#: rootio/content/views.py:583
 msgid "Playlist added."
 msgstr "Playlist adaugat"
 
-#: frontend/forms.py:19
+#: rootio/frontend/forms.py:19
 msgid "Username or email"
 msgstr "Numele de utilizator sau adresa de email"
 
-#: frontend/forms.py:20 frontend/forms.py:29 frontend/forms.py:52
-#: frontend/forms.py:59 frontend/forms.py:73 settings/forms.py:52
-#: templates/settings/layout.html:8
+#: rootio/frontend/forms.py:20 rootio/frontend/forms.py:29
+#: rootio/frontend/forms.py:53 rootio/frontend/forms.py:60
+#: rootio/frontend/forms.py:74 rootio/settings/forms.py:52
 msgid "Password"
 msgstr "Parola"
 
-#: frontend/forms.py:21
+#: rootio/frontend/forms.py:21
 msgid "Remember me"
 msgstr "Ține-mă minte"
 
-#: frontend/forms.py:22 templates/frontend/create_profile.html:8
-#: templates/frontend/login.html:3 templates/frontend/login.html:8
-#: templates/frontend/signup.html:8 templates/layouts/base.html:56
+#: rootio/frontend/forms.py:22
 msgid "Sign in"
 msgstr "Autentificare"
 
-#: frontend/forms.py:27 frontend/forms.py:72 settings/forms.py:23
-#: settings/forms.py:50 templates/content/content_hosts.html:18
-#: templates/frontend/login_openid.html:8 templates/macros/_misc.html:7
-#: templates/radio/people.html:13 templates/user/manager.html:17
+#: rootio/frontend/forms.py:27 rootio/frontend/forms.py:73
+#: rootio/settings/forms.py:23 rootio/settings/forms.py:50
 msgid "Email"
 msgstr "Email"
 
-#: frontend/forms.py:28 frontend/forms.py:72
+#: rootio/frontend/forms.py:28 rootio/frontend/forms.py:73
 msgid "What's your email address?"
 msgstr "Care este adresa ta de email?"
 
-#: frontend/forms.py:30
+#: rootio/frontend/forms.py:30
 #, python-format
 msgid "%s characters or more"
 msgstr ""
 
-#: frontend/forms.py:31 frontend/forms.py:70
+#: rootio/frontend/forms.py:31 rootio/frontend/forms.py:71
 msgid "Choose your username"
 msgstr "Alege-ti numele de utilizator"
 
-#: frontend/forms.py:32 frontend/forms.py:71
+#: rootio/frontend/forms.py:32 rootio/frontend/forms.py:72
 msgid "Don't worry. you can change it later."
 msgstr "Nu-ti fa griji! Poti sa-l schimbi ulterior."
 
-#: frontend/forms.py:33
+#: rootio/frontend/forms.py:33
 msgid "Agree to the <a target=\"blank\" href=\"/terms\">Terms of Service</a>"
 msgstr "Accepta termenii si conditiile de functionare"
 
-#: frontend/forms.py:34 templates/frontend/login.html:8
-#: templates/frontend/signup.html:3 templates/frontend/signup.html:8
-#: templates/frontend/terms.html:3 templates/layouts/base.html:55
+#: rootio/frontend/forms.py:34
 msgid "Sign up"
 msgstr "Cont nou"
 
-#: frontend/forms.py:38
+#: rootio/frontend/forms.py:38
 msgid "This username is already registered"
 msgstr "Numele de utilizator este deja înregistrat"
 
-#: frontend/forms.py:42
+#: rootio/frontend/forms.py:42
 msgid "This email is already registered"
 msgstr "Adresa de email este deja înregistrată"
 
-#: frontend/forms.py:46
+#: rootio/frontend/forms.py:46
 msgid "Your email"
 msgstr "Adresa ta de email"
 
-#: frontend/forms.py:47
+#: rootio/frontend/forms.py:47
 msgid "Send instructions"
 msgstr "Trimite instructiunile"
 
-#: frontend/forms.py:53 settings/forms.py:78
+#: rootio/frontend/forms.py:54 rootio/settings/forms.py:78
 msgid "Password again"
 msgstr "Introdu din nou parola"
 
-#: frontend/forms.py:53
+#: rootio/frontend/forms.py:54
 msgid "Passwords don't match"
 msgstr "Parolele nu se potrivesc"
 
-#: frontend/forms.py:60 templates/frontend/reauth.html:8
+#: rootio/frontend/forms.py:61
 msgid "Reauthenticate"
 msgstr "Autentifica-te din nou."
 
-#: frontend/forms.py:64
+#: rootio/frontend/forms.py:65
 msgid "Your OpenID"
 msgstr "Contul tau de OpenID"
 
-#: frontend/forms.py:65
+#: rootio/frontend/forms.py:66
 msgid "Log in with OpenID"
 msgstr "Logheaza-te cu OpenID"
 
-#: frontend/forms.py:74
+#: rootio/frontend/forms.py:75
 #, python-format
 msgid "%s characters or more! Be tricky."
 msgstr ""
 
-#: frontend/forms.py:75 templates/frontend/create_profile.html:8
+#: rootio/frontend/forms.py:76
 msgid "Create Profile"
 msgstr "Creaza profil"
 
-#: frontend/forms.py:79
+#: rootio/frontend/forms.py:80
 msgid "This username is taken."
 msgstr "Acest nume de utlizator este deja in uz."
 
-#: frontend/forms.py:83
+#: rootio/frontend/forms.py:84
 msgid "This email is taken."
 msgstr "Aceasta adresa de email este deja in uz."
 
-#: frontend/views.py:37 frontend/views.py:103
+#: rootio/frontend/views.py:38 rootio/frontend/views.py:104
 msgid "Logged in"
 msgstr "Logat"
 
-#: frontend/views.py:84
+#: rootio/frontend/views.py:85
 msgid "Please input keyword(s)"
 msgstr "Include cuvintele cheie"
 
-#: frontend/views.py:107
+#: rootio/frontend/views.py:108
 msgid ""
 "This account is not yet activated. Please click the link sent to you to "
 "activate"
 msgstr ""
 
-#: frontend/views.py:109
+#: rootio/frontend/views.py:111
 msgid "Invalid login details. Please try again"
 msgstr ""
 
-#: frontend/views.py:124
+#: rootio/frontend/views.py:121
+msgid ""
+"A new activation link was sent to you via email, please check your inbox!"
+msgstr ""
+
+#: rootio/frontend/views.py:135
 msgid "Reauthenticated."
 msgstr ""
 
-#: frontend/views.py:127 settings/forms.py:85
+#: rootio/frontend/views.py:138 rootio/settings/forms.py:85
 msgid "Password is wrong."
 msgstr "Parola este greșită"
 
-#: frontend/views.py:135
+#: rootio/frontend/views.py:146
 msgid "Logged out"
 msgstr ""
 
-#: frontend/views.py:172
+#: rootio/frontend/views.py:164
 msgid ""
 "Your account was created. Please click on the link sent to your email to "
 "validate it"
 msgstr ""
 
-#: frontend/views.py:184
+#: rootio/frontend/views.py:199
 msgid "Invalid link"
 msgstr ""
 
-#: frontend/views.py:187
+#: rootio/frontend/views.py:202
 msgid ""
 "No user found. This account is probably already validated, try logging in"
 msgstr ""
 
-#: frontend/views.py:191
+#: rootio/frontend/views.py:206
 msgid "This account has successfully been validated, please login"
 msgstr ""
 
-#: frontend/views.py:219
+#: rootio/frontend/views.py:234
 msgid "Your password has been changed, please log in again"
 msgstr ""
 
-#: frontend/views.py:234
+#: rootio/frontend/views.py:248
 msgid "Please see your email for instructions on how to access your account"
 msgstr ""
 
-#: frontend/views.py:250
+#: rootio/frontend/views.py:274
 msgid "Sorry, no user found for that email address"
 msgstr ""
 
-#: frontend/views.py:264
+#: rootio/frontend/views.py:288
 msgid "Language changed to "
 msgstr "Limba schimbată în"
 
-#: radio/fields.py:70
+#: rootio/radio/fields.py:70
 msgid "Invalid JSON data."
 msgstr ""
 
-#: radio/forms.py:38
+#: rootio/radio/forms.py:42
 msgid "Name or callsign of station"
 msgstr ""
 
-#: radio/forms.py:39
+#: rootio/radio/forms.py:43
 msgid "Station broadcast frequency"
 msgstr ""
 
-#: radio/forms.py:41
+#: rootio/radio/forms.py:45
 msgid "Station contact telephone number"
 msgstr ""
 
-#: radio/forms.py:43
-msgid "User who is the owner of the station"
-msgstr ""
-
-#: radio/forms.py:44
+#: rootio/radio/forms.py:47
 msgid "Primary languages the station will broadcast in"
 msgstr ""
 
-#: radio/forms.py:45
+#: rootio/radio/forms.py:48
 msgid "How frequently the transmitter should check for updates, in seconds"
 msgstr ""
 
-#: radio/forms.py:47
+#: rootio/radio/forms.py:50
 msgid ""
 "IP address of the transmitter on the local network. Should start with 230."
 msgstr ""
 
-#: radio/forms.py:100
+#: rootio/radio/forms.py:72
+msgid "Station Name"
+msgstr ""
+
+#: rootio/radio/forms.py:75
+msgid "Languages"
+msgstr ""
+
+#: rootio/radio/forms.py:76
+msgid "Key for communication with the API"
+msgstr ""
+
+#: rootio/radio/forms.py:78
+msgid "Broadcasting Frequency"
+msgstr ""
+
+#: rootio/radio/forms.py:79
+msgid "About the station"
+msgstr ""
+
+#: rootio/radio/forms.py:130
+msgid "SIP Port"
+msgstr ""
+
+#: rootio/radio/forms.py:130
+msgid "1 - 65535"
+msgstr ""
+
+#: rootio/radio/forms.py:131
+msgid "Re-register Period"
+msgstr ""
+
+#: rootio/radio/forms.py:131
+msgid "30 - 3600"
+msgstr ""
+
+#: rootio/radio/forms.py:189
+msgid "Frequency of Synchronization (Transmission site to cloud server)"
+msgstr ""
+
+#: rootio/radio/forms.py:194
+msgid "Frequency of transmission site probing"
+msgstr ""
+
+#: rootio/radio/forms.py:234
+msgid "TTS Voice"
+msgstr ""
+
+#: rootio/radio/forms.py:234 rootio/radio/forms.py:235
+#: rootio/radio/forms.py:236
+msgid "-select-"
+msgstr ""
+
+#: rootio/radio/forms.py:235
+msgid "Audio Quality"
+msgstr ""
+
+#: rootio/radio/forms.py:236
+msgid "Audio Format"
+msgstr ""
+
+#: rootio/radio/forms.py:249
 msgid "Drag content here in desired order, double click to reset"
 msgstr ""
 
-#: radio/forms.py:102
+#: rootio/radio/forms.py:251
 msgid "Duration of the program, in HH:MM(:SS)"
 msgstr ""
 
-#: radio/forms.py:110 radio/forms.py:111
+#: rootio/radio/forms.py:254
+msgid "Networks"
+msgstr ""
+
+#: rootio/radio/forms.py:260 rootio/radio/forms.py:261
 msgid "This field expects JSON"
 msgstr ""
 
-#: radio/forms.py:190
-msgid "Time to begin airing"
-msgstr ""
-
-#: radio/views.py:63
+#: rootio/radio/views.py:70
 msgid "Network Created."
 msgstr ""
 
-#: radio/views.py:87 radio/views.py:595
-msgid "Station updated."
-msgstr ""
-
-#: radio/views.py:107 radio/views.py:615
-msgid "Station added."
-msgstr ""
-
-#: radio/views.py:149
+#: rootio/radio/views.py:157
 msgid "Program updated."
 msgstr ""
 
-#: radio/views.py:180 radio/views.py:212
+#: rootio/radio/views.py:192 rootio/radio/views.py:245
 msgid "Program added."
 msgstr ""
 
-#: radio/views.py:243
+#: rootio/radio/views.py:276
 msgid "Music Program updated."
 msgstr ""
 
-#: radio/views.py:265
+#: rootio/radio/views.py:315
 msgid "Person updated."
 msgstr ""
 
-#: radio/views.py:283
+#: rootio/radio/views.py:333
 msgid "Person added."
 msgstr ""
 
-#: radio/views.py:335
+#: rootio/radio/views.py:385
 msgid "Block updated."
 msgstr ""
 
-#: radio/views.py:353
+#: rootio/radio/views.py:403
 msgid "Block added."
 msgstr ""
 
-#: rootio/views.py:48
+#: rootio/rootio/views.py:48
 msgid "User updated."
 msgstr ""
 
-#: rootio/views.py:74
+#: rootio/rootio/views.py:74
 msgid "Language updated."
 msgstr ""
 
-#: rootio/views.py:93
+#: rootio/rootio/views.py:93
 msgid "Language added."
 msgstr ""
 
-#: rootio/views.py:121
+#: rootio/rootio/views.py:121
 msgid "Program Type updated."
 msgstr ""
 
-#: rootio/views.py:140
+#: rootio/rootio/views.py:140
 msgid "Program Type added."
 msgstr ""
 
-#: rootio/views.py:171
+#: rootio/rootio/views.py:171
 msgid "Content Type updated."
 msgstr ""
 
-#: rootio/views.py:190
+#: rootio/rootio/views.py:190
 msgid "Content Type added."
 msgstr ""
 
-#: settings/forms.py:25 settings/forms.py:55
+#: rootio/settings/forms.py:25 rootio/settings/forms.py:55
 msgid "Avatar"
 msgstr ""
 
-#: settings/forms.py:26 settings/forms.py:56
-#: templates/content/content_hosts.html:17
+#: rootio/settings/forms.py:26 rootio/settings/forms.py:56
 msgid "Gender"
 msgstr ""
 
-#: settings/forms.py:28 settings/forms.py:58 templates/user/manager.html:18
+#: rootio/settings/forms.py:28 rootio/settings/forms.py:58
 msgid "Age"
 msgstr ""
 
-#: settings/forms.py:29 settings/forms.py:59 templates/radio/people.html:14
-#: templates/user/manager.html:19
+#: rootio/settings/forms.py:29 rootio/settings/forms.py:59
 msgid "Phone"
 msgstr ""
 
-#: settings/forms.py:31 settings/forms.py:61 templates/radio/stations.html:15
-#: templates/user/manager.html:20
+#: rootio/settings/forms.py:31 rootio/settings/forms.py:61
 msgid "Location"
 msgstr ""
 
-#: settings/forms.py:32 settings/forms.py:62
+#: rootio/settings/forms.py:32 rootio/settings/forms.py:62
 msgid "Bio"
 msgstr ""
 
-#: settings/forms.py:38
+#: rootio/settings/forms.py:38
 msgid "Please pick another name."
 msgstr ""
 
-#: settings/forms.py:42 settings/forms.py:67
+#: rootio/settings/forms.py:42 rootio/settings/forms.py:67
 #, python-format
 msgid "Please upload files with extensions: %s/"
 msgstr ""
 
-#: settings/forms.py:51 templates/content/content_hosts.html:15
-#: templates/content/tracks.html:15 templates/radio/index.html:63
-#: templates/radio/music_programs.html:13 templates/radio/people.html:12
-#: templates/radio/programs.html:13 templates/radio/scheduled_blocks.html:12
-#: templates/radio/schedules.html:9 templates/radio/stations.html:14
-#: templates/radio/stations_telephony.html:12
-#: templates/rootio/content_types.html:12 templates/rootio/languages.html:12
-#: templates/rootio/program_types.html:12 templates/telephony/gateways.html:67
-#: templates/user/manager.html:16
+#: rootio/settings/forms.py:51
 msgid "Name"
 msgstr ""
 
-#: settings/forms.py:53
+#: rootio/settings/forms.py:53
 msgid "Retype-password"
 msgstr ""
 
-#: settings/forms.py:71
+#: rootio/settings/forms.py:71
 msgid "The Passwords Don't Match"
 msgstr ""
 
-#: settings/forms.py:76
+#: rootio/settings/forms.py:76
 msgid "Current password"
 msgstr ""
 
-#: settings/forms.py:77
+#: rootio/settings/forms.py:77
 msgid "New password"
 msgstr ""
 
-#: settings/views.py:69
+#: rootio/settings/views.py:74
 msgid "Public profile updated."
 msgstr ""
 
-#: settings/views.py:88
+#: rootio/settings/views.py:93
 msgid "Password updated."
 msgstr ""
 
-#: telephony/forms.py:27 templates/telephony/phonenumbers.html:12
-msgid "Type"
-msgstr ""
-
-#: telephony/views.py:51
-msgid "Phone Number updated."
-msgstr ""
-
-#: telephony/views.py:69
-msgid "Phone Number added."
-msgstr ""
-
-#: templates/index.html:9
-msgid ""
-"a loosely-integrated, content-agnostic “solution stack” for peer-oriented "
-"radio networks "
-msgstr ""
-
-#: templates/index.html:10
-msgid "Demo"
-msgstr ""
-
-#: templates/content/community_menu.html:8
-#: templates/content/community_menu.html:11
-msgid "Configure Menu"
-msgstr ""
-
-#: templates/content/content_ads.html:25
-#: templates/content/content_hosts.html:5
-#: templates/content/content_medias.html:25
-#: templates/content/content_news.html:5
-#: templates/content/content_playlists.html:97
-#: templates/content/content_podcasts.html:88
-#: templates/content/content_streams.html:31
-#: templates/content/content_uploads.html:6 templates/content/index.html:5
-#: templates/content/tracks.html:5
-msgid "Content Dashboard"
-msgstr ""
-
-#: templates/content/content_ads.html:27 templates/content/layout.html:12
-#: templates/radio/program.html:94
-msgid "Ads"
-msgstr ""
-
-#: templates/content/content_ads.html:30
-#: templates/content/content_host.html:11
-#: templates/content/content_hosts.html:10
-#: templates/content/content_media.html:11
-#: templates/content/content_medias.html:30
-#: templates/content/content_news.html:11
-#: templates/content/content_news_edit.html:11
-#: templates/content/content_playlist.html:11
-#: templates/content/content_playlists.html:102
-#: templates/content/content_podcast.html:11
-#: templates/content/content_podcasts.html:93
-#: templates/content/content_stream.html:11
-#: templates/content/content_streams.html:36
-#: templates/content/content_upload.html:11
-#: templates/content/content_uploads.html:11 templates/content/track.html:11
-#: templates/content/tracks.html:10 templates/radio/music_program.html:111
-#: templates/radio/music_programs.html:7 templates/radio/network.html:21
-#: templates/radio/people.html:7 templates/radio/person.html:10
-#: templates/radio/program.html:158 templates/radio/programs.html:7
-#: templates/radio/scheduled_block.html:28
-#: templates/radio/scheduled_blocks.html:7 templates/radio/station.html:11
-#: templates/radio/station_telephony.html:11 templates/radio/stations.html:8
-#: templates/radio/stations_telephony.html:7
-#: templates/rootio/content_type.html:11 templates/rootio/language.html:11
-#: templates/rootio/program_type.html:11
-#: templates/telephony/phonenumber.html:11
-#: templates/telephony/phonenumbers.html:7 templates/user/manager.html:11
-#: templates/user/user.html:6
-msgid "Add"
-msgstr ""
-
-#: templates/content/content_ads.html:36
-#: templates/content/content_medias.html:36
-#: templates/content/content_news.html:19
-#: templates/content/content_uploads.html:17
-msgid "Uploaded date"
-msgstr ""
-
-#: templates/content/content_ads.html:37
-#: templates/content/content_medias.html:37
-#: templates/content/content_news.html:20
-#: templates/content/content_podcasts.html:73
-#: templates/content/content_streams.html:44
-#: templates/content/content_uploads.html:18
-msgid "Listen"
-msgstr ""
-
-#: templates/content/content_ads.html:38
-#: templates/content/content_medias.html:38
-#: templates/content/content_news.html:21
-#: templates/content/content_uploads.html:19
-msgid "File name"
-msgstr ""
-
-#: templates/content/content_ads.html:56 templates/content/content_host.html:8
-#: templates/content/content_hosts.html:38
-#: templates/content/content_media.html:8
-#: templates/content/content_medias.html:55
-#: templates/content/content_news.html:38
-#: templates/content/content_news_edit.html:8
-#: templates/content/content_playlist.html:8
-#: templates/content/content_podcast.html:8
-#: templates/content/content_podcasts.html:102
-#: templates/content/content_podcasts.html:112
-#: templates/content/content_stream.html:8
-#: templates/content/content_streams.html:45
-#: templates/content/content_streams.html:61
-#: templates/content/content_upload.html:8
-#: templates/content/content_uploads.html:37 templates/content/track.html:8
-#: templates/content/tracks.html:26 templates/radio/music_program.html:104
-#: templates/radio/music_programs.html:17
-#: templates/radio/music_programs.html:27 templates/radio/network.html:18
-#: templates/radio/people.html:24 templates/radio/person.html:7
-#: templates/radio/program.html:151 templates/radio/programs.html:17
-#: templates/radio/programs.html:27 templates/radio/scheduled_block.html:26
-#: templates/radio/scheduled_blocks.html:24 templates/radio/station.html:8
-#: templates/radio/station_telephony.html:8 templates/radio/stations.html:20
-#: templates/radio/stations.html:34 templates/radio/stations_telephony.html:19
-#: templates/radio/stations_telephony.html:42
-#: templates/rootio/content_type.html:8 templates/rootio/language.html:8
-#: templates/rootio/program_type.html:8 templates/rootio/user.html:7
-#: templates/telephony/phonenumber.html:8
-#: templates/telephony/phonenumbers.html:26 templates/user/manager.html:24
-#: templates/user/manager.html:38
-msgid "Edit"
-msgstr ""
-
-#: templates/content/content_ads_edit.html:8
-msgid "Edit Advertisement"
-msgstr ""
-
-#: templates/content/content_ads_edit.html:11
-msgid "Upload Avertisement"
-msgstr ""
-
-#: templates/content/content_host.html:8
-#: templates/content/content_host.html:11
-msgid "Host"
-msgstr ""
-
-#: templates/content/content_hosts.html:7
-msgid "Program Hosts"
-msgstr ""
-
-#: templates/content/content_hosts.html:16
-#: templates/telephony/phonenumber.html:8
-#: templates/telephony/phonenumber.html:11
+#: rootio/telephony/forms.py:27
 msgid "Phone Number"
 msgstr ""
 
-#: templates/content/content_hosts.html:19 templates/radio/stations.html:18
-#: templates/rootio/languages.html:5 templates/rootio/layout.html:10
-msgid "Languages"
+#: rootio/telephony/forms.py:28
+msgid "Type"
 msgstr ""
 
-#: templates/content/content_media.html:8
-#: templates/content/content_media.html:11
-#: templates/content/content_medias.html:27 templates/content/layout.html:14
-#: templates/radio/program.html:106
-msgid "Media"
+#: rootio/telephony/views.py:51
+msgid "Phone Number updated."
 msgstr ""
 
-#: templates/content/content_news.html:7 templates/content/layout.html:10
-#: templates/radio/program.html:81
-msgid "News"
+#: rootio/telephony/views.py:69
+msgid "Phone Number added."
 msgstr ""
 
-#: templates/content/content_news_edit.html:8
-#: templates/content/content_news_edit.html:11
-msgid "News Uploads"
-msgstr ""
-
-#: templates/content/content_playlist.html:8
-#: templates/content/content_playlist.html:11
-msgid "Music Playlist"
-msgstr ""
-
-#: templates/content/content_playlists.html:73
-#: templates/content/content_podcasts.html:65 templates/radio/schedule.html:98
-#: templates/telephony/gateways.html:48
-msgid "Add Recurring Program to Schedule"
-msgstr ""
-
-#: templates/content/content_playlists.html:79
-msgid "ID"
-msgstr ""
-
-#: templates/content/content_playlists.html:80
-msgid "Title"
-msgstr ""
-
-#: templates/content/content_playlists.html:81
-msgid "Is Included"
-msgstr ""
-
-#: templates/content/content_playlists.html:82
-msgid "Songs/Duration"
-msgstr ""
-
-#: templates/content/content_playlists.html:99
-#: templates/content/layout.html:17 templates/radio/music_program.html:69
-msgid "Playlists"
-msgstr ""
-
-#: templates/content/content_playlists.html:108
-msgid "Playlist"
-msgstr ""
-
-#: templates/content/content_playlists.html:110
-#: templates/content/content_playlists.html:121
-msgid "Songs"
-msgstr ""
-
-#: templates/content/content_playlists.html:111
-#: templates/content/content_playlists.html:122
-msgid "Albums"
-msgstr ""
-
-#: templates/content/content_playlists.html:112
-#: templates/content/content_playlists.html:123
-msgid "Artists"
-msgstr ""
-
-#: templates/content/content_podcast.html:8
-#: templates/content/content_podcast.html:11
-msgid "Content Podcast"
-msgstr ""
-
-#: templates/content/content_podcasts.html:71
-msgid "Date Created"
-msgstr ""
-
-#: templates/content/content_podcasts.html:72
-#: templates/radio/schedules.html:10
-msgid "Summary"
-msgstr ""
-
-#: templates/content/content_podcasts.html:90 templates/content/layout.html:16
-#: templates/radio/program.html:120
-msgid "Podcasts"
-msgstr ""
-
-#: templates/content/content_podcasts.html:98
-msgid "Podcast name"
-msgstr ""
-
-#: templates/content/content_podcasts.html:101
-msgid "Downloads"
-msgstr ""
-
-#: templates/content/content_podcasts.html:111
-msgid "Files"
-msgstr ""
-
-#: templates/content/content_stream.html:8
-#: templates/content/content_stream.html:11
-msgid "Content Stream"
-msgstr ""
-
-#: templates/content/content_streams.html:33 templates/content/layout.html:15
-#: templates/radio/music_program.html:86
-msgid "Streams"
-msgstr ""
-
-#: templates/content/content_streams.html:41
-msgid "Stream name"
-msgstr ""
-
-#: templates/content/content_upload.html:8
-#: templates/content/content_upload.html:11
-msgid "Content Uploads"
-msgstr ""
-
-#: templates/content/content_uploads.html:8 templates/content/index.html:14
-msgid "Uploads"
-msgstr ""
-
-#: templates/content/index.html:7 templates/content/layout.html:8
-#: templates/radio/layout.html:8 templates/rootio/users.html:10
-#: templates/telephony/layout.html:8 templates/user/manager.html:23
-#: user/forms.py:30
-msgid "Status"
-msgstr ""
-
-#: templates/content/index.html:12 templates/content/tracks.html:17
-#: templates/rootio/content_type.html:8 templates/rootio/content_type.html:11
-msgid "Content Type"
-msgstr ""
-
-#: templates/content/index.html:13 templates/content/track.html:8
-#: templates/content/track.html:11
-msgid "Track"
-msgstr ""
-
-#: templates/content/index.html:15
-msgid "Subscriptions"
-msgstr ""
-
-#: templates/content/layout.html:9 templates/content/tracks.html:7
-msgid "Tracks"
-msgstr ""
-
-#: templates/content/layout.html:11
-msgid "Community Notices"
-msgstr ""
-
-#: templates/content/layout.html:13 templates/radio/program.html:68
-msgid "Hosts"
-msgstr ""
-
-#: templates/errors/layout.html:9 templates/layouts/base.html:9
-msgid "Project"
-msgstr ""
-
-#: templates/errors/server_error.html:2
-msgid "Server error"
-msgstr ""
-
-#: templates/errors/server_error.html:4
-msgid "Server Error"
-msgstr ""
-
-#: templates/errors/server_error.html:5
-msgid "Sorry for the inconvenience"
-msgstr ""
-
-#: templates/frontend/create_profile.html:8 templates/frontend/signup.html:8
-msgid "Already have an account?"
-msgstr ""
-
-#: templates/frontend/create_profile.html:8 templates/frontend/login.html:8
-#: templates/frontend/signup.html:8
-msgid "please"
-msgstr ""
-
-#: templates/frontend/login.html:8
-msgid "Don't have an account?"
-msgstr ""
-
-#: templates/frontend/login_openid.html:9
-msgid "Error"
-msgstr ""
-
-#: templates/frontend/reset_password.html:8
-msgid "Reset Password"
-msgstr ""
-
-#: templates/frontend/search.html:6
-#, python-format
-msgid "Search results for \"%(keywords)s\""
-msgstr ""
-
-#: templates/frontend/search.html:8
-msgid "Keywords needed!"
-msgstr ""
-
-#: templates/frontend/search.html:13
-#, python-format
-msgid ""
-"<strong>%(total)s</strong> found for your search "
-"\"<strong>%(keywords)s</strong>\"."
-msgstr ""
-
-#: templates/frontend/search.html:17
-#, python-format
-msgid "Sorry, Nothing found for your search \"<strong>%(keywords)s</strong>\"."
-msgstr ""
-
-#: templates/frontend/search.html:18
-msgid ""
-"\n"
-"    <p>Suggestions:</p>\n"
-"    <ul>\n"
-"       <li>Make sure all words are spelled correctly.</li>\n"
-"       <li>Try different keywords.</li>\n"
-"       <li>Try more general keywords.</li>\n"
-"    </ul>\n"
-"    "
-msgstr ""
-
-#: templates/frontend/terms.html:8
-msgid "Terms of use"
-msgstr ""
-
-#: templates/frontend/footers/help.html:9
-msgid "Question"
-msgstr ""
-
-#: templates/frontend/footers/help.html:12
-msgid "Answer"
-msgstr ""
-
-#: templates/layouts/base.html:131
-#, python-format
-msgid "<a href=\"%(link)s\">%(tab)s</a>"
-msgstr ""
-
-#: templates/layouts/base.html:150
-msgid "About"
-msgstr ""
-
-#: templates/layouts/base.html:152
-msgid "Help"
-msgstr ""
-
-#: templates/layouts/base.html:154
-msgid "Terms"
-msgstr ""
-
-#: templates/macros/_ask_user_to_update_ie.html:2
-msgid ""
-"You are using an <strong>outdated</strong> browser. Please <a "
-"href=\"http://browsehappy.com/\">upgrade your browser</a> or <a "
-"href=\"http://www.google.com/chromeframe/?redirect=true\">activate Google "
-"Chrome Frame</a> to improve your experience."
-msgstr ""
-
-#: templates/macros/_misc.html:6 templates/rootio/users.html:9
-msgid "Username"
-msgstr ""
-
-#: templates/macros/_misc.html:26
-msgid "Previous"
-msgstr ""
-
-#: templates/macros/_misc.html:38
-msgid "Next"
-msgstr ""
-
-#: templates/macros/_reset_password.html:1
-#, python-format
-msgid ""
-"\n"
-"<p>Forgot your password, %(username)s?</p>\n"
-"\n"
-"<p>%(project)s received a request to reset the password for your %(project)s account %(username)s.</p>\n"
-"\n"
-"<p>If you want to reset your password, click on the link below (or copy and paste the URL into your browser):</p>\n"
-"\n"
-"<a href=\"%(url)s\">Click to Reset Password</a>\n"
-"\n"
-"<p>This link takes you to a secure page where you can change your password. For tips on selecting a strong password, see our Safe Tweeting help page.</p>\n"
-"\n"
-"<p>If you don't want to reset your password, please ignore this message. Your password will not be reset. If you have any concerns, please contact us at %(project)s Support.</p>\n"
-"\n"
-"<p>The %(project)s Team</p>\n"
-msgstr ""
-
-#: templates/messenger/layout.html:8
-msgid "Message Test"
-msgstr ""
-
-#: templates/onair/index.html:5
-msgid "On Air Dashboard"
-msgstr ""
-
-#: templates/radio/emergency.html:26
-msgid "Emergency Broadcast"
-msgstr ""
-
-#: templates/radio/emergency.html:28 templates/radio/layout.html:9
-#: templates/radio/scheduled_blocks.html:13 templates/radio/stations.html:5
-msgid "Stations"
-msgstr ""
-
-#: templates/radio/emergency.html:32
-msgid "Send Message"
-msgstr ""
-
-#: templates/radio/emergency.html:44
-msgid "Send"
-msgstr ""
-
-#: templates/radio/index.html:53
-msgid "Create Network"
-msgstr ""
-
-#: templates/radio/index.html:56
-msgid " Stations "
-msgstr ""
-
-#: templates/radio/index.html:62 templates/radio/network.html:18
-#: templates/radio/network.html:21
-msgid "Network"
-msgstr ""
-
-#: templates/radio/index.html:64
-msgid "Battery"
-msgstr ""
-
-#: templates/radio/index.html:65
-msgid "GSM Signal"
-msgstr ""
-
-#: templates/radio/index.html:66
-msgid "WiFi Network"
-msgstr ""
-
-#: templates/radio/index.html:67
-msgid "Memory"
-msgstr ""
-
-#: templates/radio/index.html:68
-msgid "Storage"
-msgstr ""
-
-#: templates/radio/index.html:69
-msgid "CPU "
-msgstr ""
-
-#: templates/radio/layout.html:10 templates/radio/stations_telephony.html:5
-msgid "Stations Telephony"
-msgstr ""
-
-#: templates/radio/layout.html:11 templates/radio/programs.html:5
-msgid "Programs"
-msgstr ""
-
-#: templates/radio/layout.html:12 templates/radio/music_programs.html:5
-msgid "Music Programs"
-msgstr ""
-
-#: templates/radio/layout.html:13 templates/radio/schedule.html:58
-#: templates/radio/schedules.html:14 templates/radio/schedules.html:25
-msgid "Schedule"
-msgstr ""
-
-#: templates/radio/music_program.html:104
-#: templates/radio/music_program.html:111
-msgid "Music Program"
-msgstr ""
-
-#: templates/radio/music_programs.html:14 templates/radio/programs.html:14
-#: templates/radio/schedule.html:110
-msgid "Duration"
-msgstr ""
-
-#: templates/radio/music_programs.html:15 templates/radio/programs.html:15
-#: templates/rootio/language.html:8 templates/rootio/language.html:11
-msgid "Language"
-msgstr ""
-
-#: templates/radio/music_programs.html:16 templates/radio/programs.html:16
-msgid "Episodes Aired"
-msgstr ""
-
-#: templates/radio/people.html:5
-msgid "People"
-msgstr ""
-
-#: templates/radio/people.html:15 templates/rootio/users.html:11
-#: templates/user/manager.html:21 user/forms.py:28 user/forms.py:45
-#: user/forms.py:72 user/forms.py:105
+#: rootio/user/forms.py:28 rootio/user/forms.py:45 rootio/user/forms.py:72
+#: rootio/user/forms.py:105
 msgid "Role"
 msgstr ""
 
-#: templates/radio/person.html:7 templates/radio/person.html:10
-#: templates/telephony/phonenumbers.html:15
-msgid "Person"
+#: rootio/user/forms.py:30
+msgid "Status"
 msgstr ""
 
-#: templates/radio/program.html:135
-msgid "Commmunity"
-msgstr ""
-
-#: templates/radio/program.html:151 templates/radio/program.html:158
-msgid "Program"
-msgstr ""
-
-#: templates/radio/schedule.html:64
-msgid "Add Programs"
-msgstr ""
-
-#: templates/radio/schedule.html:74
-msgid "Recurring"
-msgstr ""
-
-#: templates/radio/schedule.html:82
-msgid "Unsaved Changes"
-msgstr ""
-
-#: templates/radio/schedule.html:84
-msgid "Edit Log"
-msgstr ""
-
-#: templates/radio/schedule.html:111 templates/rootio/program_type.html:8
-#: templates/rootio/program_type.html:11
-msgid "Program Type"
-msgstr ""
-
-#: templates/radio/schedule.html:112
-msgid "Update Frequency"
-msgstr ""
-
-#: templates/radio/schedule.html:122 templates/radio/scheduled_block.html:45
-msgid "Daily"
-msgstr ""
-
-#: templates/radio/schedule.html:123 templates/radio/scheduled_block.html:46
-msgid "Weekdays"
-msgstr ""
-
-#: templates/radio/schedule.html:124 templates/radio/scheduled_block.html:47
-msgid "Weekends"
-msgstr ""
-
-#: templates/radio/schedule.html:125 templates/radio/scheduled_block.html:48
-msgid "Custom"
-msgstr ""
-
-#: templates/radio/scheduled_block.html:26
-#: templates/radio/scheduled_block.html:28
-msgid "Block"
-msgstr ""
-
-#: templates/radio/scheduled_blocks.html:5
-msgid "Blocks"
-msgstr ""
-
-#: templates/radio/scheduled_blocks.html:14
-msgid "Start-End"
-msgstr ""
-
-#: templates/radio/scheduled_blocks.html:15
-msgid "Recurrence"
-msgstr ""
-
-#: templates/radio/schedules.html:5
-msgid "Station Schedules"
-msgstr ""
-
-#: templates/radio/schedules.html:9 templates/radio/stations.html:14
-msgid "(frequency)"
-msgstr ""
-
-#: templates/radio/schedules.html:11
-msgid "Previous Program"
-msgstr ""
-
-#: templates/radio/schedules.html:12
-msgid "Current Program"
-msgstr ""
-
-#: templates/radio/schedules.html:13
-msgid "Next Program"
-msgstr ""
-
-#: templates/radio/stations.html:16
-msgid "Owner"
-msgstr ""
-
-#: templates/radio/stations.html:17 templates/telephony/phonenumbers.html:5
-msgid "Phone Numbers"
-msgstr ""
-
-#: templates/radio/stations_telephony.html:13
-msgid "Cloud Number"
-msgstr ""
-
-#: templates/radio/stations_telephony.html:14
-msgid "Transmiter Number"
-msgstr ""
-
-#: templates/radio/stations_telephony.html:15
-msgid "Whitelist Numbers"
-msgstr ""
-
-#: templates/radio/stations_telephony.html:16
-msgid "Outgoing Gateways"
-msgstr ""
-
-#: templates/radio/stations_telephony.html:17
-#: templates/telephony/index.html:16
-msgid "Incoming Gateways"
-msgstr ""
-
-#: templates/rootio/content_types.html:5 templates/rootio/layout.html:13
-msgid "Content Types"
-msgstr ""
-
-#: templates/rootio/index.html:5
-msgid "Admin Dashboard"
-msgstr ""
-
-#: templates/rootio/index.html:7
-msgid "System status"
-msgstr ""
-
-#: templates/rootio/languages.html:13
-msgid "ISO Code"
-msgstr ""
-
-#: templates/rootio/languages.html:14
-msgid "Locale"
-msgstr ""
-
-#: templates/rootio/layout.html:8
-msgid "System"
-msgstr ""
-
-#: templates/rootio/layout.html:9 templates/user/manager.html:7
-msgid "Users"
-msgstr ""
-
-#: templates/rootio/layout.html:11
-msgid "Networks"
-msgstr ""
-
-#: templates/rootio/layout.html:12 templates/rootio/program_types.html:5
-msgid "Program Types"
-msgstr ""
-
-#: templates/rootio/program_types.html:14
-msgid "Definition"
-msgstr ""
-
-#: templates/rootio/program_types.html:15
-msgid "Phone Functions"
-msgstr ""
-
-#: templates/rootio/user.html:7 templates/user/user.html:6
-msgid "User"
-msgstr ""
-
-#: templates/rootio/users.html:12
-msgid "Created Time"
-msgstr ""
-
-#: templates/settings/layout.html:7
-msgid "Profile"
-msgstr ""
-
-#: templates/settings/password.html:7
-msgid "Change Password"
-msgstr ""
-
-#: templates/settings/profile.html:6 templates/user/profile.html:6
-msgid "Public Profile"
-msgstr ""
-
-#: templates/telephony/calls.html:5 templates/telephony/index.html:14
-#: templates/telephony/layout.html:9
-msgid "Calls"
-msgstr ""
-
-#: templates/telephony/calls.html:10
-msgid "id"
-msgstr ""
-
-#: templates/telephony/calls.html:11
-msgid "Start Time"
-msgstr ""
-
-#: templates/telephony/calls.html:12
-msgid "Duration (Secs.)"
-msgstr ""
-
-#: templates/telephony/calls.html:13 templates/telephony/messages.html:12
-msgid "From"
-msgstr ""
-
-#: templates/telephony/calls.html:14 templates/telephony/messages.html:13
-msgid "To"
-msgstr ""
-
-#: templates/telephony/gateways.html:63 templates/telephony/layout.html:11
-msgid "Gateways"
-msgstr ""
-
-#: templates/telephony/gateways.html:68
-msgid "Direction"
-msgstr ""
-
-#: templates/telephony/gateways.html:70
-#: templates/telephony/phonenumbers.html:14
-msgid "Number"
-msgstr ""
-
-#: templates/telephony/gateways.html:71
-msgid "String"
-msgstr ""
-
-#: templates/telephony/gateways.html:72 templates/telephony/gateways.html:94
-msgid "Check credit"
-msgstr ""
-
-#: templates/telephony/gateways.html:79
-msgid "Incoming"
-msgstr ""
-
-#: templates/telephony/gateways.html:88
-msgid "Outgoing"
-msgstr ""
-
-#: templates/telephony/index.html:6
-msgid "Telephony Dashboard"
-msgstr ""
-
-#: templates/telephony/index.html:15 templates/telephony/layout.html:10
-#: templates/telephony/messages.html:5
-msgid "Messages"
-msgstr ""
-
-#: templates/telephony/index.html:17
-msgid "Outgoing gateways"
-msgstr ""
-
-#: templates/telephony/messages.html:10
-msgid "Sendtime"
-msgstr ""
-
-#: templates/telephony/messages.html:11
-msgid "Text"
-msgstr ""
-
-#: templates/telephony/phonenumbers.html:13
-msgid "Country"
-msgstr ""
-
-#: templates/user/index.html:5
-msgid "Hello"
-msgstr ""
-
-#: templates/user/index.html:11 templates/user/index.html:22
-#: templates/user/index.html:30
-msgid " Radio Dashboard "
-msgstr ""
-
-#: templates/user/index.html:12 templates/user/index.html:23
-#: templates/user/index.html:31
-msgid " Telephony Dashboard "
-msgstr ""
-
-#: templates/user/index.html:13 templates/user/index.html:17
-#: templates/user/index.html:24 templates/user/index.html:32
-#: templates/user/index.html:37 templates/user/index.html:43
-msgid " Manage Content "
-msgstr ""
-
-#: templates/user/index.html:14
-msgid " Emergency Broadcast "
-msgstr ""
-
-#: templates/user/index.html:15
-msgid " Schedule Message Tester "
-msgstr ""
-
-#: templates/user/index.html:16 templates/user/index.html:25
-#: templates/user/index.html:38
-msgid " Manage Users "
-msgstr ""
-
-#: templates/user/manager.html:5
-msgid "Manage Users"
-msgstr ""
-
-#: templates/user/manager.html:22
-msgid "Last Accessed"
-msgstr ""
-
-#: user/forms.py:33
+#: rootio/user/forms.py:33
 msgid "Created time"
 msgstr ""
