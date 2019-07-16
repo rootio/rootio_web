@@ -16,6 +16,7 @@ class RSSDownloader:
     def __init__(self, podcast_id, logger):
         self.__podcast_id = podcast_id
         self.__logger = logger
+        self.__engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
         self.__db = self.__get_db_connection()
         self.__get_podcast()
 
@@ -27,8 +28,7 @@ class RSSDownloader:
         self.__close_db_connection()
 
     def __get_db_connection(self):
-        engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
-        return sessionmaker(bind=engine)()
+        return sessionmaker(bind=self.__engine)()
 
     def __close_db_connection(self):
         try:

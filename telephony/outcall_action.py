@@ -261,12 +261,14 @@ class OutcallAction:
                     self.__call_handler.speak('Please enter the number to call and press the # key to dial',
                                               self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                 else:
-                    self.__call_handler.speak('You are calling {0}'.format(self.__invitee_number),
+                    self.__call_handler.speak('You are calling "{0}"'.format(self.__invitee_number),
                                               self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                     result = self.__call_handler.call(self, self.__invitee_number, self.__host.phone.raw_number, False, self.duration)
                     self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
                     if result[0]:
                         self.__invitee_call_UUIDs[self.__invitee_number] = result[1]
+                        #  Disable this mode
+                        self.__phone_status = PhoneStatus.REJECTING
                     else:
                         self.__call_handler.speak('The call to {0} failed. Please pres the hash key to try again'.format(self.__invitee_number),
                                                   self.__available_calls[self.__host.phone.raw_number][
@@ -304,6 +306,12 @@ class OutcallAction:
 
         elif self.__phone_status == PhoneStatus.REJECTING:  # Hangup the call
             self.__call_handler.hangup(call_info['Channel-Call-UUID'])
+            self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'],
+                                                     "{0}_temp{1}".format(self.program.id,
+                                                                          self.program.radio_station.id))
+            self.__call_handler.speak('Thank you for wanting to take part in this program. We will call you back shortly',
+                                      call_info['Channel-Call-UUID'])
+            self.__call_handler.register_for_call_hangup(self, call_info['Caller-Destination-Number'])
             self.program.log_program_activity(
                 "Call from community caller {0} was rejected".format(call_info['Caller-Destination-Number']))
 

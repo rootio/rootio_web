@@ -12,12 +12,12 @@ from rss_downloader import RSSDownloader
 class RSSAgent:
     def __init__(self, logger):
         self.__logger = logger
+        self.__engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
 
     def __get_podcast_tracks(self):
         session = None
         try:
-            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
-            session = sessionmaker(bind=engine)()
+            session = sessionmaker(bind=self.__engine)()
             return session.query(ContentPodcast).all()
         except Exception as e:
             self.__logger.error("error in __get_podcast_tracks: {0}".format(e.message))
