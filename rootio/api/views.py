@@ -785,10 +785,10 @@ def station_log(station_id):
 
         event_source = {
             'station_id': station_id,
-            'date': record['eventdate'].encode('utf8'),
+            'date': record.get('eventdate', '').encode('utf8'),
             'category': record['category'].encode('utf8'),
-            'action': record['event'].encode('utf8'),
-            'content': record['argument'].encode('utf8')
+            'action': record.get('event', '').encode('utf8'),
+            'content': record.get('argument', '').encode('utf8')
         }
 
         try:
