@@ -21,7 +21,7 @@ class NewsAction:
         self.program.set_running_action(self)
         try:
             self.__load_track()
-            if self.__track is not None and len(self.__track.track_uploads) > 0:
+            if self.__track is not None and len(self.__track.files) > 0:
                 call_result = self.__request_station_call()
                 if not call_result[0]:  # !!
                     self.stop(False)
@@ -52,7 +52,7 @@ class NewsAction:
 
     def __load_track(self):  # load the media to be played
         self.__track = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
-        self.__track.track_uploads.sort(key=lambda x: x.date_created, reverse=True)
+        self.__track.files.sort(key=lambda x: x.date_created, reverse=True)
 
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
@@ -88,12 +88,12 @@ class NewsAction:
 
     def __play_media(self, call_info):  # play the media in the array
         self.program.log_program_activity(
-            "Playing media {0}".format(self.__track.track_uploads[0].name))
+            "Playing media {0}".format(self.__track.files[0].name))
         self.__listen_for_media_play_stop()
 
         # Always play the last file for news
         result = self.__call_handler.play(call_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                                       self.__track.track_uploads[0].
+                                                                                       self.__track.files[0].
                                                                                        uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
@@ -107,7 +107,7 @@ class NewsAction:
             self.program.log_program_activity(
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
-                                                   self.__track.track_uploads[0].uri)
+                                                   self.__track.files[0].uri)
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in news_action.__stop_media".format(err=e.message))
@@ -121,7 +121,7 @@ class NewsAction:
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[0].uri):
+        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[0].uri):
             self.stop(True, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 

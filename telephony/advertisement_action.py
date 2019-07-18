@@ -21,7 +21,7 @@ class AdvertisementAction:
         self.program.set_running_action(self)
         try:
             self.__load_track()
-            if self.__track is not None and len(self.__track.track_uploads) > 0:
+            if self.__track is not None and len(self.__track.files) > 0:
                 call_result = self.__request_station_call()
                 if not call_result[0]:  # !!
                     self.stop(False)
@@ -84,13 +84,13 @@ class AdvertisementAction:
     def __play_media(self, call_info):  # play the media in the array
         #self.__load_track()
         self.program.log_program_activity(
-            "Playing media {0}".format(self.__track.track_uploads[len(self.__track.track_uploads) - 1].name))
+            "Playing media {0}".format(self.__track.files[len(self.__track.files) - 1].name))
         self.__listen_for_media_play_stop()
 
         # Always play the last file for ads
         result = self.__call_handler.play(call_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR,
-                                                                                       self.__track.track_uploads[len(
-                                                                                           self.__track.track_uploads) - 1].uri))
+                                                                                       self.__track.files[len(
+                                                                                           self.__track.files) - 1].uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
             self.stop(False, call_info)
@@ -113,8 +113,8 @@ class AdvertisementAction:
     def notify_media_play_stop(self, event_json):
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
-        #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.track_uploads[
-         #   len(self.__track.track_uploads) - 1].uri):
+        #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[
+         #   len(self.__track.files) - 1].uri):
         self.stop(True, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 
