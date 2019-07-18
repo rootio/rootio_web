@@ -13,10 +13,10 @@ import re
 
 class RSSDownloader:
 
-    def __init__(self, podcast_id, logger):
+    def __init__(self, podcast_id, logger, engine):
         self.__podcast_id = podcast_id
         self.__logger = logger
-        self.__engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+        self.__engine = engine # create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
         self.__db = self.__get_db_connection()
         self.__get_podcast()
 

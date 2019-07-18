@@ -36,7 +36,7 @@ class RSSAgent:
                 podcast_tracks = self.__get_podcast_tracks()
                 self.__logger.info("Checking for new podcasts in: {0}".format(podcast_tracks))
                 for podcast_track in podcast_tracks:
-                    pd = RSSDownloader(podcast_track.id, self.__logger)
+                    pd = RSSDownloader(podcast_track.id, self.__logger, self.__engine)
                     thr = threading.Thread(target=pd.download)
                     thr.daemon = True
                     thr.start()
