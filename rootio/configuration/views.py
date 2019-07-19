@@ -266,7 +266,7 @@ def voice_prompt():
             uri = save_uploaded_file(prompt_file, file_path)
             cleaned_data[key] = uri
 
-        voice_prompt = CommunityMenu(**cleaned_data)  # create new object from data
+        voice_prompt = VoicePrompt(**cleaned_data)  # create new object from data
 
         if cleaned_data['use_tts'] and cleaned_data['prefetch_tts']:
             cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
