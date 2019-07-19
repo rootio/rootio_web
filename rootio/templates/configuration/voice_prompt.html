@@ -49,7 +49,7 @@
         <h2>{{ station.name }}</h2>
         {{ render_form(url_for('configuration.voice_prompt', voice_prompt_id=voice_prompt.id), form) }}
     {%else%}
-        <h2>{{ _('Add Menu') }}</h2>
+        <h2>{{ _('Add voice prompts') }}</h2>
         {{ render_form(url_for('configuration.voice_prompt'), form) }}
     {%endif%}
 </div>
