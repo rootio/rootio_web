@@ -5,8 +5,9 @@ from flask.ext.login import current_user
 from flask.ext.wtf import Form
 from wtforms import StringField, SelectField, SubmitField, \
     TextField, TextAreaField, HiddenField, RadioField, \
-    IntegerField, FloatField, DecimalField
+    IntegerField, FloatField, DecimalField, BooleanField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from wtforms import StringField, SubmitField, TextAreaField, MultipleFileField, HiddenField, TextField, BooleanField, FileField
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.validators import Required, AnyOf, NumberRange
 from wtforms_components.fields import TimeField
@@ -20,6 +21,10 @@ from ..extensions import db
 from ..telephony.forms import PhoneNumberForm
 from ..user.models import User
 from ..utils import OrderedForm, GENDER_TYPE
+
+
+def stations():
+    return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                       field_args={
@@ -172,4 +177,48 @@ class StationTtsForm(StationSynchronizationFormBase):
     tts_voice = QuerySelectField(_('TTS Voice'), get_pk=lambda item: item.id, get_label=lambda item: "{0} ({1}-{2})".format(item.name, item.language.name, item.language.locale_code), query_factory=all_ttsvoices, allow_blank=True, blank_text=_('-select-'))
     tts_samplerate = QuerySelectField(_('Audio Quality'), get_pk=lambda item: item.id, get_label=lambda item: str(item.value) + " KHz",query_factory=all_ttssamplerates, allow_blank=True, blank_text=_('-select-'))
     tts_audioformat = QuerySelectField(_('Audio Format'), get_pk=lambda item: item.id, get_label=lambda item: item.name,query_factory=all_ttsaudioformats, allow_blank=True, blank_text=_('-select-'))
+    submit = SubmitField(_('Save'))
+
+
+class VoicePromptForm(Form):
+    multipart = True
+    use_tts = BooleanField(_('Use Text-to-Speech'))
+    station = QuerySelectField(_('Station'), [Required()], query_factory=stations, allow_blank=False)
+
+    on_air = FileField(_('You are now on air'))
+    call_end = FileField(_('Your call will end in { seconds } seconds'))
+    incoming_call = FileField(_('You have a caller on the line. To connect to the station, press one, to cancel, press two'))
+    host_welcome = FileField(_('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two'))
+    host_wait = FileField(_('Please wait while we connect you to the radio station'))
+    wake_mode_activation = FileField(_('Your call will be terminated and you will be called when someone calls into the station'))
+    incoming_reject_activation = FileField(_('All incoming calls will be rejected'))
+    incoming_answer_activation = FileField(_('All incoming calls will be automatically answered'))
+    incoming_queue_activation = FileField(_('All incoming calls will be queued for call back'))
+    take_break = FileField(_('You will be called back in 5 minutes'))
+    input_number = FileField(_('Please enter the number to call and press the # key to dial'))
+    calling_number = FileField(_('You are calling { number }'))
+    call_queued = FileField(_('Call from community caller { caller number } was queued'))
+    call_failed = FileField(_('The call to { number } failed. Please pres the hash key to try again'))
+    call_back_hangup = FileField(_('Thank you for wanting to take part in this program. We will call you back shortly'))
+    call_back_wait = FileField(_('Please wait while we connect you to the host of this program'))
+
+    prefetch_tts = BooleanField(_('Pre-fetch TTS'))
+
+    on_air_txt = TextField(_('You are now on air (text)'))
+    call_end_txt = TextField(_('Your call will end in { seconds } seconds (text)'))
+    incoming_call_txt = TextField(_('You have a caller on the line. To connect to the station, press one, to cancel, press two (text)'))
+    host_welcome_txt = TextField(_('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two (text)'))
+    host_wait_txt = TextField(_('Please wait while we connect you to the radio station (text)'))
+    wake_mode_activation_txt = TextField(_('Your call will be terminated and you will be called when someone calls into the station (text)'))
+    incoming_reject_activation_txt = TextField(_('All incoming calls will be rejected (text)'))
+    incoming_answer_activation_txt = TextField(_('All incoming calls will be automatically answered (text)'))
+    incoming_queue_activation_txt = TextField(_('All incoming calls will be queued for call back (text)'))
+    take_break_txt = TextField(_('You will be called back in 5 minutes (text)'))
+    input_number_txt = TextField(_('Please enter the number to call and press the # key to dial (text)'))
+    calling_number_txt = TextField(_('You are calling { number } (text)'))
+    call_queued_txt = TextField(_('Call from community caller { caller number } was queued (text)'))
+    call_failed_txt = TextField(_('The call to { number } failed. Please pres the hash key to try again (text)'))
+    call_back_hangup_txt = TextField(_('Thank you for wanting to take part in this program. We will call you back shortly (text)'))
+    call_back_wait_txt = TextField(_('Please wait while we connect you to the host of this program (text)'))
+
     submit = SubmitField(_('Save'))
