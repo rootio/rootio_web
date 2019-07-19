@@ -349,6 +349,23 @@ def community_content():
     return render_template('content/community_content.html', community_contents=community_contents)
 
 
+@content.route('/community_content/<int:community_content_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def community_content_delete(community_content_id):
+    community_content = CommunityContent.query.filter_by(id=community_content_id).first_or_404()
+
+    community_content.deleted = True
+
+    try:
+        db.session.add(community_content)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @content.route('/community_content/<int:community_content_id>/<string:state>', methods=['GET'])
 @login_required
 @csrf.exempt

@@ -100,6 +100,7 @@ class CommunityContent(BaseMixin, db.Model):
     valid_until = db.Column(db.DateTime(timezone=True))
 
     approved = db.Column(db.Boolean(), default=False)
+    deleted = db.Column(db.Boolean, default=False)
 
     station = db.relationship(u'Station', backref=db.backref('community_content'))
 
