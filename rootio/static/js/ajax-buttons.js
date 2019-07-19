@@ -3,8 +3,16 @@ function deleteTableItem(el, deleteid) {
     bootbox.confirm("Are you sure want to delete?", function(result) {
       if(result){
         // AJAX Request
+        var href = '';
+
+        if (window.location.href.substring(window.location.href.length - 1) == '/') {
+          href = window.location.href;
+        } else {
+          href = window.location.href + '/';
+        }
+
         $.ajax({
-          url: deleteid+'/delete',
+          url: href + deleteid+'/delete',
           type: 'GET',
           success: function(response){
             $(el).closest('tr').css('background','tomato');
