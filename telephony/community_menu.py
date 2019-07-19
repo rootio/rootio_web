@@ -41,8 +41,8 @@ class CommunityIVRMenu:
             # self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
 
     def __get_community_menu(self):
-        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()) > 0:
-            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()[0]
+        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True).order_by(CommunityMenu.date_created.desc()).all()) > 0:
+            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True).order_by(CommunityMenu.date_created.desc()).all()[0]
         else:
             return None
 
