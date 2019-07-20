@@ -366,6 +366,7 @@ class CallHandler:
                     self.__radio_station.logger.error('error in channel answer: {0}'.format(e.message))
 
             elif event_name == "DTMF" and 'Caller-Destination-Number' in event_json:
+                self.__radio_station.logger.info("Received DTMF {0} with recipients: {1}".format(event_json["DTMF-Digit"], self.__incoming_dtmf_recipients))
                 try:
                     if str(event_json['Caller-Destination-Number'])[-12:] in self.__incoming_dtmf_recipients:
                         self.__radio_station.logger.info(
