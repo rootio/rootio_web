@@ -33,8 +33,9 @@ class CommunityIVRMenu:
 
 
     def __get_community_menu(self):
-        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True).order_by(CommunityMenu.date_created.desc()).all()) > 0:
-            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True).order_by(CommunityMenu.date_created.desc()).all()[0]
+        self.__radio_station.logger.info(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).statement)
+        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()) > 0:
+            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()[0]
         else:
             return None
 
@@ -76,8 +77,8 @@ class CommunityIVRMenu:
             # Assuming Goip, no two calls are possible to menu at same time. Otherwise make below more exclusive
             self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], "{0}_{1}".format(self.__radio_station.station.id, call_json['Caller-ANI'][-9:]))
             self.__start(self.__call_json)
-        except:  # Key error, event_json is null etc
-            pass
+        except Exception as e:  # Key error, event_json is null etc
+            self.__radio_station.logger.error("Error in CommunityIVRMenu.notify_incoming_call  {0}".format(str(e)))
 
     def notify_incoming_dtmf(self, event_json):
         try:
@@ -280,7 +281,9 @@ class CommunityIVRMenu:
 
                 # clean up, hangup
                 self.__finalize()
-
+            else:
+                self.__radio_station.logger.error("No IVR Menu found for this station!")
+                
         except Exception as e:  # Keyerror, Null pointers
-            print e
+            self.__radio_station.logger.error("Error in CommunityIVRMenu.notify_incoming_call  {0}".format(str(e)))
             return

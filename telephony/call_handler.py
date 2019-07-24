@@ -497,10 +497,11 @@ class CallHandler:
                 except:
                     pass
                 try:
-                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
+                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}, {3}".format(
                         event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
-                        self.__host_call_recipients))
+                        self.__host_call_recipients, self.__community_ivr_number[-9:]))
                     if self.__community_ivr_number is not None and event_json['Caller-Destination-Number'][-9:] == self.__community_ivr_number[-9:]: # Someone calling into the community
+                        self.__radio_station.logger.info("Forwarding call to Radio station IVR Menu")
                         community_menu = CommunityIVRMenu(self.__radio_station)
                         self.__community_menu_sessions[event_json['Caller-ANI'][-9:]] = community_menu
                         threading.Thread(target=self.__community_menu_sessions[event_json['Caller-ANI'][-9:]].notify_incoming_call,
