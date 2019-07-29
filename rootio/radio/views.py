@@ -593,6 +593,8 @@ def schedule_recurring_program_ajax():
         db.session.add(scheduled_program)
     db.session.commit()
 
+    # TODO: Add a send event for addition
+    send_scheduling_event(json.dumps({"action": "add", "id": scheduled_program.id, "station": int(data['station'])}))
     response = {'status': 'success', 'result': {}, 'status_code': 200}
     # elif request.method == "POST":
     if form.errors:
