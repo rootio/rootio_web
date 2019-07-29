@@ -44,5 +44,6 @@ class RadioStation:
                 return gws[0]
             else:
                 return None
-        except:
+        except Exception as e:
+            self.logger.error("Error in RadioStation.__get_gateway_used: {0}".format(str(e)))
             return None

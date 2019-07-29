@@ -26,10 +26,12 @@
                 <th>{{ _('Valid until') }}</th>
                 <th>{{ _('Approved') }}</th>
                 <th>{{ _('Station') }}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            {% for community_content in community_contents %}
+          {% for community_content in community_contents %}
+          {% if not community_content.deleted %}
             <tr>
                 <td>{{ community_content.originator }}</td>
                 <td>{{ community_content.date_created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
@@ -65,8 +67,12 @@
                   </small>
                 </td>
                 <td>{{ community_content.station }}</td>
+                <td>
+                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{community_content.id}})" id='delete-{{community_content.id}}'>Delete</button>
+                </td>
             </tr>
-            {% endfor %}
+            {% endif %}
+          {% endfor %}
         </tbody>
     </table>
 </div>

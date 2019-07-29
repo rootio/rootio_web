@@ -12,9 +12,10 @@ from rootio.config import DefaultConfig
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 from ..content.forms import CommunityMenuForm
 from ..content.models import CommunityMenu
-from ..extensions import db
+from models import VoicePrompt
+from ..extensions import db, csrf
 from ..radio.forms import StationForm
-from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm
+from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm, VoicePromptForm
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
@@ -146,6 +147,23 @@ def ivr_menu_records(**kwargs):
     return jsonify(records)
 
 
+@configuration.route('/ivr_menus/<int:ivr_menu_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def ivr_menu_delete(ivr_menu_id):
+    ivr_menu = CommunityMenu.query.filter_by(id=ivr_menu_id).first_or_404()
+
+    ivr_menu.deleted = True
+
+    try:
+        db.session.add(ivr_menu)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
 @configuration.route('/ivr_menu', methods=['GET', 'POST'])
 @login_required
 def ivr_menu():
@@ -239,3 +257,75 @@ def synchronization_setting(station_id):
         flash(_('Synchronization settings updated.'), 'success')
 
     return render_template('configuration/synchronization_setting.html', station=station, form=form)
+
+
+@configuration.route('/voice_prompts', methods=['GET', 'POST'])
+def voice_prompts():
+    voice_prompts = VoicePrompt.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('configuration/voice_prompts.html', voice_prompts=voice_prompts)
+
+
+@configuration.route('/voice_prompt', methods=['GET', 'POST'])
+@login_required
+def voice_prompt():
+    form = VoicePromptForm(request.form)
+    station = form.station
+    voice_prompt = None
+    if request.method == 'POST':
+        pass  # validate files here
+    if form.validate_on_submit():
+        station = request.form['station']
+        cleaned_data = form.data  # make a copy
+        cleaned_data.pop('submit', None)
+        for key in request.files.keys():
+            prompt_file = request.files[key]
+            file_path = os.path.join("voice-prompt", station)
+            uri = save_uploaded_file(prompt_file, file_path)
+            cleaned_data[key] = uri
+
+        voice_prompt = VoicePrompt(**cleaned_data)  # create new object from data
+
+        if cleaned_data['use_tts'] and cleaned_data['prefetch_tts']:
+            cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
+            prompts_fetched = True
+            for key in cleaned_data.keys():
+                if prompts_fetched and str(key).endswith("txt"):
+                    try:
+                        file_url = cereproc_agent.get_cprc_tts(cleaned_data[key].encode('utf-8'), voice_prompt.station.tts_voice.name, voice_prompt.station.tts_samplerate.value, voice_prompt.station.tts_audioformat.name)[0]
+                        dest_file = os.path.join(file_path, file_url.split('/').pop())
+                        urllib.urlretrieve(file_url, os.path.join(DefaultConfig.CONTENT_DIR, dest_file))
+                        setattr(voice_prompt, key[:-4], dest_file)
+                        prompts_fetched = True
+                    except Exception as e:
+                        print e
+                        prompts_fetched = False
+
+            if prompts_fetched:
+                setattr(voice_prompt, 'use_tts', False)
+
+        db.session.add(voice_prompt)
+        db.session.commit()
+
+        flash(_('Configuration saved.'), 'success')
+
+    elif request.method == "POST":
+        flash(_(form.errors.items()), 'error')
+
+    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station)
+
+
+@configuration.route('/voice_prompts/<int:voice_prompt_id>/delete', methods=['GET'])
+@login_required
+@csrf.exempt
+def voice_prompt_delete(voice_prompt_id):
+    voice_prompt = VoicePrompt.query.filter_by(id=voice_prompt_id).first_or_404()
+
+    voice_prompt.deleted = True
+
+    try:
+        db.session.add(voice_prompt)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'

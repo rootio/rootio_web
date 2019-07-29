@@ -1,0 +1,56 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "configuration/layout.html" %}
+
+
+
+{% block js_top %}
+<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      toggleUseTts($(":checkbox[name='use_tts']").is(':checked'))
+
+      $(":checkbox[name='use_tts']").click(function(){
+          toggleUseTts($(this).is(':checked'))
+          });
+
+  });
+
+  function toggleUseTts(useTts)
+  {
+       if(useTts)
+       {
+           //disable all file inputs with their labels
+           $(':file').parent().parent().css('display', 'none')
+
+
+           //show TTS options
+           $(":text[name$='txt']").parent().parent().css('display', 'block')
+           $(":checkbox[name='prefetch_tts']").parent().parent().css('display', 'block')
+       }
+       else
+       {
+           //show all file inputs
+           $(':file').parent().parent().css('display', 'block')
+
+           //show TTS options
+           $(":checkbox[name='prefetch_tts']").parent().parent().css('display', 'none')
+           $(":text[name$='txt']").parent().parent().css('display', 'none')
+       }
+  }
+
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    {%if voice_prompt %}
+        <h2>{{ station.name }}</h2>
+        {{ render_form(url_for('configuration.voice_prompt', voice_prompt_id=voice_prompt.id), form) }}
+    {%else%}
+        <h2>{{ _('Add voice prompts') }}</h2>
+        {{ render_form(url_for('configuration.voice_prompt'), form) }}
+    {%endif%}
+</div>
+{% endblock %}

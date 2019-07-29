@@ -2,6 +2,7 @@
 
 {% block js_btm %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 {% endblock %}
 {% block js_top %}
 <link rel="stylesheet" href="../../static/css/audioplayer.css" />
@@ -32,80 +33,86 @@
             <th>{{ _('Validation prompt') }}</th>
             <th>{{ _('Goodbye message') }}</th>
             <th>{{ _('Last Modified') }}</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         {% for community_menu in community_menus %}
-        <tr>
-            <td>{{ community_menu.station.name }}</td>
-        {% if community_menu.use_tts %}
+          {% if not community_menu.deleted %}
+            <tr>
+                <td>{{ community_menu.station.name }}</td>
+            {% if community_menu.use_tts %}
 
-            <td>{{ community_menu.welcome_message_txt }}</td>
-             <td>{{ community_menu.message_type_prompt_txt }}</td>
-             <td>{{ community_menu.days_prompt_txt }}</td>
-             <td>{{ community_menu.record_prompt_txt }}</td>
-             <td>{{ community_menu.finalization_prompt_txt }}</td>
-             <td>{{ community_menu.goodbye_message_txt }}</td>
+                <td>{{ community_menu.welcome_message_txt }}</td>
+                <td>{{ community_menu.message_type_prompt_txt }}</td>
+                <td>{{ community_menu.days_prompt_txt }}</td>
+                <td>{{ community_menu.record_prompt_txt }}</td>
+                <td>{{ community_menu.finalization_prompt_txt }}</td>
+                <td>{{ community_menu.goodbye_message_txt }}</td>
 
-        {% else %}
-            <td>
-                <div id="wrapper" title="{{ community_menu.welcome_message_txt }}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                        <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
-            <td>
-                <div id="wrapper" title="{{ community_menu.message_type_prompt_txt }}">
-                    <audio name="audio_player" preload="metadata" controls="false">
-                        <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
-            <td>
-                <div id="wrapper" title="{{ community_menu.days_prompt_txt }}">
-                    <audio name="audio_player" preload="metadata" controls="false">
-                        <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
-            <td>
-                <div id="wrapper" title="{{ community_menu.record_prompt_txt }}">
-                    <audio name="audio_player" preload="metadata" controls="false">
-                        <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
-            <td>
-                <div id="wrapper" title="{{ community_menu.finalization_prompt_txt }}">
-                    <audio name="audio_player" preload="metadata" controls="false">
-                        <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
-            <td>
-                <div id="wrapper" title="{{ community_menu.goodbye_message_txt }}">
-                    <audio name="audio_player" preload="metadata" controls >
-                        <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/mpeg">
-                        <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/ogg">
-                        <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/wav">
-                    </audio>
-                </div>
-            </td>
+            {% else %}
+                <td>
+                    <div id="wrapper" title="{{ community_menu.welcome_message_txt }}">
+                        <audio name="audio_player" preload="metadata" controls="false" >
+                            <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.welcome_message}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
+                <td>
+                    <div id="wrapper" title="{{ community_menu.message_type_prompt_txt }}">
+                        <audio name="audio_player" preload="metadata" controls="false">
+                            <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.message_type_prompt}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
+                <td>
+                    <div id="wrapper" title="{{ community_menu.days_prompt_txt }}">
+                        <audio name="audio_player" preload="metadata" controls="false">
+                            <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.days_prompt}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
+                <td>
+                    <div id="wrapper" title="{{ community_menu.record_prompt_txt }}">
+                        <audio name="audio_player" preload="metadata" controls="false">
+                            <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.record_prompt}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
+                <td>
+                    <div id="wrapper" title="{{ community_menu.finalization_prompt_txt }}">
+                        <audio name="audio_player" preload="metadata" controls="false">
+                            <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.finalization_prompt}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
+                <td>
+                    <div id="wrapper" title="{{ community_menu.goodbye_message_txt }}">
+                        <audio name="audio_player" preload="metadata" controls >
+                            <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/mpeg">
+                            <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/ogg">
+                            <source src="../../audio-content/{{community_menu.goodbye_message}}" type="audio/wav">
+                        </audio>
+                    </div>
+                </td>
 
-        {% endif %}
-            <td>{{ community_menu.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-        </tr>
+            {% endif %}
+                <td>{{ community_menu.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{community_menu.id}})" id='delete-{{community_menu.id}}'>Delete</button>
+                </td>
+            </tr>
+          {% endif %}
         {% endfor %}
         </tbody>
     </table>
