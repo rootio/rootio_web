@@ -34,8 +34,8 @@ class CommunityIVRMenu:
 
     def __get_community_menu(self):
         with DBAgent(self.__radio_station.db) as db:
-            if len(db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()) > 0:
-                return db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()[0]
+            if len(db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()) > 0:
+                return db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()[0]
             else:
                 return None
 
