@@ -1,6 +1,7 @@
 from rootio.config import *
 from rootio.content.models import ContentUploads, ContentTrack
 from rootio.radio.models import ScheduledProgram
+from telephony.utils.database import DBAgent
 
 
 class MediaAction:
@@ -16,13 +17,14 @@ class MediaAction:
         self.__call_answer_info = None
         self.__call_handler = self.program.radio_station.call_handler
         self.program.log_program_activity("Done initing Media action for program {0}".format(self.program.name))
-        self.__continuous_play = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first().continuous_play
+        self.__continuous_play = False # self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first().continuous_play
         self.__continuous_play_limit = 1
         self.__play_counter = 1
         self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
 
     def start(self):
         self.program.set_running_action(self)
+        self.__set_continuous_play()
         try:
             episode_number = self.__episode_number
             self.__media = self.__load_media(episode_number)
@@ -55,44 +57,49 @@ class MediaAction:
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-11:])
         self.__play_media(self.__call_answer_info)
 
-    def __load_media(self, episode_number):  # load the media to be played
-        episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
-        self.__continuous_play_limit = episode_count
-        if episode_count == 0:
-            return None
-        if episode_number > episode_count:
-            index = (episode_number % episode_count) + 1
-        else:
-            index = episode_number
+    def __set_continuous_play(self):
+        with DBAgent(self.program.radio_station.db) as db:
+            self.__continuous_play = db.session.query(ContentTrack).filter(
+                ContentTrack.id == self.__track_id).first().continuous_play
 
-        if self.__continuous_play:
-            index = self.__play_counter
+    def __load_media(self, episode_number):   # load the media to be played
+        with DBAgent(self.program.radio_station.db) as db:
+            episode_count = db.session.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
+            self.__continuous_play_limit = episode_count
+            if episode_count == 0:
+                return None
+            if episode_number > episode_count:
+                index = (episode_number % episode_count) + 1
+            else:
+                index = episode_number
 
-        media = self.program.radio_station.db.query(ContentUploads)\
+            if self.__continuous_play:
+                index = self.__play_counter
+
+            media = db.session.query(ContentUploads)\
                                              .filter(ContentUploads.track_id == self.__track_id)\
                                              .filter(ContentUploads.order == index)\
                                              .first()
 
-        #media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
-
-        if media.deleted:
-            self.__episode_number = self.__episode_number + 1
-            if self.__play_counter <= episode_count:
-                self.__play_counter = self.__play_counter + 1
-                return self.__load_media(self.__episode_number)
+            if media.deleted:
+                self.__episode_number = self.__episode_number + 1
+                if self.__play_counter <= episode_count:
+                    self.__play_counter = self.__play_counter + 1
+                    return self.__load_media(self.__episode_number)
+                else:
+                    self.program.log_program_activity("No media found, aborting playback.")
+                    self.stop(False)
             else:
-                self.program.log_program_activity("No media found, aborting playback.")
-                self.stop(False)
-        else:
-            return media
+                return media
 
     def __get_episode_number(self, program_id):
-        # Fix this below - Make RadioProgram inherit scheduled_program, rename it
-        count = self.program.radio_station.db.query(ScheduledProgram)\
+        with DBAgent(self.program.radio_station.db) as db:
+            # Fix this below - Make RadioProgram inherit scheduled_program, rename it
+            count = db.session().query(ScheduledProgram)\
                                              .filter(ScheduledProgram.status == True)\
                                              .filter(ScheduledProgram.program_id == program_id)\
                                              .count()
-        return count + 1
+            return count + 1
 
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
@@ -117,7 +124,7 @@ class MediaAction:
             result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
                                               self.program.name, False,
                                           self.duration)
-            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            self.program.log_program_ctivity("result of station call (primary) via GoIP is " + str(result))
             if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
                 result = self.__call_handler.call(self,
                                               self.program.radio_station.station.secondary_transmitter_phone.raw_number,

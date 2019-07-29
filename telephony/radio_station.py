@@ -30,18 +30,8 @@ class RadioStation:
         community_menu_gw = self.__get_gateway_used()
         if community_menu_gw is not None:
             self.call_handler.register_community_ivr_number(str(community_menu_gw)[-9:])
-        #self.__community_handler = CommunityIVRMenu(self)
-
         self.logger.info("Starting up station {0}".format(self.station.name))
         return
-
-    # def __start_listener(self):
-    #     self.__gateway = str(self.__get_gateway_used())[-9:]
-    #     if self.__gateway is not None:
-    #         self.__radio_station.call_handler.register_for_incoming_calls(self, True)
-    #         self.__radio_station.call_handler.register_for_call_hangup(self, str(self.__gateway))
-    #         # self.__radio_station.call_handler.register_for_media_playback_stop(self, str(self.__gateway))
-    #         # self.__radio_station.call_handler.register_for_media_playback_start(self, str(self.__gateway))
 
     def __get_gateway_used(self):  # this retrieves the extension that listens for calls for ads and announcements
         try:

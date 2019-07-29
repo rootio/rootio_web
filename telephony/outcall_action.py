@@ -5,6 +5,7 @@ from time import sleep
 from apscheduler.scheduler import Scheduler
 
 from rootio.radio.models import Person
+from telephony.utils.database import DBAgent
 
 
 class PhoneStatus:
@@ -63,8 +64,9 @@ class OutcallAction:
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def __get_host(self, host_id):
-        host = self.program.radio_station.db.query(Person).filter(Person.id == host_id).first()
-        return host
+        with DBAgent(self.program.radio_station.db) as db:
+            host = db.session().query(Person).filter(Person.id == host_id).first()
+            return host
 
     def request_host_call(self, guest_triggered=False):
         self.__in_talkshow_setup = True

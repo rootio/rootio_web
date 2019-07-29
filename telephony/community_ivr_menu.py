@@ -10,6 +10,7 @@ from rootio.config import *
 from rootio.content.models import CommunityContent, CommunityMenu
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 from telephony.utils.audio import get_normalized_file
+from telephony.utils.database import DBAgent
 
 
 class CommunityIVRMenu:
@@ -31,12 +32,12 @@ class CommunityIVRMenu:
         self.__menu = self.__get_community_menu()  # is a 1:1 mapping between the two tables
         self.__cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
 
-
     def __get_community_menu(self):
-        if len(self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()) > 0:
-            return self.__radio_station.db.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()[0]
-        else:
-            return None
+        with DBAgent(self.__radio_station.db) as db:
+            if len(db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()) > 0:
+                return db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).order_by(CommunityMenu.date_created.desc()).all()[0]
+            else:
+                return None
 
     def __get_gateway_used(self):  # this retrieves the extension that listens for calls for ads and announcements
         gws = []
@@ -88,7 +89,7 @@ class CommunityIVRMenu:
                 self.__accumulated_dtmf = self.__accumulated_dtmf + event_json["DTMF-Digit"]
         except KeyError as e:  # Event JSON does not have the 'DTMF-Digit' key
             print e 
-        except exception as ex:  # Null pointer, event_json not a dict etc
+        except Exception as ex:  # Null pointer, event_json not a dict etc
             print ex
 
     def notify_speak_stop(self, event_json):
@@ -160,22 +161,23 @@ class CommunityIVRMenu:
         self.__radio_station.call_handler.stop_record_call(call_uuid, audio_path)
 
     def __save_message(self, filename, originator, date_recorded, duration, message_type, valid_until, station):
-        try:
-            cm = CommunityContent()
-            cm.date_created = date_recorded
-            cm.originator = originator
-            cm.duration = duration
-            cm.type_code = message_type
-            cm.valid_until = valid_until
-            cm.message = filename
-            cm.station = station
-            self.__radio_station.db._model_changes = {}
-            self.__radio_station.db.add(cm)
-            self.__radio_station.db.commit()
-        except SQLAlchemyError:
-            self.__radio_station.db.rollback()
-        except:
-            return
+        with DBAgent(self.__radio_station.db) as db:
+            try:
+                cm = CommunityContent()
+                cm.date_created = date_recorded
+                cm.originator = originator
+                cm.duration = duration
+                cm.type_code = message_type
+                cm.valid_until = valid_until
+                cm.message = filename
+                cm.station = station
+                db.session._model_changes = {}
+                db.session.add(cm)
+                db.session.commit()
+            except SQLAlchemyError:
+                db.session.rollback()
+            except:
+                return
 
     def __wait_on_audio(self):  # commands issued after play of audio are executed while FS is playing audio...
         while self.__is_playing_audio:

@@ -4,6 +4,8 @@ from rootio.config import *
 from rootio.content.models import CommunityContent
 import json
 
+from telephony.utils.database import DBAgent
+
 
 class CommunityAction:
 
@@ -50,7 +52,8 @@ class CommunityAction:
         self.__play_media(self.__call_answer_info, self.__media_index)
 
     def __load_track(self):  # load the media to be played
-        self.__content = self.program.radio_station.db.query(CommunityContent)\
+        with DBAgent(self.program.radio_station.db) as db:
+            self.__content = db.session.query(CommunityContent)\
                                                       .filter(CommunityContent.type_code == self.__type_code)\
                                                       .filter(CommunityContent.approved.is_(True))\
                                                       .filter(CommunityContent.station_id == self.program.radio_station.station.id)\

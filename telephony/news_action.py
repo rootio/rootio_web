@@ -1,6 +1,6 @@
 from rootio.config import *
 from rootio.content.models import ContentTrack
-import json
+from telephony.utils.database import DBAgent
 
 
 class NewsAction:
@@ -51,8 +51,9 @@ class NewsAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_track(self):  # load the media to be played
-        self.__track = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
-        self.__track.files.sort(key=lambda x: x.date_created, reverse=True)
+        with DBAgent(self.program.radio_station.db) as db:
+            self.__track = db.session().query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
+            self.__track.files.sort(key=lambda x: x.date_created, reverse=True)
 
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:

@@ -1,5 +1,6 @@
 from rootio.config import *
 from rootio.content.models import ContentPodcast
+from telephony.utils.database import DBAgent
 
 
 class PodcastAction:
@@ -49,8 +50,9 @@ class PodcastAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_podcast(self):  # load the media to be played
-        self.__podcast = self.program.radio_station.db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
-        self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
+        with DBAgent(self.program.radio_station.db) as db:
+            self.__podcast = db.session().query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
+            self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
 
     def __request_station_call(self):  # call the number specified
         if self.program.radio_station.station.is_high_bandwidth:
