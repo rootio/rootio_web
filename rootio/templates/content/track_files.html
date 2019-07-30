@@ -96,7 +96,7 @@ $( function() {
 
       <input type="checkbox" id="toggle-play"
         {% if track.continuous_play %} checked {% endif %}
-        data-toggle="toggle" data-on="Play continuously" data-off="Play episodes" data-onstyle="success" data-offstyle="danger" data-height="20" data-width="130">
+        data-toggle="toggle" data-on="Play continuously" data-off="Play episodes" data-onstyle="success" data-offstyle="info" data-height="20" data-width="130">
 
         <a class="btn btn-success" href="{{ url_for('content.track_files_add', track_id=track.id ) }}"><strong>{{ _('Add') }} +</strong></a>
         <a class="btn btn-info" href="{{ url_for('radio.programs') }}"><strong>{{ _('Go to programs') }}</strong></a>
