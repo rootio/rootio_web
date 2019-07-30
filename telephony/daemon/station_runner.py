@@ -42,7 +42,7 @@ class StationRunner:
 
         for station in stations:
             logger = self.__get_logger(station.id)
-            radio_station = RadioStation(station, session, logger)
+            radio_station = RadioStation(station, engine, logger)
             logger.info('launching station : {0}'.format(station.id))
             t = threading.Thread(target=radio_station.run, args=())
             t.start()

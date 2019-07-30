@@ -9,6 +9,7 @@ from cereproc.cereproc_rest_agent import CereprocRestAgent
 from rootio.config import DefaultConfig
 from rootio.telephony.models import Gateway, Call
 from telephony.community_ivr_menu import CommunityIVRMenu
+from telephony.utils.database import DBAgent
 
 
 class CallHandler:
@@ -53,36 +54,38 @@ class CallHandler:
         return ESLconnection(esl_server, esl_port, esl_authentication)
 
     def __load_incoming_gateways(self):
-        gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(
-            id=self.__radio_station.station.id).all()
-        self.__incoming_gateways = dict()
-        self.__available_incoming_gateways = []
-        for gw in gws:
-            self.__incoming_gateways[str(gw.number_bottom)] = gw
-            self.__available_incoming_gateways.append(gw.number_bottom)
-            self.__available_incoming_gateways.sort()
-            self.__radio_station.logger.info(
-                "Got incoming gateways for {0} {1}".format(self.__radio_station.station.name,
+        with DBAgent(self.__radio_station.db) as db:
+            gws = db.session().query(Gateway).join(Gateway.stations_using_for_incoming).filter_by(
+                id=self.__radio_station.station.id).all()
+            self.__incoming_gateways = dict()
+            self.__available_incoming_gateways = []
+            for gw in gws:
+                self.__incoming_gateways[str(gw.number_bottom)] = gw
+                self.__available_incoming_gateways.append(gw.number_bottom)
+                self.__available_incoming_gateways.sort()
+                self.__radio_station.logger.info(
+                    "Got incoming gateways for {0} {1}".format(self.__radio_station.station.name,
                                                            str(self.__available_incoming_gateways)))
 
     def __load_outgoing_gateways(self):
-        gws = self.__radio_station.db.query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(
-            id=self.__radio_station.station.id).all()
-        self.__outgoing_gateways = dict()
-        self.__outgoing_sip_gateways = dict()
-        self.__available_outgoing_gateways = []
-        for gw in gws:
-            if gw.is_goip:
-                self.__outgoing_gateways[str(gw.number_bottom)] = gw
-                self.__available_outgoing_gateways.append(gw.number_bottom)
-                self.__available_outgoing_gateways.sort()
-                self.__radio_station.logger.info(
-                    "Got outgoing goip gateways for {0} {1}".format(self.__radio_station.station.name,
+        with DBAgent(self.__radio_station.db) as db:
+            gws = db.session().query(Gateway).join(Gateway.stations_using_for_outgoing).filter_by(
+              id=self.__radio_station.station.id).all()
+            self.__outgoing_gateways = dict()
+            self.__outgoing_sip_gateways = dict()
+            self.__available_outgoing_gateways = []
+            for gw in gws:
+                if gw.is_goip:
+                    self.__outgoing_gateways[str(gw.number_bottom)] = gw
+                    self.__available_outgoing_gateways.append(gw.number_bottom)
+                    self.__available_outgoing_gateways.sort()
+                    self.__radio_station.logger.info(
+                        "Got outgoing goip gateways for {0} {1}".format(self.__radio_station.station.name,
                                                                     str(self.__available_outgoing_gateways)))
-            else:  # really all you need is one outgoing :-)
-                self.__outgoing_sip_gateways[str(gw.number_bottom)] = gw
-                self.__radio_station.logger.info(
-                    "Got outgoing SIP gateways for {0} {1}".format(self.__radio_station.station.name,
+                else:  # really all you need is one outgoing :-)
+                    self.__outgoing_sip_gateways[str(gw.number_bottom)] = gw
+                    self.__radio_station.logger.info(
+                        "Got outgoing SIP gateways for {0} {1}".format(self.__radio_station.station.name,
                                                                    str(self.__outgoing_sip_gateways)))
 
     def __do_esl_command(self, esl_command):
@@ -366,6 +369,7 @@ class CallHandler:
                     self.__radio_station.logger.error('error in channel answer: {0}'.format(e.message))
 
             elif event_name == "DTMF" and 'Caller-Destination-Number' in event_json:
+                self.__radio_station.logger.info("Received DTMF {0} with recipients: {1}".format(event_json["DTMF-Digit"], self.__incoming_dtmf_recipients))
                 try:
                     if str(event_json['Caller-Destination-Number'])[-12:] in self.__incoming_dtmf_recipients:
                         self.__radio_station.logger.info(
@@ -496,10 +500,11 @@ class CallHandler:
                 except:
                     pass
                 try:
-                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}".format(
+                    self.__radio_station.logger.info("Notifying park recipient for {0} in {1} and {2}, {3}".format(
                         event_json['Caller-Destination-Number'][-9:], self.__incoming_call_recipients,
-                        self.__host_call_recipients))
+                        self.__host_call_recipients, self.__community_ivr_number[-9:]))
                     if self.__community_ivr_number is not None and event_json['Caller-Destination-Number'][-9:] == self.__community_ivr_number[-9:]: # Someone calling into the community
+                        self.__radio_station.logger.info("Forwarding call to Radio station IVR Menu")
                         community_menu = CommunityIVRMenu(self.__radio_station)
                         self.__community_menu_sessions[event_json['Caller-ANI'][-9:]] = community_menu
                         threading.Thread(target=self.__community_menu_sessions[event_json['Caller-ANI'][-9:]].notify_incoming_call,
@@ -630,19 +635,21 @@ class CallHandler:
         except:
             return
 
-        try:
-            self.__radio_station.db._model_changes = {}
-            self.__radio_station.db.add(call)
-            self.__radio_station.db.commit()
-        except SQLAlchemyError as e:
-            self.__radio_station.logger.error('error in logging call: {0}'.format(e.message))
+        with DBAgent(self.__radio_station.db) as db:
+            session = db.session(True)
             try:
-                self.__radio_station.db.rollback()
-            except:
-                return
 
-        except:  # any other exception. This loop should not stop for anything.
-            return
+                session._model_changes = {}
+                session.add(call)
+                session.commit()
+            except SQLAlchemyError as e:
+                self.__radio_station.logger.error('error in logging call: {0}'.format(e.message))
+                try:
+                    session.rollback()
+                except:
+                    return
+            except:  # any other exception. This loop should not stop for anything.
+                return
 
     def __release_gateway(self, event_json):
         # if it was an incoming call

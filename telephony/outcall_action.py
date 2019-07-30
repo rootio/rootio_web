@@ -5,6 +5,7 @@ from time import sleep
 from apscheduler.scheduler import Scheduler
 
 from rootio.radio.models import Person
+from telephony.utils.database import DBAgent
 
 
 class PhoneStatus:
@@ -47,10 +48,11 @@ class OutcallAction:
             self.__scheduler = Scheduler()
             self.__scheduler.start()
             self.__call_handler.register_for_incoming_calls(self)
-            self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number))
-            self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number))
+            self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number)[-9:])
+            self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number)[-9:])
             self.request_host_call()
         except Exception as e:
+            self.program.log_program_activity("Error in OutcallAction.start: {0}".format(e.message))
             print e
 
     def stop(self, graceful=True, call_info=None):
@@ -59,12 +61,13 @@ class OutcallAction:
         self.__scheduler.shutdown()
         # deregister from any triggers
         self.__call_handler.deregister_for_incoming_calls(self)
-        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number))
+        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number)[-9:])
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def __get_host(self, host_id):
-        host = self.program.radio_station.db.query(Person).filter(Person.id == host_id).first()
-        return host
+        with DBAgent(self.program.radio_station.db) as db:
+            host = db.session().query(Person).filter(Person.id == host_id).first()
+            return host
 
     def request_host_call(self, guest_triggered=False):
         self.__in_talkshow_setup = True
