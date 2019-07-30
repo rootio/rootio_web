@@ -5,6 +5,8 @@
 
 {% block js_btm %}
 {{ super() }}
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap2-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap2-toggle.min.js"></script>
 <script>
 
 $( function() {
@@ -41,6 +43,20 @@ $( function() {
     });
   });
 
+  $('#toggle-play').change(function() {
+    // AJAX Request
+    $.ajax({
+      url: "{{ url_for('content.track_toggle_play', track_id=track.id ) }}",
+      type: 'GET',
+      success: function(){
+        toastr["success"]("Playback mode changed!");
+      },
+      error: function(){
+        toastr["error"]("Cannot change playback mode!");
+      }
+    });
+  })
+
   $( "tbody" ).sortable({
     axis: 'y',
     placeholder: "sortable-placeholder",
@@ -70,12 +86,18 @@ $( function() {
 {% endblock %}
 
 {% block body %}
+
 <div class="container">
     <h2>{{ _('Content Dashboard') }}</h2>
     <div class="pull-left">
         <h3>{{ _('Track contents') }} ({{track.name}})</h3>
     </div>
     <div class="pull-right">
+
+      <input type="checkbox" id="toggle-play"
+        {% if track.continuous_play %} checked {% endif %}
+        data-toggle="toggle" data-on="Play continuously" data-off="Play episodes" data-onstyle="success" data-offstyle="danger" data-height="20" data-width="130">
+
         <a class="btn btn-success" href="{{ url_for('content.track_files_add', track_id=track.id ) }}"><strong>{{ _('Add') }} +</strong></a>
         <a class="btn btn-info" href="{{ url_for('radio.programs') }}"><strong>{{ _('Go to programs') }}</strong></a>
         <a class="btn btn-danger" id="empty-track-button" href="#"><i class="fas fa-trash"></i> <strong>{{ _('Empty this track') }}</strong></a>

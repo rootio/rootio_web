@@ -103,7 +103,6 @@ def track_files_empty(track_id):
             os.remove(file_path)
     except:
         pass
-        # import ipdb; ipdb.set_trace()
 
     return redirect(url_for('content.list_track_files', track_id=track.id))
 
@@ -254,6 +253,26 @@ def track_files_delete(track_id, file_id):
 
     try:
         db.session.add(target)
+        db.session.commit()
+    except:
+        return '{"result": "failed" }'
+
+    return '{"result": "ok" }'
+
+
+@content.route('/tracks/<int:track_id>/toggle_play', methods=['GET'])
+@login_required
+@csrf.exempt
+def track_toggle_play(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+
+    if track.continuous_play:
+        track.continuous_play = False
+    else:
+        track.continuous_play = True
+
+    try:
+        db.session.add(track)
         db.session.commit()
     except:
         return '{"result": "failed" }'
