@@ -48,8 +48,11 @@
                   <td>{{ _('You are now on air') }}</td>
                   <td>{{ voice_prompt.on_air_txt }}</td>
                 </tr><tr>
-                  <td>{{ _('Your call will end in { seconds } seconds') }}</td>
+                  <td>{{ _('Your call will end in { seconds }') }}</td>
                   <td>{{ voice_prompt.call_end_txt }}</td>
+                </tr><tr>
+                  <td>{{ _('seconds') }}</td>
+                  <td>{{ voice_prompt.call_end_part2_txt }}</td>
                 </tr><tr>
                   <td>{{ _('You have a caller on the line. To connect to the station, press one, to cancel, press two') }}</td>
                   <td>{{ voice_prompt.incoming_call_txt }}</td>
@@ -81,11 +84,17 @@
                   <td>{{ _('You are calling { number }') }}</td>
                   <td>{{ voice_prompt.calling_number_txt }}</td>
                 </tr><tr>
-                  <td>{{ _('Call from community caller { caller number } was queued') }}</td>
+                  <td>{{ _('Call from community caller { caller number }') }}</td>
                   <td>{{ voice_prompt.call_queued_txt }}</td>
                 </tr><tr>
-                  <td>{{ _('The call to { number } failed. Please pres the hash key to try again') }}</td>
+                  <td>{{ _('was queued') }}</td>
+                  <td>{{ voice_prompt.call_queued_part2_txt }}</td>
+                </tr><tr>
+                  <td>{{ _('The call to { number }') }}</td>
                   <td>{{ voice_prompt.call_failed_txt }}</td>
+                </tr><tr>
+                  <td>{{ _('failed. Please pres the hash key to try again') }}</td>
+                  <td>{{ voice_prompt.call_failed_part2_txt }}</td>
                 </tr><tr>
                   <td>{{ _('Thank you for wanting to take part in this program. We will call you back shortly') }}</td>
                   <td>{{ voice_prompt.call_back_hangup_txt }}</td>
@@ -109,13 +118,24 @@
                   </div>
                 </td>
               </tr><tr>
-                <td>{{ _('Your call will end in { seconds } seconds') }}</td>
+                <td>{{ _('Your call will end in { seconds } ') }}</td>
                 <td>
                   <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
                     <audio name="audio_player" preload="metadata" controls="false" >
                       <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/mpeg">
                       <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/ogg">
                       <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/wav">
+                    </audio>
+                  </div>
+                </td>
+              </tr><tr>
+                <td>{{ _('seconds') }}</td>
+                <td>
+                  <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
+                    <audio name="audio_player" preload="metadata" controls="false" >
+                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/mpeg">
+                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/ogg">
+                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/wav">
                     </audio>
                   </div>
                 </td>
@@ -230,7 +250,7 @@
                   </div>
                 </td>
               </tr><tr>
-                <td>{{ _('Call from community caller { caller number } was queued') }}</td>
+                <td>{{ _('Call from community caller { caller number } ') }}</td>
                 <td>
                   <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
                     <audio name="audio_player" preload="metadata" controls="false" >
@@ -241,13 +261,35 @@
                   </div>
                 </td>
               </tr><tr>
-                <td>{{ _('The call to { number } failed. Please pres the hash key to try again') }}</td>
+                <td>{{ _('was queued') }}</td>
+                <td>
+                  <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
+                    <audio name="audio_player" preload="metadata" controls="false" >
+                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/mpeg">
+                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/ogg">
+                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/wav">
+                    </audio>
+                  </div>
+                </td>
+              </tr><tr>
+                <td>{{ _('The call to { number }') }}</td>
                 <td>
                   <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
                     <audio name="audio_player" preload="metadata" controls="false" >
                       <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/mpeg">
                       <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/ogg">
                       <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/wav">
+                    </audio>
+                  </div>
+                </td>
+              </tr><tr>
+                <td>{{ _('failed. Please pres the hash key to try again') }}</td>
+                <td>
+                  <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
+                    <audio name="audio_player" preload="metadata" controls="false" >
+                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/mpeg">
+                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/ogg">
+                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/wav">
                     </audio>
                   </div>
                 </td>
