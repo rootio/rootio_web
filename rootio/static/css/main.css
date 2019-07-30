@@ -157,6 +157,18 @@ table .headerSortUp:after {
     opacity: 0.6;
 }
 
+table.configuration-table td {
+  position: relative !important;
+}
+
+table.configuration-table td .edit-icon-td{
+  display: none;
+  z-index: 99;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
 /* UI sortable table */
 
 span.grippy {

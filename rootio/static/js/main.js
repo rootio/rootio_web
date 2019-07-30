@@ -12,4 +12,11 @@ $(document).ready(function() {
     $('form#language-selector select').on('change',function() {
         this.form.submit();
     });
+
+  $('table.configuration-table td').mouseenter(function(){
+    $(this).children('.edit-icon-td').show();
+  });
+  $('table.configuration-table td').mouseleave(function(){
+    $(this).children('.edit-icon-td').hide();
+  });
 });

@@ -8,8 +8,8 @@ from flask import Blueprint, render_template, request, flash, jsonify
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 
-from rootio.config import DefaultConfig
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
+from ..config import DefaultConfig
 from ..content.forms import CommunityMenuForm
 from ..content.models import CommunityMenu
 from models import VoicePrompt
@@ -27,7 +27,37 @@ configuration = Blueprint('configuration', __name__, url_prefix='/configuration'
 def index():
     # get all the user's networks and their stations
     networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('configuration/index.html', networks=networks, userid=current_user.id, now=datetime.now)
+    stations = []
+
+    for network in networks:
+        for station in network.stations:
+            station.gws_in_telephony = []
+            station.gws_out_telephony = []
+            station.gws_in_sip = []
+            station.gws_out_sip = []
+            for gw in station.outgoing_gateways:
+                if gw.number_bottom < 10000:
+                    station.gws_out_sip.append(gw.number_bottom)
+                else:
+                    station.gws_out_telephony.append(gw.number_bottom)
+            for gw in station.incoming_gateways:
+                if gw.number_bottom < 10000:
+                    station.gws_in_sip.append(gw.number_bottom)
+                else:
+                    station.gws_in_telephony.append(gw.number_bottom)
+
+            if station.gws_in_telephony:
+                station.host_number = min(station.gws_out_telephony)
+                if len(station.gws_in_telephony):
+                    if len(station.gws_in_telephony) > 2:
+                        station.call_in_number = station.gws_in_telephony[1]
+                    else:
+                        station.call_in_number = station.gws_in_telephony[0]
+                else:
+                    station.call_in_number = None
+                station.community_number = max(station.gws_in_telephony)
+            stations.append(station)
+    return render_template('configuration/index.html', stations=stations, userid=current_user.id)
 
 
 @configuration.route('/tts/', methods=['GET'])
