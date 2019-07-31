@@ -1,7 +1,6 @@
 from rootio.config import *
 import json
 from rootio.content.models import ContentTrack
-from telephony.utils.database import DBAgent
 
 
 class AdvertisementAction:
@@ -48,8 +47,7 @@ class AdvertisementAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_track(self):  # load the media to be played
-        with DBAgent(self.program.radio_station.db) as db:
-            self.__track = db.session.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
+        self.__track = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first()
 
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
@@ -116,7 +114,7 @@ class AdvertisementAction:
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[
-         #   len(self.__track.files) - 1].ufri):
+         #   len(self.__track.files) - 1].uri):
         self.stop(True, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 

@@ -4,8 +4,6 @@ from rootio.config import *
 from rootio.content.models import CommunityContent
 import json
 
-from telephony.utils.database import DBAgent
-
 
 class CommunityAction:
 
@@ -19,7 +17,8 @@ class CommunityAction:
         self.__media_index = 0
         self.__call_handler = self.program.radio_station.call_handler
         self.__call_answer_info = None
-        self.program.log_program_activity("Done initialising Community action for program {0}".format(self.program.name))
+        self.program.log_program_activity(
+            "Done initialising Community action for program {0}".format(self.program.name))
 
     def start(self):
         self.program.set_running_action(self)
@@ -52,14 +51,13 @@ class CommunityAction:
         self.__play_media(self.__call_answer_info, self.__media_index)
 
     def __load_track(self):  # load the media to be played
-        with DBAgent(self.program.radio_station.db) as db:
-            self.__content = db.session.query(CommunityContent)\
-                                                      .filter(CommunityContent.type_code == self.__type_code)\
-                                                      .filter(CommunityContent.approved.is_(True))\
-                                                      .filter(CommunityContent.station_id == self.program.radio_station.station.id)\
-                                                      .filter(CommunityContent.valid_until >= datetime.datetime.now())\
-                                                      .all()
-        
+        self.__content = self.program.radio_station.db.query(CommunityContent) \
+            .filter(CommunityContent.type_code == self.__type_code) \
+            .filter(CommunityContent.approved.is_(True)) \
+            .filter(CommunityContent.station_id == self.program.radio_station.station.id) \
+            .filter(CommunityContent.valid_until >= datetime.datetime.now()) \
+            .all()
+
     def __request_station_call(self):  # call the number specified thru plivo
         if self.program.radio_station.station.is_high_bandwidth:
             result = self.__call_station_via_sip()
@@ -73,7 +71,8 @@ class CommunityAction:
         result = None
         # Try a high bandwidth call first
         if self.program.radio_station.station.sip_username is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name, True,
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name,
+                                              True,
                                               self.duration)
             self.program.log_program_activity("result of station call via SIP is " + str(result))
         return result
@@ -81,12 +80,14 @@ class CommunityAction:
     def __call_station_via_goip(self):
         result = None
         if self.program.radio_station.station.primary_transmitter_phone is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
+            result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.primary_transmitter_phone.raw_number,
                                               self.program.name, False, self.duration)
             self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
-            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+            if not result[
+                0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
                 result = self.__call_handler.call(self,
-                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                                  self.program.radio_station.station.secondary_transmitter_phone.raw_number,
                                                   self.program.name, False, self.duration)
                 self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
         return result
@@ -108,11 +109,12 @@ class CommunityAction:
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
             self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'][-12:])
             self.__call_handler.deregister_for_media_playback_stop(event_json['Caller-Destination-Number'][-12:])
-            #result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
-                                                  # self.__content[self.__media_index])
-            #self.program.log_program_activity('result of stop play is ' + result)
+            # result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
+            # self.__content[self.__media_index])
+            # self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
-            self.program.radio_station.logger.error("error {err} in community_action.__stop_media".format(err=e.message))
+            self.program.radio_station.logger.error(
+                "error {err} in community_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):
@@ -135,9 +137,11 @@ class CommunityAction:
                 self.__play_media(self.__call_answer_info, self.__media_index % len(self.__content))
 
     def __listen_for_media_play_stop(self):
-        self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-12:])
+        self.__call_handler.register_for_media_playback_stop(self,
+                                                             self.__call_answer_info['Caller-Destination-Number'][-12:])
 
     def __deregister_listeners(self):
         if self.__call_answer_info is not None:
-            self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'][-11:])
+            self.__call_handler.deregister_for_media_playback_stop(
+                self.__call_answer_info['Caller-Destination-Number'][-11:])
             self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-11:])

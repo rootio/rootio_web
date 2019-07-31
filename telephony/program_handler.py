@@ -10,7 +10,6 @@ import pytz
 from pytz import timezone
 from apscheduler.scheduler import Scheduler
 from sqlalchemy.exc import DatabaseError
-from sqlalchemy.orm import sessionmaker
 
 from rootio.config import DefaultConfig
 from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic
@@ -18,7 +17,6 @@ from rootio.radio.models import ScheduledProgram
 from sqlalchemy import text
 
 from radio_program import RadioProgram
-from telephony.utils.database import DBAgent
 
 
 class ProgramHandler:
@@ -56,9 +54,6 @@ class ProgramHandler:
         self.__stop_program()
         # any clean up goes here
         # unschedule stuff
-
-    def __get_db_connection(self):
-        return sessionmaker(bind=self.__radio_station.db)()
 
     def __schedule_next_schedule(self):
         base_date = datetime.now()
@@ -110,17 +105,19 @@ class ProgramHandler:
 
     def __load_programs(self):
         timezone = self.__radio_station.station.timezone
+        #if self.__is_starting_up:
         date_filter = "((date(start) = date(now())) or (start < now() and radio_scheduledprogram.end > now()))"
-        with DBAgent(self.__radio_station.db) as db:
-            query = db.session().query(ScheduledProgram).filter(
-                ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
-                ScheduledProgram.deleted == False)
-            self.__scheduled_programs = query.all()
-            self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
+        #else:
+        #   date_filter = "(start >= now() at time zone '{tz}' and start < now() at time zone '{tz}' + interval '{interval} hour')".format(
+        #        tz=timezone, interval=self.__interval_hours)
+        query = self.__radio_station.db.query(ScheduledProgram).filter(
+            ScheduledProgram.station_id == self.__radio_station.station.id).filter(text(date_filter)).filter(
+            ScheduledProgram.deleted == False)
+        self.__scheduled_programs = query.all()
+        self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
-        with DBAgent(self.__radio_station.db) as db:
-            return db.session().query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
+        return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
     def __start_listeners(self):
         t = threading.Thread(target=self.__listen_for_scheduling_changes,
@@ -146,6 +143,7 @@ class ProgramHandler:
 
         while True:
 
+            incomplete_data = False
             data = sck.recv(10240000)
 
             try:
@@ -178,6 +176,8 @@ class ProgramHandler:
                     self.__radio_station.logger.error("Error 1 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
                     return
 
+            #  self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
+
             try:
                 if "action" in event and "id" in event:
                     if event["action"] == "delete":
@@ -205,7 +205,7 @@ class ProgramHandler:
                         t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
                         t.start()
             except Exception as e:
-                self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=str(e)))
+                self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
 
     def __get_dict_from_rows(self, rows):
         result = dict()
@@ -214,78 +214,64 @@ class ProgramHandler:
         return result
 
     def __process_music_data(self, station_id, json_string):
-        with DBAgent(self.__radio_station.db) as db:
-            session = db.session()
-            songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
-            artists_in_db = self.__get_dict_from_rows(
-                session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
-            albums_in_db = self.__get_dict_from_rows(
-                session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+        songs_in_db = self.__get_dict_from_rows(self.__radio_station.db.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
+        artists_in_db = self.__get_dict_from_rows(
+            self.__radio_station.db.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
+        albums_in_db = self.__get_dict_from_rows(
+            self.__radio_station.db.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
 
-            data = json.loads(json_string)
-            for artist in data:
-                #print artist
-                if artist in artists_in_db:
-                   music_artist = artists_in_db[artist]
+        data = json.loads(json_string)
+        for artist in data:
+            if artist in artists_in_db:
+                music_artist = artists_in_db[artist]
+            else:
+                # persist the artist
+                music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
+                artists_in_db[artist] = music_artist
+                self.__radio_station.db.add(music_artist)
+                try:
+                    self.__radio_station.db._model_changes = {}
+                    self.__radio_station.db.commit()
+                except DatabaseError:
+                    self.__radio_station.db.rollback()
+                    continue
+                except:
+                    continue
+
+            for album in data[artist]:
+                if album in albums_in_db:
+                    music_album = albums_in_db[album]
                 else:
-                    #with DBAgent(self.__radio_station.db) as db:
-                    #session = db.session()
-                    # persist the artist
-                    music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
-                    artists_in_db[artist] = music_artist
-                    session.add(music_artist)
+                    # persist the album
+                    music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
+                    albums_in_db[album] = music_album
+                    self.__radio_station.db.add(music_album)
                     try:
-                        session._model_changes = {}
-                        session.commit()
-                    except DatabaseError as ex:
+                        self.__radio_station.db._model_changes = {}
+                        self.__radio_station.db.commit()
+                    except DatabaseError:
+                        self.__radio_station.db.rollback()
                         continue
-                    except Exception as e:
-                        self.__radio_station.logger.error(
-                            "Error 1 {err} in ProgramHandler.__process_music_data".format(err=str(e)))
+                    except:
+                        continue
 
-                for album in data[artist]:
-
-                    if album in albums_in_db:
-                        music_album = albums_in_db[album]
+                for song in data[artist][album]['songs']:
+                    if song['title'] in songs_in_db:
+                        music_song = songs_in_db[song['title']]
                     else:
-                        with DBAgent(self.__radio_station.db) as db:
-                            #session = db.session()
-                            # persist the album
-                            music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
-                            albums_in_db[album] = music_album
-                            session.add(music_album)
-                            try:
-                                session._model_changes = {}
-                                session.commit()
-                            except DatabaseError as ex:
-                                continue
-                            except Exception as e:
-                                self.__radio_station.logger.error(
-                                    "Error 2 {err} in ProgramHandler.__process_music_data".format(err=str(e)))
-
-                    for song in data[artist][album]['songs']:
-
-                        if song['title'] in songs_in_db:
-                            music_song = songs_in_db[song['title']]
-                        else:
-                            with DBAgent(self.__radio_station.db) as db:
-                                #session = db.session()
-                                music_song = ContentMusic(
-                                    **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
-                                        'album_id': music_album.id, 'artist_id': music_artist.id})
-                                songs_in_db[song['title']] = music_song
-                                session.add(music_song)
-                        try:
-                            session._model_changes = {}
-                            session.commit()
-                        except DatabaseError as ex:
-                            #session.rollback()
-                            continue
-                        except Exception as e:
-                            self.__radio_station.logger.error(
-                                "Error 3 {err} in ProgramHandler.__process_music_data".format(err=str(e)))
-            session._model_changes = {}
-            session.commit()
+                        music_song = ContentMusic(
+                            **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
+                               'album_id': music_album.id, 'artist_id': music_artist.id})
+                        songs_in_db[song['title']] = music_song
+                        self.__radio_station.db.add(music_song)
+                    try:
+                        self.__radio_station.db._model_changes = {}
+                        self.__radio_station.db.commit()
+                    except DatabaseError:
+                        self.__radio_station.db.rollback()
+                        continue
+                    except:
+                        continue
 
 
     """

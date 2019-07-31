@@ -10,7 +10,6 @@ from rootio.config import *
 from rootio.content.models import CommunityContent, CommunityMenu
 from telephony.cereproc.cereproc_rest_agent import CereprocRestAgent
 from telephony.utils.audio import get_normalized_file
-from telephony.utils.database import DBAgent
 
 
 class CommunityIVRMenu:
@@ -30,14 +29,24 @@ class CommunityIVRMenu:
         self.__is_playing_audio = False
         self.__call_json = None
         self.__menu = self.__get_community_menu()  # is a 1:1 mapping between the two tables
-        self.__cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME, DefaultConfig.CEREPROC_PASSWORD)
+        self.__cereproc_agent = CereprocRestAgent(DefaultConfig.CEREPROC_SERVER, DefaultConfig.CEREPROC_USERNAME,
+                                                  DefaultConfig.CEREPROC_PASSWORD)
 
     def __get_community_menu(self):
-        with DBAgent(self.__radio_station.db) as db:
-            if len(db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()) > 0:
-                return db.session.query(CommunityMenu).filter(CommunityMenu.station_id == self.__radio_station.station.id).filter(CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(CommunityMenu.date_created.desc()).all()[0]
-            else:
-                return None
+        self.__radio_station.logger.info(self.__radio_station.db.query(CommunityMenu).filter(
+            CommunityMenu.station_id == self.__radio_station.station.id).filter(
+            CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(
+            CommunityMenu.date_created.desc()).statement)
+        if len(self.__radio_station.db.query(CommunityMenu).filter(
+                CommunityMenu.station_id == self.__radio_station.station.id).filter(
+                CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(
+                CommunityMenu.date_created.desc()).all()) > 0:
+            return self.__radio_station.db.query(CommunityMenu).filter(
+                CommunityMenu.station_id == self.__radio_station.station.id).filter(
+                CommunityMenu.deleted != True or CommunityMenu.deleted is None).order_by(
+                CommunityMenu.date_created.desc()).all()[0]
+        else:
+            return None
 
     def __get_gateway_used(self):  # this retrieves the extension that listens for calls for ads and announcements
         gws = []
@@ -75,10 +84,12 @@ class CommunityIVRMenu:
         try:
             self.__call_json = call_json
             # Assuming Goip, no two calls are possible to menu at same time. Otherwise make below more exclusive
-            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'], "{0}_{1}".format(self.__radio_station.station.id, call_json['Caller-ANI'][-9:]))
+            self.__radio_station.call_handler.bridge_incoming_call(call_json['Channel-Call-UUID'],
+                                                                   "{0}_{1}".format(self.__radio_station.station.id,
+                                                                                    call_json['Caller-ANI'][-9:]))
             self.__start(self.__call_json)
-        except:  # Key error, event_json is null etc
-            pass
+        except Exception as e:  # Key error, event_json is null etc
+            self.__radio_station.logger.error("Error in CommunityIVRMenu.notify_incoming_call  {0}".format(str(e)))
 
     def notify_incoming_dtmf(self, event_json):
         try:
@@ -88,8 +99,8 @@ class CommunityIVRMenu:
             else:
                 self.__accumulated_dtmf = self.__accumulated_dtmf + event_json["DTMF-Digit"]
         except KeyError as e:  # Event JSON does not have the 'DTMF-Digit' key
-            print e 
-        except Exception as ex:  # Null pointer, event_json not a dict etc
+            print e
+        except exception as ex:  # Null pointer, event_json not a dict etc
             print ex
 
     def notify_speak_stop(self, event_json):
@@ -161,29 +172,29 @@ class CommunityIVRMenu:
         self.__radio_station.call_handler.stop_record_call(call_uuid, audio_path)
 
     def __save_message(self, filename, originator, date_recorded, duration, message_type, valid_until, station):
-        with DBAgent(self.__radio_station.db) as db:
-            try:
-                cm = CommunityContent()
-                cm.date_created = date_recorded
-                cm.originator = originator
-                cm.duration = duration
-                cm.type_code = message_type
-                cm.valid_until = valid_until
-                cm.message = filename
-                cm.station = station
-                db.session._model_changes = {}
-                db.session.add(cm)
-                db.session.commit()
-            except SQLAlchemyError:
-                db.session.rollback()
-            except:
-                return
+        try:
+            cm = CommunityContent()
+            cm.date_created = date_recorded
+            cm.originator = originator
+            cm.duration = duration
+            cm.type_code = message_type
+            cm.valid_until = valid_until
+            cm.message = filename
+            cm.station = station
+            self.__radio_station.db._model_changes = {}
+            self.__radio_station.db.add(cm)
+            self.__radio_station.db.commit()
+        except SQLAlchemyError:
+            self.__radio_station.db.rollback()
+        except:
+            return
 
     def __wait_on_audio(self):  # commands issued after play of audio are executed while FS is playing audio...
         while self.__is_playing_audio:
             pass
 
-    def __start(self, event_json):  # called by the call handler upon receiving a call on the extension for which this is
+    def __start(self,
+                event_json):  # called by the call handler upon receiving a call on the extension for which this is
         # registered
         self.__menu = self.__get_community_menu()
         try:
@@ -192,26 +203,39 @@ class CommunityIVRMenu:
                 self.__radio_station.call_handler.register_for_media_playback_start(self, event_json['Caller-ANI'][-9:])
 
                 if self.__menu.use_tts:
-                    welcome_message = self.__cereproc_agent.get_cprc_tts(self.__menu.welcome_message_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    welcome_message = self.__cereproc_agent.get_cprc_tts(self.__menu.welcome_message_txt,
+                                                                         self.__radio_station.station.tts_voice.name,
+                                                                         self.__radio_station.station.tts_samplerate.value,
+                                                                         self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
                     welcome_message = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.welcome_message)
                 self.__play(event_json['Channel-Call-UUID'], welcome_message)
 
                 # get the category of the message being left
                 if self.__menu.use_tts:
-                    message_type_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.message_type_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    message_type_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.message_type_prompt_txt,
+                                                                             self.__radio_station.station.tts_voice.name,
+                                                                             self.__radio_station.station.tts_samplerate.value,
+                                                                             self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
                     message_type_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.message_type_prompt)
-                self.__category_id = self.__play_and_get_specific_dtmf(event_json['Channel-Call-UUID'], message_type_prompt, ["1", "2", "3"], 15, 3)
+                self.__category_id = self.__play_and_get_specific_dtmf(event_json['Channel-Call-UUID'],
+                                                                       message_type_prompt, ["1", "2", "3"], 15, 3)
                 if self.__category_id is None:
                     self.__finalize()
                     return
 
                 # get the number of days for which valid
                 if self.__menu.use_tts:
-                    days_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.days_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    days_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.days_prompt_txt,
+                                                                     self.__radio_station.station.tts_voice.name,
+                                                                     self.__radio_station.station.tts_samplerate.value,
+                                                                     self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
-                    days_prompt = os.path.join(DefaultConfig.CONTENT_DIR,self.__menu.days_prompt)
+                    days_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.days_prompt)
                 self.__num_days = self.__play_and_get_max_dtmf(event_json['Channel-Call-UUID'], days_prompt, 14, 5, 3)
                 if self.__num_days is None:
                     self.__finalize()
@@ -219,24 +243,29 @@ class CommunityIVRMenu:
 
                 # instruct the person to record their message
                 if self.__menu.use_tts:
-                    record_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.record_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    record_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.record_prompt_txt,
+                                                                       self.__radio_station.station.tts_voice.name,
+                                                                       self.__radio_station.station.tts_samplerate.value,
+                                                                       self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
                     record_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.record_prompt)
-                self.__play(event_json['Channel-Call-UUID'],  record_prompt)
+                self.__play(event_json['Channel-Call-UUID'], record_prompt)
                 filename = "{0}_{1}_recording.wav".format(self.__call_json['Caller-ANI'],
-                                                  datetime.strftime(datetime.now(), "%Y%m%d%H%M%S"))
-                audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content", str(self.__radio_station.station.id),
-                                  self.__category_id, filename)
+                                                          datetime.strftime(datetime.now(), "%Y%m%d%H%M%S"))
+                audio_path = os.path.join(DefaultConfig.CONTENT_DIR, "community-content",
+                                          str(self.__radio_station.station.id),
+                                          self.__category_id, filename)
                 self.__record_audio_file(event_json['Channel-Call-UUID'], audio_path)
-                #self.__radio_station.call_handler.register_for_speak_stop(self, event_json['Caller-ANI'][-9:])
-                #self.__radio_station.call_handler.register_for_speak_start(self, event_json['Caller-ANI'][-9:])
+                # self.__radio_station.call_handler.register_for_speak_stop(self, event_json['Caller-ANI'][-9:])
+                # self.__radio_station.call_handler.register_for_speak_start(self, event_json['Caller-ANI'][-9:])
                 self.__radio_station.call_handler.register_for_incoming_dtmf(self, event_json['Caller-ANI'][-9:])
 
                 self.__recording_start_time = datetime.now()
-                #self.__is_speaking = True
+                # self.__is_speaking = True
                 self.__last_speak_time = datetime.now()
                 while ((self.__last_speak_time) + timedelta(0, 30) > datetime.now()) and not (
-                    self.__accumulated_dtmf is not None and "#" in self.__accumulated_dtmf):  # duration of 30 sec, # key
+                        self.__accumulated_dtmf is not None and "#" in self.__accumulated_dtmf):  # duration of 30 sec, # key
                     #  or silence of 5 seconds will result in end of recording
                     pass
                 self.__accumulated_dtmf = None
@@ -251,12 +280,17 @@ class CommunityIVRMenu:
                 is_finalized = False
 
                 if self.__menu.use_tts:
-                    finalization_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.finalization_prompt_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    finalization_prompt = self.__cereproc_agent.get_cprc_tts(self.__menu.finalization_prompt_txt,
+                                                                             self.__radio_station.station.tts_voice.name,
+                                                                             self.__radio_station.station.tts_samplerate.value,
+                                                                             self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
                     finalization_prompt = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.finalization_prompt)
                 while ctr < 3 and not is_finalized:
-                    self.__post_recording_option = self.__play_and_get_specific_dtmf(event_json['Channel-Call-UUID'], finalization_prompt,
-                                                                             ["1", "2", "3"], 15, 3)
+                    self.__post_recording_option = self.__play_and_get_specific_dtmf(event_json['Channel-Call-UUID'],
+                                                                                     finalization_prompt,
+                                                                                     ["1", "2", "3"], 15, 3)
                     if self.__post_recording_option is None:
                         self.__finalize()
                     elif self.__post_recording_option == "1":  # Listen to the recording
@@ -265,9 +299,10 @@ class CommunityIVRMenu:
                         normalized_file_parts = get_normalized_file(audio_path)[1].split('/')
                         norm_file = normalized_file_parts[len(normalized_file_parts) - 1]
                         self.__save_message(norm_file, self.__call_json['Caller-ANI'], datetime.now(),
-                                    (self.__recording_stop_time - self.__recording_start_time).seconds,
-                                    int(self.__category_id), datetime.now() + timedelta(int(self.__num_days), 0),
-                                    self.__radio_station.station)
+                                            (self.__recording_stop_time - self.__recording_start_time).seconds,
+                                            int(self.__category_id),
+                                            datetime.now() + timedelta(int(self.__num_days), 0),
+                                            self.__radio_station.station)
                         is_finalized = True
                     elif self.__post_recording_option == "3":  # Discard
                         is_finalized = True  # Just do not save the recording to the DB
@@ -275,14 +310,20 @@ class CommunityIVRMenu:
 
                 # play that last thank you, goodbye message
                 if self.__menu.use_tts:
-                    goodbye_message = self.__cereproc_agent.get_cprc_tts(self.__menu.goodbye_message_txt, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)[0]
+                    goodbye_message = self.__cereproc_agent.get_cprc_tts(self.__menu.goodbye_message_txt,
+                                                                         self.__radio_station.station.tts_voice.name,
+                                                                         self.__radio_station.station.tts_samplerate.value,
+                                                                         self.__radio_station.station.tts_audioformat.name)[
+                        0]
                 else:
                     goodbye_message = os.path.join(DefaultConfig.CONTENT_DIR, self.__menu.goodbye_message)
                 self.__play(event_json['Channel-Call-UUID'], goodbye_message)
 
                 # clean up, hangup
                 self.__finalize()
+            else:
+                self.__radio_station.logger.error("No IVR Menu found for this station!")
 
         except Exception as e:  # Keyerror, Null pointers
-            print e
+            self.__radio_station.logger.error("Error in CommunityIVRMenu.notify_incoming_call  {0}".format(str(e)))
             return

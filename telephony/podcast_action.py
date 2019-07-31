@@ -1,6 +1,5 @@
 from rootio.config import *
 from rootio.content.models import ContentPodcast
-from telephony.utils.database import DBAgent
 
 
 class PodcastAction:
@@ -50,9 +49,9 @@ class PodcastAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_podcast(self):  # load the media to be played
-        with DBAgent(self.program.radio_station.db) as db:
-            self.__podcast = db.session().query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
-            self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
+        self.__podcast = self.program.radio_station.db.query(ContentPodcast).filter(
+            ContentPodcast.id == self.__podcast_id).first()
+        self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
 
     def __request_station_call(self):  # call the number specified
         if self.program.radio_station.station.is_high_bandwidth:
@@ -66,7 +65,8 @@ class PodcastAction:
     def __call_station_via_sip(self):
         # Try a high bandwidth call first
         if self.program.radio_station.station.sip_username is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name, True,
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name,
+                                              True,
                                               self.duration)
             self.program.log_program_activity("result of station call via SIP is " + str(result))
             return result
@@ -74,15 +74,17 @@ class PodcastAction:
     def __call_station_via_goip(self):
         result = None
         if self.program.radio_station.station.primary_transmitter_phone is not None:
-            result = self.__call_handler.call(self, self.program.radio_station.station.primary_transmitter_phone.raw_number,
+            result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.primary_transmitter_phone.raw_number,
                                               self.program.name, False,
-                                          self.duration)
-            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
-            if not result[0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
-                result = self.__call_handler.call(self,
-                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
-                                                  self.program.name, False,
                                               self.duration)
+            self.program.log_program_activity("result of station call (primary) via GoIP is " + str(result))
+            if not result[
+                0] and self.program.radio_station.station.secondary_transmitter_phone is not None:  # Go for the secondary line of the station, if duo SIM phone
+                result = self.__call_handler.call(self,
+                                                  self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                                  self.program.name, False,
+                                                  self.duration)
                 self.program.log_program_activity("result of station call (secondary) via GoIP is " + str(result))
         return result
 
@@ -124,15 +126,17 @@ class PodcastAction:
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-        #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
-                                                        #  self.__podcast.podcast_downloads[0].file_name):
+        # if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
+        #  self.__podcast.podcast_downloads[0].file_name):
         self.stop(True, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):
-        self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-11:])
-    
+        self.__call_handler.register_for_media_playback_stop(self,
+                                                             self.__call_answer_info['Caller-Destination-Number'][-11:])
+
     def __deregister_listeners(self):
         if self.__call_answer_info is not None:
-            self.__call_handler.deregister_for_media_playback_stop(self.__call_answer_info['Caller-Destination-Number'][-11:])
+            self.__call_handler.deregister_for_media_playback_stop(
+                self.__call_answer_info['Caller-Destination-Number'][-11:])
             self.__call_handler.deregister_for_call_hangup(self.__call_answer_info['Caller-Destination-Number'][-11:])
