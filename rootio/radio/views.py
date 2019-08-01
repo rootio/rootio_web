@@ -36,6 +36,7 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 
 @radio.route('/', methods=['GET'])
+@login_required
 def index():
     # get all the user's networks and their stations
     networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
@@ -43,6 +44,7 @@ def index():
 
 
 @radio.route('/emergency/', methods=['GET'])
+@login_required
 def emergency():
     stations = Station.query.all()
     # demo, override station statuses
@@ -79,6 +81,7 @@ def network_add():
 
 
 @radio.route('/station/', methods=['GET'])
+@login_required
 def list_stations():
     stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     # stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
@@ -86,6 +89,7 @@ def list_stations():
 
 
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
+@login_required
 def station_definition(station_id):
     networks = current_user.networks
     station = Station.query.filter_by(id=station_id).first_or_404()
@@ -128,6 +132,7 @@ def station_add():
 
 
 @radio.route('/program/', methods=['GET'])
+@login_required
 def programs():
     programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id != 2).all()
@@ -135,6 +140,7 @@ def programs():
 
 
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
+@login_required
 def program_definition(program_id):
     program = Program.query.filter_by(id=program_id).first_or_404()
     # form = ProgramForm(obj=program, program_structure="test", next=request.args.get('next'))
@@ -247,6 +253,7 @@ def program_delete(program_id):
 
 
 @radio.route('/music_program/', methods=['GET'])
+@login_required
 def list_music_programs():
     music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id == 2).all()
@@ -282,6 +289,7 @@ def music_program_add():
 
 
 @radio.route('/music_program/<int:music_program_id>', methods=['GET', 'POST'])
+@login_required
 def music_program_definition(music_program_id):
     music_program = Program.query.filter_by(id=music_program_id).first_or_404()
 
@@ -337,6 +345,7 @@ def music_program_delete(music_program_id):
 
 
 @radio.route('/people/', methods=['GET'])
+@login_required
 def people():
     people = Person.query.all()
     return render_template('radio/people.html', people=people, active='people')
@@ -658,6 +667,7 @@ def scheduled_block_json(station_id):
 
 
 @radio.route('/station/<int:station_id>/log', methods=['GET'])
+@login_required
 def station_logs(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
     keys = []
@@ -669,6 +679,7 @@ def station_logs(station_id):
 
 
 @radio.route('/schedule/', methods=['GET'])
+@login_required
 def schedule():
     # TODO, if user is authorized to view only one station, redirect them there
     stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
@@ -679,6 +690,7 @@ def schedule():
 
 
 @radio.route('/schedule/<int:station_id>/', methods=['GET'])
+@login_required
 def schedule_station(station_id):
     station = Station.query.filter_by(id=station_id).first_or_404()
 
