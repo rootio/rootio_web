@@ -472,8 +472,16 @@ def content_podcast_add():
 @login_required
 def list_content_streams():
     # streams in my network
-    content_streams = ContentStream.query.all()
-    return render_template('content/content_streams.html', content_streams=content_streams)
+    networks = current_user.networks
+    network_ids = [network.id for network in networks]
+    show_only = request.args.get('show_only', '')
+
+    if show_only:
+        content_streams = db.session.query(ContentStream).join(ContentStream.networks).filter_by(id = show_only)
+    else:
+        content_streams = db.session.query(ContentStream).join(ContentStream.networks).filter(Network.id.in_(network_ids))
+
+    return render_template('content/content_streams.html', content_streams=content_streams, show_only=show_only)
 
 
 @content.route('/streams/<int:content_stream_id>', methods=['GET', 'POST'])
