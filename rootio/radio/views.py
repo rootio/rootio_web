@@ -15,7 +15,7 @@ from sqlalchemy import Date, cast
 
 import dateutil.parser
 from dateutil import rrule
-from flask import Blueprint, render_template, request, flash, json
+from flask import Blueprint, render_template, request, flash, json, abort
 from flask.ext.babel import gettext as _
 from flask.ext.login import login_required, current_user
 from pytz import timezone
@@ -87,7 +87,12 @@ def list_stations():
 
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
 def station_definition(station_id):
+    networks = current_user.networks
     station = Station.query.filter_by(id=station_id).first_or_404()
+
+    if station.network.id not in [network.id for network in networks]:
+        abort(403)
+
     form = StationForm(obj=station, next=request.args.get('next'))
 
     if form.validate_on_submit():
