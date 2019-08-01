@@ -38,7 +38,7 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'sip_username',
                                                'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
-                                               'sip_reregister_period', 'sip_protocol', 'media_amplification_factor','is_high_bandwidth', 'events'])
+                                               'sip_reregister_period', 'sip_protocol', 'media_amplification_factor','is_high_bandwidth', 'events', 'voice_prompt'])
 
 
 class StationTelephonyForm(StationTelephonyFormBase):
@@ -59,7 +59,7 @@ StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_cl
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_voice', 'tts_samplerate','tts_audioformat','call_volume', 'audio_volume', 'scheduled_programs',
-                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events', 'voice_prompt',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
@@ -86,7 +86,7 @@ StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_cla
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'tts_voice', 'tts_samplerate','tts_audioformat',
                                                'scheduled_programs','client_update_frequency', 'analytic_update_frequency',
-                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events', 'voice_prompt',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone','call_volume', 'audio_volume',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
@@ -116,7 +116,7 @@ StationSynchronizationFormBase = model_form(Station, db_session=db.session, base
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'scheduled_programs','client_update_frequency', 'analytic_update_frequency', 'jingle_interval',
-                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events', 'voice_prompt',
                                       'tts_voice', 'tts_samplerate','tts_audioformat',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
@@ -162,7 +162,7 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                                'broadcast_port', 'community_content', 'community_menu', 'music',
                                                'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
                                                'scheduled_programs',
-                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events', 'voice_prompt',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
