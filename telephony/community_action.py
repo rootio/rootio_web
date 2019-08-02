@@ -9,6 +9,11 @@ class CommunityAction:
 
     def __init__(self, type_code, start_time, duration, program):
         self.__type_code = type_code
+        self.__types_loop_map = {
+            '1': 'loop_ads',
+            '2': 'loop_announcements',
+            '3': 'loop_greetings',
+        }
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
@@ -127,10 +132,11 @@ class CommunityAction:
                                                           str(self.__type_code), self.__content[
                                                               self.__media_index % len(
                                                                   self.__content)].message):  # its our media
+            times = getattr(self.program.radio_station, self.__types_loop_map[self.__type_code])
             # stopping, not some other media
-            if self.__media_index >= len(self.__content) * 3:  # all media has played
+            if self.__media_index >= len(self.__content) * times:  # all media has played
                 self.program.radio_station.logger.info(
-                    "Played all media thrice in Interlude action for {0}, hanging up".format(self.program.name))
+                    "Played all media {} times in Interlude action for {}, hanging up".format(times, self.program.name))
                 self.stop(True, event_json)
             elif not self.__media_expected_to_stop:
                 self.__media_index = self.__media_index + 1

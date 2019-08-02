@@ -15,7 +15,7 @@ from ..content.models import CommunityMenu
 from models import VoicePrompt
 from ..extensions import db, csrf
 from ..radio.forms import StationForm
-from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm, VoicePromptForm
+from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLevelsForm, StationSynchronizationForm, StationTtsForm, VoicePromptForm, StationContentForm
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
@@ -297,6 +297,29 @@ def synchronization_setting(station_id):
         flash(_('Synchronization settings updated.'), 'success')
 
     return render_template('configuration/synchronization_setting.html', station=station, form=form)
+
+
+@configuration.route('/content', methods=['GET'])
+@login_required
+def content_settings():
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return render_template('configuration/content_settings.html', stations=stations)
+
+
+@configuration.route('/content/<int:station_id>', methods=['GET', 'POST'])
+@login_required
+def content_setting(station_id):
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    form = StationContentForm(obj=station, next=request.args.get('next'))
+
+    if form.validate_on_submit():
+        form.populate_obj(station)
+
+        db.session.add(station)
+        db.session.commit()
+        flash(_('Content settings updated.'), 'success')
+
+    return render_template('configuration/content_setting.html', station=station, form=form)
 
 
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])

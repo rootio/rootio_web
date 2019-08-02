@@ -31,6 +31,7 @@ StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'loop_ads', 'loop_greetings', 'loop_announcements',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip', 'jingle_interval',
@@ -53,6 +54,7 @@ StationSipTelephonyFormBase = model_form(Station, db_session=db.session, base_cl
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'loop_ads', 'loop_greetings', 'loop_announcements',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip', 'jingle_interval',
@@ -79,6 +81,7 @@ StationAudioLevelsFormBase = model_form(Station, db_session=db.session, base_cla
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'loop_ads', 'loop_greetings', 'loop_announcements',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'broadcast_ip',
@@ -110,6 +113,7 @@ StationSynchronizationFormBase = model_form(Station, db_session=db.session, base
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'loop_ads', 'loop_greetings', 'loop_announcements',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
@@ -140,6 +144,44 @@ class StationSynchronizationForm(StationSynchronizationFormBase):
                                              default=60)
     submit = SubmitField(_('Save'))
 
+StationContentFormBase = model_form(Station, db_session=db.session, base_class=Form,
+                                      field_args={
+                                          'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
+                                          'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
+                                      exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics',
+                                               'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
+                                               'location_id', 'owner', 'location', 'languages',
+                                               'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
+                                               'broadcast_port', 'community_content', 'community_menu', 'music',
+                                               'playlists', 'artists', 'albums', 'network', 'last_accessed_mobile',
+                                               'scheduled_programs','client_update_frequency', 'analytic_update_frequency', 'jingle_interval',
+                                               'blocks', 'created_at', 'updated_at', 'analytics', 'owner', 'events', 'voice_prompt',
+                                      'tts_voice', 'tts_samplerate','tts_audioformat',
+                                      'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
+                                      'primary_transmitter_phone_id', 'primary_transmitter_phone',
+                                      'secondary_transmitter_phone_id', 'secondary_transmitter_phone', 'community_menu',
+                                      'community_content', 'music', 'albums', 'playlists', 'artists', 'broadcast_ip',
+                                               'broadcast_port', 'last_accessed_mobile', 'sip_username',
+                                               'sip_password', 'sip_server', 'sip_port', 'sip_stun_server',
+                                               'sip_reregister_period', 'sip_protocol', 'is_high_bandwidth',
+                                               'call_volume', 'audio_volume', 'media_amplification_factor'])
+
+
+class StationContentForm(StationContentFormBase):
+    loop_ads = DecimalField(_('How many times should community ads loop'),
+                                             places=0,
+                                             validators=[NumberRange(min=1, max=10)],
+                                             default=3)
+    loop_greetings = DecimalField(_('How many times should community greetings loop'),
+                                             places=0,
+                                             validators=[NumberRange(min=1, max=10)],
+                                             default=3)
+    loop_announcements = DecimalField(_('How many times should community announcements loop'),
+                                             places=0,
+                                             validators=[NumberRange(min=1, max=10)],
+                                             default=3)
+    submit = SubmitField(_('Save'))
+
 def all_ttsvoices():
     return TtsVoice.query.all()
 
@@ -156,6 +198,7 @@ StationTtsFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                           'primary_transmitter_phone': {'validators': [HasInlineForm, ]},
                                           'secondary_transmitter_phone': {'validators': [HasInlineForm, ]}},
                                       exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'jingle_interval',
+                                               'loop_ads', 'loop_greetings', 'loop_announcements',
                                                'name', 'about', 'frequency', 'api_key', 'timezone', 'owner_id',
                                                'location_id', 'owner', 'location', 'languages',
                                                'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',

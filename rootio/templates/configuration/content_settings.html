@@ -1,0 +1,39 @@
+{% extends "configuration/layout.html" %}
+
+{% block body %}
+<div class="container">
+   <h2>{{ _('Configuration') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Content') }}</h3>
+    </div>
+    <div class="pull-right">
+        <!--<a class="btn btn-success" href="{{ url_for('radio.person_add') }}"><strong>{{ _('Add') }} +</strong></a>-->
+    </div>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('Ads loops') }}</th>
+                <th>{{ _('Greetings loops') }}</th>
+                <th>{{ _('Announcements loops') }}</th>
+                 {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
+                <th>{{ _('Edit') }}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for station in stations %}
+        <tr>
+            <td>{{ station.name}} </td>
+            <td>{{ station.loop_ads}} </td>
+            <td>{{ station.loop_greetings}} </td>
+            <td>{{ station.loop_announcements}} </td>
+                {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
+            <td><a href="{{ url_for('configuration.content_setting', station_id=station.id) }}">{{ _('Edit') }}</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

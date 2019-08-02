@@ -110,6 +110,11 @@ class Station(BaseMixin, db.Model):
     sip_reregister_period = db.Column(db.Integer, default=30)
     sip_protocol = db.Column(db.String(STRING_LEN), default="udp")
 
+    # Looping settings
+    loop_ads = db.Column(db.Integer, default=3)
+    loop_greetings = db.Column(db.Integer, default=3)
+    loop_announcements = db.Column(db.Integer, default=3)
+
     # foreign keys
     #tts_language_id = db.Column(db.ForeignKey('radio_language.id'))
     owner_id = db.Column(db.ForeignKey('user_user.id'))

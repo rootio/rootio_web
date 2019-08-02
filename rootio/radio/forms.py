@@ -51,6 +51,7 @@ StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedF
                                      "IP address of the transmitter on the local network. Should start with 230.")},
                              },
                              exclude=['scheduled_programs', 'blocks', 'created_at', 'updated_at', 'analytics', 'owner',
+                                      'loop_ads', 'loop_greetings', 'loop_announcements',
                                       'whitelist_number', 'outgoing_gateways', 'incoming_gateways',
                                       'primary_transmitter_phone_id', 'primary_transmitter_phone',
                                       'client_update_frequency', 'analytic_update_frequency', 'broadcast_ip',
