@@ -113,7 +113,11 @@ $(function() {
       ui_multi_update_file_controls(id, true, false);
     },
     onUploadError: function(id, xhr, status, message) {
-      ui_multi_update_file_status(id, 'danger', message);
+      if (xhr.responseJSON && xhr.responseJSON.message) {
+        ui_multi_update_file_status(id, 'danger', xhr.responseJSON.message);
+      } else {
+        ui_multi_update_file_status(id, 'danger', message);
+      }
       // ui_multi_update_file_progress(id, 0, 'danger', false);
     },
     onFallbackMode: function() {

@@ -3,7 +3,7 @@ import datetime
 import json
 import os
 import socket
-import re 
+import re
 from simplejson.scanner import JSONDecodeError
 
 from flask import Blueprint, current_app, request, jsonify, abort, make_response, json
@@ -12,7 +12,10 @@ from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func
 from sqlalchemy import or_
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import BadRequest
 import flask_excel as excel
+
+import magic
 
 from dateutil import parser as date_parser
 
@@ -814,7 +817,19 @@ def station_log(station_id):
 @csrf.exempt
 @returns_json
 def upload_media():
+    allowed_types = [
+        'application/octet-stream',
+        'audio/x-wav',
+        'audio/ogg',
+        'audio/mpeg',
+    ]
+    mime = magic.Magic(mime=True)
     uploaded_file = request.files.getlist('file')[0]
+    ft = mime.from_buffer(uploaded_file.read(1024))
+
+    if ft not in allowed_types:
+        abort(make_response(jsonify(code=400, message='File type not allowed'), 400))
+
     filename = secure_filename(uploaded_file.filename)
     track_id = request.form['track_id']
     upload_directory = "{}/{}".format("media", str(request.form['track_id']))
