@@ -98,7 +98,7 @@ class ProgramForm(Form):
     description = TextAreaField()
     program_structure = TextAreaField(description=_("Drag content here in desired order, double click to reset"))
     structure = TextAreaField(u'')
-    duration = DurationField([Required()], description=_("Duration of the program, in HH:MM(:SS)"))
+    duration = DurationField(_("Duration of the program, in HH:MM(:SS)"),[Required()])
     # language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     # program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     networks = QuerySelectMultipleField(_('Networks'), [Required()], query_factory=all_networks)
