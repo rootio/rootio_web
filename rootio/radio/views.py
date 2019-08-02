@@ -195,12 +195,17 @@ def program_add():
                             .filter(ContentType.name == "Advertisements")\
                             .filter(ContentTrack.deleted != True)\
                             .all()
+    '''    
     medias = ContentTrack.query.join(User, Network.networkusers)\
                                .filter(User.id == current_user.id)\
                                .join(ContentTrack, ContentType)\
                                .filter(ContentType.name == "Media")\
                                .filter(ContentTrack.deleted != True)\
                                .all()
+    '''
+    medias = ContentTrack.query.join(ContentType).filter(ContentType.name == "Media").all()
+
+
     podcasts = ContentPodcast.query.join(User, Network.networkusers)\
                                    .filter(User.id == current_user.id)\
                                    .all()
