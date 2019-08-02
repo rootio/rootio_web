@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import os
+import sys
 import threading
 import time
 
@@ -58,6 +59,8 @@ def create_app(config=None, app_name=None, blueprints=None):
     app = Flask(app_name, instance_relative_config=True)
     app.json_encoder = CustomJSONEncoder
 
+    check_config(DefaultConfig)
+
     configure_app(app, config)
     configure_hook(app)
     configure_logging(app)
@@ -84,6 +87,47 @@ def create_app(config=None, app_name=None, blueprints=None):
     #     thread.start()
 
     return app
+
+
+def check_config(config):
+    mandatory_keys = [
+        'DOMAIN',
+        'SECRET_KEY',
+        'LOG_FOLDER',
+        'CONTENT_DIR',
+        'UPLOAD_FOLDER',
+        'ZMQ_BIND_ADDR',
+        'SQLALCHEMY_DATABASE_URI',
+    ]
+    recommended_keys = [
+        'MAIL_SERVER',
+        'CEREPROC_SERVER',
+        'ESL_SERVER',
+    ]
+
+    further_checks = {
+        'MAIL_SERVER': ['MAIL_USERNAME', 'MAIL_PASSWORD', 'DEFAULT_MAIL_SENDER'],
+        'CEREPROC_SERVER': ['CEREPROC_USERNAME', 'CEREPROC_PASSWORD'],
+        'S3_UPLOADS': ['S3_KEY_ID', 'S3_KEY', 'S3_BUCKET_NAME', 'S3_REGION']
+    }
+
+    def check_subconfig(key, children):
+        if getattr(config, key):
+            for setting in children:
+                if setting not in dir(config) or len(str(getattr(config, setting))) < 1:
+                    sys.exit('{} is configured, but {} is missing'.format(key, setting))
+
+    for k in mandatory_keys:
+        if k not in dir(config) or len(str(getattr(config, k))) < 1:
+            sys.exit('Fatal error: missing or empty {}'.format(k))
+
+    for k in recommended_keys:
+        if k not in dir(config) or len(str(getattr(config, k))) < 1:
+            print('Warning: missing or empty {}'.format(k))
+
+    for key in further_checks:
+        check_subconfig(key, checks[key])
+
 
 
 def get_dict_from_rows(rows):
