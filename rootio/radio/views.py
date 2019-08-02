@@ -128,7 +128,7 @@ def station_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/station.html', station=station, form=form)
+    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form)
 
 
 @radio.route('/program/', methods=['GET'])
