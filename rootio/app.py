@@ -126,7 +126,7 @@ def check_config(config):
             print('Warning: missing or empty {}'.format(k))
 
     for key in further_checks:
-        check_subconfig(key, checks[key])
+        check_subconfig(key, further_checks[key])
 
 
 
