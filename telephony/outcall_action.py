@@ -152,10 +152,9 @@ class OutcallAction:
                 del self.__invitee_call_UUIDs[event_json['Caller-Destination-Number']]
                 self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
             elif event_json['Caller-Destination-Number'] == self.__host.phone.raw_number or \
-                    event_json['Caller-Destination-Number'] in \
-                    [self.program.radio_station.station.sip_username,
-                     self.program.radio_station.station.primary_transmitter_phone.raw_number,
-                     self.program.radio_station.station.secondary_transmitter_phone.raw_number]:  # It is a hangup by
+                    event_json['Caller-Destination-Number'] == self.program.radio_station.station.sip_username or \
+                        (self.program.radio_station.station.primary_transmitter_phone is not None and event_json['Caller-Destination-Number'] == self.program.radio_station.station.primary_transmitter_phone.raw_number) or \
+                        (self.program.radio_station.station.secondary_transmitter_phone is not None and event_json['Caller-Destination-Number'] == self.program.radio_station.station.secondary_transmitter_phone.raw_number):  # It is a hangup by
                 #  the station or the host
                 self.program.log_program_activity(
                     "Program terminated because {0} hangup".format(event_json['Caller-Destination-Number']))
@@ -278,7 +277,8 @@ class OutcallAction:
                 self.__invitee_number = "{0}{1}".format(self.__invitee_number, dtmf_digit)
 
     def notify_host_call(self, call_info):
-        # hangup the call
+        # accept then hangup the call
+        self.__call_handler.bridge_incoming_call(call_info['Channel-Call-UUID'], "temp")
         self.__call_handler.hangup(call_info['Channel-Call-UUID'])
         sleep(10)
         # reset program
