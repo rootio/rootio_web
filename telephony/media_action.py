@@ -27,14 +27,17 @@ class MediaAction:
             episode_number = self.__episode_number
             self.__media = self.__load_media(episode_number)
             if self.__media is not None:
+                self.program.log_program_activity("Loaded playable media")
                 call_result = self.__request_station_call()
                 if not call_result[0]:  # !!
                     self.stop(False)
             else:
+                self.program.log_program_activity("No playable media found, stopping this action...")
                 self.stop(False)
         except Exception as e:
+            self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=str(e)))
             self.stop(False)
-            self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=e.message))
+
 
     def pause(self):
         self.__pause_media()
