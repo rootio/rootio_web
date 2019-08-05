@@ -166,9 +166,11 @@ class MediaAction:
                         self.program.log_program_activity('will now play episode #{}'.format(self.__play_counter))
                         self.start()
                     else:
+                        self.program.log_program_activity("No more files to play. Should proceed to hangup")
                         self.stop(True, event_json)
                         self.__is_valid = False
                 else:
+                    self.program.log_program_activity("Continuous play is not enabled. Should proceed to next track/hangup")
                     self.stop(True, event_json)
                     self.__is_valid = False
         except Exception as e:
