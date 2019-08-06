@@ -37,10 +37,12 @@ class RadioProgram:
         return
 
     def start(self):
-        self.__program_handler.set_running_program(self)
         self.__load_program_actions()
-        self.__run_program_action()  # will call the next one when done
-        return
+        if len(self.__program_actions) == 0:
+            return
+        else:
+            self.__program_handler.set_running_program(self)
+            self.__run_program_action()  # will call the next one when done
 
     '''
     Load the definition of components of the program from a JSON definition
@@ -157,6 +159,7 @@ class RadioProgram:
                 self.__call_info = call_info
             if len(self.__program_actions) == 0:  # all program actions have run
                 self.radio_station.logger.info("Program actions array is empty. Program will terminate")
+
                 if self.__call_info is not None:
                     self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
                 self.__log_program_status()
