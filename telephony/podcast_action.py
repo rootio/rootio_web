@@ -53,7 +53,28 @@ class PodcastAction:
             ContentPodcast.id == self.__podcast_id).first()
         self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
 
-    def __request_station_call(self):  # call the number specified
+    def __request_station_call(self):  # call the number specified thru plivo
+        # Check if the call exists, start with the least likely number to be called
+        if self.program.radio_station.station.secondary_transmitter_phone is not None and self.__call_handler.call_exists(
+                self.program.radio_station.station.secondary_transmitter_phone.raw_number):
+            result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.secondary_transmitter_phone.raw_number,
+                                              self.program.name, False, self.duration)
+            return result
+        elif self.program.radio_station.station.primary_transmitter_phone is not None and self.__call_handler.call_exists(
+                self.program.radio_station.station.primary_transmitter_phone.raw_number):
+            result = self.__call_handler.call(self,
+                                              self.program.radio_station.station.primary_transmitter_phone.raw_number,
+                                              self.program.name, False, self.duration)
+            return result
+        elif self.program.radio_station.station.sip_username is not None and self.__call_handler.call_exists(
+                self.program.radio_station.station.sip_username):
+            result = self.__call_handler.call(self, self.program.radio_station.station.sip_username, self.program.name,
+                                              True, self.duration)
+            self.program.log_program_activity("result of station call via SIP is " + str(result))
+            return result
+
+        # At this point we are sure that no call to the station exists. We will try to initiate a new call
         if self.program.radio_station.station.is_high_bandwidth:
             result = self.__call_station_via_sip()
             if result is None or not result[0]:  # Now try calling the SIM (ideally do primary, then secondary)

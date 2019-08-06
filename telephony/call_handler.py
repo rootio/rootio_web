@@ -187,6 +187,9 @@ class CallHandler:
             self.__radio_station.logger.info("Removed {0} from media playback start recipients {1}"
                                              .format(from_number, str(self.__media_playback_start_recipients)))
 
+    def call_exists(self, to_number):
+        return self.__available_calls is not None and to_number in self.__available_calls.keys()
+
     def call(self, program_action, to_number, argument, use_sip=False,
              time_limit=0):  # redundant params will be used later
         if to_number in self.__available_calls.keys():
