@@ -145,7 +145,8 @@ class CommunityAction:
 
     def notify_call_hangup(self, event_json):
         self.program.log_program_activity('Call hangup before end of program!')
-        self.stop(False, event_json)
+        #self.stop(False, event_json)
+        self.__request_station_call()
 
     def notify_media_play_stop(self, event_json):
         if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, "community-content",
