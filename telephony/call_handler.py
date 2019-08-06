@@ -438,15 +438,7 @@ class CallHandler:
             elif event_name == "CHANNEL_HANGUP" and 'Caller-Destination-Number' in event_json:
                 try:
                     loggable = False
-                    if str(event_json['Caller-Destination-Number'])[-12:] in self.__call_hangup_recipients:
-                        self.__call_hangup_recipients[
-                            str(event_json['Caller-Destination-Number'])[-12:]].notify_call_hangup(event_json)
-                        loggable = True
-                    elif str(event_json['Caller-Destination-Number'])[-9:] in self.__call_hangup_recipients:
-                        self.__call_hangup_recipients[
-                            str(event_json['Caller-Destination-Number'])[-9:]].notify_call_hangup(event_json)
-                        loggable = True
-                    # remove the call from the list of available calls
+                    # First, remove the call from the list of available calls
                     if str(event_json['Caller-Destination-Number'])[-12:] in self.__available_calls:
                         self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(
                             str(event_json['Caller-Destination-Number'])[-12:], self.__available_calls.keys()))
@@ -460,15 +452,15 @@ class CallHandler:
                         self.__release_gateway(event_json)
                         loggable = True
 
-                    #  And now those registered using the from number of the caller
-                    elif str(event_json['Caller-ANI'])[-12:] in self.__call_hangup_recipients:
+                    if str(event_json['Caller-Destination-Number'])[-12:] in self.__call_hangup_recipients:
                         self.__call_hangup_recipients[
-                            str(event_json['Caller-ANI'])[-12:]].notify_call_hangup(event_json)
+                            str(event_json['Caller-Destination-Number'])[-12:]].notify_call_hangup(event_json)
                         loggable = True
-                    elif str(event_json['Caller-ANI'])[-9:] in self.__call_hangup_recipients:
+                    elif str(event_json['Caller-Destination-Number'])[-9:] in self.__call_hangup_recipients:
                         self.__call_hangup_recipients[
-                            str(event_json['Caller-ANI'])[-9:]].notify_call_hangup(event_json)
+                            str(event_json['Caller-Destination-Number'])[-9:]].notify_call_hangup(event_json)
                         loggable = True
+
                     # remove the call from the list of available calls
                     if str(event_json['Caller-ANI'])[-12:] in self.__available_calls:
                         self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(
@@ -478,10 +470,22 @@ class CallHandler:
                         loggable = True
                     elif str(event_json['Caller-ANI'])[-9:] in self.__available_calls:
                         self.__radio_station.logger.info("Removing call to {0} from available calls {1}".format(
-                            str(event_json['Caller-ANI'])[-9:], self.__available_calls.keys()))
+                           str(event_json['Caller-ANI'])[-9:], self.__available_calls.keys()))
                         del self.__available_calls[str(event_json['Caller-ANI'])[-9:]]
                         self.__release_gateway(event_json)
                         loggable = True
+
+                    #  And now those registered using the from number of the caller
+                    elif str(event_json['Caller-ANI'])[-12:] in self.__call_hangup_recipients:
+                        self.__call_hangup_recipients[
+                            str(event_json['Caller-ANI'])[-12:]].notify_call_hangup(event_json)
+                        loggable = True
+                    elif str(event_json['Caller-ANI'])[-9:] in self.__call_hangup_recipients:
+                        self.__call_hangup_recipients[
+                            str(event_json['Caller-ANI'])[-9:]].notify_call_hangup(event_json)
+                        loggable = True
+
+
 
                     # log the call
                     if loggable:
