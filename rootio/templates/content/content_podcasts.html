@@ -22,33 +22,36 @@
     <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
 
     <script type="text/javascript">
-    $(document).ready(function() {
 
-        var api = ''
-        var podcast_id = "0"
+  function docReady() {
 
-        $('#offline_datatable').on('click','a', function(e) {
-        podcast_id = $(e.target).attr('data-podcast-id')
-        api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
-        $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
-        datatable.ajax.url(api).load()
+    var api = ''
+    var podcast_id = "0"
 
-       });
+    $('#offline_datatable').on('click','a', function(e) {
+    podcast_id = $(e.target).attr('data-podcast-id')
+    api = '/api/podcast/' + $(e.target).attr('data-podcast-id') +'/downloads'
+    $('#podcastDownloadsTitle').html('Files downloaded under '+ $(e.target).attr('data-podcast-name'))
+    datatable.ajax.url(api).load()
 
-
-        var datatable = $('#podcasts').DataTable({
-               serverSide: true, searching: true, ajax: api,
-                "aoColumnDefs": [{
-                   "aTargets": [2], "mRender": function (data, type, row) {
-                          var audio_path = '../../audio-content/podcast/' + podcast_id + '/'+ data
-                          return '<audio preload="metadata" controls><source src="' +audio_path + '" type="audio/mpeg"><source src="' +audio_path + '" type="audio/ogg"><source src="' +audio_path + '" type="audio/wav"></audio>'
-                    }
-               }],
-
-        });
-
-        $.fn.dataTableExt.errMode = 'ignore'
     });
+
+
+    var datatable = $('#podcasts').DataTable({
+          serverSide: true, searching: true, ajax: api,
+            "aoColumnDefs": [{
+              "aTargets": [2], "mRender": function (data, type, row) {
+                      var audio_path = '../../audio-content/podcast/' + podcast_id + '/'+ data
+                      return '<audio preload="metadata" controls><source src="' +audio_path + '" type="audio/mpeg"><source src="' +audio_path + '" type="audio/ogg"><source src="' +audio_path + '" type="audio/wav"></audio>'
+                }
+          }],
+
+    });
+
+    $.fn.dataTableExt.errMode = 'ignore'
+  }
+
+    $(document).ready(docReady);
 
 
     </script>

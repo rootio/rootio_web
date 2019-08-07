@@ -1,0 +1,107 @@
+{% extends "content/layout.html" %}
+
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
+{% block js_btm %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+
+        var api = ''
+        var station_id = "0"
+
+        $('#offline_datatable').on('click','a', function(e) {
+        station_id = $(e.target).attr('data-station-id')
+        $('#promptFilesTitle').html($(e.target).attr('data-station-name')+' Voice Prompts')
+
+       });
+
+
+    });
+    
+
+    </script>
+{% endblock %}
+
+
+{% block body %}
+
+  <div class="modal fade" id="promptFiles-modal" tabindex="-1" role="dialog" aria-labelledby="promptFiles" aria-hidden="true" style="display:none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="promptFilesTitle">{{ _('Voice Prompts') }}</h4>
+        </div>
+        <div class="modal-body" style="font-size:12px;">
+          <table id="prompts" class='table table-bordered table-hover'>
+          <thead>
+            <tr>
+                <th>{{ _('Type') }}</th>
+                <th>{{ _('Audio') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+         </table>
+        </div>
+
+            <div class="modal-footer">
+            </div>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal -->
+
+<div class="container-fluid">
+    <h2>{{ _('Configuration') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Voice Prompts') }}</h3>
+    </div>
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('configuration.voice_prompt') }}"><strong>{{ _('Add') }} +</strong></a>
+    </div>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('Last Updated') }}</th>
+                <th>{{ _('Use TTS') }}</th>
+                <th>{{ _('Prefetch TTS') }}</th>
+                <th>{{ _('Files') }}</th>
+                <th>{{ _('Edit') }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for data in stations %}
+          <tr>
+              <td>{{ data.station.name }}</td>
+              <td>{{ data.vps.updated_at }}</td>
+              <td>{{ data.vps.use_tts }}</td>
+              <td>{{ data.vps.prefetch_tts }}</td>
+              <td><a href="#" id="stationPromptsCount{{ data.station.id }}" data-station-name="{{ data.station.name }}" data-station-id="{{ data.station.id }}" data-toggle="modal" data-target="#promptFiles-modal"> {{ 0 }} {{ _('Files') }}</a></td>
+              <td><a href="{{ url_for('configuration.voice_prompt') }}">{{ _('Edit') }}</a></td>
+              <td>
+                <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{data.station.id}})" id='delete-{{data.station.id}}'>Delete</button>
+              </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}
