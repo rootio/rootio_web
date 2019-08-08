@@ -56,10 +56,13 @@ class CereprocRestAgent:
         metadata = bool(metadata)
 
         requestxml = self.__generate_request_xml("speakExtended", {'accountID': self._cereproc_username,
-                                                                  'password': self._cereproc_password, 'voice': voice,
+                                                                  'password': self._cereproc_password,
+                                                                   'voice': voice,
                                                                   'audioFormat': audio_format,
-                                                                  'sampleRate': sample_rate, 'audio3D': '',
-                                                                  'metadata': metadata, 'text': text})
+                                                                  'sampleRate': sample_rate,
+                                                                   'audio3D': '',
+                                                                  'metadata': metadata,
+                                                                   'text': text})
         responsexml = self.__do_cprc_request(requestxml)
 
         if responsexml.findtext('resultCode') != '1':
