@@ -292,13 +292,26 @@ class CallHandler:
         stop_play_command = 'uuid_displace {0} stop \'{1}\''.format(call_uuid, content_location)
         return self.__do_esl_command(stop_play_command)
 
-    def speak(self, phrase, call_uuid):
+    def speak(self, phrase, call_uuid, tts_settings=None):
         try:
-            (tts_file, metadata) = self._cprc_agent.get_cprc_tts(phrase)
+            (tts_file, metadata) = self._cprc_agent.get_cprc_tts(phrase, **tts_settings)
             return self.play(call_uuid, tts_file)
         except Exception as e:
             self.__radio_station.logger.info("Error with TTS generation: {0}".format(e))
             return None
+
+    def play_voice(slug, station, call_uuid):
+        if station.voice_prompt.use_tts and not station.voice_prompt.prefetch_tts:
+            phrase = get(station.voice_prompt, '{}_txt'.format(slug))
+            tts_settings = {
+                'voice': get(station.tts_voice.name),
+                'sample_rate': get(station.tts_samplerate.value),
+                'audio_format': get(station.tts_audioformat.name)
+            }
+            self.speak(phrase, call_uuid, tts_settings)
+        else:
+            media_file = get(station.voice_prompt, slug)
+            self.play(call_uuid, media_file)
 
     def __listen_for_esl_events(self):
         esl_connection = self.__connect_esl()

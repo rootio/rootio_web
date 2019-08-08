@@ -186,9 +186,16 @@ class OutcallAction:
             'You have a caller on the line. To connect to the station, press one, to cancel, press two',
             self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
         else:
-            self.__call_handler.speak(
-            'You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',
-            self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            try:
+                self.__call_handler.play_voice(
+                    'host_welcome',
+                    self.program.radio_station.station,
+                    self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            except:
+                self.__call_handler.speak(
+                    'You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',
+                    self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+
         self.program.log_program_activity("Asking if host is ready")
 
     def hangup_call(self):  # hangup the ongoing call
