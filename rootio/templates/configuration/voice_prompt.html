@@ -15,7 +15,36 @@
 
       $(":checkbox[name='use_tts']").click(function(){
           toggleUseTts($(this).is(':checked'))
-          });
+      });
+
+      $( "form[name='validate']" ).validate({ // initialize
+            /* rules: {
+                oneField: {
+                // required: true,
+                accept: "audio/wav, audio/mp3",
+                maxsize: 10 * 1000 * 1000,
+                }
+            }, messages: {
+                    test:{
+                        maxsize:" file size must be less than 100 MB.",
+                        accept:"Please upload .mp3 or .wav.",
+                        required:"Please upload a file."
+                    }
+                }
+            }); */
+        });
+
+        $('input[type="file"]').each(function() {
+            $(this).rules('add', {
+                accept: "audio/wav, audio/mp3",
+                maxsize: 10 * 1000 * 1000,
+                messages: {
+                    maxsize:" file size must be less than 100 MB.",
+                    accept:"Please upload .mp3 or .wav.",
+                    required:"Please upload a file."
+                }
+            });
+        });
 
     });
 
