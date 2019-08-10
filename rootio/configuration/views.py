@@ -303,7 +303,7 @@ def voice_prompts_new():
         station_vps = {}
         station_vps["station"] = station
         
-        prompt_last = VoicePrompt.query.filter(VoicePrompt.station_id == station.id).order_by(VoicePrompt.updated_at.desc()).first()
+        prompt_last = VoicePrompt.query.filter(VoicePrompt.station_id == station.id, VoicePrompt.deleted == False).order_by(VoicePrompt.updated_at.desc()).first()
 
         station_vps["vps"] = prompt_last
         station_data.append(station_vps)
