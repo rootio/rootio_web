@@ -8,9 +8,6 @@
     {{ super() }}
     
 <script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/jquery.validate.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/additional-methods.min.js') }}"></script>
-
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -20,15 +17,7 @@
           toggleUseTts($(this).is(':checked'))
           });
 
-          $( "#validate" ).validate({
-  rules: {
-    on_air: {
-      required: true,
-      accept: "audio/*"
-    }
-  }
-});
-  });
+    });
 
   function toggleUseTts(useTts)
   {
