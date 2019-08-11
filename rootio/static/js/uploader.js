@@ -72,12 +72,15 @@ $(function() {
     }
   }
 
+  var fileId = "";
 
   $('#drag-and-drop-zone').dmUploader({
     url: '/api/upload/media',
     dnd: true,
     auto: true,
     queue: true,
+    extFilter: ["mp3", "wav"],
+    maxFileSize: 20 * 1000 * 1000,
     extraData: function() {
       return {
         "track_id": $('#track').val()
@@ -94,9 +97,12 @@ $(function() {
     onComplete: function() {
     },
     onNewFile: function(id, file) {
+      document.getElementById("uploadError").style.display = "none";
+      fileId = id;
       ui_multi_add_file(id, file);
     },
     onBeforeUpload: function(id) {
+      fileId = id;
       ui_multi_update_file_status(id, 'uploading', 'Uploading...');
       // ui_multi_update_file_progress(id, 0, '', true);
     },
@@ -119,6 +125,12 @@ $(function() {
     onFallbackMode: function() {
     },
     onFileSizeError: function(file) {
+      document.getElementById("uploadError").style.display = "block";
+      document.getElementById("uploadError").innerHTML = "_('File size must be less than 20 MB.')"
+    },
+    onFileExtError: function(file) {
+      document.getElementById("uploadError").style.display = "block";
+      document.getElementById("uploadError").innerHTML = "_('Please upload .mp3 or .wav.')"
     }
   });
 });

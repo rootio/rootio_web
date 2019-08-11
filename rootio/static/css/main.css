@@ -47,6 +47,15 @@ form .required label:after {
     margin-left:2px;
 }
 
+
+label.error {
+    height:17px;
+    margin-left:9px;
+    padding:1px 5px 0px 5px;
+    font-size:small;
+    color: red;
+}
+
 /*
  * Sticky footer
  * http://twitter.github.io/bootstrap/examples/sticky-footer.html
@@ -99,6 +108,7 @@ body {
 .footer-links li:first-child {
     padding-left: 0;
 }
+
 
 /* End of sticky footer */
 
