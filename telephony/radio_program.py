@@ -163,7 +163,7 @@ class RadioProgram:
                 if self.__call_info is not None:
                     self.radio_station.call_handler.hangup(self.__call_info['Channel-Call-UUID'])
                 self.__log_program_status()
-                # self.__send_program_summary()
+                self.__send_program_summary()
             else:
                 self.__run_program_action()
 
@@ -178,7 +178,7 @@ class RadioProgram:
                     self.__rootio_mail_message.add_to_address(user.email)
             self.__rootio_mail_message.send_message()
         except Exception as e:
-            self.radio_station.logger.error("Error {er} {err} in send program summary for {prg}".format(er=str(e), err=e.message, prg=self.scheduled_program.program.name))
+            self.radio_station.logger.error("Error {er} in send program summary for {prg}".format(er=str(e),  prg=self.scheduled_program.program.name))
 
     def __log_program_status(self):
         try:
