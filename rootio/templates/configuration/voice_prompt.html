@@ -6,8 +6,28 @@
 
 {% block js_top %}
     {{ super() }}
-    
+
 <script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
+
+<script type="text/javascript">
+     var myRules = {};
+     var myMessages = {};
+</script>
+
+
+{% for field in form %}
+    {% if field.type != "BooleanField" %}
+        <script type="text/javascript">
+            myRules["{{ field.id }}"] = {
+                required: true
+            }
+
+            myMessages["{{ field.id }}"] = {
+                required: "{{ _('Please provide TTS text.') }}"
+            }
+        </script>
+    {%endif%}
+{%endfor%}
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -15,9 +35,40 @@
 
       $(":checkbox[name='use_tts']").click(function(){
           toggleUseTts($(this).is(':checked'))
-          });
+      });
+
+     
+      $( "form[name='validate']" ).validate({ // initialize
+            errorPlacement: function(label, element) {
+                label.insertAfter(element);
+            },
+            rules: myRules,
+            messages: myMessages
+        });
+
+        $('input[type="file"]').each(function() {
+            $(this).rules('add', {
+                accept: "audio/wav, audio/mp3",
+                maxsize: 20 * 1000 * 1000,
+                required: true,
+                messages: {
+                    maxsize: "{{ _('File size must be less than 20 MB.') }}",
+                    accept: "{{ _('Please upload .mp3 or .wav.') }}",
+                    required: "{{ _('Please upload a file.') }}"
+                }
+            });
+        });
 
     });
+        // this doesn't work for text inputs - probably because there's a repeating id
+       /* $('input[type="text"]').each(function() {
+            $(this).rules('add', {
+                required: true,
+                messages: {
+                    required: "{{ _('Please write.') }}"
+                }
+            });
+        }); */
 
   function toggleUseTts(useTts)
   {
