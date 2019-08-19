@@ -5,7 +5,10 @@
 
 
 {% block js_top %}
+    {{ super() }}
+    
 <script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
+
 <script type="text/javascript">
   $(document).ready(function() {
       toggleUseTts($(":checkbox[name='use_tts']").is(':checked'))
@@ -14,7 +17,7 @@
           toggleUseTts($(this).is(':checked'))
           });
 
-  });
+    });
 
   function toggleUseTts(useTts)
   {
@@ -47,10 +50,10 @@
 <div class="container">
     {%if voice_prompt %}
         <h2>{{ station.name }}</h2>
-        {{ render_form(url_for('configuration.voice_prompt', voice_prompt_id=voice_prompt.id), form) }}
+        {{ render_form(url_for('configuration.voice_prompt', voice_prompt_id=voice_prompt.id), form, validate=True) }}
     {%else%}
         <h2>{{ _('Add voice prompts') }}</h2>
-        {{ render_form(url_for('configuration.voice_prompt'), form) }}
+        {{ render_form(url_for('configuration.voice_prompt'), form, validate=True) }}
     {%endif%}
 </div>
 {% endblock %}

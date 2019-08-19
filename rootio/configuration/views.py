@@ -325,9 +325,19 @@ def content_setting(station_id):
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])
 @login_required
 def voice_prompts():
-    voice_prompts = VoicePrompt.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('configuration/voice_prompts.html', voice_prompts=voice_prompts)
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
+    station_data = []
+    for station in stations:
+        station_vps = {}
+        station_vps["station"] = station
+        
+        prompt_last = VoicePrompt.query.filter(VoicePrompt.station_id == station.id, VoicePrompt.deleted == False).order_by(VoicePrompt.updated_at.desc()).first()
+
+        station_vps["vps"] = prompt_last
+        station_data.append(station_vps)
+
+    return render_template('configuration/voice_prompts.html', stations=station_data)
 
 @configuration.route('/voice_prompt', methods=['GET', 'POST'])
 @login_required
