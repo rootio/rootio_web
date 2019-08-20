@@ -331,6 +331,20 @@ def text_tracks():
 
     return render_template('content/text_tracks.html', tracks=tracks, networks=networks, active='tracks', show_only=show_only)
 
+
+@content.route('/text_tracks/<int:track_id>/files/add', methods=['GET'])
+@login_required
+def track_files_add(track_id):
+    track = ContentTrack.query.filter_by(id=track_id).first_or_404()
+    form = ContentUploadForm()
+    return render_template('content/text_track_files_add.html', track=track, form=form)
+
+@content.route('/text_upload', methods=['POST'])
+@login_required
+def text_upload():
+    form = ContentMusicForm(request.form)
+    return render_template('content/text_track_files_add.html', form=form)
+
 @content.route('/hosts/<int:host_id>/', methods=['GET', 'POST'])
 @login_required
 def host_edit(host_id):

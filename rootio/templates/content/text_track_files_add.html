@@ -1,0 +1,15 @@
+{% from "macros/_form.html" import render_form %}
+
+{% extends "content/layout.html" %}
+
+{% block body %}
+<div class="container">
+  <h2>{{ _('Add Text Media') }}</h2>
+  <input name="track" id="track" type="hidden" value="{{track.id}}"/>
+  {{ render_form(url_for('content.text_upload'), form, track) }}
+
+  <hr/>
+
+  <a href="{{ url_for('content.list_track_files', track_id=track.id) }}">Back to track contents</a>
+</div>
+{% endblock %}
