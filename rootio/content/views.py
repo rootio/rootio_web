@@ -317,6 +317,20 @@ def hosts_add():
     return render_template('content/content_host.html', host=host, form=form)
 
 
+@content.route('/text_tracks/')
+@login_required
+def text_tracks():
+    networks = current_user.networks
+    network_ids = [network.id for network in networks]
+    show_only = request.args.get('show_only', '')
+
+    if show_only:
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter_by(id = show_only)
+    else:
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(Network.id.in_(network_ids))
+
+    return render_template('content/text_tracks.html', tracks=tracks, networks=networks, active='tracks', show_only=show_only)
+
 @content.route('/hosts/<int:host_id>/', methods=['GET', 'POST'])
 @login_required
 def host_edit(host_id):
