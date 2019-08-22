@@ -37,10 +37,11 @@
         </tr>
         </thead>
         <tbody>
-        {% for community_menu in community_menus %}
-          {% if not community_menu.deleted %}
+        {% for data in stations %}
+          {% set community_menu = data.community_menu %}
+          {% if community_menu != "empty" and not community_menu.deleted  %}
             <tr>
-                <td>{{ community_menu.station.name }}</td>
+                <td>{{ data.station.name }}</td>
             {% if community_menu.use_tts %}
 
                 <td>{{ community_menu.welcome_message_txt }}</td>
@@ -109,7 +110,7 @@
             {% endif %}
                 <td>{{ community_menu.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>
-                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{community_menu.id}})" id='delete-{{community_menu.id}}'>Delete</button>
+                  <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{community_menu.id}},true)" id='delete-{{community_menu.id}}'>Delete</button>
                 </td>
             </tr>
           {% endif %}

@@ -1,4 +1,4 @@
-function deleteTableItem(el, deleteid) {
+function deleteTableItem(el, deleteid, reload=false) {
     // Confirm box
     bootbox.confirm("Are you sure want to delete?", function(result) {
       if(result){
@@ -15,10 +15,14 @@ function deleteTableItem(el, deleteid) {
           url: href + deleteid+'/delete',
           type: 'GET',
           success: function(response){
-            $(el).closest('tr').css('background','tomato');
-            $(el).closest('tr').fadeOut(500, function(){
-              $(this).remove();
-            });
+            if(reload)
+              window.location.reload();
+            else {
+              $(el).closest('tr').css('background','tomato');
+              $(el).closest('tr').fadeOut(500, function(){
+                $(this).remove();
+              });
+            }
           }
         });
       }

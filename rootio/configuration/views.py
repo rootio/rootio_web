@@ -168,8 +168,20 @@ def station_audio_levels():
 @configuration.route('/ivr_menus', methods=['GET', 'POST'])
 @login_required
 def ivr_menus():
-    community_menus = CommunityMenu.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('configuration/ivr_menus.html', community_menus=community_menus)
+    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+
+    station_data = []
+    for station in stations:
+        station_vps = {}
+        station_vps["station"] = station
+        
+        menu_last = CommunityMenu.query.filter(CommunityMenu.station_id == station.id, CommunityMenu.deleted == False).order_by(CommunityMenu.updated_at.desc()).first()
+        if menu_last is None:
+            menu_last = "empty"
+        station_vps["community_menu"] = menu_last
+        station_data.append(station_vps)
+
+    return render_template('configuration/ivr_menus.html', stations=station_data)
 
 
 @configuration.route('/ivr_menus/records', methods=['GET'])
@@ -191,6 +203,7 @@ def ivr_menu_records(**kwargs):
 @login_required
 @csrf.exempt
 def ivr_menu_delete(ivr_menu_id):
+    from sqlalchemy import exc
     ivr_menu = CommunityMenu.query.filter_by(id=ivr_menu_id).first_or_404()
 
     ivr_menu.deleted = True
@@ -198,7 +211,8 @@ def ivr_menu_delete(ivr_menu_id):
     try:
         db.session.add(ivr_menu)
         db.session.commit()
-    except:
+    except exc.SQLAlchemyError as ex:
+        print ex
         return '{"result": "failed" }'
 
     return '{"result": "ok" }'
