@@ -26,6 +26,7 @@
         <thead>
         <tr>
             <th>{{ _('Station') }}</th>
+            <th>{{ _('Last Used Gateway') }}</th>
             <th>{{ _('Welcome prompt') }}</th>
             <th>{{ _('Message Type prompt') }}</th>
             <th>{{ _('Number of days prompt') }}</th>
@@ -42,6 +43,7 @@
           {% if community_menu != "empty" and not community_menu.deleted  %}
             <tr>
                 <td>{{ data.station.name }}</td>
+                <td>{{ data.last_gateway_used }}</td>
             {% if community_menu.use_tts %}
 
                 <td>{{ community_menu.welcome_message_txt }}</td>

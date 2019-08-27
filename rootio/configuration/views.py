@@ -174,7 +174,15 @@ def ivr_menus():
     for station in stations:
         station_vps = {}
         station_vps["station"] = station
-        
+
+        gws = []
+        for gw in station.incoming_gateways:
+            gws.append(gw.number_bottom)
+        gws.sort()
+
+        if len(gws) > 0:
+            station_vps["last_gateway_used"] = gws[0]
+    
         menu_last = CommunityMenu.query.filter(CommunityMenu.station_id == station.id, CommunityMenu.deleted == False).order_by(CommunityMenu.updated_at.desc()).first()
         if menu_last is None:
             menu_last = "empty"
