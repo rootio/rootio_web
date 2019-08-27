@@ -33,8 +33,12 @@ class LocationForm(LocationFormBase):
 
 
 def all_networks():
-    return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    from rootio.user import ADMIN
 
+    if current_user.role_code == ADMIN:
+        return Network.query.join(User, Network.networkusers).all()
+    else:
+        return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
 # define field help text here, instead of in model info
 StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
