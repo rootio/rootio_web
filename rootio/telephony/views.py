@@ -99,8 +99,15 @@ def call_records(**kwargs):
     from ..user.models import User
     from ..radio.models import Station, Network
     cols = [Call.call_uuid, Call.start_time, Call.duration, Call.from_phonenumber, Call.to_phonenumber, Station.name]
-    recent_calls = Call.query.with_entities(*cols).join(Station).join(Network).join(User, Network.networkusers).filter(
+    
+    from rootio.user.constants import ADMIN
+
+    if current_user.role_code == ADMIN:
+        recent_calls = Call.query.with_entities(*cols).join(Station).join(Network).join(User, Network.networkusers)
+    else:
+        recent_calls = Call.query.with_entities(*cols).join(Station).join(Network).join(User, Network.networkusers).filter(
         User.id == current_user.id)
+
 
     records = jquery_dt_paginator.get_records(recent_calls, [Call.call_uuid, Call.from_phonenumber, Call.to_phonenumber,
                                                              Station.name], request)
@@ -122,7 +129,14 @@ def message_records():
     from ..user.models import User
     from ..radio.models import Station, Network
     cols = [Message.sendtime, Message.text, Message.from_phonenumber, Message.to_phonenumber, Station.name]
-    recent_messages = Message.query.with_entities(*cols).join(Station).join(Network).join(User,
+
+    from rootio.user.constants import ADMIN
+
+    if current_user.role_code == ADMIN:
+        recent_messages = Message.query.with_entities(*cols).join(Station).join(Network).join(User,
+                                                                                          Network.networkusers)
+    else:
+        recent_messages = Message.query.with_entities(*cols).join(Station).join(Network).join(User,
                                                                                           Network.networkusers).filter(
         User.id == current_user.id)
 
@@ -137,13 +151,23 @@ def gateways():
     # Fix this: Why cant these be imported at beginning of script???
     from ..user.models import User
     from ..radio.models import Station, Network
-    # incoming gateways associated to stations in my networks
-    incoming_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
-        Gateway.stations_using_for_incoming).join(Network).join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()
-    outgoing_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
-        Gateway.stations_using_for_outgoing).join(Network).join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()
+
+    from rootio.user.constants import ADMIN
+
+    if current_user.role_code == ADMIN:
+        incoming_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
+            Gateway.stations_using_for_incoming).join(Network).join(User, Network.networkusers).all()
+        outgoing_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
+            Gateway.stations_using_for_outgoing).join(Network).join(User, Network.networkusers).all()
+    else:
+         # incoming gateways associated to stations in my networks
+        incoming_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
+            Gateway.stations_using_for_incoming).join(Network).join(User, Network.networkusers).filter(
+            User.id == current_user.id).all()
+        outgoing_gateways = Gateway.query.with_entities(Gateway, Station.name).join(
+            Gateway.stations_using_for_outgoing).join(Network).join(User, Network.networkusers).filter(
+            User.id == current_user.id).all()
+
     return render_template('telephony/gateways.html', active='gateways', incoming_gateways=incoming_gateways,
                            outgoing_gateways=outgoing_gateways)
 

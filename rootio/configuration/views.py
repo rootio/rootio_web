@@ -19,6 +19,7 @@ from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLe
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
+from rootio.user import ADMIN
 
 configuration = Blueprint('configuration', __name__, url_prefix='/configuration')
 
@@ -27,7 +28,10 @@ configuration = Blueprint('configuration', __name__, url_prefix='/configuration'
 @login_required
 def index():
     # get all the user's networks and their stations
-    networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    if current_user.role_code == ADMIN:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
+    else:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     stations = []
 
     for network in networks:
@@ -76,7 +80,7 @@ def tts():
 @configuration.route('/telephony/', methods=['GET', 'POST'])
 @login_required
 def telephony():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/stations_telephony.html', stations=stations)
 
 
@@ -138,7 +142,7 @@ def sip_configuration(station_id):
 @configuration.route('/sip_telephony', methods=['GET', 'POST'])
 @login_required
 def sip_telephony():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/sip_telephony.html', stations=stations)
 
 
@@ -161,14 +165,14 @@ def station_audio_level(station_id):
 @configuration.route('/station_audio_levels', methods=['GET'])
 @login_required
 def station_audio_levels():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/station_audio_levels.html', stations=stations, active='stations')
 
 
 @configuration.route('/ivr_menus', methods=['GET', 'POST'])
 @login_required
 def ivr_menus():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
 
     station_data = []
     for station in stations:
@@ -270,7 +274,7 @@ def ivr_menu():
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
 @login_required
 def tts_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/tts_settings.html', stations=stations)
 
 
@@ -293,7 +297,7 @@ def tts_setting(station_id):
 @configuration.route('/synchronization_settings', methods=['GET', 'POST'])
 @login_required
 def synchronization_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/synchronization_settings.html', stations=stations)
 
 
@@ -316,7 +320,7 @@ def synchronization_setting(station_id):
 @configuration.route('/content', methods=['GET'])
 @login_required
 def content_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/content_settings.html', stations=stations)
 
 
@@ -339,7 +343,7 @@ def content_setting(station_id):
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])
 @login_required
 def voice_prompts():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
 
     station_data = []
     for station in stations:
