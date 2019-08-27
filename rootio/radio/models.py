@@ -163,7 +163,7 @@ class Station(BaseMixin, db.Model):
         from ..user.models import User
         
         if current_user.role_code == ADMIN:
-            return Station.query.join(Network).all()
+            return Station.query.join(Network).join(User, Network.networkusers).all()
         else:
             return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     def init(self):
