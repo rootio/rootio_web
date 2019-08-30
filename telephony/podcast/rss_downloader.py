@@ -38,7 +38,7 @@ class RSSDownloader:
             return
 
     def __get_podcast(self):
-        self.__podcast = self.__db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id).first()
+        self.__podcast = self.__db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id, ContentPodcast.deleted == False).first()
 
     def __get_last_publish_date(self):
         try:
