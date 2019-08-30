@@ -10,7 +10,6 @@ from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 import re
 
-
 class RSSDownloader:
 
     def __init__(self, podcast_id, logger, engine):
