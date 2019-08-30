@@ -7,21 +7,21 @@
 {% elif analytics.battery_level[-1] <= 30 %} {% set battery_color = critical_color %} {% set battery_level_img = 'battery_low.png' %}
 {% else %}                                   {% set battery_color = ok_color %} {% set battery_level_img = 'battery_ok.png' %} {% endif %}
 
-{% if analytics.gsm_signal_1[-1] <= 60 %}   {% set gsm_color_1 = warning_color %}
-{% elif analytics.gsm_signal_1[-1] <= 30 %} {% set gsm_color_1 = critical_color %}
-{% else %}                                {% set gsm_color_1 = ok_color %} {% endif %}
+{% if analytics.gsm_signal_1[-1] <= 60 %}   {% set gsm_color_1 = warning_color %} {% set network_level_1_img = 'network_medium.png' %}
+{% elif analytics.gsm_signal_1[-1] <= 30 %} {% set gsm_color_1 = critical_color %} {% set network_level_1_img = 'network_low.png' %}
+{% else %}                                {% set gsm_color_1 = ok_color %} {% set network_level_1_img = 'network_ok.png' %} {% endif %} 
 
-{% if analytics.gsm_signal_2[-1] <= 60 %}   {% set gsm_color_2 = warning_color %}
-{% elif analytics.gsm_signal_2[-1] <= 30 %} {% set gsm_color_2 = critical_color %}
-{% else %}                                {% set gsm_color_2 = ok_color %} {% endif %}
+{% if analytics.gsm_signal_2[-1] <= 60 %}   {% set gsm_color_2 = warning_color %} {% set network_level_2_img = 'network_medium.png' %}
+{% elif analytics.gsm_signal_2[-1] <= 30 %} {% set gsm_color_2 = critical_color %} {% set network_level_2_img = 'network_low.png' %}
+{% else %}                                {% set gsm_color_2 = ok_color %} {% set network_level_2_img = 'network_ok.png' %} {% endif %} 
 
 {% if analytics.gsm_network_type_1[-1] <= 60 %}   {% set gsm_network_type_1 = warning_color %}
 {% elif analytics.gsm_network_type_1[-1] <= 30 %} {% set gsm_network_type_1 = critical_color %}
 {% else %}                                {% set gsm_network_type_1 = ok_color %} {% endif %}
 
-{% if analytics.wifi_connectivity[-1] <= 60 %}   {% set wifi_color = warning_color %}
-{% elif analytics.wifi_connectivity[-1] <= 30 %} {% set wifi_color = critical_color %}
-{% else %}                                       {% set wifi_color = ok_color %} {% endif %}
+{% if analytics.wifi_connectivity[-1] <= 60 %}   {% set wifi_color = warning_color %} {% set wifi_level_img = 'network_medium.png' %}
+{% elif analytics.wifi_connectivity[-1] <= 30 %} {% set wifi_color = critical_color %} {% set wifi_level_img = 'network_low.png' %}
+{% else %}                                       {% set wifi_color = ok_color %} {% set wifi_level_img = 'network_ok.png' %} {% endif %} 
 
 {% if analytics.memory_utilization[-1] >= 80 %}   {% set memory_color = critical_color %}
 {% elif analytics.memory_utilization[-1] >= 50 %} {% set memory_color = warning_color %}
@@ -53,20 +53,22 @@
   <td>{{network.name}}</td>
   <td>{{station.name}}</td>
   <td style="background-color: {{battery_color}};">
-    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + battery_level_img ) }}" width="25" height="25"/>
-      {% endif %}</td>
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + battery_level_img ) }}" width="25" height="25"/> {% endif %}
+  </td>
   <td style="background-color: {{gsm_color_1}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_signal_1}}{% endif %}</span></td>
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_level_1_img ) }}" width="25" height="25"/> {% endif %}
+  </td>
   <td style="background-color: {{gsm_color_2}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.gsm_signal_2}}{% endif %}</span></td>
-
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_level_2_img ) }}" width="25" height="25"/> {% endif %}
+  </td>
   <td style="background-color: {{gsm_network_type_color_1}};">
     {% if analytics %}{{analytics.gsm_network_type_1[-1] | upper}}{% endif %}</td>
   <td style="background-color: {{gsm_network_type_color_2}};">
     {% if analytics %}{{analytics.gsm_network_type_2[-1] | upper}}{% endif %}</td>
 
   <td style="background-color: {{wifi_color}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.wifi_connectivity}}{% endif %}</span></td>
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + wifi_level_img ) }}" width="25" height="25"/> {% endif %}
+  </td>
   <td style="background-color: {{memory_color}};">
     <span class="sparkline" data-type="line">{% if analytics %}{{analytics.memory_utilization}}{% endif %}</span></td>
   <td style="background-color: {{storage_color}};">
