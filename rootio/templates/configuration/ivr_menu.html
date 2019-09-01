@@ -12,7 +12,6 @@
     var myMessages = {};
 </script>
 
-
 {% for field in form %}
    {% if field.type != "BooleanField" %}
        <script type="text/javascript">
@@ -29,6 +28,23 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
+
+    var firstStationValue = $('#station').val();
+    if ($('input#_station_uses_tts_' + firstStationValue).val() == "None") {
+        $('label[for="use_tts"]').hide()
+    }
+
+    $('body').on('change','#station', function() {
+
+         if ($('input#_station_uses_tts_' + this.value).val() == "None") {
+            $('label[for="use_tts"]').hide()
+            toggleUseTts(false)
+            $(":checkbox[name='use_tts']").prop('checked', false);
+         } else {
+            $('label[for="use_tts"]').show()
+         }
+    });
+
       toggleUseTts($(":checkbox[name='use_tts']").is(':checked'))
 
       $(":checkbox[name='use_tts']").click(function(){
@@ -88,6 +104,9 @@
 
 {% block body %}
 <div class="container">
+    {% for station in stations %}
+        <input type="hidden" id="_station_uses_tts_{{ station.id }}" name="_station_uses_tts_{{ station.id }}" value="{{ station.tts_voice_id }}">
+    {%endfor%}
     {%if community_menu %}
         <h2>{{ station.name }}</h2>
         {{ render_form(url_for('configuration.ivr_menu', community_menu_id=community_menu.id), form) }}

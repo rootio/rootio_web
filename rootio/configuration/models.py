@@ -56,4 +56,4 @@ class VoicePrompt(BaseMixin, db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('voice_prompt'))
 
-    deleted = db.Column(db.Boolean)
+    deleted = db.Column(db.Boolean, default=False, nullable=False)

@@ -276,7 +276,8 @@ def ivr_menu():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station)
+    stations = Station.get_stations(current_user)
+    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station, stations=stations)
 
 
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
@@ -411,7 +412,8 @@ def voice_prompt():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station)
+    stations = Station.get_stations(current_user)
+    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations)
 
 
 @configuration.route('/voice_prompts/<int:voice_prompt_id>/delete', methods=['GET'])
