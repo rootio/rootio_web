@@ -85,7 +85,7 @@ class CommunityMenu(BaseMixin, db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     station = db.relationship(u'Station', backref=db.backref('community_menu'))
-    deleted = db.Column(db.Boolean, default=False)
+    deleted = db.Column(db.Boolean, default=False, nullable=False)
 
 
 class CommunityContent(BaseMixin, db.Model):
