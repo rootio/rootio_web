@@ -352,6 +352,7 @@ def content_setting(station_id):
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])
 @login_required
 def voice_prompts():
+
     stations = Station.get_stations(current_user)
 
     station_data = []
