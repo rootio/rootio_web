@@ -83,8 +83,8 @@ class CommunityMenu(BaseMixin, db.Model):
     goodbye_message_txt = db.Column(db.Text())
     use_tts = db.Column(db.Boolean(), default=False)
     prefetch_tts = db.Column(db.Boolean(), default=True)
-    date_created = db.Column(db.DateTime(timezone=True), server_default=datetime.datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), server_default=datetime.datetime.utcnow)
+    date_created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
     station = db.relationship(u'Station', backref=db.backref('community_menu'))
     deleted = db.Column(db.Boolean, default=False, nullable=False)
 
