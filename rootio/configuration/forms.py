@@ -24,7 +24,7 @@ from ..utils import OrderedForm, GENDER_TYPE
 
 
 def stations():
-    return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return Station.get_stations(current_user)
 
 StationTelephonyFormBase = model_form(Station, db_session=db.session, base_class=Form,
                                       field_args={

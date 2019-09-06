@@ -118,6 +118,7 @@
 {% endmacro %}
 
 {% macro render_upload_multiple(field) %}
+<label class="error" id="uploadError" style="display:none">Error</label>
   <div class="row-fluid">
 
     <div class="span6">
@@ -225,8 +226,8 @@
 {% endmacro %}
 
 
-{% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None) %}
-<form class="{% if horizontal %}form-horizontal{% endif %}" novalidate method="POST" action="{{ url }}"
+{% macro render_form(url, form, horizontal=False, legend=None, confirm_msg=None, validate=False) %}
+<form name="{% if validate %}validate{% endif %}" class="{% if horizontal %}form-horizontal{% endif %}" novalidate method="POST" action="{{ url }}"
     {% if confirm_msg %}onsubmit='return confirm("{{ confirm_msg }}");' {% endif %}
     {% if form.multipart %}enctype="multipart/form-data"{% endif %} >
     {{ form.hidden_tag() }}

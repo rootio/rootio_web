@@ -157,6 +157,15 @@ class Station(BaseMixin, db.Model):
     broadcast_ip = db.Column(db.String(16))
     broadcast_port = db.Column(db.String(16))
 
+    @classmethod
+    def get_stations(cls, current_user):
+        from rootio.user import ADMIN
+        from ..user.models import User
+        
+        if current_user.role_code == ADMIN:
+            return Station.query.join(Network).join(User, Network.networkusers).all()
+        else:
+            return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     def init(self):
         # load dummy program
         # init state machine

@@ -18,6 +18,7 @@ from ..radio.forms import PersonForm
 from ..radio.models import ContentType, Person, Network, Station
 from ..user.models import User
 from ..utils import jquery_dt_paginator, upload_to_s3, make_dir, save_uploaded_file
+from rootio.user import ADMIN
 
 ALLOWED_EXTENSIONS = set(['wav', 'mp3'])
 
@@ -283,7 +284,10 @@ def track_toggle_play(track_id):
 @content.route('/hosts/')
 @login_required
 def list_hosts():
-    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).all()
+    else:
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     return render_template('content/content_hosts.html', hosts=hosts)
 
@@ -363,7 +367,10 @@ def host_delete(host_id):
 @content.route('/community_content/', methods=['GET', 'POST'])
 @login_required
 def community_content():
-    community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).all()
+    else:
+        community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     return render_template('content/community_content.html', community_contents=community_contents)
 

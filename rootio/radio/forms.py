@@ -33,8 +33,12 @@ class LocationForm(LocationFormBase):
 
 
 def all_networks():
-    return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    from rootio.user import ADMIN
 
+    if current_user.role_code == ADMIN:
+        return Network.query.join(User, Network.networkusers).all()
+    else:
+        return Network.query.join(User, Network.networkusers).filter(User.id == current_user.id).all()
 
 # define field help text here, instead of in model info
 StationFormBase = model_form(Station, db_session=db.session, base_class=OrderedForm,
@@ -99,7 +103,7 @@ class ProgramForm(Form):
     description = TextAreaField()
     program_structure = TextAreaField(description=_("Drag content here in desired order, double click to reset"))
     structure = TextAreaField(u'')
-    duration = DurationField(description=_("Duration of the program, in HH:MM(:SS)"))
+    duration = DurationField(_("Duration of the program, in HH:MM(:SS)"),[Required()])
     # language = QuerySelectField(query_factory=all_languages,allow_blank=False)
     # program_type = QuerySelectField(query_factory=all_program_types,allow_blank=False)
     networks = QuerySelectMultipleField(_('Networks'), [Required()], query_factory=all_networks)

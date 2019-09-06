@@ -1,340 +1,366 @@
 {% extends "configuration/layout.html" %}
 
+{% block css_style %}
+    <link href="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.css') }}" rel='stylesheet' />
+    <link href="{{ url_for('static', filename='css/schedule.css') }}" rel='stylesheet' />
+{% endblock %}
+
 {% block js_btm %}
-{{ super() }}
-<script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
-<script type="text/javascript">
- $(document).ready(function() {
-   $('.heading').click(function(){
-     console.log('click');
-     $(this).toggleClass('expand').next('tr.foldable').slideToggle(100);
-   });
- });
-</script>
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/vendor/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/moment-timezone-with-data.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-formhelpers-timepicker.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/vendor/underscore.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/rrule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/rrule/nlp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/rrule.recurringinput.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ajax-buttons.js') }}"></script>
+
 {% endblock %}
-{% block js_top %}
-<link rel="stylesheet" href="../../static/css/audioplayer.css" />
-<style>
-	#wrapper { max-width: 100px; }
-	h1 { text-align: center; margin-bottom: 50px; color: #fff; font-family: 'Open Sans'; }
-  table, tr, td, th {border-collapse: collapse;}
-  tr.heading {cursor: pointer; background-color: #EEEEEE;}
-  .heading .sign:after {content: "+"; display: inline-block;}
-  .heading.expand .sign:after {content: "-";}
-</style>
-{% endblock %}
+
 
 {% block body %}
-<div class="container">
+
+{% for data in stations %}
+<!-- Modal -->
+ <div class="modal fade" id="stationModal{{ data.station.id }}" role="dialog">
+   <div class="modal-dialog modal-lg">
+
+     <!-- Modal content-->
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal">&times;</button>
+         <h4 class="modal-title">Voice Prompts for {{ data.station.name }}</h4>
+       </div>
+       <div class="modal-body">
+          {% set voice_prompt = data.vps %}
+          {% if voice_prompt.use_tts %}
+          <table>
+            <tr>
+              <td>{{ _('You are now on air') }}</td>
+              <td>{{ voice_prompt.on_air_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Your call will end in { seconds }') }}</td>
+              <td>{{ voice_prompt.call_end_txt }}</td>
+            </tr><tr>
+              <td>{{ _('seconds') }}</td>
+              <td>{{ voice_prompt.call_end_part2_txt }}</td>
+            </tr><tr>
+              <td>{{ _('You have a caller on the line. To connect to the station, press one, to cancel, press two') }}</td>
+              <td>{{ voice_prompt.incoming_call_txt }}</td>
+            </tr><tr>
+              <td>{{ _('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two') }}</td>
+              <td>{{ voice_prompt.host_welcome_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Please wait while we connect you to the radio station') }}</td>
+              <td>{{ voice_prompt.host_wait_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Your call will be terminated and you will be called when someone calls into the station') }}</td>
+              <td>{{ voice_prompt.wake_mode_activation_txt }}</td>
+            </tr><tr>
+              <td>{{ _('All incoming calls will be rejected') }}</td>
+              <td>{{ voice_prompt.incoming_reject_activation_txt }}</td>
+            </tr><tr>
+              <td>{{ _('All incoming calls will be automatically answered') }}</td>
+              <td>{{ voice_prompt.incoming_answer_activation_txt }}</td>
+            </tr><tr>
+              <td>{{ _('All incoming calls will be queued for call back') }}</td>
+              <td>{{ voice_prompt.incoming_queue_activation_txt }}</td>
+            </tr><tr>
+              <td>{{ _('You will be called back in 5 minutes') }}</td>
+              <td>{{ voice_prompt.take_break_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Please enter the number to call and press the # key to dial') }}</td>
+              <td>{{ voice_prompt.input_number_txt }}</td>
+            </tr><tr>
+              <td>{{ _('You are calling { number }') }}</td>
+              <td>{{ voice_prompt.calling_number_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Call from community caller { caller number }') }}</td>
+              <td>{{ voice_prompt.call_queued_txt }}</td>
+            </tr><tr>
+              <td>{{ _('was queued') }}</td>
+              <td>{{ voice_prompt.call_queued_part2_txt }}</td>
+            </tr><tr>
+              <td>{{ _('The call to { number }') }}</td>
+              <td>{{ voice_prompt.call_failed_txt }}</td>
+            </tr><tr>
+              <td>{{ _('failed. Please pres the hash key to try again') }}</td>
+              <td>{{ voice_prompt.call_failed_part2_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Thank you for wanting to take part in this program. We will call you back shortly') }}</td>
+              <td>{{ voice_prompt.call_back_hangup_txt }}</td>
+            </tr><tr>
+              <td>{{ _('Please wait while we connect you to the host of this program') }}</td>
+              <td>{{ voice_prompt.call_back_wait_txt }}</td>
+            </tr>
+          </table>
+
+        {% else %}
+          <table>
+          <tr>
+            <td>{{ _('You are now on air') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.on_air_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Your call will end in { seconds } ') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('seconds') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('You have a caller on the line. To connect to the station, press one, to cancel, press two') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.incoming_call_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.host_welcome_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Please wait while we connect you to the radio station') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.host_wait_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Your call will be terminated and you will be called when someone calls into the station') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.wake_mode_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('All incoming calls will be rejected') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.incoming_reject_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('All incoming calls will be automatically answered') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.incoming_answer_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('All incoming calls will be queued for call back') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.incoming_queue_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('You will be called back in 5 minutes') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.take_break_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Please enter the number to call and press the # key to dial') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.input_number_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('You are calling { number }') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.calling_number_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Call from community caller { caller number } ') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('was queued') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('The call to { number }') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('failed. Please pres the hash key to try again') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Thank you for wanting to take part in this program. We will call you back shortly') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_back_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr><tr>
+            <td>{{ _('Please wait while we connect you to the host of this program') }}</td>
+            <td>
+              <div id="wrapper" title="{{voice_prompt.call_back_txt}}">
+                <audio name="audio_player" preload="metadata" controls="false" >
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/mpeg">
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/ogg">
+                  <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/wav">
+                </audio>
+              </div>
+            </td>
+          </tr>
+          </table>
+
+        {% endif %}
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+       </div>
+     </div>
+
+   </div>
+ </div>
+{% endfor %}
+
+<div class="container-fluid">
     <h2>{{ _('Configuration') }}</h2>
     <div class="pull-left">
-        <h3>{{ _('Voice prompts') }}</h3>
+        <h3>{{ _('Voice Prompts') }}</h3>
     </div>
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('configuration.voice_prompt') }}"><strong>{{ _('Configure') }}</strong></a>
+        <a class="btn btn-success" href="{{ url_for('configuration.voice_prompt') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
-    <table class='table table-bordered table-hover'>
-        <tbody>
-        {% for voice_prompt in voice_prompts %}
-          {% if not voice_prompt.deleted %}
-            <tr class="heading expand">
-              <th><span class="sign"></span> {{voice_prompt.station.name}}</th>
-              <td> <button class=' pull-right button-delete btn btn-danger' onclick="deleteTableItem(this, {{voice_prompt.id}})" id='delete-{{voice_prompt.id}}'>Delete</button> </td>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Station') }}</th>
+                <th>{{ _('Last Updated') }}</th>
+                <th>{{ _('Use TTS') }}</th>
+                <th>{{ _('Prefetch TTS') }}</th>
+                <th>{{ _('Files') }}</th>
+                <th>{{ _('Edit') }}</th>
+                <th></th>
             </tr>
-            <tr class="foldable"><td colspan="2">
-            {% if voice_prompt.use_tts %}
-              <table>
-                <tr>
-                  <td>{{ _('You are now on air') }}</td>
-                  <td>{{ voice_prompt.on_air_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Your call will end in { seconds }') }}</td>
-                  <td>{{ voice_prompt.call_end_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('seconds') }}</td>
-                  <td>{{ voice_prompt.call_end_part2_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('You have a caller on the line. To connect to the station, press one, to cancel, press two') }}</td>
-                  <td>{{ voice_prompt.incoming_call_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two') }}</td>
-                  <td>{{ voice_prompt.host_welcome_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Please wait while we connect you to the radio station') }}</td>
-                  <td>{{ voice_prompt.host_wait_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Your call will be terminated and you will be called when someone calls into the station') }}</td>
-                  <td>{{ voice_prompt.wake_mode_activation_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('All incoming calls will be rejected') }}</td>
-                  <td>{{ voice_prompt.incoming_reject_activation_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('All incoming calls will be automatically answered') }}</td>
-                  <td>{{ voice_prompt.incoming_answer_activation_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('All incoming calls will be queued for call back') }}</td>
-                  <td>{{ voice_prompt.incoming_queue_activation_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('You will be called back in 5 minutes') }}</td>
-                  <td>{{ voice_prompt.take_break_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Please enter the number to call and press the # key to dial') }}</td>
-                  <td>{{ voice_prompt.input_number_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('You are calling { number }') }}</td>
-                  <td>{{ voice_prompt.calling_number_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Call from community caller { caller number }') }}</td>
-                  <td>{{ voice_prompt.call_queued_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('was queued') }}</td>
-                  <td>{{ voice_prompt.call_queued_part2_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('The call to { number }') }}</td>
-                  <td>{{ voice_prompt.call_failed_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('failed. Please pres the hash key to try again') }}</td>
-                  <td>{{ voice_prompt.call_failed_part2_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Thank you for wanting to take part in this program. We will call you back shortly') }}</td>
-                  <td>{{ voice_prompt.call_back_hangup_txt }}</td>
-                </tr><tr>
-                  <td>{{ _('Please wait while we connect you to the host of this program') }}</td>
-                  <td>{{ voice_prompt.call_back_wait_txt }}</td>
-                </tr>
-              </table>
-
-            {% else %}
-              <table>
-              <tr>
-                <td>{{ _('You are now on air') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.on_air_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.on_air}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Your call will end in { seconds } ') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_end}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('seconds') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_end_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_end_part2}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('You have a caller on the line. To connect to the station, press one, to cancel, press two') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.incoming_call_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_call}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.host_welcome_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.host_welcome}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Please wait while we connect you to the radio station') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.host_wait_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.host_wait}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Your call will be terminated and you will be called when someone calls into the station') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.wake_mode_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.wake_mode}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('All incoming calls will be rejected') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.incoming_reject_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_reject}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('All incoming calls will be automatically answered') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.incoming_answer_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_answer}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('All incoming calls will be queued for call back') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.incoming_queue_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.incoming_queue}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('You will be called back in 5 minutes') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.take_break_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.take_break}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Please enter the number to call and press the # key to dial') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.input_number_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.input_number}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('You are calling { number }') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.calling_number_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.calling_number}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Call from community caller { caller number } ') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_queued}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('was queued') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_queued_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_queued_part2}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('The call to { number }') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_failed}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('failed. Please pres the hash key to try again') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_failed_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_failed_part2}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Thank you for wanting to take part in this program. We will call you back shortly') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_back_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr><tr>
-                <td>{{ _('Please wait while we connect you to the host of this program') }}</td>
-                <td>
-                  <div id="wrapper" title="{{voice_prompt.call_back_txt}}">
-                    <audio name="audio_player" preload="metadata" controls="false" >
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/mpeg">
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/ogg">
-                      <source src="../../audio-content/{{voice_prompt.call_back}}" type="audio/wav">
-                    </audio>
-                  </div>
-                </td>
-              </tr>
-              </table>
-
-            {% endif %}
-            </td></tr>
-          {% endif %}
+        </thead>
+        <tbody>
+        {% for data in stations %}
+          <tr>
+              <td>{{ data.station.name }}</td>
+              <td>{{ data.vps.updated_at }}</td>
+              <td>{{ data.vps.use_tts }}</td>
+              <td>{{ data.vps.prefetch_tts }}</td>
+              <td><a href="#" id="stationPromptsCount{{ data.station.id }}" data-toggle="modal" data-target="#stationModal{{ data.station.id }}"> {{ _('View Prompts') }}</a></td>
+              <td><a href="{{ url_for('configuration.voice_prompt') }}">{{ _('Edit') }}</a></td>
+              <td>
+                <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{data.vps.id}})" id='delete-{{data.vps.id}}'>Delete</button>
+              </td>
+          </tr>
         {% endfor %}
-        </tbody>
+      </tbody>
     </table>
-    <script src="../../static/js/audioplayer.js"></script>
-    <script>
-
-
-			$('#offline_datatable').on( 'draw.dt', function () {
-
-                $('audio').audioPlayer();
-                $('audio').remove('audio');
-
-             } );
-
-    </script>
 </div>
 {% endblock %}

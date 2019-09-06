@@ -19,6 +19,7 @@ from .forms import StationTelephonyForm, StationSipTelephonyForm, StationAudioLe
 from ..radio.models import Station, Network
 from ..user.models import User
 from ..utils import upload_to_s3, make_dir, save_uploaded_file, jquery_dt_paginator
+from rootio.user import ADMIN
 
 configuration = Blueprint('configuration', __name__, url_prefix='/configuration')
 
@@ -27,7 +28,10 @@ configuration = Blueprint('configuration', __name__, url_prefix='/configuration'
 @login_required
 def index():
     # get all the user's networks and their stations
-    networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    if current_user.role_code == ADMIN:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
+    else:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     stations = []
 
     for network in networks:
@@ -76,7 +80,7 @@ def tts():
 @configuration.route('/telephony/', methods=['GET', 'POST'])
 @login_required
 def telephony():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/stations_telephony.html', stations=stations)
 
 
@@ -138,7 +142,7 @@ def sip_configuration(station_id):
 @configuration.route('/sip_telephony', methods=['GET', 'POST'])
 @login_required
 def sip_telephony():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/sip_telephony.html', stations=stations)
 
 
@@ -161,15 +165,35 @@ def station_audio_level(station_id):
 @configuration.route('/station_audio_levels', methods=['GET'])
 @login_required
 def station_audio_levels():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/station_audio_levels.html', stations=stations, active='stations')
 
 
 @configuration.route('/ivr_menus', methods=['GET', 'POST'])
 @login_required
 def ivr_menus():
-    community_menus = CommunityMenu.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('configuration/ivr_menus.html', community_menus=community_menus)
+    stations = Station.get_stations(current_user)
+
+    station_data = []
+    for station in stations:
+        station_vps = {}
+        station_vps["station"] = station
+
+        gws = []
+        for gw in station.incoming_gateways:
+            gws.append(gw.number_bottom)
+        gws.sort()
+
+        if len(gws) > 0:
+            station_vps["last_gateway_used"] = gws[0]
+    
+        menu_last = CommunityMenu.query.filter(CommunityMenu.station_id == station.id, CommunityMenu.deleted == False).order_by(CommunityMenu.updated_at.desc()).first()
+        if menu_last is None:
+            menu_last = "empty"
+        station_vps["community_menu"] = menu_last
+        station_data.append(station_vps)
+
+    return render_template('configuration/ivr_menus.html', stations=station_data)
 
 
 @configuration.route('/ivr_menus/records', methods=['GET'])
@@ -191,6 +215,7 @@ def ivr_menu_records(**kwargs):
 @login_required
 @csrf.exempt
 def ivr_menu_delete(ivr_menu_id):
+    from sqlalchemy import exc
     ivr_menu = CommunityMenu.query.filter_by(id=ivr_menu_id).first_or_404()
 
     ivr_menu.deleted = True
@@ -198,7 +223,8 @@ def ivr_menu_delete(ivr_menu_id):
     try:
         db.session.add(ivr_menu)
         db.session.commit()
-    except:
+    except exc.SQLAlchemyError as ex:
+        print ex
         return '{"result": "failed" }'
 
     return '{"result": "ok" }'
@@ -250,13 +276,14 @@ def ivr_menu():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station)
+    stations = Station.get_stations(current_user)
+    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station, stations=stations)
 
 
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
 @login_required
 def tts_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/tts_settings.html', stations=stations)
 
 
@@ -279,7 +306,7 @@ def tts_setting(station_id):
 @configuration.route('/synchronization_settings', methods=['GET', 'POST'])
 @login_required
 def synchronization_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/synchronization_settings.html', stations=stations)
 
 
@@ -302,7 +329,7 @@ def synchronization_setting(station_id):
 @configuration.route('/content', methods=['GET'])
 @login_required
 def content_settings():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     return render_template('configuration/content_settings.html', stations=stations)
 
 
@@ -325,9 +352,20 @@ def content_setting(station_id):
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])
 @login_required
 def voice_prompts():
-    voice_prompts = VoicePrompt.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('configuration/voice_prompts.html', voice_prompts=voice_prompts)
 
+    stations = Station.get_stations(current_user)
+
+    station_data = []
+    for station in stations:
+        station_vps = {}
+        station_vps["station"] = station
+        
+        prompt_last = VoicePrompt.query.filter(VoicePrompt.station_id == station.id, VoicePrompt.deleted == False).order_by(VoicePrompt.updated_at.desc()).first()
+
+        station_vps["vps"] = prompt_last
+        station_data.append(station_vps)
+
+    return render_template('configuration/voice_prompts.html', stations=station_data)
 
 @configuration.route('/voice_prompt', methods=['GET', 'POST'])
 @login_required
@@ -375,7 +413,8 @@ def voice_prompt():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station)
+    stations = Station.get_stations(current_user)
+    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations)
 
 
 @configuration.route('/voice_prompts/<int:voice_prompt_id>/delete', methods=['GET'])
