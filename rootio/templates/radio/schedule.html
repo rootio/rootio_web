@@ -67,7 +67,12 @@
             </h5>
             <ul style="overflow: auto; max-height: 600px;">
               {% for p in addable_programs | sort(attribute='id', reverse=True)%}
-                  <li class='external-event'
+              {% if p.program_type.name == 'Music' %}
+                  <li id="music-program"
+              {% else %}
+                  <li id="cloud-program"
+              {% endif %}
+                    class= 'external-event'
                     data-program-id="{{p.id}}"
                     data-station-id="{{station.id}}"
                     data-program-type-id="{{ p.program_type_id }}"
