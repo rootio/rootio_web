@@ -44,7 +44,7 @@ def musics_tracks():
 
 
 def stations():
-    return Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    return Station.get_stations(current_user)
 
 
 class ContentUploadForm(Form):

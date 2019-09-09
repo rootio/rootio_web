@@ -14,6 +14,7 @@ from rootio.user.forms import ProfileForm, ProfileCreateForm
 from rootio.radio.models import Network
 from ..extensions import db
 from .constants import USER_ROLE
+from rootio.user import ADMIN
 
 
 user = Blueprint('user', __name__, url_prefix='/user')
@@ -45,7 +46,10 @@ def avatar(user_id, filename):
 @admin_required
 def user_dashboard():
     #Only the users in my networks
-    users = User.query.join(Network.networkusers).filter(Network.networkusers.contains(current_user)).all()
+    if current_user.role_code == ADMIN:
+        users = User.query.all()
+    else:
+        users = User.query.join(Network.networkusers).filter(Network.networkusers.contains(current_user)).all()
     return render_template('user/manager.html', user=current_user, users=users)
 
 

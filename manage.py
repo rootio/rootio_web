@@ -18,6 +18,7 @@ from alembic import command
 from alembic.config import Config
 from rootio.config import DefaultConfig
 
+
 def _make_context():
     from rootio.extensions import db
     import rootio.telephony as t
@@ -45,6 +46,11 @@ def easy():
 def run():
     """Run webserver for local development."""
     app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8080)
+
+@manager.command
+def vscodedebug():
+    """Run webserver for debug development."""
+    app.run(debug=False, use_reloader=False, host='0.0.0.0', port=8081)
 
 @manager.command
 def waitress(bind_address='127.0.0.1', port=8080):

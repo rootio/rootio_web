@@ -31,6 +31,7 @@ from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
 from ..user.models import User, RootioUser
 from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
+from rootio.user import ADMIN
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -39,7 +40,10 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 @login_required
 def index():
     # get all the user's networks and their stations
-    networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    if current_user.role_code == ADMIN:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
+    else:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now)
 
 
@@ -83,7 +87,7 @@ def network_add():
 @radio.route('/station/', methods=['GET'])
 @login_required
 def list_stations():
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     # stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
     return render_template('radio/stations.html', stations=stations, active='stations')
 
@@ -134,7 +138,10 @@ def station_add():
 @radio.route('/program/', methods=['GET'])
 @login_required
 def programs():
-    programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(Program.program_type_id != 2).all()
+    else:
+        programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id != 2).all()
     return render_template('radio/programs.html', programs=programs, active='programs')
 
@@ -146,11 +153,28 @@ def program_definition(program_id):
     # form = ProgramForm(obj=program, program_structure="test", next=request.args.get('next'))
 
     # hosts in my network
-    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).all()
+    else:
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     news = ContentTrack.query.join(ContentType).filter(ContentType.name == "News").all()
     ads = ContentTrack.query.join(ContentType).filter(ContentType.name == "Advertisements").all()
-    medias = ContentTrack.query.join(ContentType).filter(ContentType.name == "Media").all()
+
+    if current_user.role_code == ADMIN:
+        medias = ContentTrack.query.join(User, Network.networkusers)\
+        .join(ContentTrack, ContentType)\
+        .filter(ContentType.name == "Media")\
+        .filter(ContentTrack.deleted != True)\
+        .all()
+    else:
+        medias = ContentTrack.query.join(User, Network.networkusers)\
+        .filter(User.id == current_user.id)\
+        .join(ContentTrack, ContentType)\
+        .filter(ContentType.name == "Media")\
+        .filter(ContentTrack.deleted != True)\
+        .all()
+        
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
                                    {"type": "Greetings", "category_id": "3"}]}
@@ -190,31 +214,59 @@ def program_add():
     form = ProgramForm(request.form)
     program = None
 
-    # hosts in my network
-    hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers)\
-                                                     .filter(User.id == current_user.id)\
-                                                     .all()
-    news = ContentTrack.query.join(User, Network.networkusers)\
-                             .filter(User.id == current_user.id)\
-                             .join(ContentTrack, ContentType)\
-                             .filter(ContentType.name == "News")\
-                             .filter(ContentTrack.deleted != True)\
-                             .all()
-    ads = ContentTrack.query.join(User, Network.networkusers)\
-                            .filter(User.id == current_user.id)\
-                            .join(ContentTrack, ContentType)\
-                            .filter(ContentType.name == "Advertisements")\
-                            .filter(ContentTrack.deleted != True)\
-                            .all()
-    medias = ContentTrack.query.join(User, Network.networkusers)\
-                               .filter(User.id == current_user.id)\
-                               .join(ContentTrack, ContentType)\
-                               .filter(ContentType.name == "Media")\
-                               .filter(ContentTrack.deleted != True)\
-                               .all()
-    podcasts = ContentPodcast.query.join(User, Network.networkusers)\
-                                   .filter(User.id == current_user.id)\
-                                   .all()
+    if current_user.role_code == ADMIN:
+         # hosts in my network
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers)\
+                                                        .all()
+        news = ContentTrack.query.join(User, Network.networkusers)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "News")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+        ads = ContentTrack.query.join(User, Network.networkusers)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "Advertisements")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+        
+        medias = ContentTrack.query.join(User, Network.networkusers)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "Media")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+
+
+        podcasts = ContentPodcast.query.join(User, Network.networkusers)\
+                                    .all()
+    else:
+        # hosts in my network
+        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers)\
+                                                        .filter(User.id == current_user.id)\
+                                                        .all()
+        news = ContentTrack.query.join(User, Network.networkusers)\
+                                .filter(User.id == current_user.id)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "News")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+        ads = ContentTrack.query.join(User, Network.networkusers)\
+                                .filter(User.id == current_user.id)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "Advertisements")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+        
+        medias = ContentTrack.query.join(User, Network.networkusers)\
+                                .filter(User.id == current_user.id)\
+                                .join(ContentTrack, ContentType)\
+                                .filter(ContentType.name == "Media")\
+                                .filter(ContentTrack.deleted != True)\
+                                .all()
+
+
+        podcasts = ContentPodcast.query.join(User, Network.networkusers)\
+                                    .filter(User.id == current_user.id)\
+                                    .all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
                                    {"type": "Greetings", "category_id": "3"}]}
 
@@ -255,7 +307,10 @@ def program_delete(program_id):
 @radio.route('/music_program/', methods=['GET'])
 @login_required
 def list_music_programs():
-    music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(Program.program_type_id == 2).all()
+    else:
+        music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id == 2).all()
     return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
 
@@ -266,11 +321,15 @@ def music_program_add():
     form = ProgramForm(request.form)
     program = None
 
-    # Playlists and streams in my network
-    playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(
-        User.id == current_user.id).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
-    streams = ContentStream.query.join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()  # created by -> user -> Network
+    if current_user.role_code == ADMIN:
+        playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
+        streams = ContentStream.query.join(User, Network.networkusers).filter(
+            User.id == current_user.id).all()  # created by -> user -> Network
+    else:
+        # Playlists and streams in my network
+        playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
+        streams = ContentStream.query.join(User, Network.networkusers).filter(
+            User.id == current_user.id).all()  # created by -> user -> Network
 
     if form.validate_on_submit():
         cleaned_data = form.data  # make a copy
@@ -293,9 +352,13 @@ def music_program_add():
 def music_program_definition(music_program_id):
     music_program = Program.query.filter_by(id=music_program_id).first_or_404()
 
-    # TODO: Filter these by network
-    playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all() #Playlist->Station->Network->user
-    streams = ContentStream.query.join(User, Network.networkusers).filter(User.id == current_user.id).all() # created by -> user -> Network
+    if current_user.role_code == ADMIN:
+        playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).all() #Playlist->Station->Network->user
+        streams = ContentStream.query.join(User, Network.networkusers).all() # created by -> user -> Network
+    else:
+        # TODO: Filter these by network
+        playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all() #Playlist->Station->Network->user
+        streams = ContentStream.query.join(User, Network.networkusers).filter(User.id == current_user.id).all() # created by -> user -> Network
 
     # render the program structure
     action_names = []
@@ -682,7 +745,7 @@ def station_logs(station_id):
 @login_required
 def schedule():
     # TODO, if user is authorized to view only one station, redirect them there
-    stations = Station.query.join(Network).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = Station.get_stations(current_user)
     # stations = Station.query.order_by('name').all()
 
     return render_template('radio/schedules.html',
@@ -707,7 +770,10 @@ def schedule_station(station_id):
 
     form = ScheduleProgramForm()
 
-    all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
+    if current_user.role_code == ADMIN:
+        all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).all()
+    else:
+        all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
     # TODO: filter by language?
 
