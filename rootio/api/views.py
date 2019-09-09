@@ -18,6 +18,7 @@ import flask_excel as excel
 import magic
 
 from dateutil import parser as date_parser
+from pytz import timezone
 
 from .utils import parse_datetime
 # from ..app import music_file_uploads
@@ -259,6 +260,11 @@ def station_programs(station_id):
     if request.args.get('updated_since'):
         try:
             updated_since = parse_datetime(request.args.get('updated_since'))
+            stn = db.session.query(Station).filter(Station.id == station_id).first()
+            #Compensate for timezone-naive dates sent by phones
+            if stn is not None and stn.timezone is not None:
+                #pass
+                updated_since = updated_since - datetime.timedelta(seconds=timezone(stn.timezone).localize(datetime.datetime.now()).utcoffset().total_seconds())
             records = 1000
             if request.args.get('records'):
                 records = request.args.get('records')
