@@ -376,7 +376,7 @@ def music_program_definition(music_program_id):
 
         scheduled_programs = db.session.query(ScheduledProgram).filter(ScheduledProgram.program_id == music_program_id).filter(ScheduledProgram.end >= datetime.now()).all()
         for prg in scheduled_programs:
-            prg.updated_at=datetime.utcnow().replace(tzinfo=timezone('UTC'))
+            prg.updated_at=datetime.utcnow() #.replace(tzinfo=timezone('UTC'))
             db.session.add(prg)
 
         db.session.add(music_program)
