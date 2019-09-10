@@ -374,12 +374,9 @@ def music_program_definition(music_program_id):
     if form.validate_on_submit():
         form.populate_obj(music_program)
 
-        scheduled_programs = ScheduledProgram.query\
-                                             .filter_by(program_id=music_program_id)\
-                                             .filter(cast(ScheduledProgram.end, Date) >= datetime.now())\
-                                             .all()
+        scheduled_programs = db.session.query(ScheduledProgram).filter(ScheduledProgram.program_id == music_program_id).filter(ScheduledProgram.end >= datetime.now()).all()
         for prg in scheduled_programs:
-            prg.updated_at=datetime.now()
+            prg.updated_at=datetime.utcnow().replace(tzinfo=timezone('UTC'))
             db.session.add(prg)
 
         db.session.add(music_program)
