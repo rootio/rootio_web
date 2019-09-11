@@ -5,6 +5,7 @@ from time import sleep
 from apscheduler.scheduler import Scheduler
 
 from rootio.radio.models import Person
+from telephony.prompt_engine import PromptEngine
 
 
 class PhoneStatus:
@@ -35,6 +36,7 @@ class OutcallAction:
         self.__interested_participants = Set([])
         self.__collecting_digits_to_call = False
         self.__invitee_number = ""
+        self.__prompt_engine = PromptEngine(self.program.radio_station)
 
     def start(self):
         try:
@@ -143,8 +145,9 @@ class OutcallAction:
             self.__collecting_digits_to_call = False
         else:  # This notification is from station answering call
             self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
-            self.__call_handler.speak('You are now on air',
-                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            self.__prompt_engine.play_prompt(self.__prompt_engine.ON_AIR_PROMPT, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            #self.__call_handler.speak('You are now on air',
+                                              #self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
@@ -153,9 +156,10 @@ class OutcallAction:
         seconds = self.duration - self.__warning_time
         if self.__host.phone.raw_number in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[
                 self.__host.phone.raw_number]:
-            result = self.__call_handler.speak(
-                'Your call will end in ' + str(seconds) + 'seconds',
-                self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            result = self.__prompt_engine.play_prompt(self.__prompt_engine.CALL_END_WARNING, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            #result = self.__call_handler.speak(
+                #'Your call will end in ' + str(seconds) + 'seconds',
+                #self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             self.program.log_program_activity("result of warning is " + result)
 
     def __pause_call(self):  # hangup and schedule to call later
@@ -182,13 +186,15 @@ class OutcallAction:
 
     def __inquire_host_readiness(self):
         if self.__phone_status == PhoneStatus.WAKE:
-            self.__call_handler.speak(
-            'You have a caller on the line. To connect to the station, press one, to cancel, press two',
-            self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            self.__prompt_engine.play_prompt(self.__prompt_engine.CALLER_ON_THE_LINE, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            #self.__call_handler.speak(
+            #'You have a caller on the line. To connect to the station, press one, to cancel, press two',
+            #self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
         else:
-            self.__call_handler.speak(
-            'You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',
-            self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            self.__prompt_engine.play_prompt(self.__prompt_engine.INQUIRE_HOST_READY, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+            #self.__call_handler.speak(
+            #'You are scheduled to host a talk show at this time. If you are ready, press one, if not ready, press two',
+            #self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
         self.program.log_program_activity("Asking if host is ready")
 
     def hangup_call(self):  # hangup the ongoing call
