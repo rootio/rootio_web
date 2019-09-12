@@ -414,7 +414,7 @@ def voice_prompt():
         flash(_(form.errors.items()), 'error')
 
     stations = Station.get_stations(current_user)
-    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations)
+    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations, existing_station_id=request.args.get('station_id') or -1)
 
 
 @configuration.route('/voice_prompts/<int:voice_prompt_id>/delete', methods=['GET'])

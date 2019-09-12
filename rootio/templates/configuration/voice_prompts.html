@@ -354,7 +354,7 @@
               <td>{{ data.vps.use_tts }}</td>
               <td>{{ data.vps.prefetch_tts }}</td>
               <td><a href="#" id="stationPromptsCount{{ data.station.id }}" data-toggle="modal" data-target="#stationModal{{ data.station.id }}"> {{ _('View Prompts') }}</a></td>
-              <td><a href="{{ url_for('configuration.voice_prompt') }}">{{ _('Edit') }}</a></td>
+              <td><a href="{{ url_for('configuration.voice_prompt') }}?station_id={{ data.station.id }}">{{ _('Edit') }}</a></td>
               <td>
                 <button class='button-delete btn btn-danger' onclick="deleteTableItem(this, {{data.vps.id}})" id='delete-{{data.vps.id}}'>Delete</button>
               </td>
