@@ -324,7 +324,7 @@ class CallHandler:
             if event_name == "CHANNEL_ANSWER" and 'Caller-Destination-Number' in event_json:
                 try:
                     if 'Channel-Call-UUID' in event_json:
-                        self.schedule_hangup(3600, event_json['Channel-Call-UUID'])  # no call more than 1 hour
+                        self.schedule_hangup(7200, event_json['Channel-Call-UUID'])  # no call more than 1 hour
                 except:
                     pass
 
@@ -500,7 +500,7 @@ class CallHandler:
             elif event_name == "CHANNEL_PARK" and 'Caller-Destination-Number' in event_json:
                 try:
                     if 'Channel-Call-UUID' in event_json:
-                        self.schedule_hangup(3600, event_json['Channel-Call-UUID'])  # no call more than 1 hour
+                        self.schedule_hangup(7200, event_json['Channel-Call-UUID'])  # no call more than 2 hour
                 except:
                     pass
                 try:
