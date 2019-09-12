@@ -1,3 +1,5 @@
+from os import path
+from rootio.config import *
 from rootio.configuration import VoicePrompt
 
 
@@ -21,10 +23,16 @@ class PromptEngine:
         self.CALL_FAILED = {"is_file": False, "prompt": "The call to {0} failed. Please press the hash key to try again"}
         self.CALL_BACK_NOTIFICATION = {"is_file": False, "prompt": "Thank you for wanting to take part in this program. We will call you back shortly"}
         self.AWAIT_HOST_CONNECTION = {"is_file": False, "prompt": "Please wait while we connect you to the host of this program"}
+        try:
+            self.__load_prompts()
+        except Exception as e:
+            print e
         
     def __load_prompts(self):
-        voice_prompts = VoicePrompt.query().filter(VoicePrompt.deleted == False).order(VoicePrompt.updated_at).filter(VoicePrompt.station_id == self.__station.id).first()
+        voice_prompts = self.__station.db.query(VoicePrompt).filter(VoicePrompt.deleted == False).order_by(VoicePrompt.updated_at.desc()).filter(VoicePrompt.station_id == self.__station.id).first()
+        print voice_prompts
         if voice_prompts is not None:
+            print "Using tts prompts"
             if not voice_prompts.use_tts:  # Use TTS, but the text files already downloaded as audio, or audio uploaded
                 self.ON_AIR_PROMPT = {True: {"is_file": True, "prompt": voice_prompts.on_air}, False: self.ON_AIR_PROMPT}[voice_prompts.on_air is not None]
                 self.CALL_END_WARNING = {True: {"is_file": True, "prompt": voice_prompts.call_end}, False: self.CALL_END_WARNING}[voice_prompts.call_end is not None]
@@ -43,6 +51,7 @@ class PromptEngine:
                 self.CALL_BACK_NOTIFICATION = {True: {"is_file": True, "prompt": voice_prompts.call_back_hangup}, False: self.CALL_BACK_NOTIFICATION}[voice_prompts.call_back_hangup is not None]
                 self.AWAIT_HOST_CONNECTION = {True: {"is_file": True, "prompt": voice_prompts.call_back_wait}, False: self.AWAIT_HOST_CONNECTION}[voice_prompts.call_back_wait is not None]
             else:
+                print "no tts"
                 self.ON_AIR_PROMPT = \
                 {True: {"is_file": False, "prompt": voice_prompts.on_air_txt}, False: self.ON_AIR_PROMPT}[
                     voice_prompts.on_air_txt is not None]
@@ -95,9 +104,8 @@ class PromptEngine:
                 
     def play_prompt(self, prompt, call_handler, call_uuid):
         if prompt.get("is_file"):
-            return call_handler.play(call_uuid, prompt.get("prompt"))
+            return call_handler.play(call_uuid, path.join(DefaultConfig.CONTENT_DIR,prompt.get("prompt")))
         else:
             return call_handler.speak(prompt.get("prompt"), call_uuid)
-        
             
 
