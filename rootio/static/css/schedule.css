@@ -35,11 +35,18 @@
 #addable-programs li.external-event { /* try to mimick the look of a real event */
     margin: 10px 0;
     padding: 2px 4px;
-    background: #3366CC;
     color: #fff;
     font-size: .85em;
     cursor: pointer;
     min-width: 10%;
+}
+
+#music-program {
+    background: #3366CC;
+}
+
+#cloud-program {
+    background: rgb(201, 204, 51);
 }
 
 #addable-programs li.recurring-button {

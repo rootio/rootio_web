@@ -32,28 +32,50 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
+    function ttsText(enabled) {
+        const html = "<input id='use_tts' name='use_tts' type='checkbox' value='y'>";
+        if (enabled) {
+            return html + "{{_('Use Text-to-Speech')}}"
+        }
+        return html + "{{_('Use Text-to-Speech (You need to configure your station first)')}}";
+    }
+
+    function setCheckboxEvents() {
+        $(":checkbox[name='use_tts']").click(function(){
+          toggleUseTts($(this).is(':checked'))
+      });
+    }
+
+    var existingStationId = {{ existing_station_id}};
+
+    if (existingStationId != -1)
+        $('#station').val(existingStationId);
+
     var firstStationValue = $('#station').val();
     if ($('input#_station_uses_tts_' + firstStationValue).val() == "None") {
-        $('label[for="use_tts"]').hide()
+        $('label[for="use_tts"]').css({'pointer-events':'none', 'color': '#ccc'});
+        $('label[for="use_tts"]').html(ttsText(false));
+        setCheckboxEvents();
     }
 
     $('body').on('change','#station', function() {
 
          if ($('input#_station_uses_tts_' + this.value).val() == "None") {
-            $('label[for="use_tts"]').hide()
+            $('label[for="use_tts"]').css({'pointer-events':'none', 'color': '#ccc'});
+            $('label[for="use_tts"]').html(ttsText(false));
+            setCheckboxEvents();
             toggleUseTts(false)
             $(":checkbox[name='use_tts']").prop('checked', false);
          } else {
-            $('label[for="use_tts"]').show()
+            $('label[for="use_tts"]').css({'pointer-events':'auto', 'color': 'black'});
+            $('label[for="use_tts"]').html(ttsText(true));
+            setCheckboxEvents();
          }
     });
 
       toggleUseTts($(":checkbox[name='use_tts']").is(':checked'))
 
-      $(":checkbox[name='use_tts']").click(function(){
-          toggleUseTts($(this).is(':checked'))
-      });
-
+      setCheckboxEvents();
      
       $( "form[name='validate']" ).validate({ // initialize
             errorPlacement: function(label, element) {
