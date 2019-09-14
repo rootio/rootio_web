@@ -1,5 +1,9 @@
 import sox
 
+class PlayStatus(Enum):
+    failed = 0
+    success = 1
+    no_media = 2
 
 def get_normalized_file(input_file, db_level=0):
     """

@@ -17,6 +17,7 @@ from outcall_action import OutcallAction
 from podcast_action import PodcastAction
 from rootio.config import DefaultConfig
 from rootio_mailer.rootio_mail_message import RootIOMailMessage
+from .utils.audio import PlayStatus
 
 
 class RadioProgram:
@@ -24,7 +25,7 @@ class RadioProgram:
     def __init__(self, program, radio_station, program_handler):
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
-        self.__status = False
+        self.__status = PlayStatus.failed
         self.__call_info = None
         self.id = program.id
         self.name = program.id
@@ -147,14 +148,14 @@ class RadioProgram:
             self.radio_station.logger.info("Popping program action from program actions: {0}".format(self.__program_actions))
             self.__program_actions.pop().start()
 
-    def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
+    def notify_program_action_stopped(self, play_status, call_info):  # the next action might need the call.
         if self.__shutting_down:
             self.radio_station.logger.info("Shutting down this program...")
-            self.__status = self. or played_successfully
+            self.__status = play_status
             self.radio_station.call_handler.hangup(call_info['Channel-Call-UUID'])
             self.__log_program_status()
         else:
-            self. = self.__status or played_successfully  # For program with multiple actions, if one succeeds then flagged as success!
+            self.__status = play_status  # For program with multiple actions, if one succeeds then flagged as success!
             if call_info is not None and 'Channel-Call-UUID' in call_info:
                 self.__call_info = call_info
             if len(self.__program_actions) == 0:  # all program actions have run

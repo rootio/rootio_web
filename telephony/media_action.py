@@ -1,7 +1,7 @@
 from rootio.config import *
 from rootio.content.models import ContentUploads, ContentTrack
 from rootio.radio.models import ScheduledProgram
-
+from .utils.audio import PlayStatus
 
 class MediaAction:
 
@@ -29,27 +29,28 @@ class MediaAction:
             if self.__media is not None:
                 self.program.log_program_activity("Loaded playable media")
                 call_result = self.__request_station_call()
+                # CARLOS - is this supposed to be a no_media status?
                 if not call_result[0]:  # !!
-                    self.stop(False)
+                    self.stop(PlayStatus.no_media)
             else:
                 self.program.log_program_activity("No playable media found, stopping this action...")
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=str(e)))
-            self.stop(False)
+            self.stop(PlayStatus.failed)
 
 
     def pause(self):
         self.__pause_media()
 
-    def stop(self, graceful=True, call_info=None):
-        if call_info is not None and not graceful:
+    def stop(self, status_type=PlayStatus.success, call_info=None):
+        if call_info is not None and not status_type == PlayStatus.success:
             self.__stop_media(call_info)
-        elif self.__call_answer_info is not None and not graceful:
+        elif self.__call_answer_info is not None and not status_type == PlayStatus.success:
             self.__stop_media(self.__call_answer_info)
         self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
-        self.program.notify_program_action_stopped(graceful, self.__call_answer_info)
+        self.program.notify_program_action_stopped(status_type, self.__call_answer_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity("Received call answer notification for Media action of {0} program"
@@ -85,7 +86,7 @@ class MediaAction:
                 return self.__load_media(self.__episode_number)
             else:
                 self.program.log_program_activity("No media found, aborting playback.")
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
         else:
             return media
 
@@ -154,7 +155,7 @@ class MediaAction:
         result = self.__call_handler.play(call_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
-            self.stop(False, call_info)
+            self.stop(PlayStatus.failed, call_info)
 
     def __pause_media(self):  # pause the media in the array
         pass
@@ -189,15 +190,15 @@ class MediaAction:
                         self.start()
                     else:
                         self.program.log_program_activity("No more files to play. Should proceed to hangup")
-                        self.stop(True, event_json)
+                        self.stop(PlayStatus.success, event_json)
                         self.__is_valid = False
                 else:
                     self.program.log_program_activity("Continuous play is not enabled. Should proceed to next track/hangup")
-                    self.stop(True, event_json)
+                    self.stop(PlayStatus.success, event_json)
                     self.__is_valid = False
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.notify_media_play_stop".format(err=e.message))
-            self.stop(False, event_json)
+            self.stop(PlayStatus.failed, event_json)
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-11:])
