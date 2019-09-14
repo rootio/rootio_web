@@ -150,11 +150,11 @@ class RadioProgram:
     def notify_program_action_stopped(self, played_successfully, call_info):  # the next action might need the call.
         if self.__shutting_down:
             self.radio_station.logger.info("Shutting down this program...")
-            self.__status = self.__status or played_successfully
+            self.__status = self. or played_successfully
             self.radio_station.call_handler.hangup(call_info['Channel-Call-UUID'])
             self.__log_program_status()
         else:
-            self.__status = self.__status or played_successfully  # For program with multiple actions, if one succeeds then flagged as success!
+            self. = self.__status or played_successfully  # For program with multiple actions, if one succeeds then flagged as success!
             if call_info is not None and 'Channel-Call-UUID' in call_info:
                 self.__call_info = call_info
             if len(self.__program_actions) == 0:  # all program actions have run
