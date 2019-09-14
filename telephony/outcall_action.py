@@ -5,7 +5,7 @@ from time import sleep
 from apscheduler.scheduler import Scheduler
 
 from rootio.radio.models import Person
-
+from .utils.audio import PlayStatus
 
 class PhoneStatus:
     REJECTING = 1
@@ -41,7 +41,8 @@ class OutcallAction:
             self.__in_talkshow_setup = True
             self.__host = self.__get_host(self.__host_id)
             if self.__host is None or self.__host.phone is None:
-                self.stop(False)
+                # CARLOS - Should this be a no media or fail?? We might have to diff between having no host (Error and not media error) and host no having phone
+                self.stop(PlayStatus.no_media)
                 return
             self.program.set_running_action(self)
             self.__scheduler = Scheduler()
@@ -54,14 +55,14 @@ class OutcallAction:
             self.program.log_program_activity("Error in OutcallAction.start: {0}".format(e.message))
             print e
 
-    def stop(self, graceful=True, call_info=None):
+    def stop(self, status_type=PlayStatus.success, call_info=None):
         self.hangup_call()
         # Stop scheduler
         self.__scheduler.shutdown()
         # deregister from any triggers
         self.__call_handler.deregister_for_incoming_calls(self)
         self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number)[-9:])
-        self.program.notify_program_action_stopped(graceful, call_info)
+        self.program.notify_program_action_stopped(status_type, call_info)
 
     def __get_host(self, host_id):
         host = self.program.radio_station.db.query(Person).filter(Person.id == host_id).first()
@@ -73,7 +74,8 @@ class OutcallAction:
                                           15)  # call ends in 15 mins max
         self.program.log_program_activity("result of host call is " + str(result))
         if not result[0] and not guest_triggered:
-            self.stop(False)
+            # CARLOS - Is this suppose to be a failure?
+            self.stop(PlayStatus.no_media)
 
     def __request_station_call(self):  # call the number specified thru plivo
         # Check if the call exists, start with the least likely number to be called
@@ -178,7 +180,7 @@ class OutcallAction:
                 #  the station or the host
                 self.program.log_program_activity(
                     "Program terminated because {0} hangup".format(event_json['Caller-Destination-Number']))
-                self.stop(True)
+                self.stop(PlayStatus.success)
 
     def __inquire_host_readiness(self):
         if self.__phone_status == PhoneStatus.WAKE:

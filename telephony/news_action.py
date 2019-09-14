@@ -1,7 +1,7 @@
 from rootio.config import *
 from rootio.content.models import ContentTrack
 import json
-
+from .utils.audio import PlayStatus
 
 class NewsAction:
 
@@ -23,25 +23,26 @@ class NewsAction:
             self.__load_track()
             if self.__track is not None and len(self.__track.files) > 0:
                 call_result = self.__request_station_call()
+                # CARLOS - is this supposed to be a no_media status?
                 if not call_result[0]:  # !!
-                    self.stop(False)
+                    self.stop(PlayStatus.no_media)
             else:  # Track exists but contains no content
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
         except Exception as e:
-            self.stop(False)
+            self.stop(PlayStatus.failed)
             self.program.radio_station.logger.error("error {err} in news_action.__start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()
 
-    def stop(self, graceful=True, call_info=None):
+    def stop(self, status_type=PlayStatus.success, call_info=None):
         if call_info is not None:
             self.__stop_media(call_info)
         elif self.__call_answer_info is not None:
             self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
         # Fix this - clash of names btn programs and scheduled instances
-        self.program.notify_program_action_stopped(graceful, call_info)
+        self.program.notify_program_action_stopped(status_type, call_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity(
@@ -122,7 +123,7 @@ class NewsAction:
                                                                                        uri))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
-            self.stop(False, call_info)
+            self.stop(PlayStatus.failed, call_info)
 
     def __pause_media(self):  # pause the media in the array
         pass
@@ -148,7 +149,7 @@ class NewsAction:
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
         if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[0].uri):
-            self.stop(True, event_json)  # program.notify_program_action_stopped(self)
+            self.stop(PlayStatus.success, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):

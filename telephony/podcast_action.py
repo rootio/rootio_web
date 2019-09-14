@@ -1,5 +1,6 @@
 from rootio.config import *
 from rootio.content.models import ContentPodcast
+from .utils.audio import PlayStatus
 
 
 class PodcastAction:
@@ -22,24 +23,25 @@ class PodcastAction:
             self.__load_podcast()
             if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
                 call_result = self.__request_station_call()
+                # CARLOS - is this supposed to be a no_media status?
                 if call_result is None or not call_result[0]:  # !!
-                    self.stop(False)
+                    self.stop(PlayStatus.no_media)
             else:
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
         except Exception as e:
-            self.stop(False)
+            self.stop(PlayStatus.failed)
             self.program.radio_station.logger.error("error {err} in podcast_action.__start".format(err=e.message))
 
     def pause(self):
         self.__pause_media()
 
-    def stop(self, graceful=True, call_info=None):
+    def stop(self, status_type=PlayStatus.success, call_info=None):
         if call_info is not None:
             self.__stop_media(call_info)
         elif self.__call_answer_info is not None:
             self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
-        self.program.notify_program_action_stopped(graceful, call_info)
+        self.program.notify_program_action_stopped(status_type, call_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity(
@@ -121,7 +123,7 @@ class PodcastAction:
 
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
-            self.stop(False, call_info)
+            self.stop(PlayStatus.failed, call_info)
 
     def __pause_media(self):  # pause the media in the array
         pass
@@ -150,7 +152,7 @@ class PodcastAction:
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
         # if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
         #  self.__podcast.podcast_downloads[0].file_name):
-        self.stop(True, event_json)  # program.notify_program_action_stopped(self)
+        self.stop(PlayStatus.success, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):

@@ -1,4 +1,5 @@
 import sox
+from enum import Enum
 
 class PlayStatus(Enum):
     failed = 0

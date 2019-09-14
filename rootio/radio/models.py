@@ -358,11 +358,11 @@ class ScheduledBlock(BaseMixin, db.Model):
 class ScheduledProgram(BaseMixin, db.Model):
     """Content scheduled to air on a station at a time.
     Read these in order to determine a station's next to air."""
-    __tablename__ = "radio_scheduledprogram"
+    __tablename__ = "radio_scheduledprogram" 
 
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Integer)
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)

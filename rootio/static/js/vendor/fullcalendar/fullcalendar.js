@@ -4736,8 +4736,20 @@ function AgendaEventRenderer() {
 						.remove();
 				}
 				trigger('eventAfterRender', event, event, eventElement);
-				eventElement[0].style.backgroundColor = event.status == undefined? (event.program_type_id == 2 ? eventElement[0].style.backgroundColor : '#ffcc00') : event.status? '#008000' : '#e60000';
-				eventElement[0].style.borderColor = event.status == undefined? (event.program_type_id == 2 ? eventElement[0].style.borderColor: '#bb9900') : event.status? '#004000' : '#b20000';
+				if (event.status == undefined) {
+					eventElement[0].style.backgroundColor = event.program_type_id == 2 ? eventElement[0].style.backgroundColor : '#ffcc00'
+					eventElement[0].style.borderColor = event.program_type_id == 2 ? eventElement[0].style.borderColor: '#bb9900'
+				} else if (event.status == '0') {
+					eventElement[0].style.backgroundColor = '#e60000' //error - background
+					eventElement[0].style.borderColor = '#b20000' // error - border
+				} else if (event.status == '1') {
+					eventElement[0].style.backgroundColor = '#008000' // played - background
+					eventElement[0].style.borderColor = '#004000' // played - border
+				} else {
+					eventElement[0].style.backgroundColor = '#8b8181' // no media - background
+					eventElement[0].style.borderColor = '#5c5555' // no media - border
+				}
+			
 			}
 		}
 

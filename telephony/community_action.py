@@ -31,23 +31,24 @@ class CommunityAction:
         try:
             self.__load_track()
             if self.__content is None or len(self.__content) < 1:  # If no content, do not even call
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
                 return
             call_result = self.__request_station_call()
+            # CARLOS - is this supposed to be a no_media status?
             if not call_result[0]:  # !!
-                self.stop(False)
+                self.stop(PlayStatus.no_media)
         except Exception as e:
-            self.stop(False)
+            self.stop(PlayStatus.failed)
             self.program.radio_station.logger.error("error {err} in community_action.__start".format(err=e.message))
 
-    def stop(self, graceful=True, call_info=None):
+    def stop(self, status_type=PlayStatus.success, call_info=None):
         self.__media_expected_to_stop = True
         if call_info is not None:
             self.__stop_media(call_info)
         elif self.__call_answer_info is not None:
             self.__stop_media(self.__call_answer_info)
         self.__deregister_listeners()
-        self.program.notify_program_action_stopped(graceful, call_info)
+        self.program.notify_program_action_stopped(status_type, call_info)
 
     def notify_call_answered(self, answer_info):
         self.program.log_program_activity(
@@ -128,7 +129,7 @@ class CommunityAction:
                                                        str(self.__type_code), self.__content[idx].message))
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
-            self.stop(False, call_info)
+            self.stop(PlayStatus.failed, call_info)
 
     def __stop_media(self, event_json):  # stop the media being played by the player
         try:
@@ -160,7 +161,7 @@ class CommunityAction:
             if self.__media_index >= len(self.__content) * times:  # all media has played
                 self.program.radio_station.logger.info(
                     "Played all media {} times in Interlude action for {}, hanging up".format(times, self.program.name))
-                self.stop(True, event_json)
+                self.stop(PlayStatus.success, event_json)
             elif not self.__media_expected_to_stop:
                 self.__media_index = self.__media_index + 1
                 self.__play_media(self.__call_answer_info, self.__media_index % len(self.__content))
