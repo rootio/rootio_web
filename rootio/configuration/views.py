@@ -52,6 +52,8 @@ def index():
                     station.gws_in_telephony.append(gw.number_bottom)
 
             if station.gws_in_telephony:
+                # carlos fix
+                gws_out_telephony = station.gws_out_telephony if len(station.gws_out_telephony) > 0 else [0]
                 station.host_number = min(station.gws_out_telephony)
                 if len(station.gws_in_telephony):
                     if len(station.gws_in_telephony) > 2:
