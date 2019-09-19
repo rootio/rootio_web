@@ -70,7 +70,7 @@
               </h5>
               <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-hosts">
                {% for host in hosts %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-name="{{host}}"
                   data-host-phone="{{host.phonenumber}}"
                   data-json='{"name":"{{host}}","type":"Outcall","host_id":{{host.id}}, "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
@@ -86,7 +86,7 @@
               </h5>
               <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-news">
                {% for new in news %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-new-id="{{new.id}}"
                   data-name="{{new.name}}"
                   data-json='{"name":"{{new.name}}","type":"News","track_id":{{new.id}}, "start_time":"00:00:02","duration": 1200 }'>
@@ -102,7 +102,7 @@
              </h5>
              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-ads">
                {% for ad in ads %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-new-id="{{ad.id}}"
                   data-name="{{ad.name}}"
                   data-json='{"name":"{{ad.name}}","type":"Advertisements","track_id":{{ad.id}}, "start_time":"00:00:02","duration": 1200 }'>{{ad.name}}
@@ -117,7 +117,7 @@
              </h5>
              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-media">
                {% for media in medias %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-new-id="{{media.id}}"
                   data-name="{{media.name}}"
                   data-json='{"name":"{{media.name}}","type":"Media","track_id":{{media.id}}, "start_time":"00:00:02","duration": 1200 }'>
@@ -134,7 +134,7 @@
              </h5>
              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-podcasts">
                {% for podcast in podcasts %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-new-id="{{podcast.id}}"
                   data-name="{{podcast.name}}"
                   data-json='{"name":"{{podcast.name}}","type":"Podcast","track_id":{{podcast.id}}, "start_time":"00:00:02","duration": 1200 }'>
@@ -152,7 +152,7 @@
              </h5>
              <ul style="overflow: auto; max-height: 400px;" data-filtered-by="filter-community">
                {% for community_content in community_contents %}
-                <li id="draggable" class='external-event'
+                <li id="draggable" class='external-event cloud-program'
                   data-name="{{community_content.type}}"
                   data-json='{"name":"{{ community_content.type }}","type":"Community", "category_id":"{{community_content.category_id}}", "start_time":"00:00:02","duration": 1200, "warning_time": 1140 }'>
                   {{community_content.type}}

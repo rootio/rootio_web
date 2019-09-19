@@ -41,12 +41,12 @@
     min-width: 10%;
 }
 
-#music-program {
-    background: #3366CC;
+.cloud-program { /* try to mimick the look of a real event */
+    background:rgb(255, 204, 0);
 }
 
-#cloud-program {
-    background: rgb(201, 204, 51);
+.music-program { /* try to mimick the look of a real event */
+    background:#3366CC;
 }
 
 #addable-programs li.recurring-button {
