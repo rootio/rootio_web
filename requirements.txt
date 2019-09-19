@@ -37,7 +37,7 @@ WTForms-Alchemy==0.16.7
 WTForms-Components==0.9.1
 Werkzeug==0.11.4
 Yapsy==1.10.423
-alembic==0.6.0
+alembic==0.8.8
 anyjson==0.3.3
 argparse==1.2.1
 arrow==0.13.1
