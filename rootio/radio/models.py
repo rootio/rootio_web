@@ -15,6 +15,7 @@ from ..utils import STRING_LEN, GENDER_TYPE, id_generator, object_list_to_named_
 from ..extensions import db
 
 from ..telephony.models import PhoneNumber
+from sqlalchemy import or_
 
 
 class Location(BaseMixin, db.Model):
@@ -174,12 +175,13 @@ class Station(BaseMixin, db.Model):
     def successful_scheduled_programs(self):
         now = datetime.utcnow()
         return ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
-            ScheduledProgram.status == True).filter(ScheduledProgram.deleted == False).all()
+            ScheduledProgram.status == 1).filter(ScheduledProgram.deleted == False).all()
 
     def unsuccessful_scheduled_programs(self):
+        # CARLOS/JUDE - No media is supposed to be unsuccessful?
         now = datetime.utcnow()
         return ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
-            ScheduledProgram.status == False).filter(ScheduledProgram.deleted == False).all()
+            or_(ScheduledProgram.status == 0, ScheduledProgram.status == 2)).filter(ScheduledProgram.deleted == False).all()
 
     def scheduled_programs(self):
         now = datetime.utcnow()
@@ -303,7 +305,7 @@ class Program(BaseMixin, db.Model):
     def episodes_aired(self):
         now = datetime.utcnow()
         return ScheduledProgram.before(now).filter(ScheduledProgram.program_id == self.id).filter(
-            ScheduledProgram.status == True).filter(ScheduledProgram.deleted == False).all()
+            ScheduledProgram.status == 1).filter(ScheduledProgram.deleted == False).all()
 
 t_programnetwork = db.Table(
     u'radio_programnetwork',

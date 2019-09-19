@@ -93,7 +93,7 @@ class MediaAction:
     def __get_episode_number(self, program_id):
         # Fix this below - Make RadioProgram inherit scheduled_program, rename it
         count = self.program.radio_station.db.query(ScheduledProgram)\
-                                             .filter(ScheduledProgram.status == True)\
+                                             .filter(ScheduledProgram.status == 1)\
                                              .filter(ScheduledProgram.program_id == program_id)\
                                              .count()
         return count + 1
