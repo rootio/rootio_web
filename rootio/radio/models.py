@@ -365,6 +365,7 @@ class ScheduledProgram(BaseMixin, db.Model):
     station_id = db.Column(db.ForeignKey('radio_station.id'))
     program_id = db.Column(db.ForeignKey('radio_program.id'))
     status = db.Column(db.Integer)
+    media_available = db.Column(db.Boolean)
     start = db.Column(db.DateTime(timezone=True), nullable=False)
     end = db.Column(db.DateTime(timezone=True), nullable=False)
     deleted = db.Column(db.Boolean)
