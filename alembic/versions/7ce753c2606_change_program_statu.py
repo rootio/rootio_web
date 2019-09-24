@@ -24,7 +24,7 @@ def upgrade():
         'radio_scheduledprogram',
         sa.MetaData(),
         sa.Column('id', sa.String(32)),
-        sa.Column('status', sa.Integer()), # Old column.
+        sa.Column('status', sa.Boolean()), # Old column.
         sa.Column('program_status', sa.Integer())
         )
     # Use Alchemy's connection and transaction to noodle over the data.
@@ -38,7 +38,7 @@ def upgrade():
     for id_, status in results:
         _status = None
         if status is not None:
-            _status = 1 if status == 1 else 0
+            _status = 1 if status else 0
         connection.execute(t.update().where(t.c.id == id_).values(
             program_status=_status
             ))
