@@ -49,6 +49,42 @@
     background:#3366CC;
 }
 
+.legend {
+    position: relative;
+    height: 12px;
+    width: 8px;
+    overflow: auto;
+}
+
+.legend-container {
+    position: absolute;
+}
+
+.legend-table td {
+  padding-left:3px;
+  padding-right:3px;
+}
+
+.no-media-program-legend { /* try to mimick the look of a real event */
+    fill:#8b8181;
+}
+
+.music-program-legend { /* try to mimick the look of a real event */
+    fill:#3366CC;
+}
+
+.cloud-program-legend { /* try to mimick the look of a real event */
+    fill:#ffcc00;
+}
+
+.success-program-legend { /* try to mimick the look of a real event */
+    fill:#008000;
+}
+
+.failure-program-legend { /* try to mimick the look of a real event */
+    fill:#e60000;
+}
+
 #addable-programs li.recurring-button {
     height:30px;
     margin:5px 20px 10px 0;
