@@ -119,7 +119,10 @@ def save_uploaded_file(uploaded_file, directory, file_name=False, process_audio=
     date_part = datetime.now().strftime("%y%m%d%H%M%S")
     if not file_name:
         file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
-        file_name = secure_filename(file_name)
+    else:
+        file_name = "{0}_{1}".format(date_part, file_name)
+
+    file_name = secure_filename(file_name)
 
     if DefaultConfig.S3_UPLOADS:
         try:
