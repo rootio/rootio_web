@@ -168,12 +168,9 @@ def program_definition(program_id):
         .filter(ContentTrack.deleted != True)\
         .all()
     else:
-        medias = ContentTrack.query.join(User, Network.networkusers)\
-        .filter(User.id == current_user.id)\
-        .join(ContentTrack, ContentType)\
-        .filter(ContentType.name == "Media")\
-        .filter(ContentTrack.deleted != True)\
-        .all()
+        networks = current_user.networks
+        network_ids = [network.id for network in networks]
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
         
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
@@ -256,13 +253,9 @@ def program_add():
                                 .filter(ContentTrack.deleted != True)\
                                 .all()
         
-        medias = ContentTrack.query.join(User, Network.networkusers)\
-                                .filter(User.id == current_user.id)\
-                                .join(ContentTrack, ContentType)\
-                                .filter(ContentType.name == "Media")\
-                                .filter(ContentTrack.deleted != True)\
-                                .all()
-
+        networks = current_user.networks
+        network_ids = [network.id for network in networks]
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
 
         podcasts = ContentPodcast.query.join(User, Network.networkusers)\
                                     .filter(User.id == current_user.id)\

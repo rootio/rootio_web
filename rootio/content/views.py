@@ -53,9 +53,10 @@ def list_tracks():
     show_only = request.args.get('show_only', '')
 
     if show_only:
-        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter_by(id = show_only)
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter_by(id = show_only)
     else:
-        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(Network.id.in_(network_ids))
+        tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids))
+    x = tracks.count()
 
     return render_template('content/tracks.html', tracks=tracks, networks=networks, active='tracks', show_only=show_only)
 
