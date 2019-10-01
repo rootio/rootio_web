@@ -135,7 +135,7 @@ class OutcallAction:
         return result
 
     def notify_call_answered(self, answer_info):
-        if self.__host.phone.raw_number not in self.__available_calls:
+        if self.__host.phone.raw_number[-9:] not in self.__available_calls:
             self.__available_calls[answer_info['Caller-Destination-Number'][-9:]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
@@ -153,8 +153,8 @@ class OutcallAction:
 
     def warn_number(self):
         seconds = self.duration - self.__warning_time
-        if self.__host.phone.raw_number in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[
-                self.__host.phone.raw_number]:
+        if self.__host.phone.raw_number[-9:] in self.__available_calls and 'Channel-Call-UUID' in self.__available_calls[
+                self.__host.phone.raw_number[-9:]]:
             result = self.__call_handler.speak(
                 'Your call will end in ' + str(seconds) + 'seconds',
                 self.__available_calls[self.__host.phone.raw_number[-9:]]['Channel-Call-UUID'])
@@ -173,7 +173,7 @@ class OutcallAction:
             elif event_json['Caller-Destination-Number'] in self.__invitee_call_UUIDs:
                 del self.__invitee_call_UUIDs[event_json['Caller-Destination-Number']]
                 self.__call_handler.deregister_for_call_hangup(event_json['Caller-Destination-Number'])
-            elif event_json['Caller-Destination-Number'] == self.__host.phone.raw_number or \
+            elif event_json['Caller-Destination-Number'] == self.__host.phone.raw_number[-9:] or \
                     event_json['Caller-Destination-Number'] == self.program.radio_station.station.sip_username or \
                         (self.program.radio_station.station.primary_transmitter_phone is not None and event_json['Caller-Destination-Number'] == self.program.radio_station.station.primary_transmitter_phone.raw_number) or \
                         (self.program.radio_station.station.secondary_transmitter_phone is not None and event_json['Caller-Destination-Number'] == self.program.radio_station.station.secondary_transmitter_phone.raw_number):  # It is a hangup by
@@ -374,4 +374,4 @@ class OutcallAction:
         for available_call in self.__available_calls:
             self.__call_handler.deregister_for_call_hangup(available_call)
         self.__call_handler.deregister_for_incoming_calls(self)
-        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number))
+        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number[-9:]))
