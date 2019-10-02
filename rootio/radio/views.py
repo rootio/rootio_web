@@ -277,7 +277,7 @@ def program_add():
         flash(_('Validation error'), 'error')
 
     return render_template('radio/program.html', program=program, hosts=hosts, news=news, podcasts=podcasts, ads=ads,
-                           medias=medias, community_contents=community_contents["data"], form=form)
+                           medias=medias, community_contents=community_contents["data"], form=form, media_nr=len(medias))
 
 
 @radio.route('/program/<int:program_id>/delete', methods=['GET'])
