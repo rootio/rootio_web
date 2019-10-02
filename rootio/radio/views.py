@@ -170,7 +170,7 @@ def program_definition(program_id):
     else:
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
         
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
@@ -255,7 +255,7 @@ def program_add():
         
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
 
         podcasts = ContentPodcast.query.join(User, Network.networkusers)\
                                     .filter(User.id == current_user.id)\
@@ -679,16 +679,58 @@ def scheduled_programs_json(station_id):
     scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id) \
         .filter(ScheduledProgram.start >= start) \
         .filter(ScheduledProgram.end <= end) \
-        .filter(ScheduledProgram.deleted == False)
+        .filter(ScheduledProgram.deleted != True)
     resp = []
     for s in scheduled_programs:
+
+        hasFutureMedia = None
+        if s.status is None:
+            # if program hasn't played yet
+            hasFutureMedia = False
+            program_json = json.loads(s.program.structure)
+            for action in program_json:
+                if "type" in action:
+                    if action['type'] == "Advertisements":
+                        if "track_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+                    if action['type'] == "Media":
+                        if "track_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+                    if action['type'] == "Community":
+                        if "category_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+                    if action['type'] == "Podcast":
+                        if "track_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+
+                    if action['type'] == "Music":
+                        if "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+
+                    if action['type'] == "News":
+                        if "track_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+
+                    if action['type'] == "Outcall":
+                        if "host_id" in action and "start_time" in action and "duration" in action:
+                            hasFutureMedia = True
+                            break
+
+
         d = {'title': s.program.name,
              'start': s.start.isoformat(),
              'end': s.end.isoformat(),
              'id': s.id,
              'program_type_id': s.program.program_type_id,
              'series_id': s.series_id,
-             'status': s.status}
+             'status': s.status,
+             'future_media': hasFutureMedia}
         resp.append(d)
     return resp
 
