@@ -170,7 +170,7 @@ def program_definition(program_id):
     else:
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
         
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
@@ -255,7 +255,7 @@ def program_add():
         
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted == False).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
 
         podcasts = ContentPodcast.query.join(User, Network.networkusers)\
                                     .filter(User.id == current_user.id)\
@@ -277,7 +277,7 @@ def program_add():
         flash(_('Validation error'), 'error')
 
     return render_template('radio/program.html', program=program, hosts=hosts, news=news, podcasts=podcasts, ads=ads,
-                           medias=medias, community_contents=community_contents["data"], form=form, media_nr=len(medias))
+                           medias=medias, community_contents=community_contents["data"], form=form)
 
 
 @radio.route('/program/<int:program_id>/delete', methods=['GET'])
@@ -679,7 +679,7 @@ def scheduled_programs_json(station_id):
     scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id) \
         .filter(ScheduledProgram.start >= start) \
         .filter(ScheduledProgram.end <= end) \
-        .filter(ScheduledProgram.deleted == False)
+        .filter(ScheduledProgram.deleted != True)
     resp = []
     for s in scheduled_programs:
 
