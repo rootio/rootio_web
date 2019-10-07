@@ -459,7 +459,7 @@ class Person(BaseMixin, db.Model):
     networks = db.relationship(u'Network', secondary=u'radio_personnetwork', backref=db.backref('people'))
     gender_code = db.Column(db.Integer)
 
-    deleted = db.Column(db.Boolean)
+    deleted = db.Column(db.Boolean, default=False)
 
     @property
     def gender(self):
