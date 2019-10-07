@@ -34,7 +34,7 @@
             <td>{{ u.user_detail.location }}</td>
             <td>{{ u.role }}</td>
             <td>{{ u.last_accessed }}</td>
-            <td>{{ u.status }}</td>
+            <td>  {% if u.status_code == 0 %} <a href="{{ url_for('frontend.resend_activation') }}?email={{u.email}}">Inactive(Re-send email)</a> {% else %} {{ u.status }} {% endif %}</td>
             <td><a href="{{ url_for('user.profile', user_id=u.id) }}">{{ _('Edit') }}</a></td>
         </tr>
         {% endfor %}
