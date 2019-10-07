@@ -685,42 +685,45 @@ def scheduled_programs_json(station_id):
 
         hasFutureMedia = None
         if s.status is None:
-            # if program hasn't played yet
-            hasFutureMedia = False
-            program_json = json.loads(s.program.structure)
-            for action in program_json:
-                if "type" in action:
-                    if action['type'] == "Advertisements":
-                        if "track_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
-                    if action['type'] == "Media":
-                        if "track_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
-                    if action['type'] == "Community":
-                        if "category_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
-                    if action['type'] == "Podcast":
-                        if "track_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
+            try:
+                # if program hasn't played yet
+                hasFutureMedia = False
+                program_json = json.loads(s.program.structure)
+                for action in program_json:
+                    if "type" in action:
+                        if action['type'] == "Advertisements":
+                            if "track_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
+                        if action['type'] == "Media":
+                            if "track_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
+                        if action['type'] == "Community":
+                            if "category_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
+                        if action['type'] == "Podcast":
+                            if "track_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
 
-                    if action['type'] == "Music":
-                        if "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
+                        if action['type'] == "Music":
+                            if "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
 
-                    if action['type'] == "News":
-                        if "track_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
+                        if action['type'] == "News":
+                            if "track_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
 
-                    if action['type'] == "Outcall":
-                        if "host_id" in action and "start_time" in action and "duration" in action:
-                            hasFutureMedia = True
-                            break
+                        if action['type'] == "Outcall":
+                            if "host_id" in action and "start_time" in action and "duration" in action:
+                                hasFutureMedia = True
+                                break
+            except:
+                pass
 
 
         d = {'title': s.program.name,
