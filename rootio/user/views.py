@@ -2,7 +2,7 @@
 
 import os
 
-from flask import current_app, request, flash, Blueprint, render_template, send_from_directory, abort
+from flask import url_for, redirect, current_app, request, flash, Blueprint, render_template, send_from_directory, abort
 from flask import current_app as APP
 from flask.ext.login import login_required, current_user
 
@@ -16,6 +16,9 @@ from ..extensions import db
 from .constants import USER_ROLE
 from rootio.user import ADMIN
 from ..utils import send_activation_email
+from flask.ext.babel import gettext as _
+from sqlalchemy import and_
+from ..utils import send_activation_email
 
 
 user = Blueprint('user', __name__, url_prefix='/user')
@@ -28,6 +31,13 @@ def index():
         abort(403)
     return render_template('user/index.html', user=current_user)
 
+@user.route('/resend_activation', methods=['GET'])
+def resend_activation():
+    email = request.args.get('email')
+    user = User.query.filter(and_(User.email == email)).first()
+    send_activation_email(db, user)
+    flash(_('A new activation link was sent via email'), 'info')
+    return redirect(url_for('user.user_dashboard'))
 
 @user.route('/<int:user_id>/profile')
 def profile1(user_id):
@@ -68,6 +78,9 @@ def add_user():
         db.session.commit()
 
         send_activation_email(db, _user)
+        flash(_('User Created.'), 'success')
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
 
     return render_template('user/user.html', active="profile", form=form)
 

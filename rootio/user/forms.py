@@ -62,6 +62,14 @@ class ProfileCreateForm(ProfileCreateFormBase):
         if field.data != self.password1.data:
             raise ValidationError("The Passwords Don't Match")
 
+    def validate_name(self, field):
+        if User.query.filter_by(name=field.data).first() is not None:
+            raise ValidationError(_('This username is already registered'))
+
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data).first() is not None:
+            raise ValidationError(_('This email is already registered'))
+
 ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
 class ProfileForm(ProfileFormBase):
     multipart = True
@@ -93,6 +101,15 @@ class ProfileForm(ProfileFormBase):
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
+
+    def validate_name(self, field):
+        if User.query.filter_by(name=field.data).first() is not None:
+            raise ValidationError(_('This username is already registered'))
+
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data).first() is not None:
+            raise ValidationError(_('This email is already registered'))
+
 
 
 
