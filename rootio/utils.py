@@ -19,7 +19,8 @@ from sqlalchemy import or_, text
 from werkzeug.utils import secure_filename
 
 from .config import DefaultConfig
-
+import uuid
+from flask import current_app
 ALLOWED_AVATAR_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 # Form validation
@@ -70,6 +71,31 @@ events_action_display_map = {
         'START': '<i class="fa fa-refresh" style="color: green" aria-hidden="true"></i>',
     }
 }
+
+def send_activation_email(db,user):
+    from frontend.utils import RootIOMailMessage
+
+    user.activation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
+    db.session.add(user)
+    db.session.commit()
+
+    # send the email with the link
+    message = RootIOMailMessage()
+    message.set_header('Content-Type', 'text/html')
+    message.set_subject("Your RootIO platform account")
+    message.set_body("Welcome to the RootIO platform!\n")
+    message.append_to_body("Your username is %s " % user.email)
+    message.append_to_body(
+        "Please click this link to activate your account: %s/activate/%s/%d" % (
+            current_app.config['DOMAIN'], user.activation_key, user.id
+        )
+    )
+    message.append_to_body("\n\nThanks,\nThe RootIO team")
+    message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
+    message.add_to_address(user.email)
+    message.send_message()
+    # if login_user(user):
+    #    return redirect(form.next.data or url_for('user.index'))
 
 
 def format_log_line(line):

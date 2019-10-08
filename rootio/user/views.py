@@ -15,6 +15,7 @@ from rootio.radio.models import Network
 from ..extensions import db
 from .constants import USER_ROLE
 from rootio.user import ADMIN
+from ..utils import send_activation_email
 
 
 user = Blueprint('user', __name__, url_prefix='/user')
@@ -65,6 +66,9 @@ def add_user():
         form.populate_obj(_user.user_detail)
         db.session.add(_user)
         db.session.commit()
+
+        send_activation_email(db, _user)
+
     return render_template('user/user.html', active="profile", form=form)
 
 
