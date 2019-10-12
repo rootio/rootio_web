@@ -155,7 +155,7 @@ class ProgramHandler:
                 self.__radio_station.logger.debug(data)
 
                 while incomplete_data:
-                    self.__radio_station.logger.debug('getting chunks...')
+                    #self.__radio_station.logger.debug('getting chunks...')
                     try:
                         partial_data = sck.recv(10240000)
                     except Exception as e:
