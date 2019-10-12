@@ -281,7 +281,7 @@ class OutcallAction:
                     self.__prompt_engine.play_prompt(self.__prompt_engine.CALLING_OUT, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                     # CARLOS - Should the phone number be passed here - prompt engine??
                     #self.__call_handler.speak('You are calling "{0}"'.format(self.__invitee_number),
-                                              self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                                             # self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
                     result = self.__call_handler.call(self, self.__invitee_number, self.__host.phone.raw_number, False, self.duration)
                     self.__call_handler.register_for_call_hangup(self, self.__invitee_number)
                     if result[0]:
