@@ -294,7 +294,7 @@ class CallHandler:
 
     def speak(self, phrase, call_uuid):
         try:
-            (tts_file, metadata) = self._cprc_agent.get_cprc_tts(phrase, self.__radio_station.tts_voice.name, self.__radio_station.tts_samplerate.value, self.__radio_station.tts_audioformat.name)
+            (tts_file, metadata) = self._cprc_agent.get_cprc_tts(phrase, self.__radio_station.station.tts_voice.name, self.__radio_station.station.tts_samplerate.value, self.__radio_station.station.tts_audioformat.name)
             return self.play(call_uuid, tts_file)
         except Exception as e:
             self.__radio_station.logger.info("Error with TTS generation: {0}".format(e))
