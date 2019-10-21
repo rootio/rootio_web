@@ -32,6 +32,7 @@ from ..extensions import db, csrf
 from ..user.models import User, RootioUser
 from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
 from rootio.user import ADMIN
+from sqlalchemy import text
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -674,12 +675,15 @@ def schedule_recurring_program_ajax():
 def scheduled_programs_json(station_id):
     if not ('start' in request.args and 'end' in request.args):
         return {'status': 'error', 'errors': 'scheduledprograms.json requires start and end', 'status_code': 400}
-    start = dateutil.parser.parse(request.args.get('start'))
-    end = dateutil.parser.parse(request.args.get('end'))
-    scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id) \
-        .filter(ScheduledProgram.start >= start) \
-        .filter(ScheduledProgram.end <= end) \
-        .filter(ScheduledProgram.deleted != True)
+    #start = datetime.strptime(request.args.get('start'), '%Y-%m-%d').resolution
+    #end = datetime.strptime(request.args.get('end'), '%Y-%m-%d').resolution
+    start = request.args.get('start')
+    end = request.args.get('end')
+
+    sql = text('select * from schedule_program_view where start >= :start and _end <= :end and station_id = :station_id;')
+    sql = sql.bindparams(start=start, end=end, station_id=station_id)
+    scheduled_programs = db.engine.execute(sql)   
+
     resp = []
     for s in scheduled_programs:
 
@@ -726,14 +730,12 @@ def scheduled_programs_json(station_id):
             except e:
                 print(e)
         '''
-        d = {'title': s.program.name,
+        d = {'title': s.name,
              'start': s.start.isoformat(),
-             'end': s.end.isoformat(),
+             'end': s._end.isoformat(),
              'id': s.id,
-             'program_type_id': s.program.program_type_id,
              'series_id': s.series_id,
-             'status': s.status,
-             'future_media': True}
+             'color': s.color}
         #              'future_media': hasFutureMedia}
         resp.append(d)
     return resp

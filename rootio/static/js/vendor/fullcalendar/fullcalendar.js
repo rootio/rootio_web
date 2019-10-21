@@ -4736,19 +4736,16 @@ function AgendaEventRenderer() {
 						.remove();
 				}
 				trigger('eventAfterRender', event, event, eventElement);
-				if (event.status == undefined) {
-					if (event.future_media != undefined && !event.future_media) {
-						eventElement[0].style.backgroundColor = '#8b8181' // no media - background
-						eventElement[0].style.borderColor = '#5c5555' // no media - border
-					} else {
-						// either we have future media or we couldn't verify future program integrity here
-						eventElement[0].style.backgroundColor = event.program_type_id == 2 ? eventElement[0].style.backgroundColor : '#ffcc00'
-						eventElement[0].style.borderColor = event.program_type_id == 2 ? eventElement[0].style.borderColor: '#bb9900'
-					} 
-				} else if (event.status == '0') {
+				if (event.color == 'blue') {
+					eventElement[0].style.backgroundColor = eventElement[0].style.backgroundColor;
+					eventElement[0].style.borderColor = eventElement[0].style.borderColor;
+				} else if (event.color == 'yellow') {
+					eventElement[0].style.backgroundColor = '#ffcc00'
+					eventElement[0].style.borderColor = '#bb9900'
+				} else if (event.color == 'red') {
 					eventElement[0].style.backgroundColor = '#e60000' //error - background
 					eventElement[0].style.borderColor = '#b20000' // error - border
-				} else if (event.status == '1') {
+				} else if (event.status == 'green') {
 					eventElement[0].style.backgroundColor = '#008000' // played - background
 					eventElement[0].style.borderColor = '#004000' // played - border
 				} else {
