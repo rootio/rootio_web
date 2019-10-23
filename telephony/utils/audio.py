@@ -1,7 +1,6 @@
 import sox
-from enum import Enum
 
-class PlayStatus(Enum):
+class PlayStatus:
     failed = 0
     success = 1
     no_media = 2
