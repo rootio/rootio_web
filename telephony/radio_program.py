@@ -185,7 +185,7 @@ class RadioProgram:
         try:
             conn = psycopg2.connect(DefaultConfig.SQLALCHEMY_DATABASE_URI)
             cur = conn.cursor()
-            cur.execute("update radio_scheduledprogram set status = %d where id = %s", (repr(self.__status), self.scheduled_program.id))
+            cur.execute("update radio_scheduledprogram set status = %s where id = %s", (repr(self.__status), self.scheduled_program.id))
             conn.commit()
 
         except psycopg2.Error as e:
