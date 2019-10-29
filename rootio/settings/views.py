@@ -41,6 +41,7 @@ def profile(user_id):
                        status_code=user.status_code,
                        receive_station_notifications=user.receive_station_notifications,
                        next=request.args.get('next'))
+    form.user_id = user.id
 
     if form.validate_on_submit():
 

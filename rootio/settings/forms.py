@@ -44,6 +44,7 @@ class ProfileForm(Form):
 
 
 class ProfileCreateForm(Form):
+    user_id = None
     multipart = True
     next = HiddenField()
     networks = QuerySelectMultipleField(
@@ -72,6 +73,14 @@ class ProfileCreateForm(Form):
     def validate_password(self, field):
         if field.data != self.password1.data:
             raise ValidationError(_("The Passwords Don't Match"))
+
+    def validate_name(self, field):
+        if User.query.filter(User.name==field.data).filter(User.id != self.user_id).first() is not None:
+            raise ValidationError(_('This username is already registered'))
+
+    def validate_email(self, field):
+        if User.query.filter(User.email==field.data).filter(User.id != self.user_id).first() is not None:
+            raise ValidationError(_('This email is already registered'))
 
 
 class PasswordForm(Form):

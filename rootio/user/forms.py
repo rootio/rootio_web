@@ -19,7 +19,7 @@ from ..utils import PASSWORD_LEN_MIN, PASSWORD_LEN_MAX, AGE_MIN, AGE_MAX
 from ..utils import allowed_file, ALLOWED_AVATAR_EXTENSIONS
 from ..utils import GENDER_TYPE
 from ..extensions import db
-
+from sqlalchemy import and_
 from .constants import USER_ROLE, USER_STATUS
 
 
@@ -72,6 +72,7 @@ class ProfileCreateForm(ProfileCreateFormBase):
 
 ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
 class ProfileForm(ProfileFormBase):
+    user_id = None
     multipart = True
     next = HiddenField()
     name = TextField(u'Name', [Required()])
@@ -103,11 +104,11 @@ class ProfileForm(ProfileFormBase):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
 
     def validate_name(self, field):
-        if User.query.filter_by(name=field.data).first() is not None:
+        if User.query.filter(and_(User.name==field.data, User.id != self.user_id)).first() is not None:
             raise ValidationError(_('This username is already registered'))
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first() is not None:
+        if User.query.filter(and_(User.email==field.data,User.id != self.user_id)).first() is not None:
             raise ValidationError(_('This email is already registered'))
 
 
