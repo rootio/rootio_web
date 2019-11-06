@@ -155,7 +155,7 @@ class ProgramHandler:
                 self.__radio_station.logger.debug(data)
 
                 while incomplete_data:
-                    self.__radio_station.logger.debug('getting chunks...')
+                    #self.__radio_station.logger.debug('getting chunks...')
                     try:
                         partial_data = sck.recv(10240000)
                     except Exception as e:
@@ -187,6 +187,9 @@ class ProgramHandler:
                                 .format(event["id"]))
                     elif event["action"] == "add":
                         scheduled_program = self.__load_program(event["id"])
+                        self.__radio_station.logger.info(
+                                "Will Schedule program with id {0}"
+                                    .format(event["id"]))
                         if not self.__is_program_expired(scheduled_program):
                             self.__add_scheduled_job(scheduled_program)
                             self.__radio_station.logger.info(
