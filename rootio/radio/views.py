@@ -756,6 +756,7 @@ def scheduled_programs_json(station_id):
             'start': s.start.isoformat(),
             'end': s.end.isoformat(),
             'id': s.id,
+            'status': s.status,
             'series_id': s.series_id,
             'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}
