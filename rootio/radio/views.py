@@ -700,7 +700,7 @@ def scheduled_programs_json(station_id):
     for s in scheduled_programs:
 
         
-        hasFutureMedia = None
+        ''' hasFutureMedia = None
         if s.status is None:
             try:
                 # if program hasn't played yet
@@ -741,6 +741,7 @@ def scheduled_programs_json(station_id):
                                 break
             except e:
                 print(e)
+        '''
        
         '''
         d = {'title': s.name,
@@ -758,7 +759,7 @@ def scheduled_programs_json(station_id):
             'id': s.id,
             'status': s.status,
             'series_id': s.series_id,
-            'future_media': hasFutureMedia,
+            #'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}
         resp.append(d)
     return resp

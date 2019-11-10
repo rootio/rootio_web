@@ -4745,7 +4745,7 @@ function AgendaEventRenderer() {
 						eventElement[0].style.backgroundColor = event.program_type_id == 2 ? eventElement[0].style.backgroundColor : '#ffcc00'
 						eventElement[0].style.borderColor = event.program_type_id == 2 ? eventElement[0].style.borderColor: '#bb9900'
 					} 
-				} else if (event.status == '0') {
+				} else if (event.status == '0' || event.status == '2') {
 					eventElement[0].style.backgroundColor = '#e60000' //error - background
 					eventElement[0].style.borderColor = '#b20000' // error - border
 				} else if (event.status == '1') {
