@@ -181,7 +181,8 @@ def program_definition(program_id):
     action_names = []
     program_json = json.loads(program.structure)
     for action in program_json:
-        action_names.append(action['name'])
+        if 'name' in action:
+            action_names.append(action['name'])
 
     program_actions = ",".join(action_names)
 
@@ -359,7 +360,8 @@ def music_program_definition(music_program_id):
     try:
         program_json = json.loads(music_program.structure)
         for action in program_json:
-            action_names.append(action['name'])
+            if 'name' in action:
+                action_names.append(action['name'])
     except ValueError:
         pass
     program_actions = ",".join(action_names)
