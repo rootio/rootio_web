@@ -7,7 +7,7 @@ from apscheduler.scheduler import Scheduler
 from rootio.radio.models import Person
 from telephony.prompt_engine import PromptEngine
 from .utils.audio import PlayStatus
-
+import time
 
 class PhoneStatus:
     REJECTING = 1
@@ -230,6 +230,7 @@ class OutcallAction:
                 if self.__phone_status != PhoneStatus.WAKE:
                     self.__phone_status = PhoneStatus.WAKE
                     self.__prompt_engine.play_prompt(self.__prompt_engine.ENTERING_WAKE_MODE, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
+                    time.sleep(5)
                     self.hangup_call()
                 else:
                     self.__phone_status = PhoneStatus.REJECTING
@@ -323,6 +324,8 @@ class OutcallAction:
             self.__interested_participants.add(call_info['Caller-ANI'])
             self.__prompt_engine.play_prompt(self.__prompt_engine.INCOMING_CALL_QUEUED, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
 
+            self.__prompt_engine.play_prompt(self.__prompt_engine.CALL_BACK_NOTIFICATION, self.__call_handler, call_info['Channel-Call-UUID'])
+            time.sleep(5)
             self.__call_handler.hangup(call_info['Channel-Call-UUID'])
             self.program.log_program_activity(
                 "Call from community caller {0} was queued".format(call_info['Caller-Destination-Number']))
