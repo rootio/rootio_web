@@ -680,23 +680,22 @@ def scheduled_programs_json(station_id):
     #start = datetime.strptime(request.args.get('start'), '%Y-%m-%d').resolution
     #end = datetime.strptime(request.args.get('end'), '%Y-%m-%d').resolution
 
-    
+    '''
     start = request.args.get('start')
     end = request.args.get('end')
-
+    
     sql = text('select * from schedule_program_view where start >= :start and _end <= :end and station_id = :station_id;')
     sql = sql.bindparams(start=start, end=end, station_id=station_id)
     scheduled_programs = db.engine.execute(sql)   
-    
-
     '''
+
+    
     start = dateutil.parser.parse(request.args.get('start'))
     end = dateutil.parser.parse(request.args.get('end'))
     scheduled_programs = ScheduledProgram.query.filter_by(station_id=station_id) \
         .filter(ScheduledProgram.start >= start) \
         .filter(ScheduledProgram.end <= end) \
         .filter(ScheduledProgram.deleted != True)
-    '''
 
     resp = []
     for s in scheduled_programs:
@@ -745,6 +744,7 @@ def scheduled_programs_json(station_id):
                 print(e)
         '''
        
+       '''
         d = {'title': s.name,
             'start': s.start.isoformat(),
             'end': s._end.isoformat(),
@@ -752,9 +752,9 @@ def scheduled_programs_json(station_id):
             'series_id': s.series_id,
             'color': s.color}
         #              'future_media': hasFutureMedia}
-        
-
         '''
+
+        
         d = {'title': s.program.name,
             'start': s.start.isoformat(),
             'end': s.end.isoformat(),
@@ -763,7 +763,7 @@ def scheduled_programs_json(station_id):
             'series_id': s.series_id,
             #'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}
-        '''
+    
         resp.append(d)
     return resp
 

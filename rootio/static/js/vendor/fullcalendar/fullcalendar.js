@@ -4737,7 +4737,7 @@ function AgendaEventRenderer() {
 				}
 				trigger('eventAfterRender', event, event, eventElement);
 
-				
+				/*
 				if (event.color == 'blue') {
 					eventElement[0].style.backgroundColor = eventElement[0].style.backgroundColor;
 					eventElement[0].style.borderColor = eventElement[0].style.borderColor;
@@ -4754,9 +4754,9 @@ function AgendaEventRenderer() {
 					eventElement[0].style.backgroundColor = '#8b8181' // no media - background
 					eventElement[0].style.borderColor = '#5c5555' // no media - border
 				}
+				*/
 
-
-				/*
+				
 				if (event.status == undefined) {
 					if (event.future_media != undefined && !event.future_media) {
 						eventElement[0].style.backgroundColor = '#8b8181' // no media - background
@@ -4775,7 +4775,7 @@ function AgendaEventRenderer() {
 				} else {
 					eventElement[0].style.backgroundColor = '#8b8181' // no media - background
 					eventElement[0].style.borderColor = '#5c5555' // no media - border
-				}*/
+				}
 			
 			}
 		}
