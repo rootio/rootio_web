@@ -207,7 +207,7 @@ def content_upload_add():
 
             uploaded_file_name = str(cleaned_data['contenttrack_id'])
             upload_directory = str(current_user.id)
-            uri = save_uploaded_file(uploaded_file, upload_directory, file_name=uploaded_file_name, process_audio=True)
+            uri = save_uploaded_file(uploaded_file, upload_directory, file_name=uploaded_file_name, process_audio=False)
 
             cleaned_data.pop('submit', None)  # remove submit field from list
             cleaned_data.pop('file', None)
