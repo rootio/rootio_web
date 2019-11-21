@@ -141,7 +141,7 @@ def upload_to_s3(file, key,  acl="public-read"):
     return uri
 
 
-def save_uploaded_file(uploaded_file, directory, file_name=False, process_audio=True):
+def save_uploaded_file(uploaded_file, directory, file_name=False, process_audio=False):
     date_part = datetime.now().strftime("%y%m%d%H%M%S")
     if not file_name:
         file_name = "{0}_{1}".format(date_part, uploaded_file.filename)
