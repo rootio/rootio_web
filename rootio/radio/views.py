@@ -744,7 +744,7 @@ def scheduled_programs_json(station_id):
                 print(e)
         '''
        
-       '''
+        '''
         d = {'title': s.name,
             'start': s.start.isoformat(),
             'end': s._end.isoformat(),
