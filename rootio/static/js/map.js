@@ -30,7 +30,7 @@ $.ajax({
            }
            catch(err)
                {
-               alert(err)
+               console.log(err)
            }
         
         var stationGroup = L.featureGroup(stations);
