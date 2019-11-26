@@ -179,10 +179,14 @@ def program_definition(program_id):
 
     # render the program structure
     action_names = []
-    program_json = json.loads(program.structure)
-    for action in program_json:
-        if 'name' in action:
-            action_names.append(action['name'])
+    try:
+        program_json = json.loads(program.structure)
+        for action in program_json:
+            if 'name' in action:
+                action_names.append(action['name'])
+    except JSONDecodeError as e:
+        print("error deserializing action names for program")
+        print(e)
 
     program_actions = ",".join(action_names)
 
