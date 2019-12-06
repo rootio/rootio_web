@@ -80,7 +80,7 @@ $(function() {
     auto: true,
     queue: true,
     extFilter: ["mp3", "wav"],
-    maxFileSize: 20 * 1000 * 1000,
+    maxFileSize: 200 * 1000 * 1000,
     extraData: function() {
       return {
         "track_id": $('#track').val()
@@ -130,7 +130,7 @@ $(function() {
     },
     onFileSizeError: function(file) {
       document.getElementById("uploadError").style.display = "block";
-      document.getElementById("uploadError").innerHTML = "_('File size must be less than 20 MB.')"
+      document.getElementById("uploadError").innerHTML = "_('File size must be less than 200 MB.')"
     },
     onFileExtError: function(file) {
       document.getElementById("uploadError").style.display = "block";

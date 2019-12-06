@@ -81,10 +81,10 @@
         $('input[type="file"]').each(function() {
             $(this).rules('add', {
                 accept: "audio/wav, audio/mp3",
-                maxsize: 20 * 1000 * 1000,
+                maxsize: 50 * 1000 * 1000,
                 required: true,
                 messages: {
-                    maxsize: "{{ _('File size must be less than 20 MB.') }}",
+                    maxsize: "{{ _('File size must be less than 50 MB.') }}",
                     accept: "{{ _('Please upload .mp3 or .wav.') }}",
                     required: "{{ _('Please upload a file.') }}"
                 }
