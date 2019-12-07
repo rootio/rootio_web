@@ -188,20 +188,20 @@ class Station(BaseMixin, db.Model):
         return ScheduledProgram.after(now).filter(ScheduledProgram.deleted == False).all()
 
     def current_program(self):
-        now = datetime.utcnow()
+        now = datetime.now(pytz.timezone(self.timezone))
         programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
         # TODO, how to resolve overlaps?
         return programs.first()
 
     def next_program(self):
-        now = datetime.utcnow()
+        now = datetime.now(pytz.timezone(self.timezone))
         upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id).order_by(
             ScheduledProgram.start.asc())
         # TODO, how to resolve overlaps?
         return upcoming_programs.first()
 
     def previous_program(self):
-        now = datetime.utcnow()
+        now = datetime.now(pytz.timezone(self.timezone))
         upcoming_programs = ScheduledProgram.before(now).filter_by(station_id=self.id).order_by(
             ScheduledProgram.start.desc())
         # TODO, how to resolve overlaps?
