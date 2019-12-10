@@ -591,7 +591,7 @@ class CallHandler:
                             str(event_json['Caller-Destination-Number'])[-9:]].notify_media_play_stop,
                                          args=(event_json,)).start()
                         # del self.__media_playback_stop_recipients[event_json['Caller-Destination-Number']]
-                    if event_json['Caller-Destination-Number'][-12:] in self.__media_playback_stop_recipients:
+                    elif event_json['Caller-Destination-Number'][-12:] in self.__media_playback_stop_recipients:
                         # self.__radio_station.logger.info("got media stop bug as {0}".format(event_json_string))
                         self.__radio_station.logger.info(
                             "Notifying media playback stop recipient for {0} in {1}".format(
