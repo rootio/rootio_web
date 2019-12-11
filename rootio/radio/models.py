@@ -373,6 +373,12 @@ class ScheduledProgram(BaseMixin, db.Model):
     # For recurring events - add a unique string to identify all items in the series
     series_id = db.Column(db.String(STRING_LEN), nullable=True)
 
+    '''
+    @property
+    def station(self):
+        return Station.query.filter(Station.id == self.station_id).first()
+    '''
+    
     @property
     def start_local(self):
         timezone = pytz.timezone(self.station.timezone)

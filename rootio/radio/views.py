@@ -33,6 +33,7 @@ from ..user.models import User, RootioUser
 from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
 from rootio.user import ADMIN
 from sqlalchemy import text
+import pytz
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
@@ -758,13 +759,14 @@ def scheduled_programs_json(station_id):
         #              'future_media': hasFutureMedia}
         '''
 
-        
+        movable = datetime.now(pytz.timezone(s.station.timezone)) < s.start
         d = {'title': s.program.name,
             'start': s.start.isoformat(),
             'end': s.end.isoformat(),
             'id': s.id,
             'status': s.status,
             'series_id': s.series_id,
+            'movable': movable,
             #'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}
     
