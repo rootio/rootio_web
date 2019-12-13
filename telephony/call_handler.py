@@ -188,6 +188,8 @@ class CallHandler:
                                              .format(from_number, str(self.__media_playback_start_recipients)))
 
     def call_exists(self, to_number):
+        self.__radio_station.logger.info("Checking for call to {0} in available calls {1}"
+                                         .format(to_number, str(self.__available_calls)))
         return self.__available_calls is not None and to_number in self.__available_calls.keys()
 
     def call(self, program_action, to_number, argument, use_sip=False,
