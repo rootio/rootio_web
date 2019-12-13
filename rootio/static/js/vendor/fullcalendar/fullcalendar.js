@@ -4734,7 +4734,10 @@ function AgendaEventRenderer() {
 
 					eventElement.find('div.fc-event-title')
 						.remove();
+
 				}
+				event.editable = event.movable;
+				event.startEditable = event.movable;
 				trigger('eventAfterRender', event, event, eventElement);
 
 				/*

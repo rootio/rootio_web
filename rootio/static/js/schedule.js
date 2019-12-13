@@ -208,6 +208,9 @@ $(document).ready(function() {
     eventStartEditable: true,
 
     eventClick: function(event, jsEvent, view) {
+      if (!event.movable) {
+        return false;
+      }
       if (event.isBackground) {
         return false;
       }
