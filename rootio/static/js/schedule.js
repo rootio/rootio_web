@@ -200,6 +200,7 @@ $(document).ready(function() {
 
       save_event(newEvent);
     },
+    
     events: [], //add these in schedule.html
     annotations: [], //where we have access to the template
 
@@ -208,9 +209,6 @@ $(document).ready(function() {
     eventStartEditable: true,
 
     eventClick: function(event, jsEvent, view) {
-      if (!event.movable) {
-        return false;
-      }
       if (event.isBackground) {
         return false;
       }
@@ -235,18 +233,25 @@ $(document).ready(function() {
           popover_content += "<li>Start: " + event.start.format("L LT") + "</li>";
           popover_content += "<li>End: " + event.end.format("L LT") + "</li>";
           popover_content += "</ul>";
-          popover_content += "<p>Modify start time (HH:mm): ";
-          popover_content += "<input id='newStart_" + event.id + "' type='text' value='" + event.start.format('LT') + "' placeholder='HH:MM'></p>";
-          popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
-          popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
-          if (event.series_id) {
-            popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+
+          if (event.movable) {
+            popover_content += "<p>Modify start time (HH:mm): ";
+            popover_content += "<input id='newStart_" + event.id + "' type='text' value='" + event.start.format('LT') + "' placeholder='HH:MM'></p>";
+            popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
+            popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
+            if (event.series_id) {
+              popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+            }
+           
           }
+
+
           if(program['program_type_id'] == 2) {
             edit_url = '/radio/music_program/' + program['id'];
           } else {
             edit_url = '/radio/program/' + program['id'];
           }
+          
           $(this).popover({
               trigger: 'manual',
               placement: popoverPlacement(event.start, view),
@@ -277,8 +282,17 @@ $(document).ready(function() {
     eventMouseout: function(event, jsEvent, view) {
       $(this).tooltip('hide');
     },
-    eventDrop: function(event) {
+    /*eventDrop: function(event) {
       save_event(event);
+    }, */
+
+    eventDrop: function(info, revert) {
+      
+       if(info.start < Date.now()) {
+        revert();
+       } else {
+        save_event(info);
+       }
     }
 
   });
