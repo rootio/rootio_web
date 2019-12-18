@@ -158,6 +158,29 @@ $(document).ready(function() {
     return defaultDate;
   };
 
+  // taken from: https://stackoverflow.com/questions/15141762/how-to-initialize-a-javascript-date-to-a-particular-time-zone
+  function changeTimezone(date, ianatz) {
+
+    // suppose the date is 12:00 UTC
+    var invdate = new Date(date.toLocaleString('en-US', {
+      timeZone: ianatz
+    }));
+  
+    // then invdate will be 07:00 in Toronto
+    // and the diff is 5 hours
+
+
+    // ORIGINAL LINE
+   // var diff = date.getTime() + invdate.getTime();
+
+    // CARLOS - Changed to:  (timezone was being done taking hours ... just did the example for Romania Time)
+    var diff = date.getTime() - invdate.getTime();
+  
+    // so 12:00 in Toronto is 17:00 UTC
+    return new Date(date.getTime() - diff);
+  
+  }
+
   //set up calendar
   $('#calendar').fullCalendar({
     defaultView: getDefaultView(),
@@ -178,6 +201,11 @@ $(document).ready(function() {
 
     droppable: true,
     drop: function(date, allDay) {
+      const now_timezone = changeTimezone(new Date(), $('#calendar').data('timezone'));
+      if (date < now_timezone) {
+        return;
+      }
+     
       var timezone = $('#calendar').data('timezone');
 
       // retrieve the dropped element's stored Event Object
@@ -287,8 +315,7 @@ $(document).ready(function() {
     }, */
 
     eventDrop: function(info, revert) {
-      
-       if(info.start < Date.now()) {
+       if(new Date(info.start) < new Date(info.now_timezone_utc_shifted)) {
         revert();
        } else {
         save_event(info);

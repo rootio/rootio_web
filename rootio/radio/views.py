@@ -758,9 +758,12 @@ def scheduled_programs_json(station_id):
             'color': s.color}
         #              'future_media': hasFutureMedia}
         '''
-
         movable = datetime.now(pytz.timezone(s.station.timezone)) < s.start
+        utc_dt = datetime.now(pytz.utc)
+        # apply time shift and put it in UTC time
+        utc_shifted = utc_dt.astimezone(pytz.timezone(s.station.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         d = {'title': s.program.name,
+            'now_timezone_utc_shifted': utc_shifted,
             'start': s.start.isoformat(),
             'end': s.end.isoformat(),
             'id': s.id,
