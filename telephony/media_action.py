@@ -3,6 +3,7 @@ from rootio.content.models import ContentUploads, ContentTrack
 from rootio.radio.models import ScheduledProgram
 from .utils.audio import PlayStatus
 
+
 class MediaAction:
 
     def __init__(self, track_id, start_time, duration, program):
@@ -19,22 +20,44 @@ class MediaAction:
         self.__continuous_play = self.program.radio_station.db.query(ContentTrack).filter(ContentTrack.id == self.__track_id).first().continuous_play
         self.__continuous_play_limit = 1
         self.__play_counter = 1
-        self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
+        self.__episode_number = 0
+        self.__all_media = []
+        self.__prepare_media()
+
+    def __prepare_media(self):
+        if self.__continuous_play:
+            self.__all_media = self.__media__load_all_media(self)
+        else:
+            self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
 
     def start(self):
         self.program.set_running_action(self)
         try:
-            episode_number = self.__episode_number
-            self.__media = self.__load_media(episode_number)
-            if self.__media is not None:
-                self.program.log_program_activity("Loaded playable media")
-                call_result = self.__request_station_call()
+            if not self.__continuous_play:
+                episode_number = self.__episode_number
+                self.__media = self.__load_media(episode_number)
+                if self.__media is not None:
+                    self.program.log_program_activity("Loaded playable media")
+                    call_result = self.__request_station_call()
                 # CARLOS - is this supposed to be a no_media status?
-                if not call_result[0]:  # !!
+                    if not call_result[0]:  # !!
+                        self.stop(PlayStatus.failed)
+                else:
+                    self.program.log_program_activity("No playable media found, stopping this action...")
                     self.stop(PlayStatus.no_media)
             else:
-                self.program.log_program_activity("No playable media found, stopping this action...")
-                self.stop(PlayStatus.no_media)
+                #episode_number = self.__episode_number
+
+                if self.__all_media is not None and len(self.__all_media) > 0: #self.__media is not None:
+                    self.__media = self.__all_media.pop()
+                    self.program.log_program_activity("Loaded playable media")
+                    call_result = self.__request_station_call()
+                    # CARLOS - is this supposed to be a no_media status?
+                    if not call_result[0]:  # !!
+                        self.stop(PlayStatus.failed)
+                else:
+                    self.program.log_program_activity("No playable media found, stopping this action...")
+                    self.stop(PlayStatus.success)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=str(e)))
             self.stop(PlayStatus.failed)
@@ -59,6 +82,10 @@ class MediaAction:
         self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-9:])
         self.__play_media(self.__call_answer_info)
 
+    def __load_all_media(self):
+        return self.program.radio_station.db.query(ContentUploads) \
+            .filter(ContentUploads.track_id == self.__track_id).order_by(ContentUploads.order.desc()).all()
+
     def __load_media(self, episode_number):  # load the media to be played
         episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
         self.__continuous_play_limit = episode_count
@@ -70,7 +97,7 @@ class MediaAction:
             index = episode_number
 
         if self.__continuous_play:
-            index = self.__play_counter
+            index = episode_number  # self.__play_counter
 
         media = self.program.radio_station.db.query(ContentUploads)\
                                              .filter(ContentUploads.track_id == self.__track_id)\
