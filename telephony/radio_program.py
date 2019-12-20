@@ -8,6 +8,7 @@ from apscheduler.scheduler import Scheduler
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
+import logging
 
 from advertisement_action import AdvertisementAction
 from community_action import CommunityAction
@@ -23,6 +24,7 @@ from .utils.audio import PlayStatus
 class RadioProgram:
 
     def __init__(self, program, radio_station, program_handler):
+        logging.basicConfig()
         self.__rootio_mail_message = RootIOMailMessage()
         self.__program_actions = []
         self.__status = PlayStatus.failed
