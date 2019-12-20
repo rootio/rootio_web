@@ -84,7 +84,7 @@ class MediaAction:
 
     def __load_all_media(self):
         return self.program.radio_station.db.query(ContentUploads) \
-            .filter(ContentUploads.track_id == self.__track_id).order_by(ContentUploads.order.desc()).all()
+            .filter(ContentUploads.track_id == self.__track_id).filter(ContentUploads.deleted !=  True).order_by(ContentUploads.order.desc()).all()
 
     def __load_media(self, episode_number):  # load the media to be played
         episode_count = self.program.radio_station.db.query(ContentUploads).filter(ContentUploads.track_id == self.__track_id).count()
