@@ -210,7 +210,7 @@ class MediaAction:
                     self.program.log_program_activity(
                         'continuous play is on, will move on to the rest of the episodes ({})'.format(
                             self.__continuous_play_limit))
-                    self.__start()
+                    self.start()
                 # else:
                 #     if self.__play_counter < self.__continuous_play_limit:
                 #         self.__play_counter = self.__play_counter + 1
