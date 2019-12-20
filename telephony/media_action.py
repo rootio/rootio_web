@@ -26,7 +26,7 @@ class MediaAction:
 
     def __prepare_media(self):
         if self.__continuous_play:
-            self.__all_media = self.__load_all_media(self)
+            self.__all_media = self.__load_all_media()
         else:
             self.__episode_number = self.__get_episode_number(self.program.scheduled_program.program.id)
 
