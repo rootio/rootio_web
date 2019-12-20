@@ -210,15 +210,17 @@ class MediaAction:
                     self.program.log_program_activity(
                         'continuous play is on, will move on to the rest of the episodes ({})'.format(
                             self.__continuous_play_limit))
-                    if self.__play_counter < self.__continuous_play_limit:
-                        self.__play_counter = self.__play_counter + 1
-                        self.__episode_number = self.__play_counter
-                        self.program.log_program_activity('will now play episode #{}'.format(self.__play_counter))
-                        self.start()
-                    else:
-                        self.program.log_program_activity("No more files to play. Should proceed to hangup")
-                        self.stop(PlayStatus.success, event_json)
-                        self.__is_valid = False
+                    self.__start()
+                # else:
+                #     if self.__play_counter < self.__continuous_play_limit:
+                #         self.__play_counter = self.__play_counter + 1
+                #         self.__episode_number = self.__play_counter
+                #         self.program.log_program_activity('will now play episode #{}'.format(self.__play_counter))
+                #         self.start()
+                #     else:
+                #         self.program.log_program_activity("No more files to play. Should proceed to hangup")
+                #         self.stop(PlayStatus.success, event_json)
+                #         self.__is_valid = False
                 else:
                     self.program.log_program_activity("Continuous play is not enabled. Should proceed to next track/hangup")
                     self.stop(PlayStatus.success, event_json)
