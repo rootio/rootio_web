@@ -158,6 +158,29 @@ $(document).ready(function() {
     return defaultDate;
   };
 
+  // taken from: https://stackoverflow.com/questions/15141762/how-to-initialize-a-javascript-date-to-a-particular-time-zone
+  function changeTimezone(date, ianatz) {
+
+    // suppose the date is 12:00 UTC
+    var invdate = new Date(date.toLocaleString('en-US', {
+      timeZone: ianatz
+    }));
+  
+    // then invdate will be 07:00 in Toronto
+    // and the diff is 5 hours
+
+
+    // ORIGINAL LINE
+   // var diff = date.getTime() + invdate.getTime();
+
+    // CARLOS - Changed to:  (timezone was being done taking hours ... just did the example for Romania Time)
+    var diff = date.getTime() - invdate.getTime();
+  
+    // so 12:00 in Toronto is 17:00 UTC
+    return new Date(date.getTime() - diff);
+  
+  }
+
   //set up calendar
   $('#calendar').fullCalendar({
     defaultView: getDefaultView(),
@@ -178,6 +201,11 @@ $(document).ready(function() {
 
     droppable: true,
     drop: function(date, allDay) {
+      const now_timezone = changeTimezone(new Date(), $('#calendar').data('timezone'));
+      if (date < now_timezone) {
+        return;
+      }
+     
       var timezone = $('#calendar').data('timezone');
 
       // retrieve the dropped element's stored Event Object
@@ -200,6 +228,7 @@ $(document).ready(function() {
 
       save_event(newEvent);
     },
+    
     events: [], //add these in schedule.html
     annotations: [], //where we have access to the template
 
@@ -208,9 +237,6 @@ $(document).ready(function() {
     eventStartEditable: true,
 
     eventClick: function(event, jsEvent, view) {
-      if (!event.movable) {
-        return false;
-      }
       if (event.isBackground) {
         return false;
       }
@@ -235,18 +261,25 @@ $(document).ready(function() {
           popover_content += "<li>Start: " + event.start.format("L LT") + "</li>";
           popover_content += "<li>End: " + event.end.format("L LT") + "</li>";
           popover_content += "</ul>";
-          popover_content += "<p>Modify start time (HH:mm): ";
-          popover_content += "<input id='newStart_" + event.id + "' type='text' value='" + event.start.format('LT') + "' placeholder='HH:MM'></p>";
-          popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
-          popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
-          if (event.series_id) {
-            popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+
+          if (event.movable) {
+            popover_content += "<p>Modify start time (HH:mm): ";
+            popover_content += "<input id='newStart_" + event.id + "' type='text' value='" + event.start.format('LT') + "' placeholder='HH:MM'></p>";
+            popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
+            popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
+            if (event.series_id) {
+              popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+            }
+           
           }
+
+
           if(program['program_type_id'] == 2) {
             edit_url = '/radio/music_program/' + program['id'];
           } else {
             edit_url = '/radio/program/' + program['id'];
           }
+          
           $(this).popover({
               trigger: 'manual',
               placement: popoverPlacement(event.start, view),
@@ -277,8 +310,16 @@ $(document).ready(function() {
     eventMouseout: function(event, jsEvent, view) {
       $(this).tooltip('hide');
     },
-    eventDrop: function(event) {
+    /*eventDrop: function(event) {
       save_event(event);
+    }, */
+
+    eventDrop: function(info, revert) {
+       if(new Date(info.start) < new Date(info.now_timezone_utc_shifted)) {
+        revert();
+       } else {
+        save_event(info);
+       }
     }
 
   });
