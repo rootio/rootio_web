@@ -568,7 +568,15 @@ def schedule_program_add_ajax():
 @radio.route('/scheduleprogram/delete_series/<_id>/', methods=['POST'])
 @login_required
 def delete_series(_id):
-    scheduled_programs = ScheduledProgram.query.filter(ScheduledProgram.series_id == _id).all()
+    station_id = request.args.get('station_id')
+
+    station = Station.query.filter_by(id=station_id).first_or_404()
+
+    utc_dt = datetime.now(pytz.utc)
+    # apply time shift and put it in UTC time
+    utc_shifted = utc_dt.astimezone(pytz.timezone(station.timezone)).strftime('%Y-%m-%d %H:%M:%S')
+
+    scheduled_programs = ScheduledProgram.query.filter(ScheduledProgram.series_id == _id).filter(ScheduledProgram.start > utc_shifted).all()
 
     for s in scheduled_programs:
         s.deleted = True
@@ -769,6 +777,7 @@ def scheduled_programs_json(station_id):
             'id': s.id,
             'status': s.status,
             'series_id': s.series_id,
+            'station_id': s.station.id,
             'movable': movable,
             #'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}

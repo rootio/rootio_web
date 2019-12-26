@@ -1,3 +1,26 @@
+ // taken from: https://stackoverflow.com/questions/15141762/how-to-initialize-a-javascript-date-to-a-particular-time-zone
+ function changeTimezone(date, ianatz) {
+
+  // suppose the date is 12:00 UTC
+  var invdate = new Date(date.toLocaleString('en-US', {
+    timeZone: ianatz
+  }));
+
+  // then invdate will be 07:00 in Toronto
+  // and the diff is 5 hours
+
+
+  // ORIGINAL LINE
+ // var diff = date.getTime() + invdate.getTime();
+
+  // CARLOS - Changed to:  (timezone was being done taking hours ... just did the example for Romania Time)
+  var diff = date.getTime() - invdate.getTime();
+
+  // so 12:00 in Toronto is 17:00 UTC
+  return new Date(date.getTime() - diff);
+
+}
+
 $(document).ready(function() {
   //lock to prevent rapid save button click resulting in multiple processing
   var is_saving = false;
@@ -158,28 +181,7 @@ $(document).ready(function() {
     return defaultDate;
   };
 
-  // taken from: https://stackoverflow.com/questions/15141762/how-to-initialize-a-javascript-date-to-a-particular-time-zone
-  function changeTimezone(date, ianatz) {
-
-    // suppose the date is 12:00 UTC
-    var invdate = new Date(date.toLocaleString('en-US', {
-      timeZone: ianatz
-    }));
-  
-    // then invdate will be 07:00 in Toronto
-    // and the diff is 5 hours
-
-
-    // ORIGINAL LINE
-   // var diff = date.getTime() + invdate.getTime();
-
-    // CARLOS - Changed to:  (timezone was being done taking hours ... just did the example for Romania Time)
-    var diff = date.getTime() - invdate.getTime();
-  
-    // so 12:00 in Toronto is 17:00 UTC
-    return new Date(date.getTime() - diff);
-  
-  }
+ 
 
   //set up calendar
   $('#calendar').fullCalendar({
@@ -268,7 +270,7 @@ $(document).ready(function() {
             popover_content += "<button id='update_event' onclick='setEventStart(" + event.id + ")'>Update</button>";
             popover_content += "<button id='delete_event' onclick='delete_event(" + event.id + ")'>Delete</button>";
             if (event.series_id) {
-              popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ")'>Delete all</button>";
+              popover_content += "<button id='delete_series' onclick='delete_series(" + event.series_id + ", " + event.station_id +")'>Delete all</button>";
             }
            
           }
@@ -378,7 +380,7 @@ function delete_event(id) {
   }
 }
 
-function delete_series(id) {
+function delete_series(id, station_id) {
   if (confirm("Are you sure you want to delete all the events in this series?")) {
     toastrOptions = {
       timeOut: toastr.options.timeOut,
@@ -387,14 +389,15 @@ function delete_series(id) {
     toastr.options.timeOut = 0;
     toastr.options.extendedTimeOut = 0;
     toastr["info"]("Deleting, please wait...");
-    ask_to_delete_series(id).then(function(){
+    ask_to_delete_series(id, station_id).then(function(){
       toastr.clear();
       toastr.options.timeOut = toastrOptions.timeOut;
       toastr.options.extendedTimeOut = toastrOptions.extendedTimeOut;
       toastr["success"]("Series deleted!");
     });
     $('#calendar').fullCalendar('removeEvents', function(event) {
-      return event.series_id == id;
+      const now_timezone = changeTimezone(new Date(), $('#calendar').data('timezone'));
+      return event.series_id == id && event.start > now_timezone;
     });
   }
 }
@@ -415,6 +418,6 @@ function ask_to_delete(id) {
   $.post('/radio/scheduleprogram/delete/' + id + '/')
 }
 
-function ask_to_delete_series(id) {
-  return  $.post('/radio/scheduleprogram/delete_series/' + id + '/')
+function ask_to_delete_series(id, station_id) {
+  return  $.post('/radio/scheduleprogram/delete_series/' + id + '/?station_id=' + station_id)
 }
