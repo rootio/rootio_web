@@ -261,7 +261,9 @@ def help():
 
 @frontend.route('/lang/', methods=['POST'])
 def lang():
+    from flask_babel import refresh
     session['language'] = request.form['language']
+    refresh()
     new_language = current_app.config['ACCEPT_LANGUAGES'][request.form['language']]
     flash(_('Language changed to ') + new_language, 'success')
     return redirect(url_for('frontend.index'))

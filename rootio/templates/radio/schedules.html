@@ -18,7 +18,7 @@
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.successful_scheduled_programs()|length }} successful, {{ station.unsuccessful_scheduled_programs()|length }} failed, {{ station.scheduled_programs()|length }} Scheduled</td>
+            <td>{{ station.successful_scheduled_programs() }} successful, {{ station.unsuccessful_scheduled_programs() }} failed, {{ station.scheduled_programs() }} Scheduled</td>
             <td>{{ station.previous_program() }}</td>
             <td>{{ station.current_program() }}</td>
             <td>{{ station.next_program() }}</td>

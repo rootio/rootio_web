@@ -18,6 +18,12 @@ from ..telephony.models import PhoneNumber
 from sqlalchemy import or_
 
 
+def get_count(q):
+    count_q = q.statement.with_only_columns([func.count()]).order_by(None)
+    count = q.session.execute(count_q).scalar()
+    return count
+
+
 class Location(BaseMixin, db.Model):
     "A geographic location"
     __tablename__ = u'radio_location'
@@ -174,34 +180,34 @@ class Station(BaseMixin, db.Model):
 
     def successful_scheduled_programs(self):
         now = datetime.utcnow()
-        return ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
-            ScheduledProgram.status == 1).filter(ScheduledProgram.deleted == False).all()
+        return get_count(ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
+            ScheduledProgram.status == 1).filter(ScheduledProgram.deleted == False))
 
     def unsuccessful_scheduled_programs(self):
         # CARLOS/JUDE - No media is supposed to be unsuccessful?
         now = datetime.utcnow()
-        return ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
-            or_(ScheduledProgram.status == 0, ScheduledProgram.status == 2)).filter(ScheduledProgram.deleted == False).all()
+        return get_count(ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
+            or_(ScheduledProgram.status == 0, ScheduledProgram.status == 2)).filter(ScheduledProgram.deleted == False))
 
     def scheduled_programs(self):
         now = datetime.utcnow()
-        return ScheduledProgram.after(now).filter(ScheduledProgram.deleted == False).all()
+        return get_count(ScheduledProgram.after(now).filter(ScheduledProgram.deleted == False))
 
     def current_program(self):
-        now = datetime.now(pytz.timezone(self.timezone))
+        now = datetime.now(pytz.timezone(self.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
         # TODO, how to resolve overlaps?
         return programs.first()
 
     def next_program(self):
-        now = datetime.now(pytz.timezone(self.timezone))
+        now = datetime.now(pytz.timezone(self.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         upcoming_programs = ScheduledProgram.after(now).filter_by(station_id=self.id).order_by(
             ScheduledProgram.start.asc())
         # TODO, how to resolve overlaps?
         return upcoming_programs.first()
 
     def previous_program(self):
-        now = datetime.now(pytz.timezone(self.timezone))
+        now = datetime.now(pytz.timezone(self.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         upcoming_programs = ScheduledProgram.before(now).filter_by(station_id=self.id).order_by(
             ScheduledProgram.start.desc())
         # TODO, how to resolve overlaps?
