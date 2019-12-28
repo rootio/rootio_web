@@ -195,7 +195,8 @@ class Station(BaseMixin, db.Model):
 
     def current_program(self):
         now = datetime.now(pytz.timezone(self.timezone)).strftime('%Y-%m-%d %H:%M:%S')
-        programs = ScheduledProgram.contains(now).filter_by(station_id=self.id)
+        programs = ScheduledProgram.contains(now).filter_by(station_id=self.id).order_by(
+            ScheduledProgram.end.asc())
         # TODO, how to resolve overlaps?
         return programs.first()
 
