@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-28 10:18+0000\n"
+"POT-Creation-Date: 2019-12-31 19:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -629,7 +629,7 @@ msgstr ""
 msgid "Sorry, no user found for that email address"
 msgstr ""
 
-#: rootio/frontend/views.py:266
+#: rootio/frontend/views.py:268
 msgid "Language changed to "
 msgstr ""
 

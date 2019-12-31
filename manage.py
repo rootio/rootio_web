@@ -168,6 +168,13 @@ def i18n_extract_strings():
     subprocess.call(["pybabel", "extract", "-o", "rootio/messages.pot", "rootio"])
 
 @manager.command
+def i18n_compile_translations(force = False):
+    args = ["pybabel", "compile", "-d", "rootio/translations", "rootio"]
+    if force:
+        args.append("-f")
+    subprocess.call(args)
+
+@manager.command
 def i18n_update_translation(lang):
     f = open("./rootio/translations/{}/LC_MESSAGES/messages.po".format(lang), "w")
     subprocess.call([
