@@ -127,7 +127,7 @@ uWSGI==2.0.17.1
 urllib3==1.23
 validators==0.7
 virtualenv==16.0.0
-waitress==1.0.1
+waitress==1.4.2
 wcwidth==0.1.7
 webassets==0.10.1
 wsgiref==0.1.2
