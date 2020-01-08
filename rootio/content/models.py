@@ -16,6 +16,20 @@ t_tracknetwork = db.Table(
 )
 
 
+t_streamnetwork = db.Table(
+    u'content_streamnetwork',
+    db.Column(u'stream_id', db.ForeignKey('content_stream.id')),
+    db.Column(u'network_id', db.ForeignKey('radio_network.id'))
+)
+
+
+t_podcastnetwork = db.Table(
+    u'content_podcastnetwork',
+    db.Column(u'podcast_id', db.ForeignKey('content_podcast.id')),
+    db.Column(u'network_id', db.ForeignKey('radio_network.id'))
+)
+
+
 class ContentTrack(BaseMixin, db.Model):
     """A track to which audio content is added"""
     __tablename__ = u'content_track'
@@ -120,6 +134,11 @@ class ContentPodcast(BaseMixin, db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     deleted = db.Column(db.Boolean)
 
+    networks = db.relationship(u'Network', secondary=u'content_podcastnetwork', backref=db.backref('podcasts'))
+
+    def __unicode__(self):
+        return self.name
+
 
 class ContentPodcastDownload(BaseMixin, db.Model):
     """Download of a podcast file"""
@@ -220,3 +239,8 @@ class ContentStream(BaseMixin, db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     deleted = db.Column(db.Boolean)
+
+    networks = db.relationship(u'Network', secondary=u'content_streamnetwork', backref=db.backref('streams'))
+
+    def __unicode__(self):
+        return self.name
