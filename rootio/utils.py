@@ -253,12 +253,12 @@ def error_dict(form_errors):
     return d
 
 
-def object_list_to_named_dict(object_list):
+def object_list_to_named_dict(object_list, is_class = True):
     """convert from object list to dict of values
     for display as sparkline"""
     named_dict = {}
     for a in object_list:
-        for (k, v) in a.__dict__.items():
+        for (k, v) in (a.__dict__.items() if is_class else a.items()):
             # skip privates
             if k.startswith('_'):
                 continue

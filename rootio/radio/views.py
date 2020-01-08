@@ -23,14 +23,16 @@ import arrow
 
 from .forms import StationForm, NetworkForm, ProgramForm, BlockForm, LocationForm, \
     ScheduleProgramForm, PersonForm
-from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network, StationEvent
+from .models import Station, StationAnalytic, Program, ScheduledBlock, ScheduledProgram, \
+    Location, Person, Network, StationEvent
 from ..config import DefaultConfig
 from ..content.models import ContentMusicPlaylist, ContentTrack, ContentPodcast, ContentStream
 from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
 from ..user.models import User, RootioUser
-from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
+from ..utils import error_dict, fk_lookup_form_data, format_log_line, \
+    events_action_display_map, object_list_to_named_dict
 from rootio.user import ADMIN
 from sqlalchemy import text
 import pytz
@@ -46,7 +48,29 @@ def index():
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
     else:
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now)
+
+    station_analytics_query = []
+
+    for network in networks:
+        for station in network.stations:
+            station_analytics_query.append('(select * from radio_stationanalytic where radio_stationanalytic.station_id = ' + \
+            str(station.id) + ' order by id desc limit 10)')
+
+    station_analytics_query = ' UNION ALL '.join(station_analytics_query)
+    all_station_analytics = db.session.execute(station_analytics_query).fetchall()
+
+    analytics = {}
+
+    for analytic in all_station_analytics:
+        if analytic.station_id not in analytics:
+            analytics[analytic.station_id] = []
+        analytics[analytic.station_id].append(analytic)
+
+    for station_id, station_analytics in analytics.items():
+        analytics[station_id] = object_list_to_named_dict(station_analytics, False)
+
+    return render_template('radio/index.html', networks=networks, analytics=analytics, userid=current_user.id, \
+        now=datetime.now)
 
 
 @radio.route('/emergency/', methods=['GET'])

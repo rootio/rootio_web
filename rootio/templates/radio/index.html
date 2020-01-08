@@ -84,8 +84,7 @@ tr.heading {
               </tr>
               {% if network.stations %}
                 {%for station in network.stations %}
-                {% set analytics = station.recent_analytics() %}
-                  {% with station=station, network=network, analytics=analytics %}
+                  {% with station=station, network=network, analytics=analytics[station.id] %}
                     {% include 'radio/_analytics.html' %}
                   {% endwith %}
                 {%endfor%}
