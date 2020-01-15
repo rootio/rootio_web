@@ -685,23 +685,47 @@ def schedule_recurring_program_ajax():
     return response
 
 
-@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
+@radio.route('/station/<int:station_id>/scheduledprograms_color_feature.json', methods=['GET', 'POST'])
 @returns_flat_json
-def scheduled_programs_json(station_id):
+def scheduled_programs_color_feature_json(station_id):
     if not ('start' in request.args and 'end' in request.args):
         return {'status': 'error', 'errors': 'scheduledprograms.json requires start and end', 'status_code': 400}
-    #start = datetime.strptime(request.args.get('start'), '%Y-%m-%d').resolution
-    #end = datetime.strptime(request.args.get('end'), '%Y-%m-%d').resolution
 
-    '''
     start = request.args.get('start')
     end = request.args.get('end')
     
     sql = text('select * from schedule_program_view where start >= :start and _end <= :end and station_id = :station_id;')
     sql = sql.bindparams(start=start, end=end, station_id=station_id)
     scheduled_programs = db.engine.execute(sql)   
-    '''
 
+    station = Station.query.filter_by(id=station_id).first_or_404()
+    station_timezone = station.timezone
+    
+    resp = []
+    for s in scheduled_programs:
+        movable = datetime.now(pytz.timezone(station_timezone)) < s.start
+        utc_dt = datetime.now(pytz.utc)
+        # apply time shift and put it in UTC time
+        utc_shifted = utc_dt.astimezone(pytz.timezone(station_timezone)).strftime('%Y-%m-%d %H:%M:%S')
+        d = {'title': s.name,
+            'start': s.start.isoformat(),
+            'end': s._end.isoformat(),
+            'id': s.id,
+            'series_id': s.series_id,
+            'color': s.color,
+            'movable': movable,
+            'now_timezone_utc_shifted': utc_shifted,
+            }
+    
+        resp.append(d)
+    return resp
+
+
+@radio.route('/station/<int:station_id>/scheduledprograms.json', methods=['GET', 'POST'])
+@returns_flat_json
+def scheduled_programs_json(station_id):
+    if not ('start' in request.args and 'end' in request.args):
+        return {'status': 'error', 'errors': 'scheduledprograms.json requires start and end', 'status_code': 400}
     
     start = dateutil.parser.parse(request.args.get('start'))
     end = dateutil.parser.parse(request.args.get('end'))
@@ -713,59 +737,6 @@ def scheduled_programs_json(station_id):
     resp = []
     for s in scheduled_programs:
 
-        
-        ''' hasFutureMedia = None
-        if s.status is None:
-            try:
-                # if program hasn't played yet
-                hasFutureMedia = False
-                program_json = json.loads(s.program.structure)
-                for action in program_json:
-                    if "type" in action:
-                        if action['type'] == "Advertisements":
-                            if "track_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-                        if action['type'] == "Media":
-                            if "track_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-                        if action['type'] == "Community":
-                            if "category_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-                        if action['type'] == "Podcast":
-                            if "track_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-
-                        if action['type'] == "Music":
-                            if "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-
-                        if action['type'] == "News":
-                            if "track_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-
-                        if action['type'] == "Outcall":
-                            if "host_id" in action and "start_time" in action and "duration" in action:
-                                hasFutureMedia = True
-                                break
-            except e:
-                print(e)
-        '''
-       
-        '''
-        d = {'title': s.name,
-            'start': s.start.isoformat(),
-            'end': s._end.isoformat(),
-            'id': s.id,
-            'series_id': s.series_id,
-            'color': s.color}
-        #              'future_media': hasFutureMedia}
-        '''
         movable = datetime.now(pytz.timezone(s.station.timezone)) < s.start
         utc_dt = datetime.now(pytz.utc)
         # apply time shift and put it in UTC time
@@ -779,7 +750,6 @@ def scheduled_programs_json(station_id):
             'series_id': s.series_id,
             'station_id': s.station.id,
             'movable': movable,
-            #'future_media': hasFutureMedia,
             'program_type_id': s.program.program_type_id}
     
         resp.append(d)
@@ -835,9 +805,10 @@ def schedule():
                            stations=stations, active='schedule')
 
 
-@radio.route('/schedule/<int:station_id>/', methods=['GET'])
+@radio.route('/schedule/<int:station_id>/', methods=['GET'], defaults={'color': None})
+@radio.route('/schedule/<int:station_id>/<color>', methods=['GET'])
 @login_required
-def schedule_station(station_id):
+def schedule_station(station_id, color):
     station = Station.query.filter_by(id=station_id).first_or_404()
 
     # TODO: move this logic to an ajax call, like scheduled_block_json
@@ -862,4 +833,4 @@ def schedule_station(station_id):
 
     return render_template('radio/schedule.html',
                            form=form, station=station, block_list=block_list, addable_programs=all_programs,
-                           active='schedule')
+                           active='schedule', color_view='true' if color=="color" else 'false')

@@ -24,31 +24,66 @@
 
     <script src="{{ url_for('static', filename='js/schedule.js') }}"></script>
 
+    {% if color_view == 'true' %}
     <script type="text/javascript">
-    $(document).ready(function() {
-      //set timezone
-      $('#calendar').fullCalendar({
-        firstDay: 1,
-        timezone: '{{station.timezone}}',
+      $(document).ready(function() {
+        //set timezone
+        $('#calendar').fullCalendar({
+          firstDay: 1,
+          timezone: '{{station.timezone}}',
+        });
+  
+  
+        //add event sources
+        $('#calendar').fullCalendar('addEventSource',
+          {url: '/radio/station/{{station.id}}/scheduledprograms_color_feature.json'}
+        );
+  
+  
+        $('#calendar').fullCalendar('addEventSource', {
+          url: '/radio/station/{{station.id}}/scheduledblocks.json',
+          backgroundColor: '#edb',
+          borderColor: '#edb',
+          textColor: '#777',
+          startEditable: false,
+          durationEditable: false,
+        });
+  
+  
+        $('#calendar').fullCalendar('render');
       });
-
-      //add event sources
-      $('#calendar').fullCalendar('addEventSource',
-        {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
-      );
-      $('#calendar').fullCalendar('addEventSource', {
-        url: '/radio/station/{{station.id}}/scheduledblocks.json',
-        backgroundColor: '#edb',
-        borderColor: '#edb',
-        textColor: '#777',
-        startEditable: false,
-        durationEditable: false,
+      </script>
+    {% else %}
+    <script type="text/javascript">
+      $(document).ready(function() {
+        //set timezone
+        $('#calendar').fullCalendar({
+          firstDay: 1,
+          timezone: '{{station.timezone}}',
+        });
+  
+  
+        //add event sources
+        $('#calendar').fullCalendar('addEventSource',
+          {url: '/radio/station/{{station.id}}/scheduledprograms.json'}
+        );
+  
+  
+        $('#calendar').fullCalendar('addEventSource', {
+          url: '/radio/station/{{station.id}}/scheduledblocks.json',
+          backgroundColor: '#edb',
+          borderColor: '#edb',
+          textColor: '#777',
+          startEditable: false,
+          durationEditable: false,
+        });
+  
+  
+        $('#calendar').fullCalendar('render');
       });
+      </script>
+    {% endif %}
 
-
-      $('#calendar').fullCalendar('render');
-    });
-    </script>
 {% endblock %}
 
 {% block body %}
