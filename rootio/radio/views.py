@@ -165,14 +165,18 @@ def program_definition(program_id):
 
     if current_user.role_code == ADMIN:
         medias = ContentTrack.query\
-        .join(ContentTrack, ContentType)\
         .filter(ContentType.name == "Media")\
         .filter(ContentTrack.deleted != True)\
+        .join(ContentTrack, ContentType)\
         .all()
     else:
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks)\
+            .filter(ContentTrack.deleted != True)\
+            .filter(Network.id.in_(network_ids))\
+            .join(ContentTrack, ContentType)\
+            .all()
         
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
@@ -222,20 +226,20 @@ def program_add():
          # hosts in my network
         hosts = Person.query.all()
         news = ContentTrack.query\
-                                .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "News")\
                                 .filter(ContentTrack.deleted != True)\
+                                .join(ContentTrack, ContentType)\
                                 .all()
         ads = ContentTrack.query\
-                                .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "Advertisements")\
                                 .filter(ContentTrack.deleted != True)\
+                                .join(ContentTrack, ContentType)\
                                 .all()
         
         medias = ContentTrack.query\
-                                .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "Media")\
                                 .filter(ContentTrack.deleted != True)\
+                                .join(ContentTrack, ContentType)\
                                 .all()
 
 
@@ -307,7 +311,7 @@ def program_delete(program_id):
 @login_required
 def list_music_programs():
     if current_user.role_code == ADMIN:
-        music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(Program.program_type_id == 2).all()
+        music_programs = Program.query.filter(Program.program_type_id == 2).all()
     else:
         music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id == 2).all()
@@ -321,7 +325,7 @@ def music_program_add():
     program = None
 
     if current_user.role_code == ADMIN:
-        playlists = ContentMusicPlaylist.query.join(Station).join(Network).join(User, Network.networkusers).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
+        playlists = ContentMusicPlaylist.query.join(Station).filter(ContentMusicPlaylist.deleted != True).all()  # Playlist->Station->Network->user
         streams = ContentStream.query.join(User, Network.networkusers).filter(
             User.id == current_user.id).all()  # created by -> user -> Network
     else:
