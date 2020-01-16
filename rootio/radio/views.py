@@ -167,7 +167,7 @@ def program_definition(program_id):
         medias = ContentTrack.query\
         .filter(ContentType.name == "Media")\
         .filter(ContentTrack.deleted != True)\
-        .join(ContentTrack, ContentType)\
+        .join(ContentType)\
         .all()
     else:
         networks = current_user.networks
@@ -175,7 +175,7 @@ def program_definition(program_id):
         medias = ContentTrack.query.join(ContentTrack.networks)\
             .filter(ContentTrack.deleted != True)\
             .filter(Network.id.in_(network_ids))\
-            .join(ContentTrack, ContentType)\
+            .join(ContentType)\
             .all()
         
     podcasts = ContentPodcast.query.all()
@@ -228,18 +228,18 @@ def program_add():
         news = ContentTrack.query\
                                 .filter(ContentType.name == "News")\
                                 .filter(ContentTrack.deleted != True)\
-                                .join(ContentTrack, ContentType)\
+                                .join(ContentType)\
                                 .all()
         ads = ContentTrack.query\
                                 .filter(ContentType.name == "Advertisements")\
                                 .filter(ContentTrack.deleted != True)\
-                                .join(ContentTrack, ContentType)\
+                                .join(ContentType)\
                                 .all()
         
         medias = ContentTrack.query\
                                 .filter(ContentType.name == "Media")\
                                 .filter(ContentTrack.deleted != True)\
-                                .join(ContentTrack, ContentType)\
+                                .join(ContentType)\
                                 .all()
 
 
