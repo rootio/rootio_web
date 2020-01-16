@@ -141,7 +141,7 @@ def station_add():
 @login_required
 def programs():
     if current_user.role_code == ADMIN:
-        programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(Program.program_type_id != 2).all()
+        programs = Program.query.filter(Program.program_type_id != 2).all()
     else:
         programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id != 2).all()
@@ -156,7 +156,7 @@ def program_definition(program_id):
 
     # hosts in my network
     if current_user.role_code == ADMIN:
-        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).all()
+        hosts = Person.query.all()
     else:
         hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
@@ -164,7 +164,7 @@ def program_definition(program_id):
     ads = ContentTrack.query.join(ContentType).filter(ContentType.name == "Advertisements").all()
 
     if current_user.role_code == ADMIN:
-        medias = ContentTrack.query.join(User, Network.networkusers)\
+        medias = ContentTrack.query\
         .join(ContentTrack, ContentType)\
         .filter(ContentType.name == "Media")\
         .filter(ContentTrack.deleted != True)\
@@ -220,27 +220,26 @@ def program_add():
 
     if current_user.role_code == ADMIN:
          # hosts in my network
-        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers)\
-                                                        .all()
-        news = ContentTrack.query.join(User, Network.networkusers)\
+        hosts = Person.query.all()
+        news = ContentTrack.query\
                                 .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "News")\
                                 .filter(ContentTrack.deleted != True)\
                                 .all()
-        ads = ContentTrack.query.join(User, Network.networkusers)\
+        ads = ContentTrack.query\
                                 .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "Advertisements")\
                                 .filter(ContentTrack.deleted != True)\
                                 .all()
         
-        medias = ContentTrack.query.join(User, Network.networkusers)\
+        medias = ContentTrack.query\
                                 .join(ContentTrack, ContentType)\
                                 .filter(ContentType.name == "Media")\
                                 .filter(ContentTrack.deleted != True)\
                                 .all()
 
 
-        podcasts = ContentPodcast.query.join(User, Network.networkusers)\
+        podcasts = ContentPodcast.query\
                                     .all()
     else:
         # hosts in my network
