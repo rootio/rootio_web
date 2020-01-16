@@ -1,4 +1,4 @@
-SELECT schedule_program_view_query.id,
+CREATE VIEW schedule_program_view as SELECT schedule_program_view_query.id,
     schedule_program_view_query.name,
     schedule_program_view_query.start,
     schedule_program_view_query._end,
@@ -91,6 +91,20 @@ SELECT schedule_program_view_query.id,
                    FROM radio_scheduledprogram
                      JOIN radio_program ON radio_scheduledprogram.program_id = radio_program.id
                      JOIN content_track ON radio_program.structure ~~* (('%'::text || concat('"type":"Media","track_id":', content_track.id)) || '%'::text)
+                  WHERE radio_scheduledprogram."end" >= now() AND radio_scheduledprogram.deleted <> true AND radio_program.program_type_id = 1
+                  GROUP BY radio_scheduledprogram.id, radio_program.name, radio_program.program_type_id
+                UNION
+                SELECT radio_program.name,
+                    radio_scheduledprogram.id,
+                    radio_scheduledprogram.start,
+                    radio_scheduledprogram."end" AS _end,
+                    radio_program.program_type_id,
+                    radio_scheduledprogram.series_id,
+                    radio_scheduledprogram.station_id,
+                    count(content_track.id) FILTER (WHERE content_track.deleted <> true) AS count
+                   FROM radio_scheduledprogram
+                     JOIN radio_program ON radio_scheduledprogram.program_id = radio_program.id
+                     JOIN content_track ON radio_program.structure ~~* (('%'::text || concat('"type":"News","track_id":', content_track.id)) || '%'::text)
                   WHERE radio_scheduledprogram."end" >= now() AND radio_scheduledprogram.deleted <> true AND radio_program.program_type_id = 1
                   GROUP BY radio_scheduledprogram.id, radio_program.name, radio_program.program_type_id
                 UNION
