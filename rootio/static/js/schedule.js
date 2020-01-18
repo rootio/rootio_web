@@ -204,6 +204,7 @@ $(document).ready(function() {
     droppable: true,
     drop: function(date, allDay) {
       const now_timezone = changeTimezone(new Date(), $('#calendar').data('timezone'));
+      now_timezone.setMinutes( now_timezone.getMinutes() - 30 );
       if (date < now_timezone) {
         return;
       }
