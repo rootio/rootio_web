@@ -4754,7 +4754,7 @@ function AgendaEventRenderer() {
 					} else if (event.color == 'red') {
 						eventElement[0].style.backgroundColor = '#e60000' //error - background
 						eventElement[0].style.borderColor = '#b20000' // error - border
-					} else if (event.status == 'green') {
+					} else if (event.color == 'green') {
 						eventElement[0].style.backgroundColor = '#008000' // played - background
 						eventElement[0].style.borderColor = '#004000' // played - border
 					} else {
