@@ -697,7 +697,7 @@ def scheduled_programs_color_feature_json(station_id):
     start = request.args.get('start')
     end = request.args.get('end')
     
-    sql = text('select * from schedule_program_view where start >= :start and _end <= :end and station_id = :station_id;')
+    sql = text('select * from scheduled_program_view where start >= :start and _end <= :end and station_id = :station_id;')
     sql = sql.bindparams(start=start, end=end, station_id=station_id)
     scheduled_programs = db.engine.execute(sql)   
 
@@ -836,4 +836,4 @@ def schedule_station(station_id, color):
 
     return render_template('radio/schedule.html',
                            form=form, station=station, block_list=block_list, addable_programs=all_programs,
-                           active='schedule', color_view='true' if color=="color" else 'false')
+                           active='schedule', color_view='false' if color=="false" else 'true')

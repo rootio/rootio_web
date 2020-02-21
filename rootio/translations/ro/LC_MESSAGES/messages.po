@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-07-19 14:11+0300\n"
+"POT-Creation-Date: 2019-12-31 19:53+0000\n"
 "PO-Revision-Date: 2018-05-31 12:36+0000\n"
 "Last-Translator: ANDREEA BONEA <andreea.bonea@gmail.com>, 2018\n"
 "Language-Team: Romanian (https://www.transifex.com/rootio/teams/86903/ro/)\n"
@@ -23,279 +23,319 @@ msgstr ""
 "Language: ro\n"
 "Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
-#: rootio/utils.py:128
+#: rootio/utils.py:157
 msgid "Media upload error (S3)"
 msgstr ""
 
-#: rootio/utils.py:138
+#: rootio/utils.py:167
 msgid "Media upload error (filesystem)"
 msgstr ""
 
-#: rootio/utils.py:255 rootio/radio/views.py:386
+#: rootio/utils.py:284 rootio/radio/views.py:461
 msgid "Invalid "
 msgstr "Nevalid"
 
-#: rootio/configuration/forms.py:48 rootio/configuration/forms.py:74
-#: rootio/configuration/forms.py:105 rootio/configuration/forms.py:141
-#: rootio/configuration/forms.py:180 rootio/configuration/forms.py:224
-#: rootio/content/forms.py:27 rootio/content/forms.py:59
-#: rootio/content/forms.py:80 rootio/content/forms.py:87
-#: rootio/content/forms.py:94 rootio/content/forms.py:101
-#: rootio/frontend/forms.py:55 rootio/radio/forms.py:32
-#: rootio/radio/forms.py:84 rootio/radio/forms.py:105
-#: rootio/radio/forms.py:118 rootio/radio/forms.py:128
-#: rootio/radio/forms.py:139 rootio/radio/forms.py:152
-#: rootio/radio/forms.py:162 rootio/radio/forms.py:175
-#: rootio/radio/forms.py:195 rootio/radio/forms.py:202
-#: rootio/settings/forms.py:34 rootio/settings/forms.py:66
-#: rootio/settings/forms.py:83 rootio/telephony/forms.py:31
+#: rootio/configuration/forms.py:49 rootio/configuration/forms.py:76
+#: rootio/configuration/forms.py:108 rootio/configuration/forms.py:145
+#: rootio/configuration/forms.py:183 rootio/configuration/forms.py:223
+#: rootio/configuration/forms.py:273 rootio/content/forms.py:27
+#: rootio/content/forms.py:59 rootio/content/forms.py:80
+#: rootio/content/forms.py:87 rootio/content/forms.py:94
+#: rootio/content/forms.py:101 rootio/frontend/forms.py:55
+#: rootio/radio/forms.py:32 rootio/radio/forms.py:89 rootio/radio/forms.py:110
+#: rootio/radio/forms.py:123 rootio/radio/forms.py:133
+#: rootio/radio/forms.py:144 rootio/radio/forms.py:157
+#: rootio/radio/forms.py:167 rootio/radio/forms.py:180
+#: rootio/radio/forms.py:200 rootio/radio/forms.py:207
+#: rootio/settings/forms.py:34 rootio/settings/forms.py:67
+#: rootio/settings/forms.py:92 rootio/telephony/forms.py:31
 #: rootio/telephony/forms.py:49 rootio/user/forms.py:34
 msgid "Save"
 msgstr "Salvează"
 
-#: rootio/configuration/forms.py:72
+#: rootio/configuration/forms.py:74
 msgid "SIP Port"
 msgstr ""
 
-#: rootio/configuration/forms.py:72
+#: rootio/configuration/forms.py:74
 msgid "1 - 65535"
 msgstr ""
 
-#: rootio/configuration/forms.py:73
+#: rootio/configuration/forms.py:75
 msgid "Re-register Period"
 msgstr ""
 
-#: rootio/configuration/forms.py:73
+#: rootio/configuration/forms.py:75
 msgid "30 - 3600"
 msgstr ""
 
-#: rootio/configuration/forms.py:104
+#: rootio/configuration/forms.py:107
 msgid "Jingle play interval"
 msgstr ""
 
-#: rootio/configuration/forms.py:104
+#: rootio/configuration/forms.py:107
 msgid "1 - 1440"
 msgstr ""
 
-#: rootio/configuration/forms.py:132
+#: rootio/configuration/forms.py:136
 msgid "Frequency of Synchronization (Transmission site to cloud server)"
 msgstr ""
 
-#: rootio/configuration/forms.py:137
+#: rootio/configuration/forms.py:141
 msgid "Frequency of transmission site probing"
 msgstr ""
 
-#: rootio/configuration/forms.py:177
+#: rootio/configuration/forms.py:171
+msgid "How many times should community ads loop"
+msgstr ""
+
+#: rootio/configuration/forms.py:175
+msgid "How many times should community greetings loop"
+msgstr ""
+
+#: rootio/configuration/forms.py:179
+msgid "How many times should community announcements loop"
+msgstr ""
+
+#: rootio/configuration/forms.py:220
 msgid "TTS Voice"
 msgstr ""
 
-#: rootio/configuration/forms.py:177 rootio/configuration/forms.py:178
-#: rootio/configuration/forms.py:179
+#: rootio/configuration/forms.py:220 rootio/configuration/forms.py:221
+#: rootio/configuration/forms.py:222
 msgid "-select-"
 msgstr ""
 
-#: rootio/configuration/forms.py:178
+#: rootio/configuration/forms.py:221
 msgid "Audio Quality"
 msgstr ""
 
-#: rootio/configuration/forms.py:179
+#: rootio/configuration/forms.py:222
 msgid "Audio Format"
 msgstr ""
 
-#: rootio/configuration/forms.py:185 rootio/content/forms.py:64
+#: rootio/configuration/forms.py:228 rootio/content/forms.py:64
 msgid "Use Text-to-Speech"
 msgstr ""
 
-#: rootio/configuration/forms.py:186 rootio/content/forms.py:65
+#: rootio/configuration/forms.py:229 rootio/content/forms.py:65
 #: rootio/content/forms.py:92
 msgid "Station"
 msgstr "Statie radio"
 
-#: rootio/configuration/forms.py:188
+#: rootio/configuration/forms.py:231
 msgid "You are now on air"
 msgstr ""
 
-#: rootio/configuration/forms.py:189
-msgid "Your call will end in { seconds } seconds"
+#: rootio/configuration/forms.py:232
+msgid "Your call will end in"
 msgstr ""
 
-#: rootio/configuration/forms.py:190
+#: rootio/configuration/forms.py:233
+msgid "seconds"
+msgstr ""
+
+#: rootio/configuration/forms.py:234
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
 "cancel, press two"
 msgstr ""
 
-#: rootio/configuration/forms.py:191
+#: rootio/configuration/forms.py:235
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
 "one, if not ready, press two"
 msgstr ""
 
-#: rootio/configuration/forms.py:192
+#: rootio/configuration/forms.py:236
 msgid "Please wait while we connect you to the radio station"
 msgstr ""
 
-#: rootio/configuration/forms.py:193
+#: rootio/configuration/forms.py:237
 msgid ""
 "Your call will be terminated and you will be called when someone calls into "
 "the station"
 msgstr ""
 
-#: rootio/configuration/forms.py:194
+#: rootio/configuration/forms.py:238
 msgid "All incoming calls will be rejected"
 msgstr ""
 
-#: rootio/configuration/forms.py:195
+#: rootio/configuration/forms.py:239
 msgid "All incoming calls will be automatically answered"
 msgstr ""
 
-#: rootio/configuration/forms.py:196
+#: rootio/configuration/forms.py:240
 msgid "All incoming calls will be queued for call back"
 msgstr ""
 
-#: rootio/configuration/forms.py:197
+#: rootio/configuration/forms.py:241
 msgid "You will be called back in 5 minutes"
 msgstr ""
 
-#: rootio/configuration/forms.py:198
+#: rootio/configuration/forms.py:242
 msgid "Please enter the number to call and press the # key to dial"
 msgstr ""
 
-#: rootio/configuration/forms.py:199
+#: rootio/configuration/forms.py:243
 msgid "You are calling { number }"
 msgstr ""
 
-#: rootio/configuration/forms.py:200
-msgid "Call from community caller { caller number } was queued"
+#: rootio/configuration/forms.py:244
+msgid "Call from community caller { caller number }"
 msgstr ""
 
-#: rootio/configuration/forms.py:201
-msgid "The call to { number } failed. Please pres the hash key to try again"
+#: rootio/configuration/forms.py:245
+msgid "was queued"
 msgstr ""
 
-#: rootio/configuration/forms.py:202
+#: rootio/configuration/forms.py:246
+msgid "The call to { number }"
+msgstr ""
+
+#: rootio/configuration/forms.py:247
+msgid "failed. Please pres the hash key to try again"
+msgstr ""
+
+#: rootio/configuration/forms.py:248
 msgid ""
 "Thank you for wanting to take part in this program. We will call you back "
 "shortly"
 msgstr ""
 
-#: rootio/configuration/forms.py:203
+#: rootio/configuration/forms.py:249
 msgid "Please wait while we connect you to the host of this program"
 msgstr ""
 
-#: rootio/configuration/forms.py:205 rootio/content/forms.py:73
+#: rootio/configuration/forms.py:251 rootio/content/forms.py:73
 msgid "Pre-fetch TTS"
 msgstr ""
 
-#: rootio/configuration/forms.py:207
+#: rootio/configuration/forms.py:253
 msgid "You are now on air (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:208
-msgid "Your call will end in { seconds } seconds (text)"
+#: rootio/configuration/forms.py:254
+msgid "Your call will end in (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:209
+#: rootio/configuration/forms.py:255
+msgid "seconds (text)"
+msgstr ""
+
+#: rootio/configuration/forms.py:256
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
 "cancel, press two (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:210
+#: rootio/configuration/forms.py:257
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
 "one, if not ready, press two (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:211
+#: rootio/configuration/forms.py:258
 msgid "Please wait while we connect you to the radio station (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:212
+#: rootio/configuration/forms.py:259
 msgid ""
 "Your call will be terminated and you will be called when someone calls into "
 "the station (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:213
+#: rootio/configuration/forms.py:260
 msgid "All incoming calls will be rejected (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:214
+#: rootio/configuration/forms.py:261
 msgid "All incoming calls will be automatically answered (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:215
+#: rootio/configuration/forms.py:262
 msgid "All incoming calls will be queued for call back (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:216
+#: rootio/configuration/forms.py:263
 msgid "You will be called back in 5 minutes (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:217
+#: rootio/configuration/forms.py:264
 msgid "Please enter the number to call and press the # key to dial (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:218
+#: rootio/configuration/forms.py:265
 msgid "You are calling { number } (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:219
-msgid "Call from community caller { caller number } was queued (text)"
+#: rootio/configuration/forms.py:266
+msgid "Call from community caller { caller number } (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:220
-msgid ""
-"The call to { number } failed. Please pres the hash key to try again (text)"
+#: rootio/configuration/forms.py:267
+msgid "was queued (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:221
+#: rootio/configuration/forms.py:268
+msgid "The call to { number } (text)"
+msgstr ""
+
+#: rootio/configuration/forms.py:269
+msgid "failed. Please pres the hash key to try again (text)"
+msgstr ""
+
+#: rootio/configuration/forms.py:270
 msgid ""
 "Thank you for wanting to take part in this program. We will call you back "
 "shortly (text)"
 msgstr ""
 
-#: rootio/configuration/forms.py:222
+#: rootio/configuration/forms.py:271
 msgid "Please wait while we connect you to the host of this program (text)"
 msgstr ""
 
-#: rootio/configuration/views.py:60 rootio/radio/views.py:98
+#: rootio/configuration/views.py:100 rootio/radio/views.py:113
 msgid "Station updated."
 msgstr ""
 
-#: rootio/configuration/views.py:80 rootio/radio/views.py:118
+#: rootio/configuration/views.py:120 rootio/radio/views.py:133
 msgid "Station added."
 msgstr ""
 
-#: rootio/configuration/views.py:82 rootio/content/views.py:150
-#: rootio/content/views.py:297 rootio/content/views.py:323
-#: rootio/radio/views.py:76 rootio/radio/views.py:120
-#: rootio/radio/views.py:221 rootio/radio/views.py:274
-#: rootio/radio/views.py:370 rootio/radio/views.py:440
+#: rootio/configuration/views.py:122 rootio/content/views.py:151
+#: rootio/content/views.py:321 rootio/content/views.py:347
+#: rootio/radio/views.py:84 rootio/radio/views.py:135
+#: rootio/radio/views.py:284 rootio/radio/views.py:345
+#: rootio/radio/views.py:445 rootio/radio/views.py:515
 #: rootio/rootio/views.py:95 rootio/rootio/views.py:142
 #: rootio/rootio/views.py:192 rootio/telephony/views.py:71
+#: rootio/user/views.py:83
 msgid "Validation error"
 msgstr "Eroare de validare"
 
-#: rootio/configuration/views.py:98
+#: rootio/configuration/views.py:139
 msgid "SIP details updated."
 msgstr ""
 
-#: rootio/configuration/views.py:119
+#: rootio/configuration/views.py:162
 msgid "Audio levels updated."
 msgstr ""
 
-#: rootio/configuration/views.py:208 rootio/configuration/views.py:309
+#: rootio/configuration/views.py:276 rootio/configuration/views.py:413
 msgid "Configuration saved."
 msgstr "Configurația a fost salvată."
 
-#: rootio/configuration/views.py:234
+#: rootio/configuration/views.py:303
 msgid "TTS settings updated."
 msgstr ""
 
-#: rootio/configuration/views.py:257
+#: rootio/configuration/views.py:326
 msgid "Synchronization settings updated."
+msgstr ""
+
+#: rootio/configuration/views.py:349
+msgid "Content settings updated."
 msgstr ""
 
 #: rootio/content/forms.py:56 rootio/content/forms.py:98
@@ -308,7 +348,7 @@ msgstr "Numele clipului"
 
 #: rootio/content/forms.py:58 rootio/content/forms.py:85
 #: rootio/content/forms.py:99 rootio/settings/forms.py:31
-#: rootio/settings/forms.py:63
+#: rootio/settings/forms.py:64
 msgid "URL"
 msgstr "URL"
 
@@ -373,59 +413,59 @@ msgstr "Descriere"
 msgid "Name of the playlist"
 msgstr "Numele playlist-ului"
 
-#: rootio/content/views.py:131
+#: rootio/content/views.py:132
 msgid "Track updated."
 msgstr "Clip actualizat"
 
-#: rootio/content/views.py:148
+#: rootio/content/views.py:149
 msgid "Track added."
 msgstr "Clip adăugat"
 
-#: rootio/content/views.py:172
+#: rootio/content/views.py:173
 msgid "Content updated."
 msgstr "Conținut actualizat."
 
-#: rootio/content/views.py:189
+#: rootio/content/views.py:190
 msgid "No file part"
 msgstr ""
 
-#: rootio/content/views.py:195
+#: rootio/content/views.py:196
 msgid "No selected file"
 msgstr "Nici un fisier selectat"
 
-#: rootio/content/views.py:221
+#: rootio/content/views.py:222
 msgid "Content added."
 msgstr "Conținut adăugat."
 
-#: rootio/content/views.py:295
+#: rootio/content/views.py:319
 msgid "Host added."
 msgstr "Nod adăugat."
 
-#: rootio/content/views.py:321
+#: rootio/content/views.py:345
 msgid "Host edited."
 msgstr "Nodul a fost actualizat."
 
-#: rootio/content/views.py:408
+#: rootio/content/views.py:435
 msgid "Podcast updated"
 msgstr "Podcast actualizat"
 
-#: rootio/content/views.py:445
+#: rootio/content/views.py:472
 msgid "Podcast added."
 msgstr "Podcast adaugat"
 
-#: rootio/content/views.py:471
+#: rootio/content/views.py:498
 msgid "Stream updated"
 msgstr "Stream actualizat"
 
-#: rootio/content/views.py:508
+#: rootio/content/views.py:535
 msgid "Stream added."
 msgstr "Stream adaugat"
 
-#: rootio/content/views.py:546
+#: rootio/content/views.py:573
 msgid "Playlist updated."
 msgstr ""
 
-#: rootio/content/views.py:654
+#: rootio/content/views.py:681
 msgid "Playlist added."
 msgstr "Playlist adaugat"
 
@@ -435,7 +475,7 @@ msgstr "Numele de utilizator sau adresa de email"
 
 #: rootio/frontend/forms.py:20 rootio/frontend/forms.py:29
 #: rootio/frontend/forms.py:53 rootio/frontend/forms.py:60
-#: rootio/frontend/forms.py:74 rootio/settings/forms.py:53
+#: rootio/frontend/forms.py:74 rootio/settings/forms.py:54
 msgid "Password"
 msgstr "Parola"
 
@@ -448,7 +488,7 @@ msgid "Sign in"
 msgstr "Autentificare"
 
 #: rootio/frontend/forms.py:27 rootio/frontend/forms.py:73
-#: rootio/settings/forms.py:23 rootio/settings/forms.py:51
+#: rootio/settings/forms.py:23 rootio/settings/forms.py:52
 msgid "Email"
 msgstr "Email"
 
@@ -477,11 +517,13 @@ msgstr "Accepta termenii si conditiile de functionare"
 msgid "Sign up"
 msgstr "Cont nou"
 
-#: rootio/frontend/forms.py:38
+#: rootio/frontend/forms.py:38 rootio/settings/forms.py:79
+#: rootio/user/forms.py:67 rootio/user/forms.py:108
 msgid "This username is already registered"
 msgstr "Numele de utilizator este deja înregistrat"
 
-#: rootio/frontend/forms.py:42
+#: rootio/frontend/forms.py:42 rootio/settings/forms.py:83
+#: rootio/user/forms.py:71 rootio/user/forms.py:112
 msgid "This email is already registered"
 msgstr "Adresa de email este deja înregistrată"
 
@@ -493,7 +535,7 @@ msgstr "Adresa ta de email"
 msgid "Send instructions"
 msgstr "Trimite instructiunile"
 
-#: rootio/frontend/forms.py:54 rootio/settings/forms.py:81
+#: rootio/frontend/forms.py:54 rootio/settings/forms.py:90
 msgid "Password again"
 msgstr "Introdu din nou parola"
 
@@ -530,73 +572,73 @@ msgstr "Acest nume de utlizator este deja in uz."
 msgid "This email is taken."
 msgstr "Aceasta adresa de email este deja in uz."
 
-#: rootio/frontend/views.py:38 rootio/frontend/views.py:104
+#: rootio/frontend/views.py:39 rootio/frontend/views.py:105
 msgid "Logged in"
 msgstr "Logat"
 
-#: rootio/frontend/views.py:85
+#: rootio/frontend/views.py:86
 msgid "Please input keyword(s)"
 msgstr "Include cuvintele cheie"
 
-#: rootio/frontend/views.py:108
+#: rootio/frontend/views.py:109
 msgid ""
 "This account is not yet activated. Please click the link sent to you to "
 "activate"
 msgstr ""
 
-#: rootio/frontend/views.py:111
+#: rootio/frontend/views.py:112
 msgid "Invalid login details. Please try again"
 msgstr ""
 
-#: rootio/frontend/views.py:121
+#: rootio/frontend/views.py:122
 msgid ""
 "A new activation link was sent to you via email, please check your inbox!"
 msgstr ""
 
-#: rootio/frontend/views.py:135
+#: rootio/frontend/views.py:136
 msgid "Reauthenticated."
 msgstr ""
 
-#: rootio/frontend/views.py:138 rootio/settings/forms.py:88
+#: rootio/frontend/views.py:139 rootio/settings/forms.py:97
 msgid "Password is wrong."
 msgstr "Parola este greșită"
 
-#: rootio/frontend/views.py:146
+#: rootio/frontend/views.py:147
 msgid "Logged out"
 msgstr ""
 
-#: rootio/frontend/views.py:164
+#: rootio/frontend/views.py:165
 msgid ""
 "Your account was created. Please click on the link sent to your email to "
 "validate it"
 msgstr ""
 
-#: rootio/frontend/views.py:199
+#: rootio/frontend/views.py:177
 msgid "Invalid link"
 msgstr ""
 
-#: rootio/frontend/views.py:202
+#: rootio/frontend/views.py:180
 msgid ""
 "No user found. This account is probably already validated, try logging in"
 msgstr ""
 
-#: rootio/frontend/views.py:206
+#: rootio/frontend/views.py:184
 msgid "This account has successfully been validated, please login"
 msgstr ""
 
-#: rootio/frontend/views.py:234
+#: rootio/frontend/views.py:212
 msgid "Your password has been changed, please log in again"
 msgstr ""
 
-#: rootio/frontend/views.py:248
+#: rootio/frontend/views.py:226
 msgid "Please see your email for instructions on how to access your account"
 msgstr ""
 
-#: rootio/frontend/views.py:274
+#: rootio/frontend/views.py:252
 msgid "Sorry, no user found for that email address"
 msgstr ""
 
-#: rootio/frontend/views.py:288
+#: rootio/frontend/views.py:268
 msgid "Language changed to "
 msgstr "Limba schimbată în"
 
@@ -604,96 +646,96 @@ msgstr "Limba schimbată în"
 msgid "Invalid JSON data."
 msgstr ""
 
-#: rootio/radio/forms.py:42
+#: rootio/radio/forms.py:46
 msgid "Name or callsign of station"
 msgstr ""
 
-#: rootio/radio/forms.py:43
+#: rootio/radio/forms.py:47
 msgid "Station broadcast frequency"
 msgstr ""
 
-#: rootio/radio/forms.py:45
+#: rootio/radio/forms.py:49
 msgid "Station contact telephone number"
 msgstr ""
 
-#: rootio/radio/forms.py:47
+#: rootio/radio/forms.py:51
 msgid "Primary languages the station will broadcast in"
 msgstr ""
 
-#: rootio/radio/forms.py:48
+#: rootio/radio/forms.py:52
 msgid "How frequently the transmitter should check for updates, in seconds"
 msgstr ""
 
-#: rootio/radio/forms.py:50
+#: rootio/radio/forms.py:54
 msgid ""
 "IP address of the transmitter on the local network. Should start with 230."
 msgstr ""
 
-#: rootio/radio/forms.py:73
+#: rootio/radio/forms.py:78
 msgid "Station Name"
 msgstr ""
 
-#: rootio/radio/forms.py:76
+#: rootio/radio/forms.py:81
 msgid "Languages"
 msgstr ""
 
-#: rootio/radio/forms.py:77
+#: rootio/radio/forms.py:82
 msgid "Key for communication with the API"
 msgstr ""
 
-#: rootio/radio/forms.py:79
+#: rootio/radio/forms.py:84
 msgid "Broadcasting Frequency"
 msgstr ""
 
-#: rootio/radio/forms.py:80
+#: rootio/radio/forms.py:85
 msgid "About the station"
 msgstr ""
 
-#: rootio/radio/forms.py:99
+#: rootio/radio/forms.py:104
 msgid "Drag content here in desired order, double click to reset"
 msgstr ""
 
-#: rootio/radio/forms.py:101
+#: rootio/radio/forms.py:106
 msgid "Duration of the program, in HH:MM(:SS)"
 msgstr ""
 
-#: rootio/radio/forms.py:104
+#: rootio/radio/forms.py:109
 msgid "Networks"
 msgstr ""
 
-#: rootio/radio/forms.py:110 rootio/radio/forms.py:111
+#: rootio/radio/forms.py:115 rootio/radio/forms.py:116
 msgid "This field expects JSON"
 msgstr ""
 
-#: rootio/radio/views.py:74
+#: rootio/radio/views.py:82
 msgid "Network Created."
 msgstr ""
 
-#: rootio/radio/views.py:170
+#: rootio/radio/views.py:209
 msgid "Program updated."
 msgstr ""
 
-#: rootio/radio/views.py:219 rootio/radio/views.py:272
+#: rootio/radio/views.py:282 rootio/radio/views.py:343
 msgid "Program added."
 msgstr ""
 
-#: rootio/radio/views.py:311
+#: rootio/radio/views.py:385
 msgid "Music Program updated."
 msgstr ""
 
-#: rootio/radio/views.py:350
+#: rootio/radio/views.py:425
 msgid "Person updated."
 msgstr ""
 
-#: rootio/radio/views.py:368
+#: rootio/radio/views.py:443
 msgid "Person added."
 msgstr ""
 
-#: rootio/radio/views.py:420
+#: rootio/radio/views.py:495
 msgid "Block updated."
 msgstr ""
 
-#: rootio/radio/views.py:438
+#: rootio/radio/views.py:513
 msgid "Block added."
 msgstr ""
 
@@ -725,31 +767,31 @@ msgstr ""
 msgid "Content Type added."
 msgstr ""
 
-#: rootio/settings/forms.py:25 rootio/settings/forms.py:57
+#: rootio/settings/forms.py:25 rootio/settings/forms.py:58
 msgid "Avatar"
 msgstr ""
 
-#: rootio/settings/forms.py:26 rootio/settings/forms.py:58
+#: rootio/settings/forms.py:26 rootio/settings/forms.py:59
 msgid "Receive Program Notifications"
 msgstr ""
 
-#: rootio/settings/forms.py:27 rootio/settings/forms.py:59
+#: rootio/settings/forms.py:27 rootio/settings/forms.py:60
 msgid "Gender"
 msgstr ""
 
-#: rootio/settings/forms.py:29 rootio/settings/forms.py:61
+#: rootio/settings/forms.py:29 rootio/settings/forms.py:62
 msgid "Age"
 msgstr ""
 
-#: rootio/settings/forms.py:30 rootio/settings/forms.py:62
+#: rootio/settings/forms.py:30 rootio/settings/forms.py:63
 msgid "Phone"
 msgstr ""
 
-#: rootio/settings/forms.py:32 rootio/settings/forms.py:64
+#: rootio/settings/forms.py:32 rootio/settings/forms.py:65
 msgid "Location"
 msgstr ""
 
-#: rootio/settings/forms.py:33 rootio/settings/forms.py:65
+#: rootio/settings/forms.py:33 rootio/settings/forms.py:66
 msgid "Bio"
 msgstr ""
 
@@ -757,36 +799,36 @@ msgstr ""
 msgid "Please pick another name."
 msgstr ""
 
-#: rootio/settings/forms.py:43 rootio/settings/forms.py:70
+#: rootio/settings/forms.py:43 rootio/settings/forms.py:71
 #, python-format
 msgid "Please upload files with extensions: %s/"
 msgstr ""
 
-#: rootio/settings/forms.py:52
+#: rootio/settings/forms.py:53
 msgid "Name"
 msgstr ""
 
-#: rootio/settings/forms.py:54
+#: rootio/settings/forms.py:55
 msgid "Retype-password"
 msgstr ""
 
-#: rootio/settings/forms.py:74
+#: rootio/settings/forms.py:75
 msgid "The Passwords Don't Match"
 msgstr ""
 
-#: rootio/settings/forms.py:79
+#: rootio/settings/forms.py:88
 msgid "Current password"
 msgstr ""
 
-#: rootio/settings/forms.py:80
+#: rootio/settings/forms.py:89
 msgid "New password"
 msgstr ""
 
-#: rootio/settings/views.py:75
+#: rootio/settings/views.py:76
 msgid "Public profile updated."
 msgstr ""
 
-#: rootio/settings/views.py:94
+#: rootio/settings/views.py:95
 msgid "Password updated."
 msgstr ""
 
@@ -806,8 +848,8 @@ msgstr ""
 msgid "Phone Number added."
 msgstr ""
 
-#: rootio/user/forms.py:28 rootio/user/forms.py:45 rootio/user/forms.py:72
-#: rootio/user/forms.py:105
+#: rootio/user/forms.py:28 rootio/user/forms.py:45 rootio/user/forms.py:81
+#: rootio/user/forms.py:123
 msgid "Role"
 msgstr ""
 
@@ -817,4 +859,12 @@ msgstr ""
 
 #: rootio/user/forms.py:33
 msgid "Created time"
+msgstr ""
+
+#: rootio/user/views.py:39
+msgid "A new activation link was sent via email"
+msgstr ""
+
+#: rootio/user/views.py:81
+msgid "User Created."
 msgstr ""
