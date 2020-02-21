@@ -48,7 +48,12 @@ def upload():
 @content.route('/tracks/')
 @login_required
 def list_tracks():
-    networks = current_user.networks
+
+    if current_user.role_code == ADMIN:
+        networks = Network.query.all()
+    else:
+        networks = current_user.networks
+
     network_ids = [network.id for network in networks]
     show_only = request.args.get('show_only', '')
 
