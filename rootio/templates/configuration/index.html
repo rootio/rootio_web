@@ -9,81 +9,99 @@
 {% block body %}
 <div class="container">
     <div class="row-fluid">
-      <h1>Stations configuration</h1>
-      <hr/>
-      <table id="offline_datatable" class='table table-bordered table-hover configuration-table'>
-        <thead>
-          <th>Name</th>
-          <th>Telephony</th>
-          <th>SIP</th>
-          <th>Android app</th>
-          <th>TTS</th>
-        </thead>
-        <tbody>
-          {% for station in stations %}
+        <h1>Stations configuration</h1>
+        <hr/>
+        <table id="offline_datatable" class='table table-bordered table-hover configuration-table'>
+            <thead>
+            <th>Name</th>
+            <th>Telephony</th>
+            <th>SIP</th>
+            <th>Android app</th>
+            <th>TTS</th>
+            <th>IVR Menu</th>
+            </thead>
+            <tbody>
+            {% for station in stations %}
             <tr>
-              <td width="10%">
-                {{ station.name }}
-              </td>
-              <td width="35%" style="position: relative;">
-                <div class="edit-icon-td"> <a href="{{ url_for('configuration.telephony_station', station_id=station.id) }}"> <i class="fas fa-edit"></i> </a> </div>
-                <table width="100%">
-                  <tr>
-                    <td>
-                      {% if station.gws_in_telephony %}
-                      {% for gw in station.gws_in_telephony %}
-                      <i class="fas fa-sign-in-alt"></i> {{ gw }}
-                      {% if gw == station.community_number %} <i class="fas fa-comments"></i> {% endif %}
-                      {% if gw == station.call_in_number %} <i class="fas fa-phone"></i> {% endif %}
-                      {% if gw == station.host_number %} <i class="fas fa-h-square"></i> {% endif %}
-                      <br/>
-                      {% endfor %}
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if station.gws_out_telephony %}
-                      {% for gw in station.gws_out_telephony %}
-                      <i class="fas fa-sign-out-alt"></i> {{ gw }}
-                      {% if gw == station.host_number %} <i class="fas fa-h-square"></i> {% endif %}
-                      {% if gw == station.call_in_number %} <i class="fas fa-phone"></i> {% endif %}
-                      <br/>
-                      {% endfor %}
-                      {% endif %}
-                    </td>
-                  </tr>
-                </table>
-              </td>
+                <td width="10%">
+                    {{ station.name }}
+                </td>
+
+                <td>
+                  <div class="edit-icon-td"><a
+                            href="{{ url_for('configuration.telephony_station', station_id=station.id) }}"> <i
+                            class="fas fa-edit"></i> </a></div>
+                    <a href="{{ url_for('configuration.telephony_station', station_id=station.id) }}">
+                        {% if ok_attributes[station.id][0] %}
+                        <img src="{{ url_for('static', filename='img/ok.png') }}">
+                      {{ _('Telephony configured') }}
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/warning.png') }}">
+                        {{ _('Configure telephony') }}
+                        {% endif %}
+                    </a>
+                </td>
+
+                <td>
+                  <div class="edit-icon-td"><a
+                            href="{{ url_for('radio.station_definition', station_id=station.id) }}"> <i
+                            class="fas fa-edit"></i> </a></div>
+                    <a href="{{ url_for('configuration.sip_telephony', station_id=station.id) }}">
+                    {% if ok_attributes[station.id][1] %}
+                        <img src="{{ url_for('static', filename='img/ok.png') }}">
+                      {{ _('SIP configured') }}
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/warning.png') }}">
+                      {{ _('Configure SIP') }}
+                        {% endif %}
+                    </a>
+                </td>
+                <td>
+                    <div class="edit-icon-td"><a
+                            href="{{ url_for('radio.station_definition', station_id=station.id) }}"> <i
+                            class="fas fa-edit"></i> </a></div>
+                    <a href="{{ url_for('radio.station_definition', station_id=station.id) }}">
+                    {% if ok_attributes[station.id][2] %}
+                        <img src="{{ url_for('static', filename='img/ok.png') }}">
+                      {{ _('API key configured') }}
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/warning.png') }}">
+                      {{ _('Configure API key') }}
+                        {% endif %}
+                    </a>
+                </td>
+                <td>
+                    <div class="edit-icon-td"><a
+                            href="{{ url_for('configuration.tts_setting', station_id=station.id) }}"> <i
+                            class="fas fa-edit"></i> </a></div>
+                    <a href="{{ url_for('configuration.tts_setting', station_id=station.id) }}">
+                    {% if ok_attributes[station.id][3] %}
+                        <img src="{{ url_for('static', filename='img/ok.png') }}">
+                      {{ _('TTS configured') }}
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/warning.png') }}">
+                      {{ _('Configure TTS') }}
+                        {% endif %}
+                    </a>
+                </td>
               <td>
-                <div class="edit-icon-td"> <a href="{{ url_for('configuration.telephony_station', station_id=station.id) }}"> <i class="fas fa-edit"></i> </a> </div>
-                {% if station.gws_in_sip %}
-                  {% for gw in station.gws_in_sip %}
-                    <i class="fas fa-sign-in-alt"></i> {{ gw }} <br/>
-                  {% endfor %}
-                {% endif %}
-                {% if station.gws_out_sip %}
-                  {% for gw in station.gws_out_sip %}
-                    <i class="fas fa-sign-out-alt"></i> {{ gw }} <br/>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td>
-                <div class="edit-icon-td"> <a href="{{ url_for('radio.station_definition', station_id=station.id) }}"> <i class="fas fa-edit"></i> </a> </div>
-                <i class="fas fa-tag"></i> {{station.id}} <br/>
-                <i class="fas fa-key"></i> <code>{{station.api_key}}</code> <br/>
-              </td>
-              <td>
-                <div class="edit-icon-td"> <a href="{{ url_for('configuration.tts_setting', station_id=station.id) }}"> <i class="fas fa-edit"></i> </a> </div>
-                {% if station.tts_voice %}<i class="fas fa-microphone"></i>
-                  {{station.tts_voice.name}} <br/> {% endif %}
-                {% if station.tts_samplerate %}<i class="fas fa-wave-square"></i>
-                  {{station.tts_samplerate.value}} Hz<br/>{% endif %}
-                {% if station.tts_audioformat %}<i class="fas fa-file-audio"></i>
-                  {{station.tts_audioformat.name}} <br/>{% endif %}
-              </td>
+                    <div class="edit-icon-td"><a
+                            href="{{ url_for('configuration.ivr_menu') }}"> <i
+                            class="fas fa-edit"></i> </a></div>
+                    <a href="{{ url_for('configuration.ivr_menu') }}">
+                    {% if ok_attributes[station.id][4] %}
+                        <img src="{{ url_for('static', filename='img/ok.png') }}">
+                      {{ _('IVR configured') }}
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/warning.png') }}">
+                      {{ _('Configure IVR') }}
+                        {% endif %}
+                    </a>
+                </td>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

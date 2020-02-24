@@ -33,38 +33,21 @@ def index():
     else:
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     stations = []
+    ok_attributes = dict()
 
     for network in networks:
         for station in network.stations:
-            station.gws_in_telephony = []
-            station.gws_out_telephony = []
-            station.gws_in_sip = []
-            station.gws_out_sip = []
-            for gw in station.outgoing_gateways:
-                if gw.number_bottom < 10000:
-                    station.gws_out_sip.append(gw.number_bottom)
-                else:
-                    station.gws_out_telephony.append(gw.number_bottom)
-            for gw in station.incoming_gateways:
-                if gw.number_bottom < 10000:
-                    station.gws_in_sip.append(gw.number_bottom)
-                else:
-                    station.gws_in_telephony.append(gw.number_bottom)
+            telephony_ok = len(station.incoming_gateways) > 0 and len(station.outgoing_gateways) > 0
+            sip_ok = station.sip_username is not None and station.sip_server is not None and station.sip_password is not None
+            app_config_ok = station.api_key is not None
+            tts_ok = station.tts_voice_id is not None and station.tts_audioformat_id is not None and station.tts_samplerate_id is not None
+            ivr_menus = sorted(station.community_menu, key=lambda x: x.id, reverse=True)
+            ivr_menu_ok = ivr_menus is not None and len(ivr_menus) > 0 and ((ivr_menus[0].use_tts and ivr_menus[0].welcome_message_txt is not None and ivr_menus[0].days_prompt_txt is not None and ivr_menus[0].record_prompt_txt is not None and ivr_menus[0].message_type_prompt_txt is not None and ivr_menus[0].finalization_prompt_txt is not None and ivr_menus[0].goodbye_message_txt is not None) or (not ivr_menus[0].use_tts and ivr_menus[0].welcome_message is not None and ivr_menus[0].days_prompt is not None and ivr_menus[0].record_prompt is not None and ivr_menus[0].message_type_prompt is not None and ivr_menus[0].finalization_prompt is not None and ivr_menus[0].goodbye_message is not None))
 
-            if station.gws_in_telephony:
-                # carlos fix
-                gws_out_telephony = station.gws_out_telephony if len(station.gws_out_telephony) > 0 else [0]
-                station.host_number = min(gws_out_telephony)
-                if len(station.gws_in_telephony):
-                    if len(station.gws_in_telephony) > 2:
-                        station.call_in_number = station.gws_in_telephony[1]
-                    else:
-                        station.call_in_number = station.gws_in_telephony[0]
-                else:
-                    station.call_in_number = None
-                station.community_number = max(station.gws_in_telephony)
+            ok_attributes[station.id] = [telephony_ok, sip_ok, app_config_ok, tts_ok, ivr_menu_ok]
             stations.append(station)
-    return render_template('configuration/index.html', stations=stations, userid=current_user.id)
+
+    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id)
 
 
 @configuration.route('/tts/', methods=['GET'])
