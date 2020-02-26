@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.ie.css') }}" />
 <![endif]-->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.css') }}">
+<link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600,800,900" rel="stylesheet" type="text/css">
 <style>#map { min-height: 200px; border:1px solid #ddd; margin-bottom:20px; }</style>
 {% endblock %}
 
@@ -13,6 +14,7 @@
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.awesome-markers.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.js') }}"></script>
+<script src="{{ url_for('static', filename='js/progressbar.js-master/dist/progressbar.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {
       $('.heading').click(function(){
@@ -20,17 +22,59 @@
     });
   });
 
+
+function renderProgress(progress, container) {
+var bar = new ProgressBar.Circle(document.getElementById(container), {
+  color: '#444',
+  // This has to be the same size as the maximum width to
+  // prevent clipping
+  strokeWidth: 8,
+  trailWidth: 8,
+  easing: 'easeInOut',
+  duration: 1400,
+  text: {
+    autoStyleContainer: false
+  },
+  from: { color: '#afa', width: 8 },
+  to: { color: '#faa', width: 8 },
+  // Set default step function for all animate calls
+  step: function(state, circle) {
+    circle.path.setAttribute('stroke', state.color);
+    circle.path.setAttribute('stroke-width', state.width);
+
+    var value = Math.round(circle.value() * 100);
+    if (value === 0) {
+      circle.setText('');
+    } else {
+      circle.setText(value+'%');
+    }
+
+  }
+});
+
+bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+bar.text.style.fontSize = '10px';
+
+bar.animate(progress *1.0/100);  // Number from 0.0 to 1.0
+}
 </script>
 
 <style type="text/css">
 table, tr, td, th {
   /*border: 1px solid black;*/
   border-collapse: collapse;
+  vertical-align: center;
+  align-content: center;
 }
 
 tr.heading {
   cursor: pointer;
   background-color: #EEEEEE;
+}
+
+td {
+  vertical-align: center;
+  horizontal-align: center;
 }
 
 .heading .sign:after {
@@ -42,6 +86,10 @@ tr.heading {
   content: "-";
 }
 
+.pb_container {
+  width: 30px;
+  height: 30px;
+}
 </style>
 {% endblock %}
 
@@ -61,10 +109,9 @@ tr.heading {
             <thead>
                 <tr>
                     <th rowspan="2">{{ _('Network') }}</th>
-                    <th rowspan="2">{{ _('Name') }}</th>
+                    <th rowspan="2">{{ _('Station') }}</th>
                     <th rowspan="2">{{ _('Battery') }}</th>
                     <th colspan="2">{{ _('GSM Signal') }}</th>
-                    <th colspan="2">{{ _('GSM Network type') }}</th>
                     <th rowspan="2">{{ _('WiFi Network') }}</th>
                     <th rowspan="2">{{ _('Memory') }}</th>
                     <th rowspan="2">{{ _('Storage') }}</th>
@@ -72,8 +119,6 @@ tr.heading {
                     <th rowspan="2">{{ _('Last ping') }}</th>
                 </tr>
                 <tr>
-                  <th>SIM 1</th>
-                  <th>SIM 2</th>
                   <th>SIM 1</th>
                   <th>SIM 2</th>
                 </tr>

@@ -48,6 +48,28 @@ def index():
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
     return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now)
 
+# get all the user's networks and their stations
+    if current_user.role_code == ADMIN:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
+    else:
+        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
+    stations = []
+    ok_attributes = dict()
+
+    for network in networks:
+        for station in network.stations:
+            telephony_ok = len(station.incoming_gateways) > 0 and len(station.outgoing_gateways) > 0
+            sip_ok = station.sip_username is not None and station.sip_server is not None and station.sip_password is not None
+            app_config_ok = station.api_key is not None
+            tts_ok = station.tts_voice_id is not None and station.tts_audioformat_id is not None and station.tts_samplerate_id is not None
+            ivr_menus = sorted(station.community_menu, key=lambda x: x.id, reverse=True)
+            ivr_menu_ok = ivr_menus is not None and len(ivr_menus) > 0 and ((ivr_menus[0].use_tts and ivr_menus[0].welcome_message_txt is not None and ivr_menus[0].days_prompt_txt is not None and ivr_menus[0].record_prompt_txt is not None and ivr_menus[0].message_type_prompt_txt is not None and ivr_menus[0].finalization_prompt_txt is not None and ivr_menus[0].goodbye_message_txt is not None) or (not ivr_menus[0].use_tts and ivr_menus[0].welcome_message is not None and ivr_menus[0].days_prompt is not None and ivr_menus[0].record_prompt is not None and ivr_menus[0].message_type_prompt is not None and ivr_menus[0].finalization_prompt is not None and ivr_menus[0].goodbye_message is not None))
+
+            ok_attributes[station.id] = [telephony_ok, sip_ok, app_config_ok, tts_ok, ivr_menu_ok]
+            stations.append(station)
+
+    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id)
+
 
 @radio.route('/emergency/', methods=['GET'])
 @login_required

@@ -3,25 +3,20 @@
 {% set ok_color = '#99ff99' %}
 
 {% if analytics %}
-{% if analytics.battery_level[-1] <= 60 %}   {% set battery_color = warning_color %} {% set battery_level_img = 'battery_medium.png' %}
-{% elif analytics.battery_level[-1] <= 30 %} {% set battery_color = critical_color %} {% set battery_level_img = 'battery_low.png' %}
-{% else %}                                   {% set battery_color = ok_color %} {% set battery_level_img = 'battery_ok.png' %} {% endif %}
+{% if analytics.battery_level[-1] <= 60 %}    {% set battery_level_img = 'battery_medium.png' %}
+{% elif analytics.battery_level[-1] <= 30 %}  {% set battery_level_img = 'battery_low.png' %}
+{% else %}                                    {% set battery_level_img = 'battery_ok.png' %} {% endif %}
 
-{% if analytics.gsm_signal_1[-1] <= 60 %}   {% set gsm_color_1 = warning_color %} {% set network_level_1_img = 'network_medium.png' %}
-{% elif analytics.gsm_signal_1[-1] <= 30 %} {% set gsm_color_1 = critical_color %} {% set network_level_1_img = 'network_low.png' %}
-{% else %}                                {% set gsm_color_1 = ok_color %} {% set network_level_1_img = 'network_ok.png' %} {% endif %} 
+{% if analytics.gsm_network_type_1[-1].split('|')[0] == '13' %}   {% set network_type_1_img = '4g.png' %}
+{% elif analytics.gsm_network_type_1[-1].split('|')[0] == '10' %} {% set network_type_1_img = '3g.png' %}
+{% else %}                                {% set network_type_1_img = 'no_network.png' %} {% endif %}
 
-{% if analytics.gsm_signal_2[-1] <= 60 %}   {% set gsm_color_2 = warning_color %} {% set network_level_2_img = 'network_medium.png' %}
-{% elif analytics.gsm_signal_2[-1] <= 30 %} {% set gsm_color_2 = critical_color %} {% set network_level_2_img = 'network_low.png' %}
-{% else %}                                {% set gsm_color_2 = ok_color %} {% set network_level_2_img = 'network_ok.png' %} {% endif %} 
+{% if analytics.gsm_network_type_2[-1].split('|')[0] == '13' %}   {% set network_type_2_img = '4g.png' %}
+{% elif analytics.gsm_network_type_2[-1].split('|')[0] == '10' %} {% set network_type_2_img = '3g.png' %}
+{% else %}                                {% set network_type_2_img = 'no_network.png' %} {% endif %}
 
-{% if analytics.gsm_network_type_1[-1] <= 60 %}   {% set gsm_network_type_1 = warning_color %}
-{% elif analytics.gsm_network_type_1[-1] <= 30 %} {% set gsm_network_type_1 = critical_color %}
-{% else %}                                {% set gsm_network_type_1 = ok_color %} {% endif %}
-
-{% if analytics.wifi_connectivity[-1] <= 60 %}   {% set wifi_color = warning_color %} {% set wifi_level_img = 'network_medium.png' %}
-{% elif analytics.wifi_connectivity[-1] <= 30 %} {% set wifi_color = critical_color %} {% set wifi_level_img = 'network_low.png' %}
-{% else %}                                       {% set wifi_color = ok_color %} {% set wifi_level_img = 'network_ok.png' %} {% endif %} 
+{% if analytics.wifi_connectivity[-1] > 0 %}   {% set wifi_level_img = 'wifi_on.png' %}
+{% else %}                                     {% set wifi_level_img = 'wifi_off.png' %} {% endif %}
 
 {% if analytics.memory_utilization[-1] >= 80 %}   {% set memory_color = critical_color %}
 {% elif analytics.memory_utilization[-1] >= 50 %} {% set memory_color = warning_color %}
@@ -38,44 +33,59 @@
 {% if station.last_accessed_mobile%}
   {% set last_ping_interval = (now() - station.last_accessed_mobile).total_seconds() %}
   {% if last_ping_interval > (station.analytic_update_frequency * 2) %}
-    {% set ping_color = critical_color %}
+    {% set ping_img = 'offline.png' %}
   {% elif last_ping_interval > station.analytic_update_frequency %}
-    {% set ping_color = warning_color %}
+    {% set ping_img = 'offline.png' %}
   {% else %}
-    {% set ping_color = ok_color %}
+    {% set ping_img = 'online.png' %}
   {% endif %}
 {% else %}
   {% set last_ping_interval = 0 %}
+  {% set ping_img = 'offline.png' %}
 {% endif %}
 {% endif %}
 
 <tr>
   <td>{{network.name}}</td>
   <td>{{station.name}}</td>
-  <td style="background-color: {{battery_color}};">
-    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + battery_level_img ) }}" width="25" height="25"/> {% endif %}
+  <td>
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + battery_level_img ) }}" width="25" height="25" title="{{ analytics.battery_level[-1] }}%"/> {% endif %}
   </td>
-  <td style="background-color: {{gsm_color_1}};">
-    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_level_1_img ) }}" width="25" height="25"/> {% endif %}
+  <td >
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_type_1_img) }}" width="25" height="25" title="{{ analytics.gsm_signal_1[-1]}} dB"/> {% endif %}
   </td>
-  <td style="background-color: {{gsm_color_2}};">
-    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_level_2_img ) }}" width="25" height="25"/> {% endif %}
+  <td>
+    {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + network_type_2_img ) }}" width="25" height="25"/> {% endif %}
   </td>
-  <td style="background-color: {{gsm_network_type_color_1}};">
-    {% if analytics %}{{analytics.gsm_network_type_1[-1] | upper}}{% endif %}</td>
-  <td style="background-color: {{gsm_network_type_color_2}};">
-    {% if analytics %}{{analytics.gsm_network_type_2[-1] | upper}}{% endif %}</td>
 
-  <td style="background-color: {{wifi_color}};">
+  <td>
     {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + wifi_level_img ) }}" width="25" height="25"/> {% endif %}
   </td>
-  <td style="background-color: {{memory_color}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.memory_utilization}}{% endif %}</span></td>
-  <td style="background-color: {{storage_color}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.storage_usage}}{% endif %}</span></td>
-  <td style="background-color: {{cpu_color}};">
-    <span class="sparkline" data-type="line">{% if analytics %}{{analytics.cpu_load}}{% endif %}</span></td>
-  <td style="background-color: {{ping_color}};">
-    {% if analytics %}{{last_ping_interval | int}} <small>({{station.analytic_update_frequency | int}})</small>{% endif %}
+  <td>
+    {% if analytics %}
+    <div class="pb_container" id="pb_memory_container_{{ analytics.id[-1] }}">
+      <script>
+         renderProgress({{ analytics.memory_utilization[-1] }}, "pb_memory_container_{{ analytics.id[-1] }}")
+      </script>
+    </div>
+    {% endif %}
+  <td style="vertical-align: center; horizontal-align: center;">
+    {% if analytics %}
+    <div class="pb_container" id="pb_storage_container_{{ analytics.id[-1] }}">
+      <script>
+         renderProgress({{ analytics.storage_usage[-1] }}, "pb_storage_container_{{ analytics.id[-1] }}")
+      </script>
+    </div>
+  {% endif %}
+  <td>
+    {% if analytics %}
+    <div class="pb_container" id="pb_cpu_container_{{ analytics.id[-1] }}">
+      <script>
+         renderProgress({{ analytics.cpu_load[-1] }}, "pb_cpu_container_{{ analytics.id[-1] }}")
+      </script>
+    </div>
+    {% endif %}
+  <td style="horizontal-align: middle;">
+     {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + ping_img ) }}" title="Last ping {{ last_ping_interval }} seconds ago" width="25" height="25"/> {% endif %}
   </td>
 </tr>
