@@ -7,12 +7,12 @@
 {% elif analytics.battery_level[-1] <= 30 %}  {% set battery_level_img = 'battery_low.png' %}
 {% else %}                                    {% set battery_level_img = 'battery_ok.png' %} {% endif %}
 
-{% if analytics.gsm_network_type_1[-1].split('|')[0] == '13' %}   {% set network_type_1_img = '4g.png' %}
-{% elif analytics.gsm_network_type_1[-1].split('|')[0] == '10' %} {% set network_type_1_img = '3g.png' %}
+{% if analytics.gsm_network_type_1[-1] and analytics.gsm_network_type_1[-1].split('|')|length > 0 and analytics.gsm_network_type_1[-1].split('|')[0] == '13' %}   {% set network_type_1_img = '4g.png' %}
+{% elif analytics.gsm_network_type_1[-1] and analytics.gsm_network_type_1[-1].split('|')|length > 0 and analytics.gsm_network_type_1[-1].split('|')[0] == '10' %} {% set network_type_1_img = '3g.png' %}
 {% else %}                                {% set network_type_1_img = 'no_network.png' %} {% endif %}
 
-{% if analytics.gsm_network_type_2[-1].split('|')[0] == '13' %}   {% set network_type_2_img = '4g.png' %}
-{% elif analytics.gsm_network_type_2[-1].split('|')[0] == '10' %} {% set network_type_2_img = '3g.png' %}
+{% if analytics.gsm_network_type_2[-1]  and analytics.gsm_network_type_2[-1].split('|')|length > 0 and analytics.gsm_network_type_2[-1].split('|')[0] == '13' %}   {% set network_type_2_img = '4g.png' %}
+{% elif analytics.gsm_network_type_2[-1] and analytics.gsm_network_type_2[-1].split('|')|length> 0 and analytics.gsm_network_type_2[-1].split('|')[0] == '10' %} {% set network_type_2_img = '3g.png' %}
 {% else %}                                {% set network_type_2_img = 'no_network.png' %} {% endif %}
 
 {% if analytics.wifi_connectivity[-1] > 0 %}   {% set wifi_level_img = 'wifi_on.png' %}
@@ -85,7 +85,7 @@
       </script>
     </div>
     {% endif %}
-  <td style="horizontal-align: middle;">
+  <td>
      {% if analytics %}    <img src="{{ url_for('static', filename='img/radio/' + ping_img ) }}" title="Last ping {{ last_ping_interval }} seconds ago" width="25" height="25"/> {% endif %}
   </td>
 </tr>
