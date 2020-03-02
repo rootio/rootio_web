@@ -159,8 +159,8 @@ class Station(BaseMixin, db.Model):
 
     whitelist_number = db.relationship(u'PhoneNumber', secondary=u'radio_whitelist', backref=db.backref('stations'))
 
-    client_update_frequency = db.Column(db.Float)  # in seconds
-    analytic_update_frequency = db.Column(db.Float)  # in seconds
+    client_update_frequency = db.Column(db.Integer, default=60)  # in seconds
+    analytic_update_frequency = db.Column(db.Integer, default=30)  # in seconds
     broadcast_ip = db.Column(db.String(16))
     broadcast_port = db.Column(db.String(16))
 
