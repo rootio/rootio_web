@@ -12,12 +12,12 @@ import re
 
 class RSSDownloader:
 
-    def __init__(self, podcast_id, logger, engine):
-        self.__podcast_id = podcast_id
+    def __init__(self, podcast, logger, engine):
+        self.__podcast = podcast
         self.__logger = logger
         self.__engine = engine # create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
         self.__db = self.__get_db_connection()
-        self.__get_podcast()
+
 
     def download(self):
         base_date = self.__get_last_publish_date()
@@ -35,9 +35,6 @@ class RSSDownloader:
         except Exception as e:
             self.__logger.error("error in __close_db_connection: {0}".format(e.message))
             return
-
-    def __get_podcast(self):
-        self.__podcast = self.__db.query(ContentPodcast).filter(ContentPodcast.id == self.__podcast_id, ContentPodcast.deleted == False).first()
 
     def __get_last_publish_date(self):
         try:

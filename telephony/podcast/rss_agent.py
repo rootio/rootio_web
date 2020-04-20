@@ -18,7 +18,7 @@ class RSSAgent:
         session = None
         try:
             session = sessionmaker(bind=self.__engine)()
-            return session.query(ContentPodcast).all()
+            return session.query(ContentPodcast).filter(ContentPodcast.deleted == False).all()
         except Exception as e:
             self.__logger.error("error in __get_podcast_tracks: {0}".format(e.message))
             return []
@@ -36,10 +36,13 @@ class RSSAgent:
                 podcast_tracks = self.__get_podcast_tracks()
                 self.__logger.info("Checking for new podcasts in: {0}".format(podcast_tracks))
                 for podcast_track in podcast_tracks:
-                    pd = RSSDownloader(podcast_track.id, self.__logger, self.__engine)
-                    thr = threading.Thread(target=pd.download)
-                    thr.daemon = True
-                    thr.start()
+                    try:
+                        pd = RSSDownloader(podcast_track, self.__logger, self.__engine)
+                        thr = threading.Thread(target=pd.download)
+                        thr.daemon = True
+                        thr.start()
+                    except Exception as e:
+                        self.__logger.error("error(1) in run: {0}".format(e.message))
                 sleep(300)  # 5 minutes
             except Exception as e:
-                self.__logger.error("error in run: {0}".format(e.message))
+                self.__logger.error("error(2) in run: {0}".format(e.message))
