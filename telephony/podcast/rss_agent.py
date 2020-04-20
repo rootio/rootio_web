@@ -19,7 +19,7 @@ class RSSAgent:
         #session = None
         try:
             #session = sessionmaker(bind=self.__engine)()
-            return self.__session.query(ContentPodcast).filter(ContentPodcast.deleted == False).all()
+            return self.__session.query(ContentPodcast).filter(ContentPodcast.deleted == False or ContentPodcast.deleted == None).all()
         except Exception as e:
             self.__logger.error("error in __get_podcast_tracks: {0}".format(e.message))
             return []
