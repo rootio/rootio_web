@@ -30,7 +30,7 @@ class RSSDownloader:
             last_podcast = self.__db.query(ContentPodcastDownload).filter(
                 ContentPodcastDownload.podcast_id == self.__podcast.id).order_by(
                 desc(ContentPodcastDownload.date_created)).first()
-            if last_podcast is not None:
+            if last_podcast is not None and last_podcast.date_created is not none:
                 return last_podcast.date_created
             else:  # default to last 1 week, in case of weeklies
                 return datetime.utcnow() + timedelta(days=-3)
