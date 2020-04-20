@@ -13,11 +13,12 @@ class RSSAgent:
     def __init__(self, logger):
         self.__logger = logger
         self.__engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+        self.__session = sessionmaker(bind=self.__engine)()
 
     def __get_podcast_tracks(self):
-        session = None
+        #session = None
         try:
-            session = sessionmaker(bind=self.__engine)()
+            #session = sessionmaker(bind=self.__engine)()
             return session.query(ContentPodcast).filter(ContentPodcast.deleted == False).all()
         except Exception as e:
             self.__logger.error("error in __get_podcast_tracks: {0}".format(e.message))
@@ -25,7 +26,8 @@ class RSSAgent:
         finally:
             try:
                 if session is not None:
-                    session.close()
+                    pass
+                    #session.close()
             except Exception as e:  # some other error:
                 self.__logger.error("error in __get_podcast_tracks(finally): {0}".format(e.message))
                 pass  # log this
