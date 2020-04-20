@@ -50,12 +50,12 @@ class OutcallAction:
             self.__scheduler = Scheduler()
             self.__scheduler.start()
             self.__call_handler.register_for_incoming_calls(self)
-            self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number)[-9:])
-            self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number)[-9:])
+            self.__call_handler.register_for_incoming_dtmf(self, str(self.__host.phone.raw_number)[-len(str(self.__host.phone.raw_number)):])
+            self.__call_handler.register_for_host_call(self, str(self.__host.phone.raw_number)[-len(str(self.__host.phone.raw_number)):])
             self.request_host_call()
         except Exception as e:
             self.program.log_program_activity("Error in OutcallAction.start: {0}".format(e.message))
-            print e
+            print(e)
 
     def stop(self, graceful=PlayStatus.success, call_info=None):
         self.hangup_call()
@@ -63,7 +63,7 @@ class OutcallAction:
         self.__scheduler.shutdown()
         # deregister from any triggers
         self.__call_handler.deregister_for_incoming_calls(self)
-        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number)[-9:])
+        self.__call_handler.deregister_for_incoming_dtmf(str(self.__host.phone.raw_number)[-len(str(self.__host.phone.raw_number)):])
         self.program.notify_program_action_stopped(graceful, call_info)
 
     def __get_host(self, host_id):
@@ -137,21 +137,21 @@ class OutcallAction:
 
     def notify_call_answered(self, answer_info):
         if self.__host.phone.raw_number not in self.__available_calls:
-            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-len(str(self.__host.phone.raw_number)):]] = answer_info
             self.__inquire_host_readiness()
             self.program.log_program_activity("host call has been answered")
-        elif 'Caller-Destination-Number' in answer_info and answer_info['Caller-Destination-Number'][-12:] == self.__invitee_number:
-            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
+        elif 'Caller-Destination-Number' in answer_info and answer_info['Caller-Destination-Number'][-len(str(self.__host.phone.raw_number)):] == self.__invitee_number:
+            self.__available_calls[answer_info['Caller-Destination-Number'][-len(str(self.__host.phone.raw_number)):]] = answer_info
             self.__invitee_number = "";
             self.__collecting_digits_to_call = False
         else:  # This notification is from station answering call
-            self.__available_calls[answer_info['Caller-Destination-Number'][-12:]] = answer_info
+            self.__available_calls[answer_info['Caller-Destination-Number'][-len(str(self.__host.phone.raw_number)):]] = answer_info
             self.__prompt_engine.play_prompt(self.__prompt_engine.ON_AIR_PROMPT, self.__call_handler, self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             #self.__call_handler.speak('You are now on air',
                                               #self.__available_calls[self.__host.phone.raw_number]['Channel-Call-UUID'])
             # result1 = self.__schedule_warning()
             # result2 = self.__schedule_hangup()
-        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-12:])
+        self.__call_handler.register_for_call_hangup(self, answer_info['Caller-Destination-Number'][-len(str(self.__host.phone.raw_number)):])
 
     def warn_number(self):
         seconds = self.duration - self.__warning_time
