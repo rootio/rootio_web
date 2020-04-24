@@ -179,26 +179,43 @@ def program_definition(program_id):
     # hosts in my network
     if current_user.role_code == ADMIN:
         hosts = Person.query.all()
-    else:
-        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()
-    news = ContentTrack.query.join(ContentType).filter(ContentType.name == "News").all()
-    ads = ContentTrack.query.join(ContentType).filter(ContentType.name == "Advertisements").all()
-
-    if current_user.role_code == ADMIN:
-        medias = ContentTrack.query\
-        .filter(ContentType.name == "Media")\
-        .filter(ContentTrack.deleted != True)\
-        .join(ContentType)\
-        .all()
+        news = ContentTrack.query \
+            .filter(ContentType.name == "News") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
+        ads = ContentTrack.query \
+            .filter(ContentType.name == "Advertisements") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
+        medias = ContentTrack.query \
+            .filter(ContentType.name == "Media") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
     else:
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks)\
-            .filter(ContentTrack.deleted != True)\
-            .filter(Network.id.in_(network_ids))\
-            .join(ContentType)\
+        medias = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "Media") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
             .all()
+        news = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "News") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
+            .all()
+        ads = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "Advertisements") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
+            .all()
+        hosts = Person.query.join(Person.networks).filter(Network.id.in_(network_ids)).all()
         
     podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
@@ -244,54 +261,48 @@ def program_add():
     form = ProgramForm(request.form)
     program = None
 
+    # hosts in my network
     if current_user.role_code == ADMIN:
-         # hosts in my network
         hosts = Person.query.all()
-        news = ContentTrack.query\
-                                .filter(ContentType.name == "News")\
-                                .filter(ContentTrack.deleted != True)\
-                                .join(ContentType)\
-                                .all()
-        ads = ContentTrack.query\
-                                .filter(ContentType.name == "Advertisements")\
-                                .filter(ContentTrack.deleted != True)\
-                                .join(ContentType)\
-                                .all()
-        
-        medias = ContentTrack.query\
-                                .filter(ContentType.name == "Media")\
-                                .filter(ContentTrack.deleted != True)\
-                                .join(ContentType)\
-                                .all()
-
-
-        podcasts = ContentPodcast.query\
-                                    .all()
+        news = ContentTrack.query \
+            .filter(ContentType.name == "News") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
+        ads = ContentTrack.query \
+            .filter(ContentType.name == "Advertisements") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
+        medias = ContentTrack.query \
+            .filter(ContentType.name == "Media") \
+            .filter(ContentTrack.deleted != True) \
+            .join(ContentType) \
+            .all()
     else:
-        # hosts in my network
-        hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers)\
-                                                        .filter(User.id == current_user.id)\
-                                                        .all()
-        news = ContentTrack.query.join(User, Network.networkusers)\
-                                .filter(User.id == current_user.id)\
-                                .join(ContentTrack, ContentType)\
-                                .filter(ContentType.name == "News")\
-                                .filter(ContentTrack.deleted != True)\
-                                .all()
-        ads = ContentTrack.query.join(User, Network.networkusers)\
-                                .filter(User.id == current_user.id)\
-                                .join(ContentTrack, ContentType)\
-                                .filter(ContentType.name == "Advertisements")\
-                                .filter(ContentTrack.deleted != True)\
-                                .all()
-        
         networks = current_user.networks
         network_ids = [network.id for network in networks]
-        medias = ContentTrack.query.join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids)).all()
+        medias = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "Media") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
+            .all()
+        news = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "News") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
+            .all()
+        ads = ContentTrack.query.join(ContentTrack.networks) \
+            .filter(ContentTrack.deleted != True) \
+            .filter(ContentType.name == "Advertisements") \
+            .filter(Network.id.in_(network_ids)) \
+            .join(ContentType) \
+            .all()
+        hosts = Person.query.join(Person.networks).filter(Network.id.in_(network_ids)).all()
 
-        podcasts = ContentPodcast.query.join(User, Network.networkusers)\
-                                    .filter(User.id == current_user.id)\
-                                    .all()
+    podcasts = ContentPodcast.query.all()
     community_contents = {"data": [{"type": "Ads", "category_id": "1"}, {"type": "Announcements", "category_id": "2"},
                                    {"type": "Greetings", "category_id": "3"}]}
 
