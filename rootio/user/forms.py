@@ -42,8 +42,7 @@ class ProfileCreateForm(ProfileCreateFormBase):
     name = TextField(u'Name', [Required(), Length(max=100)])
     password = PasswordField(u'Password', [Required(), Length(max=100)])
     password1 = PasswordField(u'Retype-password', [Required(), Length(max=100)])
-    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
-    #role_code = RadioField(_("Role"), choices=[(str(val), label) for val, label in USER_ROLE.items()])
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
@@ -53,6 +52,14 @@ class ProfileCreateForm(ProfileCreateFormBase):
     location = TextField(u'Location', [Length(max=64)])
     bio = TextAreaField(u'Bio', [Length(max=1024)])
     submit = SubmitField(u'Save')
+
+    def get_role_codes(self, role_code):
+        if role_code == 0:
+            return [(str(k), v) for k, v in USER_ROLE.items()]
+        elif role_code == 3:
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (3, 4)]
+        elif role_code == 1:
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (1, 2, 3, 4)]
 
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
@@ -70,6 +77,7 @@ class ProfileCreateForm(ProfileCreateFormBase):
         if User.query.filter_by(email=field.data).first() is not None:
             raise ValidationError(_('This email is already registered'))
 
+
 ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
 class ProfileForm(ProfileFormBase):
     user_id = None
@@ -78,9 +86,7 @@ class ProfileForm(ProfileFormBase):
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
     networks = QuerySelectMultipleField('Networks',[Required()], query_factory=lambda: current_user.networks)
-    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in USER_ROLE.items()])
-    #role_code = RadioField(u"Role", choices=[])
-    #role_code = RadioField(_("Role")) #, [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[(str(val), label) for val, label in role_codes().items()])
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
     gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
@@ -93,11 +99,11 @@ class ProfileForm(ProfileFormBase):
 
     def get_role_codes(self, role_code):
         if role_code == 0:
-            return USER_ROLE
+            return [(str(k), v) for k, v in USER_ROLE.items()]
         elif role_code == 3:
-            return [(k, v) for k, v in USER_ROLE.items() if k in (3,4)]
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (3, 4)]
         elif role_code == 1:
-            return [(k, v) for k, v in USER_ROLE.items() if k in (1,2)]
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (1, 2, 3, 4)]
 
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
@@ -110,8 +116,6 @@ class ProfileForm(ProfileFormBase):
     def validate_email(self, field):
         if User.query.filter(and_(User.email==field.data,User.id != self.user_id)).first() is not None:
             raise ValidationError(_('This email is already registered'))
-
-
 
 
 class EditProfileForm(Form):

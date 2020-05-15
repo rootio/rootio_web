@@ -105,7 +105,7 @@ def profile(user_id):
                        status_code=user.status_code,
                        next=request.args.get('next'))
     form.user_id = user.id
-    #form.role_code.choices = form.get_role_codes(current_user.role_code) #= choices=[(str(val), label) for val, label in USER_ROLE.items()]
+    form.role_code.choices = form.get_role_codes(current_user.role_code)
     if form.validate_on_submit():
 
         if form.avatar_file.data:
