@@ -7,7 +7,7 @@ from flask.ext.login import UserMixin
 
 from ..extensions import db
 from ..utils import get_current_time, GENDER_TYPE, STRING_LEN
-from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, ACTIVE, USER_STATUS
+from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, ACTIVE, USER_STATUS, PENDING
 
 class UserDetail(db.Model):
     __tablename__ = 'user_details'
@@ -117,3 +117,16 @@ class User(RootioUser, UserMixin):
 
     def check_name(self, name):
         return User.query.filter(db.and_(User.name == name, User.email != self.id)).count() == 0
+
+
+class NetworkInvitation(db.Model):
+    __tablename__ = 'user_invitation'
+
+    id = Column(db.Integer, primary_key=True)
+    email = Column(db.String(STRING_LEN), nullable=False, unique=True)
+    invited_by_user_id = Column(db.Integer, db.ForeignKey("user_user.id"))
+    invitation_key = Column(db.String(STRING_LEN))
+    network_id = Column(db.Integer, db.ForeignKey("radio_network"))
+    created_time = Column(db.DateTime, default=get_current_time)
+    status_code = Column(db.Integer, default=PENDING)
+    deleted = Column(db.Boolean, default=False)

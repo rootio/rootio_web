@@ -25,4 +25,16 @@ USER_STATUS = {
     ACTIVE: 'active',
 }
 
+#Network Invitation status
+# User status
+PENDING = 0
+ACCEPTED = 1
+REJECTED = 2
+INVITATION_STATUS = {
+    PENDING: 'pending',
+    ACCEPTED: 'accepted',
+    REJECTED: 'rejected',
+}
+
+
 DEFAULT_USER_AVATAR = 'default.jpg'
