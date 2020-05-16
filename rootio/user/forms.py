@@ -146,3 +146,18 @@ class EditProfileForm(Form):
     def validate_avatar_file(form, field):
         if field.data and not allowed_file(field.data.filename):
             raise ValidationError("Please upload files with extensions: %s" % "/".join(ALLOWED_AVATAR_EXTENSIONS))
+
+
+class NetworkInvitationForm(Form):
+    email = EmailField(_("Email"), [Required(), Email()])
+    networks = QuerySelectMultipleField(_("Networks"), [Required()], query_factory=lambda: current_user.networks)
+    role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[])
+    submit = SubmitField(_("Invite"))
+
+    def get_role_codes(self, role_code):
+        if role_code == 0:
+            return [(str(k), v) for k, v in USER_ROLE.items()]
+        elif role_code == 3:
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (3, 4)]
+        elif role_code == 1:
+            return [(str(k), v) for k, v in USER_ROLE.items() if k in (1, 2, 3, 4)]

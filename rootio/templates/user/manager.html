@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+{% extends "user/layout.html" %}
 
 {% block body %}
 <div class="container">
@@ -8,7 +8,7 @@
     </div>
 
     <div class="pull-right">
-        <a class="btn btn-success" href="{{ url_for('user.add_user') }}"><strong>{{ _('Add') }} +</strong></a>
+        <a class="btn btn-success" href="{{ url_for('user.invite') }}"><strong>{{ _('Invite') }} +</strong></a>
     </div>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>

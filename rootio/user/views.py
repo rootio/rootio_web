@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import uuid
 
 from flask import url_for, redirect, current_app, request, flash, Blueprint, render_template, send_from_directory, abort
 from flask import current_app as APP
@@ -8,14 +9,14 @@ from flask.ext.login import login_required, current_user
 
 from wtforms.validators import AnyOf
 from wtforms import RadioField
-from .models import User, UserDetail
+from .models import User, UserDetail, NetworkInvitation
 from rootio.decorators import admin_required
-from rootio.user.forms import ProfileForm, ProfileCreateForm
+from rootio.user.forms import ProfileForm, ProfileCreateForm, NetworkInvitationForm
 from rootio.radio.models import Network
 from ..extensions import db
 from .constants import USER_ROLE
 from rootio.user import ADMIN
-from ..utils import send_activation_email
+from ..utils import send_activation_email, send_invitation_email
 from flask.ext.babel import gettext as _
 from sqlalchemy import and_
 from ..utils import send_activation_email
@@ -83,6 +84,47 @@ def add_user():
         flash(_('Validation error'), 'error')
 
     return render_template('user/user.html', active="profile", form=form)
+
+
+@user.route('/invite/', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def invite():
+
+    invitation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
+    form = NetworkInvitationForm()
+    form.role_code.choices = form.get_role_codes(current_user.role_code)
+
+    if form.validate_on_submit():
+        try:
+            for network in form.networks.data:
+                invitation = NetworkInvitation()
+                invitation.email = form.email.data
+                invitation.network_id = network.id
+                invitation.invited_by_user_id = current_user.id
+                invitation.role_code = form.role_code.data
+                invitation.invitation_key = invitation_key
+                db.session.add(invitation)
+                db.session.commit()
+
+            send_invitation_email(current_user, form.email.data, invitation_key)
+            flash(_('User Invited.'), 'success')
+        except Exception as e:
+            print e
+
+    elif request.method == "POST":
+        flash(_('Validation error'), 'error')
+
+    return render_template('user/invite.html', active="invite", form=form)
+
+
+@user.route('/invitations/', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def invitations():
+
+    invites = NetworkInvitation.query.join(Network).filter(Network.networkusers.contains(current_user)).all()
+    return render_template('user/invitations.html', active="Invitations", invitations=invites)
 
 
 @user.route('/profile', methods=['GET', 'POST'], defaults={'user_id': None})

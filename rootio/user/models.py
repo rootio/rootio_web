@@ -7,7 +7,8 @@ from flask.ext.login import UserMixin
 
 from ..extensions import db
 from ..utils import get_current_time, GENDER_TYPE, STRING_LEN
-from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, ACTIVE, USER_STATUS, PENDING
+from .constants import NETWORK_USER, USER_ROLE, ADMIN, INACTIVE, ACTIVE, USER_STATUS, PENDING, INVITATION_STATUS
+
 
 class UserDetail(db.Model):
     __tablename__ = 'user_details'
@@ -126,8 +127,18 @@ class NetworkInvitation(db.Model):
     email = Column(db.String(STRING_LEN), nullable=False, unique=True)
     invited_by_user_id = Column(db.Integer, db.ForeignKey("user_user.id"))
     invitation_key = Column(db.String(STRING_LEN))
-    network_id = Column(db.Integer, db.ForeignKey("radio_network"))
+    network_id = Column(db.Integer, db.ForeignKey("radio_network.id"))
     created_time = Column(db.DateTime, default=get_current_time)
     status_code = Column(db.Integer, default=PENDING)
     role_code = Column(db.Integer, nullable=False)
     deleted = Column(db.Boolean, default=False)
+    network = db.relationship(u'Network', backref=db.backref('network_invitations'))
+
+    @property
+    def role(self):
+        return USER_ROLE[self.role_code]
+
+    @property
+    def status(self):
+        return INVITATION_STATUS[self.status_code]
+

@@ -15,6 +15,7 @@ import boto3
 import sox
 from flask import json
 from flask.ext.wtf import Form
+from flask_login import current_user
 from sqlalchemy import or_, text
 from werkzeug.utils import secure_filename
 
@@ -96,6 +97,25 @@ def send_activation_email(db,user):
     message.send_message()
     # if login_user(user):
     #    return redirect(form.next.data or url_for('user.index'))
+
+
+def send_invitation_email(invited_by_user, invitee_email, invitation_key):
+    from frontend.utils import RootIOMailMessage
+
+    # send the email with the link
+    message = RootIOMailMessage()
+    message.set_header('Content-Type', 'text/html')
+    message.set_subject("Invitation to RootIO platform")
+    my_path = os.path.abspath(os.path.dirname(__file__))
+    file_path = os.path.join(my_path, "templates/user/invitation_email_template.txt")
+    body = string.Template(open(file_path).read())
+    link = "%s/invitation/%s" % (current_app.config['DOMAIN'], invitation_key)
+    details = {"invited_by": invited_by_user.name, "invitation_link": link, "username": invitee_email}
+    message.set_body(body.substitute(details))
+    message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
+    message.add_to_address(invitee_email)
+    message.add_to_address(invited_by_user.email)
+    message.send_message()
 
 
 def format_log_line(line):

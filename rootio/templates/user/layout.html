@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active) %}
+{% set page_title = page_header %}
+
+{% set tab_title = "Users" %}
+{% set tabs = [
+    (_("Users"), url_for('user.user_dashboard')),
+    (_("Invitations"), url_for('user.invitations')),
+]%}

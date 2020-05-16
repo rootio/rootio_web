@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<div class="container">
+ <h2>{{ _('Manage Users') }}</h2>
+    <div class="pull-left">
+        <h3>{{ _('Invitations') }}</h3>
+    </div>
+
+    <div class="pull-right">
+        <a class="btn btn-success" href="{{ url_for('user.invite') }}"><strong>{{ _('Invite') }} +</strong></a>
+    </div>
+    <table id="offline_datatable" class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Email') }}</th>
+                <th>{{ _('Invitation Date') }}</th>
+                <th>{{ _('Role') }}</th>
+                <th>{{ _('Network') }}</th>
+                <th>{{ _('Status') }}</th>
+                <th>{{ _('Delete') }}</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        {% for i in invitations %}
+        <tr>
+            <td>{{ i.email }}</td>
+            <td>{{ i.created_time }}</td>
+            <td>{{ i.role }}</td>
+            <td>{{ i.network.name }}</td>
+            <td>  {% if i.status_code == 0 %} Pending (<a href="{{ url_for('user.invite') }}?email={{i.email}}">Re-send email</a>) {% else %} {{ i.status }} {% endif %}</td>
+            <td><a href="{{ url_for('user.invite', invitation_id=i.id) }}">{{ _('Cancel') }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}

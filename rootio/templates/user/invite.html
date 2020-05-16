@@ -1,0 +1,9 @@
+{% extends 'user/layout.html' %}
+{% from "macros/_form.html" import render_form %}
+
+{% block body %}
+<div class="settings_wrapper">
+    <h3>{{ _('Invite User') }}</h3>
+    {{ render_form(url_for('user.invite'), form) }}
+</div>
+{% endblock %}

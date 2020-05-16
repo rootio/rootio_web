@@ -1,0 +1,13 @@
+Hello there!<br/>
+
+<p>You have been invited to the RootIO platform by $invited_by.</p>
+
+<p>To accept or reject this invitation please click on the link below:</p>
+
+       <div>$invitation_link</div>
+
+<p>In case you need to sign in or sign up, your username is <b>$username</b></p>
+
+<p>See you soon and best of regards!</p>
+
+<p>The RootIO team</p>
