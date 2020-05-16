@@ -10,6 +10,9 @@ import re
 import os
 import glob
 from itertools import islice
+from os import path
+from string import Template
+
 from simplejson.scanner import JSONDecodeError
 from sqlalchemy import Date, cast
 
@@ -144,15 +147,53 @@ def station_add():
     station = None
 
     if form.validate_on_submit():
-        cleaned_data = form.data  # make a copy
-        cleaned_data.pop('submit', None)  # remove submit field from list
-        cleaned_data.pop('phone_inline', None)  # and also inline forms
-        cleaned_data.pop('location_inline', None)
-        station = Station(**cleaned_data)  # create new object from data
+        try:
+            cleaned_data = form.data  # make a copy
+            cleaned_data.pop('submit', None)  # remove submit field from list
+            cleaned_data.pop('phone_inline', None)  # and also inline forms
+            cleaned_data.pop('location_inline', None)
+            station = Station(**cleaned_data)  # create new object from data
+            db.session.add(station)
+            db.session.flush()
+            db.session.refresh(station)
 
-        db.session.add(station)
-        db.session.commit()
-        flash(_('Station added.'), 'success')
+        #1) create SIP profile
+
+            station.sip_username = "{0}{1}".format(DefaultConfig.DEFAULT_SIP_PREFIX, station.id)
+            station.sip_password = DefaultConfig.DEFAULT_SIP_PASSWORD
+            station.sip_port = DefaultConfig.DEFAULT_SIP_PORT
+            station.sip_protocol = DefaultConfig.DEFAULT_SIP_TRANSPORT
+            station.sip_server = DefaultConfig.DEFAULT_SIP_SERVER
+            station.sip_reregister_period = DefaultConfig.DEFAULT_SIP_REREGISTER_PERIOD
+            station.sip_stun_server = DefaultConfig.DEFAULT_STUN_SERVER
+            station.is_high_bandwidth = True
+            db.session.commit()
+            station_status = _("Station created.")
+
+        except Exception as e:
+            station_status = _("Station creation failed.")
+
+        # 2) Create FS profile
+        try:
+            my_path = os.path.abspath(os.path.dirname(__file__))
+            file_path = os.path.join(my_path, "../templates/configuration/sip_profile_template.txt")
+            filein = open(file_path)
+            src = Template(filein.read())
+            data = {"sip_username": station.sip_username}
+            profile = src.substitute(data)
+            sip_status = None
+
+            conf_file = open(path.join(DefaultConfig.SIP_CONFIG_PATH, "{0}.xml".format(station.sip_username)), "w+")
+            conf_file.write(str(profile))
+            sip_status = _("SIP profile created.")
+        except IOError as e:
+            sip_status = _("SIP profile creation failed.")
+
+        # 3) Reload Freeswitch
+        reload_result = os.system("fs_cli -x \"reloadxml\"")
+        reload_status = _({True: "SIP profile ready", False: "SIP profile not ready"}.get(reload_result == 0))
+
+        flash("{0} {1} {2}".format(station_status, sip_status, reload_status), 'success')
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
