@@ -205,13 +205,20 @@ class CallHandler:
                 self.__radio_station.logger.info(
                     "SIP GWS before pop are {0}".format(str(self.__outgoing_sip_gateways)))
                 if len(self.__outgoing_sip_gateways) == 0:
-                    return False, None
-                gw = self.__outgoing_sip_gateways.values()[0]
-                self.__radio_station.logger.info(
-                    "SIP GWS after pop are {0}".format(str(self.__outgoing_sip_gateways)))
-                if gw.gateway_prefix is None:
-                    gw.gateway_prefix = ''
-                call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string,
+                    self.__radio_station.logger.info("No SIP gateways defined, using station default")
+                    call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(DefaultConfig.DEFAULT_EXTRA_STRING,
+                                                                                           DefaultConfig.DEFAULT_SOFIA_STRING,
+                                                                                           DefaultConfig.DEFAULT_GW_PREFIX, to_number,
+                                                                                           program_action.program.id,
+                                                                                           program_action.program
+                                                                                           .radio_station.station.id)
+                else:
+                    gw = self.__outgoing_sip_gateways.values()[0]
+                    self.__radio_station.logger.info(
+                        "SIP GWS after pop are {0}".format(str(self.__outgoing_sip_gateways)))
+                    if gw.gateway_prefix is None:
+                        gw.gateway_prefix = ''
+                    call_command = 'originate {{{0}}}{1}/{2}{3} &conference("{4}_{5}")'.format(gw.extra_string,
                                                                                            gw.sofia_string,
                                                                                            gw.gateway_prefix, to_number,
                                                                                            program_action.program.id,
