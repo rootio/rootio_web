@@ -129,4 +129,5 @@ class NetworkInvitation(db.Model):
     network_id = Column(db.Integer, db.ForeignKey("radio_network"))
     created_time = Column(db.DateTime, default=get_current_time)
     status_code = Column(db.Integer, default=PENDING)
+    role_code = Column(db.Integer, nullable=False)
     deleted = Column(db.Boolean, default=False)
