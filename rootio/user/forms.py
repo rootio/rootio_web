@@ -37,7 +37,7 @@ ProfileCreateFormBase = model_form(RootioUser, db_session=db.session, base_class
 class ProfileCreateForm(ProfileCreateFormBase):
     multipart = True
     next = HiddenField()
-    networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks) #netwoks = (current_user.name,[Required()])
+    networks = QuerySelectMultipleField(query_factory=lambda: current_user.networks)
     email = EmailField(u'Email', [Required(), Email()])
     name = TextField(u'Name', [Required(), Length(max=100)])
     password = PasswordField(u'Password', [Required(), Length(max=100)])
@@ -85,7 +85,7 @@ class ProfileForm(ProfileFormBase):
     next = HiddenField()
     name = TextField(u'Name', [Required()])
     email = EmailField(u'Email', [Required(), Email()])
-    networks = QuerySelectMultipleField(u'Networks (ctrl+click to deselect option)', [Required()], query_factory=lambda: current_user.networks)
+    networks = QuerySelectMultipleField(u'Networks (ctrl+click to deselect option)', query_factory=lambda: current_user.networks)
     role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[])
     # Don't use the same name as model because we are going to use populate_obj().
     avatar_file = FileField(u"Avatar", [Optional()])
