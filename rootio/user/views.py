@@ -115,7 +115,7 @@ def invite():
                         db.session.commit()
 
             if new_invitations:
-                send_invitation_email(current_user, form.email.data, invitation_key)
+                send_invitation_email(current_user, form.email.data)
                 flash(_('User Invited.'), 'success')
             else:
                 flash(_('The user already belongs to selected networks'))
