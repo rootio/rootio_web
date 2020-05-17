@@ -94,21 +94,31 @@ def invite():
     invitation_key = "-".join([str(uuid.uuid1()), str(uuid.uuid4())])
     form = NetworkInvitationForm()
     form.role_code.choices = form.get_role_codes(current_user.role_code)
+    new_invitations = False
 
     if form.validate_on_submit():
         try:
             for network in form.networks.data:
-                invitation = NetworkInvitation()
-                invitation.email = form.email.data
-                invitation.network_id = network.id
-                invitation.invited_by_user_id = current_user.id
-                invitation.role_code = form.role_code.data
-                invitation.invitation_key = invitation_key
-                db.session.add(invitation)
-                db.session.commit()
+                if len(list(filter(lambda x: (x.email == form.email.data), network.networkusers))) < 1:
+                    new_invitations = True
+                    pending_invitation = NetworkInvitation\
+                        .query.filter(NetworkInvitation.email == form.email.data and NetworkInvitation.deleted == False
+                                      and NetworkInvitation.network_id == network.id).first()
+                    if pending_invitation is None:
+                        invitation = NetworkInvitation()
+                        invitation.email = form.email.data
+                        invitation.network_id = network.id
+                        invitation.invited_by_user_id = current_user.id
+                        invitation.role_code = form.role_code.data
+                        invitation.invitation_key = invitation_key
+                        db.session.add(invitation)
+                        db.session.commit()
 
-            send_invitation_email(current_user, form.email.data, invitation_key)
-            flash(_('User Invited.'), 'success')
+            if new_invitations:
+                send_invitation_email(current_user, form.email.data, invitation_key)
+                flash(_('User Invited.'), 'success')
+            else:
+                flash(_('The user already belongs to selected networks'))
         except Exception as e:
             print e
 

@@ -109,7 +109,7 @@ def send_invitation_email(invited_by_user, invitee_email, invitation_key):
     my_path = os.path.abspath(os.path.dirname(__file__))
     file_path = os.path.join(my_path, "templates/user/invitation_email_template.txt")
     body = string.Template(open(file_path).read())
-    link = "%s/invitation/%s" % (current_app.config['DOMAIN'], invitation_key)
+    link = "%s/user" % (current_app.config['DOMAIN'])
     details = {"invited_by": invited_by_user.name, "invitation_link": link, "username": invitee_email}
     message.set_body(body.substitute(details))
     message.set_from(current_app.config['DEFAULT_MAIL_SENDER'])
