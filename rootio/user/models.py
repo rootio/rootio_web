@@ -133,6 +133,7 @@ class NetworkInvitation(db.Model):
     role_code = Column(db.Integer, nullable=False)
     deleted = Column(db.Boolean, default=False)
     network = db.relationship(u'Network', backref=db.backref('network_invitations'))
+    invited_by = db.relationship(u'User', backref=db.backref('user_invitations'))
 
     @property
     def role(self):

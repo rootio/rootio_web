@@ -99,6 +99,32 @@ tr.heading {
         <h2>{% trans %} Stations {% endtrans %}</h2>
         <div id="map" class="span12"></div>
 
+        {% if invitations|length > 0 %}
+        <div class="span12">
+             <table class='table table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>{{ _('Invited by') }}</th>
+                <th>{{ _('Invitation Date') }}</th>
+                <th>{{ _('Role') }}</th>
+                <th>{{ _('Network') }}</th>
+                <th>{{ _('Action') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for i in invitations %}
+        <tr>
+            <td>{{ i.invited_by.name }}</td>
+            <td>{{ i.created_time }}</td>
+            <td>{{ i.role }}</td>
+            <td>{{ i.network.name }}</td>
+            <td>  <a href="{{ url_for('user.invite') }}?email={{i.email}}">Accept</a> or <a href="{{ url_for('user.invite') }}?email={{i.email}}">Reject</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+        </div>
+        {% endif %}
         <div class="span12">
             <table class='table table-bordered'>
             <thead>

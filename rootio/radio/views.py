@@ -32,7 +32,7 @@ from ..content.models import ContentMusicPlaylist, ContentTrack, ContentPodcast,
 from .models import ContentType
 from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
-from ..user.models import User, RootioUser
+from ..user.models import User, RootioUser, NetworkInvitation
 from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
 from rootio.user import ADMIN
 from sqlalchemy import text
@@ -44,12 +44,16 @@ radio = Blueprint('radio', __name__, url_prefix='/radio')
 @radio.route('/', methods=['GET'])
 @login_required
 def index():
+
+    # any pending invitations
+    invitations = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email).all()
+
     # get all the user's networks and their stations
     if current_user.role_code == ADMIN:
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
     else:
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now)
+    return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now, invitations=invitations)
 
 # get all the user's networks and their stations
     if current_user.role_code == ADMIN:
@@ -71,7 +75,7 @@ def index():
             ok_attributes[station.id] = [telephony_ok, sip_ok, app_config_ok, tts_ok, ivr_menu_ok]
             stations.append(station)
 
-    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id)
+    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id, invitations=invitations)
 
 
 @radio.route('/emergency/', methods=['GET'])
