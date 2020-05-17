@@ -121,7 +121,7 @@ tr.heading {
             <td>{{ i.created_time }}</td>
             <td>{{ i.role }}</td>
             <td>{{ i.network.name }}</td>
-            <td>  <a href="{{ url_for('user.invite') }}?email={{i.email}}">Accept</a> or <a href="{{ url_for('user.invite') }}?email={{i.email}}">Reject</a></td>
+            <td>  <a href="{{ url_for('radio.act_on_invitation', id=i.id, action='accept') }}">Accept</a> or <a href="{{ url_for('radio.act_on_invitation', id=i.id, action='reject') }}">Reject</a></td>
         </tr>
         {% endfor %}
       </tbody>

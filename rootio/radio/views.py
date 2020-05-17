@@ -24,6 +24,7 @@ from flask.ext.login import login_required, current_user
 from pytz import timezone
 import arrow
 
+from rootio.user.constants import ACCEPTED, REJECTED
 from .forms import StationForm, NetworkForm, ProgramForm, BlockForm, LocationForm, \
     ScheduleProgramForm, PersonForm
 from .models import Station, Program, ScheduledBlock, ScheduledProgram, Location, Person, Network, StationEvent
@@ -34,19 +35,20 @@ from ..decorators import returns_json, returns_flat_json
 from ..extensions import db, csrf
 from ..user.models import User, RootioUser, NetworkInvitation
 from ..utils import error_dict, fk_lookup_form_data, format_log_line, events_action_display_map
-from rootio.user import ADMIN
+from rootio.user import ADMIN, PENDING, redirect, url_for
 from sqlalchemy import text
 import pytz
 
 radio = Blueprint('radio', __name__, url_prefix='/radio')
 
 
-@radio.route('/', methods=['GET'])
+@radio.route('/', methods=['GET','POST'])
 @login_required
 def index():
 
     # any pending invitations
-    invitations = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email).all()
+    invitations = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email)\
+        .filter(NetworkInvitation.deleted == False).filter(NetworkInvitation.status_code == PENDING).all()
 
     # get all the user's networks and their stations
     if current_user.role_code == ADMIN:
@@ -76,6 +78,37 @@ def index():
             stations.append(station)
 
     return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id, invitations=invitations)
+
+
+@radio.route('/invitation/<int:id>/<string:action>', methods=['GET'])
+@login_required
+def act_on_invitation(id, action):
+    invitation = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email)\
+                               .filter(NetworkInvitation.deleted == False)\
+                                .filter(NetworkInvitation.status_code == PENDING)\
+                                                .filter(NetworkInvitation.id == id).first_or_404()
+    if action in ['accept', 'reject']:
+        invitation.status_code = {'accept': ACCEPTED, 'reject': REJECTED}[action]
+        db.session.add(invitation)
+        if action == 'accept':
+            current_user.networks.append(invitation.network)
+            db.session.add(current_user)
+        db.session.flush()
+        db.session.refresh(current_user)
+        db.session.commit()
+        result = _('Invitation has been %s' % {'accept': 'accepted', 'reject': 'rejected'}[action])
+    elif action == 'delete':
+        invitation.deleted = True
+        db.session.add(invitation)
+        db.session.commit()
+        result = _('Invitation has been deleted')
+        flash(result, 'success')
+        return redirect(url_for('user.invitations'))
+    else:
+        result = _('Unknown action specified')
+
+    flash(result, 'success')
+    return redirect(url_for('radio.index'))
 
 
 @radio.route('/emergency/', methods=['GET'])

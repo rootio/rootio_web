@@ -133,7 +133,8 @@ def invite():
 @admin_required
 def invitations():
 
-    invites = NetworkInvitation.query.join(Network).filter(Network.networkusers.contains(current_user)).all()
+    invites = NetworkInvitation.query.join(Network).filter(Network.networkusers.contains(current_user)).filter(
+                                                                    NetworkInvitation.deleted == False).all()
     return render_template('user/invitations.html', active="Invitations", invitations=invites)
 
 
