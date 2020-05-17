@@ -390,7 +390,7 @@ def program_add():
         cleaned_data.pop('program_structure')
         cleaned_data['program_type_id'] = 1
         program = Program(**cleaned_data)  # create new object from data
-
+        program.deleted = False
         db.session.add(program)
         db.session.commit()
         flash(_('Program added.'), 'success')
@@ -422,10 +422,10 @@ def program_delete(program_id):
 @login_required
 def list_music_programs():
     if current_user.role_code == ADMIN:
-        music_programs = Program.query.filter(Program.program_type_id == 2).all()
+        music_programs = Program.query.filter(Program.program_type_id == 2).filter(Program.deleted ==  False).all()
     else:
         music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
-        User.id == current_user.id).filter(Program.program_type_id == 2).all()
+        User.id == current_user.id).filter(Program.program_type_id == 2).filter(Program.deleted ==  False).all()
     return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
 
 
@@ -451,7 +451,7 @@ def music_program_add():
         cleaned_data.pop('program_structure')
         cleaned_data['program_type_id'] = 2
         program = Program(**cleaned_data)  # create new object from data
-
+        program.deleted = False
         db.session.add(program)
         db.session.commit()
         flash(_('Program added.'), 'success')
@@ -939,10 +939,10 @@ def schedule_station(station_id, color):
     form = ScheduleProgramForm()
 
     if current_user.role_code == ADMIN:
-        all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).all()
+        all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(Program.deleted == False).all()
     else:
         all_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
-        User.id == current_user.id).all()
+        User.id == current_user.id).filter(Program.deleted == False).all()
     # TODO: filter by language?
 
     return render_template('radio/schedule.html',
