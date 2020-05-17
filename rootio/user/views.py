@@ -128,6 +128,19 @@ def invite():
     return render_template('user/invite.html', active="invite", form=form)
 
 
+@user.route('/resend_invitation', methods=['GET'])
+@login_required
+@admin_required
+def resend_invitation():
+    try:
+        email = request.args.get('email')
+        send_invitation_email(current_user, email)
+        flash(_('An Invitation email has been sent to %s' % email), 'info')
+    except:
+        flash(_('An error was encountered trying to re-send the invitation'), 'error')
+    return redirect(url_for('user.invitations'))
+
+
 @user.route('/invitations/', methods=['GET', 'POST'])
 @login_required
 @admin_required

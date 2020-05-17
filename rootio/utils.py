@@ -99,7 +99,7 @@ def send_activation_email(db,user):
     #    return redirect(form.next.data or url_for('user.index'))
 
 
-def send_invitation_email(invited_by_user, invitee_email, invitation_key):
+def send_invitation_email(invited_by_user, invitee_email):
     from frontend.utils import RootIOMailMessage
 
     # send the email with the link
