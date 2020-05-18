@@ -135,7 +135,7 @@ class ContentTypeForm(ContentTypeFormBase):
 
 NetworkFormBase = model_form(Network, db_session=db.session, base_class=Form,
                              exclude=['people', 'networkusers', 'stations', 'created_at', 'paddingcontents',
-                                      'updated_at','programs'])
+                                      'updated_at','programs','network_invitations'])
 
 
 class NetworkForm(NetworkFormBase):
