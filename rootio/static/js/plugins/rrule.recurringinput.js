@@ -25,7 +25,7 @@ $.widget("rrule.recurringinput", {
     var tmpl = "<!-- janky inline template -->";
 
     //frequency
-    tmpl += '<div class="input-prepend">';
+    tmpl += '<div class="input-prepend" style="display: none;">';
     tmpl += '<span class="add-on">Repeat</span>';
     tmpl += '<select name="freq" class="span2">';
     _.each(RRule.FREQUENCIES, function(element, index) {
