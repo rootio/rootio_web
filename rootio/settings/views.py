@@ -23,11 +23,11 @@ settings = Blueprint('settings', __name__, url_prefix='/settings')
 @settings.route('/profile/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 def profile(user_id):
-    if current_user.id != user_id:
-        if current_user.role != USER_ROLE[ADMIN]:
-            abort(403)
 
     if user_id:
+        if current_user.id != user_id:
+            if current_user.role != USER_ROLE[ADMIN]:
+                abort(403)
         edit = True
         user = User.query.get(user_id)
     else:

@@ -1,4 +1,8 @@
+{% if in_settings %}
 {% extends 'settings/layout.html' %}
+{% else %}
+{% extends 'user/layout.html' %}
+{% endif %}
 {% from "macros/_form.html" import render_form %}
 
 {% block body %}
