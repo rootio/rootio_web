@@ -1,13 +1,9 @@
-{% if in_settings %}
-{% extends 'settings/layout.html' %}
-{% else %}
 {% extends 'user/layout.html' %}
-{% endif %}
 {% from "macros/_form.html" import render_form %}
 
 {% block body %}
 <div class="settings_wrapper">
-    <h3>{{ _('Public Profile') }}</h3>
+    <h3>{{ _(user.name) }}</h3>
     {% if not edit %}
     {{ render_form(url_for('user.profile'), form) }}
     {% else %}

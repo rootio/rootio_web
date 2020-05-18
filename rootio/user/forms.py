@@ -78,23 +78,16 @@ class ProfileCreateForm(ProfileCreateFormBase):
             raise ValidationError(_('This email is already registered'))
 
 
-ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar','user_detail_id','openid','activation_key','last_accessed','status_code'])
+ProfileFormBase = model_form(RootioUser, db_session=db.session, base_class=Form, exclude=['created_time','avatar',
+                                        'user_detail_id', 'avatar_file','gender_code', 'age','phone', 'url','location',
+                                        'bio','openid','activation_key', 'last_accessed','name','email','status_code'])
 class ProfileForm(ProfileFormBase):
     user_id = None
     multipart = True
     next = HiddenField()
-    name = TextField(u'Name', [Required()])
-    email = EmailField(u'Email', [Required(), Email()])
     networks = QuerySelectMultipleField(u'Networks (ctrl+click to deselect option)', query_factory=lambda: current_user.networks)
     role_code = RadioField(_("Role"), [AnyOf([str(val) for val in USER_ROLE.keys()])], choices=[])
     # Don't use the same name as model because we are going to use populate_obj().
-    avatar_file = FileField(u"Avatar", [Optional()])
-    gender_code = RadioField(u"Gender", [AnyOf([str(val) for val in GENDER_TYPE.keys()])], choices=[(str(val), label) for val, label in GENDER_TYPE.items()])
-    age = IntegerField(u'Age', [Optional(), NumberRange(AGE_MIN, AGE_MAX)])
-    phone = TelField(u'Phone', [Length(max=64)])
-    url = URLField(u'URL', [Optional(), URL()])
-    location = TextField(u'Location', [Length(max=64)])
-    bio = TextAreaField(u'Bio', [Length(max=1024)])
     submit = SubmitField(u'Save')
 
     def get_role_codes(self, role_code):
