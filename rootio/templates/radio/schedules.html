@@ -41,6 +41,7 @@ function renderMap(stationId, success, fail)
     }
     });
 }
+
 </script>
 
 <div class="container">
@@ -60,11 +61,19 @@ function renderMap(stationId, success, fail)
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
-            <td >
-                <div style="width: 120px; height 70px; z-index:1000;">
-                <canvas id="myChart{{ station.id }}" ></canvas>
-                <script>renderMap({{ station.id }}, 15, 30) </script>
-                    </div>
+            <td>
+                <div style="width: 120px; height 70px;">
+                    {% if station.successful_scheduled_programs() != 0 and station.unsuccessful_scheduled_programs() !=
+                    0 %}
+                    <canvas id="myChart{{ station.id }}"></canvas>
+                    <script>
+                        renderMap({{ station.id }}, {{ station.successful_scheduled_programs() }}, {{ station.unsuccessful_scheduled_programs() }})
+                    </script>
+
+                    {% else %}
+                    {{ _('No programs played') }}
+                    {% endif %}
+                </div>
             </td>
             <td>{{ station.previous_program() }}</td>
             <td>{{ station.current_program() }}</td>
