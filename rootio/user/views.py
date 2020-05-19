@@ -62,7 +62,7 @@ def user_dashboard():
         users = User.query.all()
     else:
         users = User.query.join(Network.networkusers).filter(Network.networkusers.contains(current_user)).all()
-    return render_template('user/manager.html', user=current_user, users=users)
+    return render_template('user/manager.html', user=current_user, users=users, active="Users")
 
 
 @user.route('/add/', methods=['GET', 'POST'])
@@ -185,4 +185,4 @@ def profile(user_id):
         flash('User profile successfully edited', 'success')
 
     return render_template('user/profile.html', user=user,
-                           active="profile", form=form, in_settings=False, edit=edit)
+                           active="Users", form=form, in_settings=False, edit=edit)

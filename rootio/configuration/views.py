@@ -47,7 +47,7 @@ def index():
             ok_attributes[station.id] = [telephony_ok, sip_ok, app_config_ok, tts_ok, ivr_menu_ok]
             stations.append(station)
 
-    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id)
+    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id, active="Summary")
 
 
 @configuration.route('/tts/', methods=['GET'])
@@ -59,14 +59,14 @@ def tts():
         s.status = "on"
 
     # end demo
-    return render_template('configuration/tts.html', stations=stations)
+    return render_template('configuration/tts.html', stations=stations, active="TTS")
 
 
 @configuration.route('/telephony/', methods=['GET', 'POST'])
 @login_required
 def telephony():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/stations_telephony.html', stations=stations)
+    return render_template('configuration/stations_telephony.html', stations=stations, active="Telephony")
 
 
 @configuration.route('/telephony/<int:station_id>', methods=['GET', 'POST'])
@@ -82,7 +82,7 @@ def telephony_station(station_id):
         db.session.commit()
         flash(_('Station updated.'), 'success')
 
-    return render_template('configuration/station_telephony.html', station=station, form=form)
+    return render_template('configuration/station_telephony.html', station=station, form=form, active="Telephony")
 
 
 @configuration.route('/telephony/add/', methods=['GET', 'POST'])
@@ -104,7 +104,7 @@ def telephony_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('configuration/station_telephony.html', station=station, form=form)
+    return render_template('configuration/station_telephony.html', station=station, form=form, active="Telephony")
 
 
 @configuration.route('/sip_configuration/<int:station_id>', methods=['GET', 'POST'])
@@ -121,14 +121,14 @@ def sip_configuration(station_id):
         db.session.commit()
         flash(_('SIP details updated.'), 'success')
 
-    return render_template('configuration/sip_configuration.html', station=station, form=form)
+    return render_template('configuration/sip_configuration.html', station=station, form=form, active="SIP Telephony")
 
 
 @configuration.route('/sip_telephony', methods=['GET', 'POST'])
 @login_required
 def sip_telephony():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/sip_telephony.html', stations=stations)
+    return render_template('configuration/sip_telephony.html', stations=stations, active="SIP Telephony")
 
 
 @configuration.route('/station_audio_level/<int:station_id>', methods=['GET', 'POST'])
@@ -144,14 +144,14 @@ def station_audio_level(station_id):
         db.session.commit()
         flash(_('Audio levels updated.'), 'success')
 
-    return render_template('configuration/station_audio_level.html', station=station, form=form)
+    return render_template('configuration/station_audio_level.html', station=station, form=form, active="Audio Settings")
 
 
 @configuration.route('/station_audio_levels', methods=['GET'])
 @login_required
 def station_audio_levels():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/station_audio_levels.html', stations=stations, active='stations')
+    return render_template('configuration/station_audio_levels.html', stations=stations, active="Audio Settings")
 
 
 @configuration.route('/ivr_menus', methods=['GET', 'POST'])
@@ -178,7 +178,7 @@ def ivr_menus():
         station_vps["community_menu"] = menu_last
         station_data.append(station_vps)
 
-    return render_template('configuration/ivr_menus.html', stations=station_data)
+    return render_template('configuration/ivr_menus.html', stations=station_data, active="IVR Menu")
 
 
 @configuration.route('/ivr_menus/records', methods=['GET'])
@@ -262,14 +262,14 @@ def ivr_menu():
         flash(_(form.errors.items()), 'error')
 
     stations = Station.get_stations(current_user)
-    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station, stations=stations)
+    return render_template('configuration/ivr_menu.html', community_menu=community_menu, form=form, station=station, stations=stations, active="IVR Menu")
 
 
 @configuration.route('/tts_settings', methods=['GET', 'POST'])
 @login_required
 def tts_settings():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/tts_settings.html', stations=stations)
+    return render_template('configuration/tts_settings.html', stations=stations, active="TTS")
 
 
 @configuration.route('/tts_setting/<int:station_id>', methods=['GET', 'POST'])
@@ -285,14 +285,14 @@ def tts_setting(station_id):
         db.session.commit()
         flash(_('TTS settings updated.'), 'success')
 
-    return render_template('configuration/tts_setting.html', station=station, form=form)
+    return render_template('configuration/tts_setting.html', station=station, form=form, active="TTS")
 
 
 @configuration.route('/synchronization_settings', methods=['GET', 'POST'])
 @login_required
 def synchronization_settings():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/synchronization_settings.html', stations=stations)
+    return render_template('configuration/synchronization_settings.html', stations=stations, active="Synchronization")
 
 
 @configuration.route('/synchronization_setting/<int:station_id>', methods=['GET', 'POST'])
@@ -308,14 +308,14 @@ def synchronization_setting(station_id):
         db.session.commit()
         flash(_('Synchronization settings updated.'), 'success')
 
-    return render_template('configuration/synchronization_setting.html', station=station, form=form)
+    return render_template('configuration/synchronization_setting.html', station=station, form=form, active="Synchronization")
 
 
 @configuration.route('/content', methods=['GET'])
 @login_required
 def content_settings():
     stations = Station.get_stations(current_user)
-    return render_template('configuration/content_settings.html', stations=stations)
+    return render_template('configuration/content_settings.html', stations=stations, active="Content")
 
 
 @configuration.route('/content/<int:station_id>', methods=['GET', 'POST'])
@@ -331,7 +331,7 @@ def content_setting(station_id):
         db.session.commit()
         flash(_('Content settings updated.'), 'success')
 
-    return render_template('configuration/content_setting.html', station=station, form=form)
+    return render_template('configuration/content_setting.html', station=station, form=form, active="Content")
 
 
 @configuration.route('/voice_prompts', methods=['GET', 'POST'])
@@ -350,7 +350,7 @@ def voice_prompts():
         station_vps["vps"] = prompt_last
         station_data.append(station_vps)
 
-    return render_template('configuration/voice_prompts.html', stations=station_data)
+    return render_template('configuration/voice_prompts.html', stations=station_data, active="Voice prompts")
 
 @configuration.route('/voice_prompt', methods=['GET', 'POST'])
 @login_required
@@ -399,7 +399,7 @@ def voice_prompt():
         flash(_(form.errors.items()), 'error')
 
     stations = Station.get_stations(current_user)
-    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations, existing_station_id=request.args.get('station_id') or -1)
+    return render_template('configuration/voice_prompt.html', voice_prompt=voice_prompt, form=form, station=station, stations=stations, active="Voice prompts", existing_station_id=request.args.get('station_id') or -1)
 
 
 @configuration.route('/voice_prompts/<int:voice_prompt_id>/delete', methods=['GET'])

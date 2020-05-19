@@ -55,29 +55,7 @@ def index():
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
     else:
         networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    return render_template('radio/index.html', networks=networks, userid=current_user.id, now=datetime.now, invitations=invitations)
-
-# get all the user's networks and their stations
-    if current_user.role_code == ADMIN:
-        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).all()
-    else:
-        networks = Network.query.outerjoin(Station).join(User, Network.networkusers).filter(User.id == current_user.id).all()
-    stations = []
-    ok_attributes = dict()
-
-    for network in networks:
-        for station in network.stations:
-            telephony_ok = len(station.incoming_gateways) > 0 and len(station.outgoing_gateways) > 0
-            sip_ok = station.sip_username is not None and station.sip_server is not None and station.sip_password is not None
-            app_config_ok = station.api_key is not None
-            tts_ok = station.tts_voice_id is not None and station.tts_audioformat_id is not None and station.tts_samplerate_id is not None
-            ivr_menus = sorted(station.community_menu, key=lambda x: x.id, reverse=True)
-            ivr_menu_ok = ivr_menus is not None and len(ivr_menus) > 0 and ((ivr_menus[0].use_tts and ivr_menus[0].welcome_message_txt is not None and ivr_menus[0].days_prompt_txt is not None and ivr_menus[0].record_prompt_txt is not None and ivr_menus[0].message_type_prompt_txt is not None and ivr_menus[0].finalization_prompt_txt is not None and ivr_menus[0].goodbye_message_txt is not None) or (not ivr_menus[0].use_tts and ivr_menus[0].welcome_message is not None and ivr_menus[0].days_prompt is not None and ivr_menus[0].record_prompt is not None and ivr_menus[0].message_type_prompt is not None and ivr_menus[0].finalization_prompt is not None and ivr_menus[0].goodbye_message is not None))
-
-            ok_attributes[station.id] = [telephony_ok, sip_ok, app_config_ok, tts_ok, ivr_menu_ok]
-            stations.append(station)
-
-    return render_template('configuration/index.html', stations=stations, ok_attributes=ok_attributes, userid=current_user.id, invitations=invitations)
+    return render_template('radio/index.html', active="Status", networks=networks, userid=current_user.id, now=datetime.now, invitations=invitations)
 
 
 @radio.route('/invitation/<int:id>/<string:action>', methods=['GET'])
@@ -153,7 +131,7 @@ def network_add():
 def list_stations():
     stations = Station.get_stations(current_user)
     # stations = Station.query.join(Network).join(User).filter(User.id == current_user.id).all()
-    return render_template('radio/stations.html', stations=stations, active='stations')
+    return render_template('radio/stations.html', stations=stations, active='Stations')
 
 
 @radio.route('/station/<int:station_id>', methods=['GET', 'POST'])
@@ -174,7 +152,7 @@ def station_definition(station_id):
         db.session.commit()
         flash(_('Station updated.'), 'success')
 
-    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form)
+    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form, active="Stations")
 
 
 @radio.route('/station/add/', methods=['GET', 'POST'])
@@ -234,7 +212,7 @@ def station_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form)
+    return render_template('radio/station.html', station=station, defaultConfig=DefaultConfig, form=form, active="Stations")
 
 
 @radio.route('/program/', methods=['GET'])
@@ -245,7 +223,7 @@ def programs():
     else:
         programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id != 2).all()
-    return render_template('radio/programs.html', programs=programs, active='programs')
+    return render_template('radio/programs.html', programs=programs, active='Programs')
 
 
 @radio.route('/program/<int:program_id>', methods=['GET', 'POST'])
@@ -330,7 +308,7 @@ def program_definition(program_id):
         flash(_('Program updated.'), 'success')
 
     return render_template('radio/program.html', program=program, hosts=hosts, news=news, podcasts=podcasts, ads=ads,
-                           medias=medias, community_contents=community_contents["data"], form=form)
+                           medias=medias, community_contents=community_contents["data"], form=form, active="Programs")
 
 
 @radio.route('/program/add/', methods=['GET', 'POST'])
@@ -398,7 +376,7 @@ def program_add():
         flash(_('Validation error'), 'error')
 
     return render_template('radio/program.html', program=program, hosts=hosts, news=news, podcasts=podcasts, ads=ads,
-                           medias=medias, community_contents=community_contents["data"], form=form)
+                           medias=medias, community_contents=community_contents["data"], form=form, active="Programs")
 
 
 @radio.route('/program/<int:program_id>/delete', methods=['GET'])
@@ -426,7 +404,7 @@ def list_music_programs():
     else:
         music_programs = Program.query.join(Program, Network.programs).join(User, Network.networkusers).filter(
         User.id == current_user.id).filter(Program.program_type_id == 2).filter(Program.deleted ==  False).all()
-    return render_template('radio/music_programs.html', music_programs=music_programs, active='programs')
+    return render_template('radio/music_programs.html', music_programs=music_programs, active='Music programs')
 
 
 @radio.route('/music_program/add/', methods=['GET', 'POST'])
@@ -458,7 +436,7 @@ def music_program_add():
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
 
-    return render_template('radio/music_program.html', program=program, playlists=playlists, streams=streams, form=form)
+    return render_template('radio/music_program.html', program=program, playlists=playlists, streams=streams, form=form, active='Music programs')
 
 
 @radio.route('/music_program/<int:music_program_id>', methods=['GET', 'POST'])
@@ -499,7 +477,7 @@ def music_program_definition(music_program_id):
         flash(_('Music Program updated.'), 'success')
 
     return render_template('radio/music_program.html', music_program=music_program, playlists=playlists,
-                           streams=streams, form=form)
+                           streams=streams, form=form, active='Music programs')
 
 
 @radio.route('/music_program/<int:music_program_id>/delete', methods=['GET'])
@@ -679,6 +657,7 @@ def schedule_program_add_ajax():
     return {'status': data, 'result': 1, 'status_code': 200}
     # return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
 
+
 @radio.route('/scheduleprogram/delete_series/<_id>/', methods=['POST'])
 @login_required
 def delete_series(_id):
@@ -699,6 +678,7 @@ def delete_series(_id):
         send_scheduling_event(
             json.dumps({"action": "delete", "id": s.id, "station": s.station_id}))
     return ""
+
 
 @radio.route('/scheduleprogram/delete/<int:_id>/', methods=['POST'])
 @login_required
@@ -904,7 +884,7 @@ def station_logs(station_id):
 
     return render_template('radio/log.html',
                            station=station,
-                           events_map=events_action_display_map
+                           events_map=events_action_display_map, active='Stations'
     )
 
 
@@ -916,7 +896,7 @@ def schedule():
     # stations = Station.query.order_by('name').all()
 
     return render_template('radio/schedules.html',
-                           stations=stations, active='schedule')
+                           stations=stations, active='Schedule')
 
 
 @radio.route('/schedule/<int:station_id>/', methods=['GET'], defaults={'color': None})
@@ -947,4 +927,4 @@ def schedule_station(station_id, color):
 
     return render_template('radio/schedule.html',
                            form=form, station=station, block_list=block_list, addable_programs=all_programs,
-                           active='schedule', color_view='false' if color=="false" else 'true')
+                           active='Schedule', color_view='false' if color=="false" else 'true')

@@ -29,13 +29,13 @@ def index():
                     'user_user.id where user_user.id = :user_id group by "station", radio_station.id'
     query_params = {'user_id': current_user.id}
     station_summary = db.session.execute(summary_query, query_params)
-    return render_template('telephony/index.html', station_summary=station_summary)
+    return render_template('telephony/index.html', station_summary=station_summary, active="Status")
 
 
 @telephony.route('/phonenumber/', methods=['GET'])
 def list_phonenumbers():
     phonenumbers = PhoneNumber.query.all()
-    return render_template('telephony/phonenumbers.html', phonenumbers=phonenumbers, active='phonenumbers')
+    return render_template('telephony/phonenumbers.html', phonenumbers=phonenumbers, active="Gateways")
 
 
 @telephony.route('/phonenumber/<int:phonenumber_id>', methods=['GET', 'POST'])
@@ -116,12 +116,12 @@ def call_records(**kwargs):
 
 @telephony.route('/calls/', methods=['GET'])
 def calls(**kwargs):
-    return render_template('telephony/calls.html', active='calls')
+    return render_template('telephony/calls.html', active='Calls')
 
 
 @telephony.route('/messages/', methods=['GET'])
 def messages():
-    return render_template('telephony/messages.html', active='messages')
+    return render_template('telephony/messages.html', active='Messages')
 
 
 @telephony.route('/messages/records', methods=['GET'])
@@ -168,7 +168,7 @@ def gateways():
             Gateway.stations_using_for_outgoing).join(Network).join(User, Network.networkusers).filter(
             User.id == current_user.id).all()
 
-    return render_template('telephony/gateways.html', active='gateways', incoming_gateways=incoming_gateways,
+    return render_template('telephony/gateways.html', active='Gateways', incoming_gateways=incoming_gateways,
                            outgoing_gateways=outgoing_gateways)
 
 

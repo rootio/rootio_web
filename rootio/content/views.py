@@ -35,14 +35,14 @@ def index():
                    "\"subscriptions\" from content_track as ct join content_type as rct on \"ct\".type_id = rct.id " \
                    "join content_uploads as cu on ct.id = cu.track_id  group by ct.id, rct.name"
     contents = db.session.execute(status_query)
-    return render_template('content/index.html', content=contents)
+    return render_template('content/index.html', content=contents, active="Status")
 
 
 @content.route('/upload', methods=['POST'])
 @login_required
 def upload():
     form = ContentMusicForm(request.form)
-    return render_template('content/track_files_add.html', form=form)
+    return render_template('content/track_files_add.html', form=form, active="Tracks")
 
 
 @content.route('/tracks/')
@@ -63,7 +63,7 @@ def list_tracks():
         tracks = db.session.query(ContentTrack).join(ContentTrack.networks).filter(ContentTrack.deleted != True).filter(Network.id.in_(network_ids))
     x = tracks.count()
 
-    return render_template('content/tracks.html', tracks=tracks, networks=networks, active='tracks', show_only=show_only)
+    return render_template('content/tracks.html', tracks=tracks, networks=networks, active='Tracks', show_only=show_only)
 
 
 @content.route('/tracks/<int:track_id>/delete', methods=['GET'])
@@ -87,7 +87,7 @@ def track_delete(track_id):
 @login_required
 def list_track_files(track_id):
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
-    return render_template('content/track_files.html', track=track, active='tracks', content_dir=DefaultConfig.CONTENT_DIR)
+    return render_template('content/track_files.html', track=track, active='Tracks', content_dir=DefaultConfig.CONTENT_DIR)
 
 
 @content.route('/tracks/<int:track_id>/files/empty', methods=['GET'])
@@ -119,7 +119,7 @@ def track_files_empty(track_id):
 def track_files_add(track_id):
     track = ContentTrack.query.filter_by(id=track_id).first_or_404()
     form = ContentUploadForm()
-    return render_template('content/track_files_add.html', track=track, form=form)
+    return render_template('content/track_files_add.html', track=track, form=form, active="Tracks")
 
 
 @content.route('/tracks/<int:track_id>', methods=['GET', 'POST'])
@@ -135,7 +135,7 @@ def track(track_id):
         db.session.add(tracks)
         db.session.commit()
         flash(_('Track updated.'), 'success')
-    return render_template('content/track.html', tracks=tracks, form=form)
+    return render_template('content/track.html', tracks=tracks, form=form, active="Tracks")
 
 
 @content.route('/tracks/add/', methods=['GET', 'POST'])
@@ -154,14 +154,14 @@ def track_add():
         flash(_('Track added.'), 'success')
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
-    return render_template('content/track.html', tracks=tracks, form=form)
+    return render_template('content/track.html', tracks=tracks, form=form, active="Tracks")
 
 
 @content.route('/uploads/')
 @login_required
 def list_content_uploads():
     content_uploads = ContentUploads.query.filter_by(uploaded_by=current_user.id).all()
-    return render_template('content/content_uploads.html', content_uploads=content_uploads)
+    return render_template('content/content_uploads.html', content_uploads=content_uploads, active="Tracks")
 
 
 @content.route('/uploads/<int:content_upload_id>', methods=['GET', 'POST'])
@@ -176,7 +176,7 @@ def content_upload(content_upload_id):
         db.session.add(content_uploads)
         db.session.commit()
         flash(_('Content updated.'), 'success')
-    return render_template('content/content_upload.html', content_uploads=content_uploads, form=form)
+    return render_template('content/content_upload.html', content_uploads=content_uploads, form=form, active="Tracks")
 
 
 def allowed_file(filename):
@@ -229,7 +229,7 @@ def content_upload_add():
         else:
             flash(_(form.errors.items()), 'error')
 
-    return render_template('content/content_upload.html', content_uploads=content_uploads, form=form)
+    return render_template('content/content_upload.html', content_uploads=content_uploads, form=form, active="Tracks")
 
 
 @content.route('/tracks/<int:track_id>/reorder/', methods=['GET', 'POST'])
@@ -295,7 +295,7 @@ def list_hosts():
     else:
         hosts = Person.query.join(Person, Network.people).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
-    return render_template('content/content_hosts.html', hosts=hosts)
+    return render_template('content/content_hosts.html', hosts=hosts, active="Hosts")
 
 
 @content.route('/hosts/add/', methods=['GET', 'POST'])
@@ -324,7 +324,7 @@ def hosts_add():
         flash(_('Host added.'), 'success')
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
-    return render_template('content/content_host.html', host=host, form=form)
+    return render_template('content/content_host.html', host=host, form=form, active="Hosts")
 
 
 @content.route('/hosts/<int:host_id>/', methods=['GET', 'POST'])
@@ -350,7 +350,7 @@ def host_edit(host_id):
         flash(_('Host edited.'), 'success')
     elif request.method == "POST":
         flash(_('Validation error'), 'error')
-    return render_template('content/content_host.html', host=host, form=form)
+    return render_template('content/content_host.html', host=host, form=form, active="Hosts")
 
 
 @content.route('/hosts/<int:host_id>/delete', methods=['GET'])
@@ -378,7 +378,7 @@ def community_content():
     else:
         community_contents = CommunityContent.query.join(Station).join(Network).join(User, Network.networkusers).filter(
         User.id == current_user.id).all()
-    return render_template('content/community_content.html', community_contents=community_contents)
+    return render_template('content/community_content.html', community_contents=community_contents, active="Community Notices")
 
 
 @content.route('/community_content/<int:community_content_id>/delete', methods=['GET'])
@@ -423,7 +423,7 @@ def community_content_toggle(community_content_id, state):
 def list_content_podcasts():
     # Podcasts in my network
     content_podcasts = ContentPodcast.query.all()
-    return render_template('content/content_podcasts.html', content_podcasts=content_podcasts)
+    return render_template('content/content_podcasts.html', content_podcasts=content_podcasts, active="Podcasts")
 
 
 @content.route('/podcasts/<int:content_podcast_id>', methods=['GET', 'POST'])
@@ -438,7 +438,7 @@ def content_podcast_definition(content_podcast_id):
         db.session.add(content_podcast)
         db.session.commit()
         flash(_('Podcast updated'), 'success')
-    return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form)
+    return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form, active="Podcasts")
 
 
 @content.route('/podcasts/<int:content_podcast_id>/delete', methods=['GET'])
@@ -478,7 +478,7 @@ def content_podcast_add():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form)
+    return render_template('content/content_podcast.html', content_podcast=content_podcast, form=form, active="Podcasts")
 
 
 @content.route('/streams/')
@@ -486,7 +486,7 @@ def content_podcast_add():
 def list_content_streams():
     # streams in my network
     content_streams = ContentStream.query.all()
-    return render_template('content/content_streams.html', content_streams=content_streams)
+    return render_template('content/content_streams.html', content_streams=content_streams, active="Streams")
 
 
 @content.route('/streams/<int:content_stream_id>', methods=['GET', 'POST'])
@@ -501,7 +501,7 @@ def content_stream_definition(content_stream_id):
         db.session.add(content_stream)
         db.session.commit()
         flash(_('Stream updated'), 'success')
-    return render_template('content/content_stream.html', content_stream=content_stream, form=form)
+    return render_template('content/content_stream.html', content_stream=content_stream, form=form, active="Streams")
 
 
 @content.route('/streams/<int:content_stream_id>/delete', methods=['GET'])
@@ -541,7 +541,7 @@ def content_stream_add():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('content/content_stream.html', content_stream=content_stream, form=form)
+    return render_template('content/content_stream.html', content_stream=content_stream, form=form, active="Streams")
 
 
 @content.route('/playlist/')
@@ -561,7 +561,7 @@ def content_music_playlists():
                       'radio_networkusers.user_id = user_user.id where user_user.id = :user_id and deleted is not true'
     params = {'user_id': current_user.id}
     content_musicplaylists = db.session.execute(playlists_query, params)
-    return render_template('content/content_playlists.html', content_musicplaylists=content_musicplaylists)
+    return render_template('content/content_playlists.html', content_musicplaylists=content_musicplaylists, active="Playlists")
 
 
 @content.route('/playlist/<int:content_musicplaylist_id>', methods=['GET', 'POST'])
@@ -576,7 +576,7 @@ def content_musicplaylist_definition(content_musicplaylist_id):
         db.session.add(content_musicplaylist)
         db.session.commit()
         flash(_('Playlist updated.'), 'success')
-    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form)
+    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form, active="Playlists")
 
 
 @content.route('/playlist/<int:playlist_id>/albums', methods=['GET', 'POST'])
@@ -687,7 +687,7 @@ def content_musicplaylist_add():
     elif request.method == "POST":
         flash(_(form.errors.items()), 'error')
 
-    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form)
+    return render_template('content/content_playlist.html', content_musicplaylist=content_musicplaylist, form=form, active="Playlists")
 
 
 @content.route('/playlist/<int:playlist_id>/add/<string:item_type>/<int:item_id>', methods=['GET', 'POST'])
