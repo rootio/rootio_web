@@ -198,8 +198,9 @@ def station_add():
             profile = src.substitute(data)
             sip_status = None
 
-            conf_file = open(path.join(DefaultConfig.SIP_CONFIG_PATH, "{0}.xml".format(station.sip_username)), "w+")
-            conf_file.write(str(profile))
+            with open(path.join(DefaultConfig.SIP_CONFIG_PATH, "{0}.xml".format(station.sip_username)), "w+") as conf_file:
+                conf_file.write(str(profile))
+                conf_file.flush()
             sip_status = _("SIP profile created.")
         except IOError as e:
             sip_status = _("SIP profile creation failed.")
