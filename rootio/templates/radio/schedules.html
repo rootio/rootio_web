@@ -1,24 +1,71 @@
 {% extends "radio/layout.html" %}
 
+
 {% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript">
+function renderMap(stationId, success, fail)
+{
+    var ctx = document.getElementById('myChart'+stationId).getContext('2d');
+    var chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: 'pie',
+
+      // The data for our dataset
+      data: {
+       datasets: [{
+          data: [success, fail],
+          backgroundColor:['#5f5','#f55']
+       }],
+
+    // These labels appear in the legend and in the tooltips when hovering different arcs
+    labels: [
+        'successful',
+        'failed'
+    ]},
+
+    // Configuration options go here
+    options: {
+        legend:
+        {
+            display: false
+           },
+        layout: {
+            padding: {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            }
+        }
+    }
+    });
+}
+</script>
+
 <div class="container">
     <h2 class="pull-left">{{ _('Station Schedules') }}</h2>
     <table id="offline_datatable" class='table table-bordered table-hover'>
         <thead>
-            <tr>
-                <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
-                <th>{{ _('Summary') }}</th>
-                <th>{{ _('Previous Program') }}</th>
-                <th>{{ _('Current Program') }}</th>
-                <th>{{ _('Next Program') }}</th>
-                <th>{{ _('Schedule') }}</th>
-            </tr>
+        <tr>
+            <th>{{ _('Name') }} {{ _('(frequency)') }}</th>
+            <th>{{ _('Summary') }}</th>
+            <th>{{ _('Previous Program') }}</th>
+            <th>{{ _('Current Program') }}</th>
+            <th>{{ _('Next Program') }}</th>
+            <th>{{ _('Schedule') }}</th>
+        </tr>
         </thead>
         <tbody>
         {% for station in stations %}
         <tr>
             <td>{{ station.name }} ({{station.frequency}})</td>
-            <td>{{ station.successful_scheduled_programs() }} successful, {{ station.unsuccessful_scheduled_programs() }} failed, {{ station.scheduled_programs() }} Scheduled</td>
+            <td >
+                <div style="width: 120px; height 70px; z-index:1000;">
+                <canvas id="myChart{{ station.id }}" ></canvas>
+                <script>renderMap({{ station.id }}, 15, 30) </script>
+                    </div>
+            </td>
             <td>{{ station.previous_program() }}</td>
             <td>{{ station.current_program() }}</td>
             <td>{{ station.next_program() }}</td>

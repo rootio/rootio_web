@@ -184,19 +184,18 @@ class Station(BaseMixin, db.Model):
             ScheduledProgram.status == 1).filter(ScheduledProgram.deleted == False))
 
     def unsuccessful_scheduled_programs(self):
-        # CARLOS/JUDE - No media is supposed to be unsuccessful?
         now = datetime.utcnow()
         return get_count(ScheduledProgram.before(now).filter(ScheduledProgram.station_id == self.id).filter(
             or_(ScheduledProgram.status == 0, ScheduledProgram.status == 2)).filter(ScheduledProgram.deleted == False))
 
     def scheduled_programs(self):
         now = datetime.utcnow()
-        return get_count(ScheduledProgram.after(now).filter(ScheduledProgram.deleted == False))
+        return get_count(ScheduledProgram.after(now).filter(ScheduledProgram.station_id == self.id).filter(ScheduledProgram.deleted == False))
 
     def current_program(self):
         now = datetime.now(pytz.timezone(self.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         programs = ScheduledProgram.contains(now).filter_by(station_id=self.id).order_by(
-            ScheduledProgram.end.asc())
+            ScheduledProgram.start.desc())
         # TODO, how to resolve overlaps?
         return programs.first()
 
