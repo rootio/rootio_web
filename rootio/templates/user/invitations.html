@@ -30,7 +30,7 @@
             <td>{{ i.role }}</td>
             <td>{{ i.network.name }}</td>
             <td>  {% if i.status_code == 0 %} Pending (<a href="{{ url_for('user.resend_invitation', email=i.email) }}">Re-send email</a>) {% else %} {{ i.status }} {% endif %}</td>
-            <td><a href="{{ url_for('radio.act_on_invitation', id=i.id, action='delete') }}">{{ _('Cancel') }}</a></td>
+            <td><a href="{{ url_for('radio.act_on_invitation', id=i.id, action='delete') }}">{% if i.status_code == 0 %} {{ _('Cancel') }} {% else %} {{ _('Delete') }} {% endif %}</a></td>
         </tr>
         {% endfor %}
       </tbody>

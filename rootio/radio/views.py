@@ -61,11 +61,12 @@ def index():
 @radio.route('/invitation/<int:id>/<string:action>', methods=['GET'])
 @login_required
 def act_on_invitation(id, action):
-    invitation = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email)\
-                               .filter(NetworkInvitation.deleted == False)\
-                                .filter(NetworkInvitation.status_code == PENDING)\
-                                                .filter(NetworkInvitation.id == id).first_or_404()
+
     if action in ['accept', 'reject']:
+        invitation = NetworkInvitation.query.filter(NetworkInvitation.email == current_user.email) \
+            .filter(NetworkInvitation.deleted == False) \
+            .filter(NetworkInvitation.status_code == PENDING) \
+            .filter(NetworkInvitation.id == id).first_or_404()
         invitation.status_code = {'accept': ACCEPTED, 'reject': REJECTED}[action]
         db.session.add(invitation)
         if action == 'accept':
@@ -76,6 +77,10 @@ def act_on_invitation(id, action):
         db.session.commit()
         result = _('Invitation has been %s' % {'accept': 'accepted', 'reject': 'rejected'}[action])
     elif action == 'delete':
+        invitation = NetworkInvitation.query.join(Network).filter(Network.networkusers.contains(current_user)) \
+            .filter(NetworkInvitation.deleted == False) \
+            .filter(NetworkInvitation.status_code == PENDING) \
+            .filter(NetworkInvitation.id == id).first_or_404()
         invitation.deleted = True
         db.session.add(invitation)
         db.session.commit()
