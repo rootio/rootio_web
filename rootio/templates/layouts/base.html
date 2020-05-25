@@ -41,7 +41,7 @@
         <div class="navbar navbar-static-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class='brand' href="{{ url_for('frontend.index') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" /></a>
+                    <a class='brand' href="{{ url_for('frontend.index') }}" title="{{ _('Return to main radio menu') }}"><img src="{{ url_for('static', filename='img/logo.png') }}" /></a>
 
                     <form class="navbar-search pull-left" action="{{ url_for('frontend.search') }}">
                         <input type='text' class="search-query" name='keywords' value='{{ keywords|default('') }}' placeholder='Search' />
