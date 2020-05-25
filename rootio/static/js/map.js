@@ -1,4 +1,4 @@
-map = L.map(document.getElementById('map')) //.setView([1.1975, 32.223], 6); //centered on uganda
+map = L.map(document.getElementById('map'))
 
 var Stamen_TonerLite = L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
     attribution: 'Tiles <a href="http://stamen.com">Stamen</a> | Data <a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC</a>',
@@ -22,17 +22,18 @@ $.ajax({
     success: function (response) {
         stations = [];
 
-        try{
+
         for (var i=0; i < response.objects.length; i++) {
+        try{
                 var station = response.objects[i];
                 stations.push(stationsToLayer(station.network_id, station.name, 'on',[station.location.latitude,station.location.longitude]));
             }
-           }
+
            catch(err)
                {
                console.log(err)
            }
-        
+        }
         var stationGroup = L.featureGroup(stations);
         map.fitBounds(stationGroup.getBounds());
         drawStations(stations);
