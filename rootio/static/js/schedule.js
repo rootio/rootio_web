@@ -306,7 +306,7 @@ $(document).ready(function() {
         $(this).tooltip({
           trigger: 'manual',
           placement: popoverPlacement(event.start, view),
-          title: event.title
+          title: event.title + "\n(" +getPresentableDuration((event.end - event.start)/1000) +")",
         }).tooltip('show');
       }
     },
@@ -327,6 +327,40 @@ $(document).ready(function() {
 
   });
 });
+
+function getPresentableDuration(duration)
+{
+   hours = 0;
+   minutes = 0;
+   seconds = 0;
+
+   hours = ~~(duration/3600);
+   if(duration/3600 != 0)
+   {
+      minutes = ~~((duration % 3600) / 60);
+   }
+
+   if((duration % 60) != 0)
+   {
+        seconds = ~~(duration % 60);
+   }
+
+   durationStr = "lasts";
+   if(hours > 0)
+   {
+        durationStr += " "+ hours+" hours";
+   }
+
+   if(minutes > 0)
+   {
+        durationStr += " "+minutes +" minutes";
+   }
+   if(seconds > 0)
+   {
+        durationStr += " "+seconds + "seconds";
+   }
+   return durationStr.trim();
+}
 
 function save_event(event) {
 
