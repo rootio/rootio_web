@@ -91,8 +91,8 @@ class ProgramHandler:
                 self.__radio_station.logger.warning("Failed to remove unscheduled job #{}".format(index))
             del self.__scheduled_jobs[index]
 
-        #Stop the program if it is running
-        if self.__running_program.id == index:
+        # Stop the program if it is running
+        if self.__running_program is not None and self.__running_program.id == index:
             self.__running_program.stop()
 
     def __stop_program(self):
