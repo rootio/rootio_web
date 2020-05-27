@@ -717,6 +717,7 @@ def schedule_program_edit_ajax():
     scheduled_program.deleted = False
 
     db.session.add(scheduled_program)
+    db.session.flush()
     db.session.commit()
 
     # TODO: Add an edit event broadcast (stn, progid, actionTypeId)

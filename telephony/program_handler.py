@@ -202,6 +202,7 @@ class ProgramHandler:
                     elif event["action"] == "update":
                         self.__delete_scheduled_job(event["id"])
                         scheduled_program = self.__load_program(event["id"])
+                        self.__radio_station.db.refresh(scheduled_program)
                         if not self.__is_program_expired(scheduled_program):
                             self.__add_scheduled_job(scheduled_program)
                             self.__radio_station.logger.info(
