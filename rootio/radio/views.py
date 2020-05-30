@@ -775,10 +775,14 @@ def schedule_recurring_program_ajax():
         scheduled_program.start = datetime.combine(instance, air_time)  # combine instance day and air_time time
         scheduled_program.end = scheduled_program.start + program.duration
         db.session.add(scheduled_program)
-    db.session.commit()
+        db.session.flush()
+        db.session.commit()
+        if scheduled_program.start.date() == datetime.now().date():
+            send_scheduling_event(
+                json.dumps({"action": "add", "id": scheduled_program.id, "station": int(data['station'])}))
 
     # TODO: Add a send event for addition
-    send_scheduling_event(json.dumps({"action": "add", "id": scheduled_program.id, "station": int(data['station'])}))
+
     response = {'status': 'success', 'result': {}, 'status_code': 200}
     # elif request.method == "POST":
     if form.errors:
