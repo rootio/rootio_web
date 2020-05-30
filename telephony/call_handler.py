@@ -201,7 +201,7 @@ class CallHandler:
             program_action.notify_call_answered(self.__available_calls[to_number])
             return True, self.__available_calls[to_number]['Channel-Call-UUID']
         else:
-            if self.__radio_station.station.is_high_bandwidth and use_sip and len(self.__outgoing_sip_gateways) > 0:
+            if self.__radio_station.station.is_high_bandwidth and use_sip:
                 self.__radio_station.logger.info(
                     "SIP GWS before pop are {0}".format(str(self.__outgoing_sip_gateways)))
                 if len(self.__outgoing_sip_gateways) == 0:
