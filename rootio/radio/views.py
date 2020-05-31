@@ -638,13 +638,6 @@ def schedule_program_add_ajax():
     if 'station' not in data:
         return {'status': 'error', 'errors': 'station required', 'status_code': 200}
 
-    # lookup objects from ids
-    # fk_errors = fk_lookup_form_data({'program':Program,'station':Station}, data)
-    # if fk_errors:
-    #    return fk_errors
-
-    # Fix this. use form elements
-
     program = Program.query.filter(Program.id == data['program']).first()
     station = Station.query.filter(Station.id == data['station']).first()
     scheduled_program = ScheduledProgram()
@@ -657,12 +650,9 @@ def schedule_program_add_ajax():
     db.session.add(scheduled_program)
     db.session.commit()
 
-    # TODO: Add a send event for addition
     send_scheduling_event(json.dumps({"action": "add", "id": scheduled_program.id, "station": int(data['station'])}))
 
     return {'status': data, 'result': 1, 'status_code': 200}
-    # return {'status':'success','result':{'id':scheduled_program.id},'status_code':200}
-
 
 @radio.route('/scheduleprogram/delete_series/<_id>/', methods=['POST'])
 @login_required
@@ -766,7 +756,9 @@ def schedule_recurring_program_ajax():
 
     # parse recurrence rule
     r = rrule.rrulestr(clean_rrule, dtstart=dateutil.parser.parse(dtstart))
+    print r
     for instance in r[:365]:  # TODO: dynamically determine instance limit
+        print instance
         scheduled_program = ScheduledProgram()
         scheduled_program.station_id = data['station']
         scheduled_program.program_id = data['program']
@@ -776,12 +768,10 @@ def schedule_recurring_program_ajax():
         scheduled_program.end = scheduled_program.start + program.duration
         db.session.add(scheduled_program)
         db.session.flush()
-        db.session.commit()
         if scheduled_program.start.date() == datetime.now().date():
             send_scheduling_event(
                 json.dumps({"action": "add", "id": scheduled_program.id, "station": int(data['station'])}))
-
-    # TODO: Add a send event for addition
+    db.session.commit()
 
     response = {'status': 'success', 'result': {}, 'status_code': 200}
     # elif request.method == "POST":
