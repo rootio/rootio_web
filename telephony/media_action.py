@@ -39,21 +39,17 @@ class MediaAction:
                 if self.__media is not None:
                     self.program.log_program_activity("Loaded playable media")
                     call_result = self.__request_station_call()
-                # CARLOS - is this supposed to be a no_media status?
-                    if not call_result[0]:  # !!
+                    if call_result is None or not call_result[0]:  # !!
                         self.stop(PlayStatus.failed)
                 else:
                     self.program.log_program_activity("No playable media found, stopping this action...")
                     self.stop(PlayStatus.no_media)
             else:
-                #episode_number = self.__episode_number
-
                 if self.__all_media is not None and len(self.__all_media) > 0: #self.__media is not None:
                     self.__media = self.__all_media.pop()
                     self.program.log_program_activity("Loaded playable media")
                     call_result = self.__request_station_call()
-                    # CARLOS - is this supposed to be a no_media status?
-                    if not call_result[0]:  # !!
+                    if call_result is None or not call_result[0]:  # !!
                         self.stop(PlayStatus.failed)
                 else:
                     self.program.log_program_activity("No playable media found, stopping this action...")
@@ -61,7 +57,6 @@ class MediaAction:
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=str(e)))
             self.stop(PlayStatus.failed)
-
 
     def pause(self):
         self.__pause_media()
@@ -104,8 +99,6 @@ class MediaAction:
                                              .filter(ContentUploads.order == index)\
                                              .first()
 
-        #media.uri = os.path.join(DefaultConfig.CONTENT_DIR, media.uri)
-
         if media.deleted:
             self.__episode_number = self.__episode_number + 1
             if self.__play_counter <= episode_count:
@@ -125,7 +118,7 @@ class MediaAction:
                                              .count()
         return count + 1
 
-    def __request_station_call(self):  # call the number specified thru plivo
+    def __request_station_call(self):
         # Check if the call exists, start with the least likely number to be called
         if self.program.radio_station.station.secondary_transmitter_phone is not None and self.__call_handler.call_exists(self.program.radio_station.station.secondary_transmitter_phone.raw_number):
             result = self.__call_handler.call(self,
@@ -191,15 +184,15 @@ class MediaAction:
         try:
             self.program.log_program_activity("Deregistered, all good, about to order hangup for {0}"
                                               .format(self.program.name))
-            result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
-            self.program.log_program_activity('result of stop play is ' + result)
+            if self.__call_answer_info is not None:
+                result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'], os.path.join(DefaultConfig.CONTENT_DIR, self.__media.uri))
+                self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__stop_media".format(err=e.message))
             return
 
     def notify_call_hangup(self, event_json):
         self.program.log_program_activity('Call hangup before end of program!')
-        #self.stop(False)
         self.__request_station_call()
 
     def notify_media_play_stop(self, event_json):
