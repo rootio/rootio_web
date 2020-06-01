@@ -16,6 +16,7 @@
                 <th>{{ _('Media Volume') }}</th>
                 <th>{{ _('Call Volume') }}</th>
                 <th>{{ _('File Normalization Factor') }}</th>
+                <th>{{ _('Strict Scheduling') }}</th>
                  {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
                 <th>{{ _('Edit') }}</th>
                 {% endif %}
@@ -30,6 +31,13 @@
               {{ station.call_volume}}
             <td>
             {{ station.media_amplification_factor}}
+            </td>
+            <td>
+                {% if station.strict_scheduling %}
+                {{ _('Enabled') }}
+                {% else %}
+                {{ _('Disabled') }}
+                {% endif %}
             </td>
             {% if current_user.role_code ==  0 or current_user.role_code ==  1 %}
             <td><a href="{{ url_for('configuration.station_audio_level', station_id=station.id) }}">{{ _('Edit') }}</a></td>

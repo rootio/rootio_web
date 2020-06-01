@@ -117,6 +117,7 @@ def stations():
             response["name"] = station.name
             response["frequency"] = station.frequency
             response["network_id"] = station.network_id
+            response["strict_scheduling"] = station.strict_scheduling
             if station.location is not None:
                 response["location"] = {"name": station.location.name, "latitude": station.location.latitude,
                                         "longitude": station.location.longitude}
@@ -144,6 +145,10 @@ def station(station_id):
         response["name"] = station.name
         response["frequency"] = station.frequency
         response["jingle_interval"] = station.jingle_interval
+        if station.strict_scheduling is None:
+            response["strict_scheduling"] = False
+        else:
+            response["strict_scheduling"] = station.strict_scheduling
         if station.location is not None:
             response["location"] = {"name": station.location.name, "latitude": station.location.latitude,
                                     "longitude": station.location.longitude}

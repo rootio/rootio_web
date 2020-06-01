@@ -99,6 +99,7 @@ class Station(BaseMixin, db.Model):
     call_volume = db.Column(db.Integer, default=6)
     media_amplification_factor = db.Column(db.Integer, default=0)
     jingle_interval = db.Column(db.Integer, default=10)
+    strict_scheduling = db.Column(db.Boolean, default=False)
 
     # TTS settings
     tts_voice_id = db.Column(db.ForeignKey('radio_ttsvoice.id'))
