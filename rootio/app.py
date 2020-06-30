@@ -23,6 +23,7 @@ from .onair import onair
 from .radio import radio
 from .rootio import rootio
 from .settings import settings
+from .governance import governance
 from .telephony import telephony
 from .user import User, user
 from .utils import CustomJSONEncoder, make_dir
@@ -42,7 +43,8 @@ DEFAULT_BLUEPRINTS = (
     api,
     messenger,
     content,
-    configuration
+    configuration,
+    governance
 )
 
 

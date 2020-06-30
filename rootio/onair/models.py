@@ -13,7 +13,7 @@ t_meetingstation = db.Table(
 )
 
 
-class GovernanceTrack(BaseMixin, db.Model):
+class GovernanceMeeting(BaseMixin, db.Model):
     """A track to which audio content is added"""
     __tablename__ = u'governance_meeting'
 

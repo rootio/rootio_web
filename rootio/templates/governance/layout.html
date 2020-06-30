@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+
+{% set page_header = _(active) %}
+{% set page_title = page_header %}
+
+{% set tab_title = _("Governance") %}
+{% set tabs = [
+    (_("Summary"), url_for('governance.index')),
+    (_("Meetings"), url_for('governance.meetings')),
+]%}
