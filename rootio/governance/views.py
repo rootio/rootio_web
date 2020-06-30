@@ -20,19 +20,6 @@ from ..radio.models import Network
 governance = Blueprint('governance', __name__, url_prefix='/governance')
 
 
-@governance.route('/')
-@login_required
-def index():
-    # re-write using ORM
-    # Filter by network when Track contains network id, filter by uploader
-    status_query = "select ct.id, ct.name \"track\", rct.name \"content type\", count(*) \"uploads\" , " \
-                   "(select count(*) from radio_program where structure like '%'||ct.description||'%') " \
-                   "\"subscriptions\" from content_track as ct join content_type as rct on \"ct\".type_id = rct.id " \
-                   "join content_uploads as cu on ct.id = cu.track_id  group by ct.id, rct.name"
-    contents = db.session.execute(status_query)
-    return render_template('content/index.html', content=contents, active="Status")
-
-
 @governance.route('/meetings')
 @login_required
 def meetings():
