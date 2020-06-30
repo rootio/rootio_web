@@ -1,0 +1,9 @@
+This is the summary for the meeting held on $meeting_date for stations $stations.
+
+The attendees were: $attendees
+
+The agenda for the meeting was included the following items: $agenda
+
+The following are the minutes for the meeting.
+
+$minutes
