@@ -50,7 +50,7 @@ def archive_meeting(meeting_id):
     return redirect(url_for('governance.meetings'))
 
 
-@governance.route('/meetings/<int:track_id>', methods=['GET', 'POST'])
+@governance.route('/meetings/<int:meeting_id>', methods=['GET', 'POST'])
 @login_required
 def edit_meeting(meeting_id):
     meeting = GovernanceMeeting.query.filter_by(id=meeting_id).first_or_404()

@@ -11,33 +11,35 @@
     <div class="pull-right">
         <a class="btn btn-success" href="{{ url_for('governance.add_meeting') }}"><strong>{{ _('Add') }} +</strong></a>
     </div>
-    <table id="offline_datatable" class='table table-bordered table-hover'>
+    <table id="offline_datatable" class="table">
         <thead>
-            <tr>
-                <th>{{ _('Meeting Date') }}</th>
-                <th>{{ _('Attendees') }}</th>
-                <th>{{ _('Agenda') }}</th>
-                <th>{{ _('Minutes') }}</th>
-                <th>{{ _('Stations') }}</th>
-                <th>{{ _('Edit') }}</th>
-                <th>{{ _('Archive') }}</th>
-                <th></th>
-            </tr>
+        <tr>
+            <td></td>
+        </tr>
         </thead>
         <tbody>
         {% for meeting in meetings %}
-            <tr>
-                <td>{{ meeting.meeting_date }}</td>
-                <td>{{ meeting.attendees }}</td>
-                <td>{{ meeting.agenda }}</td>
-                <td>{{ meeting.minutes }}</a></td>
-                <td>{{ meeting.stations }}</a></td>
-                <td>
-                    <a href="{{ url_for('governance.archive_meeting',meeting_id=meeting.id) }}"><button class='button-delete btn btn-danger'> {{ _('Archive') }}</button></a>
-                </td>
-            </tr>
+
+        <tr>
+            <td>
+                <strong> Meeting on {{ meeting.meeting_date }}</strong> ({{ meeting.stations|join(', ') }})
+                <div>
+                    <h5> Attendees</h5>
+                    <p>{{ meeting.attendees }}</p>
+                    <h5>Agenda</h5>
+                    <p>{{ meeting.agenda }}</p>
+                    <h5>Minutes</h5>
+                    <p>{{ meeting.minutes }}</p>
+                    <div>
+                        <a href="{{ url_for('governance.edit_meeting',meeting_id=meeting.id) }}">{{ _('Edit') }}</a>&nbsp;&nbsp;
+                        <a href="{{ url_for('governance.archive_meeting',meeting_id=meeting.id) }}"> {{ _('Archive')
+                            }}</a>
+                    </div>
+                </div>
+            </td>
+        </tr>
         {% endfor %}
-      </tbody>
+        </tbody>
     </table>
 </div>
 {% endblock %}
