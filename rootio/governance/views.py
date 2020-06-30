@@ -95,10 +95,11 @@ def add_meeting():
 
 def create_media_for_track(meeting_id, meeting_date, stations, agenda, minutes, attendees, track_id):
     # get the text first.
+    reasonable_date = meeting_date.strftime('%A %d of %B %Y')
     my_path = os.path.abspath(os.path.dirname(__file__))
     file_path = os.path.join(my_path, "../templates/governance/meeting_summary_template.txt")
     body = string.Template(open(file_path).read())
-    details = {"meeting_date": meeting_date, "stations": ",".join(str(stations)), "agenda": agenda, "minutes": minutes, "attendees":attendees}
+    details = {"meeting_date": reasonable_date, "stations": ",".join(map(lambda x: x.name, stations)), "agenda": agenda, "minutes": minutes, "attendees":attendees}
     tts_text = body.substitute(details)
 
     # generate the audio file
