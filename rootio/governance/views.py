@@ -96,6 +96,7 @@ def add_meeting():
 def create_media_for_track(meeting_id, meeting_date, stations, agenda, minutes, attendees, track_id):
     # get the text first.
     reasonable_date = meeting_date.strftime('%A %d of %B %Y')
+    file_name_date = meeting_date.strftime('%d %B %Y')
     my_path = os.path.abspath(os.path.dirname(__file__))
     file_path = os.path.join(my_path, "../templates/governance/meeting_summary_template.txt")
     body = string.Template(open(file_path).read())
@@ -113,12 +114,14 @@ def create_media_for_track(meeting_id, meeting_date, stations, agenda, minutes, 
             os.makedirs(os.path.join(DefaultConfig.CONTENT_DIR, 'media', str(track_id)))
         urllib.urlretrieve(tts_data[0],
                                os.path.join(DefaultConfig.CONTENT_DIR, 'media', str(track_id),  str(meeting_id) + ".mp3"))
-            # create a track file instance
-        content = ContentUploads()
+        # create a track file - but only if none exists for this meeting
+        content = ContentUploads.query.filter(ContentUploads.uri == "{0}/{1}/{2}".format('media', str(track_id), str(meeting_id) + ".mp3")).first()
+        if content is None:
+            content = ContentUploads()
         content.uri = "{0}/{1}/{2}".format('media', str(track_id), str(meeting_id) + ".mp3")
         content.track_id = track_id
         content.uploaded_by = current_user.id
-        content.name = "{0}.mp3".format(meeting_id)
+        content.name = "Meeting on " + file_name_date
         db.session.add(content)
         db.session.flush()
         db.session.commit()
