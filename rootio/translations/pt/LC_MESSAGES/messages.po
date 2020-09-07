@@ -5,8 +5,7 @@
 # 
 # Translators:
 # Emily Boaventura <emyboaventura96@gmail.com>, 2019
-# Adriano Andrade <a3gtrk2@hotmail.com>, 2019
-# Carlos Correia <pm.correia.carlos@gmail.com>, 2020
+# Adriano Andrade <a3gtrk2@hotmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -14,8 +13,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-12-31 19:53+0000\n"
-"PO-Revision-Date: 2018-05-31 12:36+0000\n"
-"Last-Translator: Carlos Correia <pm.correia.carlos@gmail.com>, 2020\n"
+"PO-Revision-Date: 2019-07-19 11:19+0000\n"
+"Last-Translator: Adriano Andrade <a3gtrk2@hotmail.com>, 2020\n"
 "Language-Team: Portuguese (https://www.transifex.com/rootio/teams/86903/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -72,11 +71,11 @@ msgstr "30 - 3600"
 
 #: rootio/configuration/forms.py:107
 msgid "Jingle play interval"
-msgstr ""
+msgstr "Jingle de intervalo"
 
 #: rootio/configuration/forms.py:107
 msgid "1 - 1440"
-msgstr ""
+msgstr "1 - 1440"
 
 #: rootio/configuration/forms.py:136
 msgid "Frequency of Synchronization (Transmission site to cloud server)"
@@ -89,15 +88,15 @@ msgstr "Sondagem da frequência de trasmissaõ do site"
 
 #: rootio/configuration/forms.py:171
 msgid "How many times should community ads loop"
-msgstr ""
+msgstr "Quantas vezes deve o anuncio da comunidade tocar"
 
 #: rootio/configuration/forms.py:175
 msgid "How many times should community greetings loop"
-msgstr ""
+msgstr "Quantas vezes deve a saudação da comunidade tocar"
 
 #: rootio/configuration/forms.py:179
 msgid "How many times should community announcements loop"
-msgstr ""
+msgstr "Quantas vezes deve a comunicação da comunidade tocar"
 
 #: rootio/configuration/forms.py:220
 msgid "TTS Voice"
@@ -127,175 +126,195 @@ msgstr "Estação"
 
 #: rootio/configuration/forms.py:231
 msgid "You are now on air"
-msgstr ""
+msgstr "Está ao vivo"
 
 #: rootio/configuration/forms.py:232
 msgid "Your call will end in"
-msgstr ""
+msgstr "A sua chamada vai terminar"
 
 #: rootio/configuration/forms.py:233
 msgid "seconds"
-msgstr ""
+msgstr "segundos"
 
 #: rootio/configuration/forms.py:234
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
 "cancel, press two"
 msgstr ""
+"Tem uma chamada em linha. Para conectar á estação clique 1, para cancelar "
+"clique 2"
 
 #: rootio/configuration/forms.py:235
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
 "one, if not ready, press two"
 msgstr ""
+"Você está programado para hospedar uma entrevista a esta hora. Se estiver "
+"pronto pressione 1, se nao estiver pronto pressione 2"
 
 #: rootio/configuration/forms.py:236
 msgid "Please wait while we connect you to the radio station"
-msgstr ""
+msgstr "Por favor espera enquanto o conectamos à estação de rádio"
 
 #: rootio/configuration/forms.py:237
 msgid ""
 "Your call will be terminated and you will be called when someone calls into "
 "the station"
 msgstr ""
+"A sua chamada vai ser terminada e será chamado quando alguém chamar para a "
+"estação"
 
 #: rootio/configuration/forms.py:238
 msgid "All incoming calls will be rejected"
-msgstr ""
+msgstr "Todas as chamadas vão ser rejeitadas"
 
 #: rootio/configuration/forms.py:239
 msgid "All incoming calls will be automatically answered"
-msgstr ""
+msgstr "Todas as chamadas vão ser automaticamente atendidas"
 
 #: rootio/configuration/forms.py:240
 msgid "All incoming calls will be queued for call back"
-msgstr ""
+msgstr "Todas as chamadas vão ficar em espera para ser chamadas de volta"
 
 #: rootio/configuration/forms.py:241
 msgid "You will be called back in 5 minutes"
-msgstr ""
+msgstr "Vai ser chamado de volta em 5 minutos"
 
 #: rootio/configuration/forms.py:242
 msgid "Please enter the number to call and press the # key to dial"
-msgstr ""
+msgstr "Insira o numero a chamar e pressione # para chamar"
 
 #: rootio/configuration/forms.py:243
 msgid "You are calling { number }"
-msgstr ""
+msgstr "Está a chamar { number }"
 
 #: rootio/configuration/forms.py:244
 msgid "Call from community caller { caller number }"
-msgstr ""
+msgstr "Chamada de um membro da comunidade {caller number}"
 
 #: rootio/configuration/forms.py:245
 msgid "was queued"
-msgstr ""
+msgstr "foi adicionado á fila"
 
 #: rootio/configuration/forms.py:246
 msgid "The call to { number }"
-msgstr ""
+msgstr "A chamada para { number }"
 
 #: rootio/configuration/forms.py:247
 msgid "failed. Please pres the hash key to try again"
-msgstr ""
+msgstr "falhou. Por favor pressione # para tentar de novo"
 
 #: rootio/configuration/forms.py:248
 msgid ""
 "Thank you for wanting to take part in this program. We will call you back "
 "shortly"
 msgstr ""
+"Obrigado por quere fazer parte deste programa. Iremos chamar de volta em "
+"breve"
 
 #: rootio/configuration/forms.py:249
 msgid "Please wait while we connect you to the host of this program"
 msgstr ""
+"Por favor espera enquanto conectamos a sua chamada para o hospedeiro deste "
+"programa"
 
 #: rootio/configuration/forms.py:251 rootio/content/forms.py:73
 msgid "Pre-fetch TTS"
-msgstr ""
+msgstr "Pre-fetch TTS"
 
 #: rootio/configuration/forms.py:253
 msgid "You are now on air (text)"
-msgstr ""
+msgstr "Está agora em direto (text)"
 
 #: rootio/configuration/forms.py:254
 msgid "Your call will end in (text)"
-msgstr ""
+msgstr "A sua chamada vai terminar em (text)"
 
 #: rootio/configuration/forms.py:255
 msgid "seconds (text)"
-msgstr ""
+msgstr "segundos (text)"
 
 #: rootio/configuration/forms.py:256
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
 "cancel, press two (text)"
 msgstr ""
+"Tem uma chamada em linha. Para conectar esta chamada á estação pressione 1, "
+"para cancelar pressione 2"
 
 #: rootio/configuration/forms.py:257
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
 "one, if not ready, press two (text)"
 msgstr ""
+"Está agendado para hospedar um programa de entrevista a esta hora. Se "
+"estiver pronto pressione 1, se não estiver pressione 2"
 
 #: rootio/configuration/forms.py:258
 msgid "Please wait while we connect you to the radio station (text)"
-msgstr ""
+msgstr "Por favor espera enquanto o conectamos à estação de rádio (text)"
 
 #: rootio/configuration/forms.py:259
 msgid ""
 "Your call will be terminated and you will be called when someone calls into "
 "the station (text)"
 msgstr ""
+"A sua chamada vai ser terminada e será chamado quando alguém chamar para a "
+"estação (text)"
 
 #: rootio/configuration/forms.py:260
 msgid "All incoming calls will be rejected (text)"
-msgstr ""
+msgstr "Todas as chamadas vão ser rejeitadas (text)"
 
 #: rootio/configuration/forms.py:261
 msgid "All incoming calls will be automatically answered (text)"
-msgstr ""
+msgstr "Todas as chamadas vão ser automaticamente atendidas (text)"
 
 #: rootio/configuration/forms.py:262
 msgid "All incoming calls will be queued for call back (text)"
 msgstr ""
+"Todas as chamadas vão ser agendadas para serem chamadas de volta (text)"
 
 #: rootio/configuration/forms.py:263
 msgid "You will be called back in 5 minutes (text)"
-msgstr ""
+msgstr "Vai ser chamado de volta em 5 minutos (text)"
 
 #: rootio/configuration/forms.py:264
 msgid "Please enter the number to call and press the # key to dial (text)"
-msgstr ""
+msgstr "Por favor insira o numero a chamar e pressione # para chamar (text)"
 
 #: rootio/configuration/forms.py:265
 msgid "You are calling { number } (text)"
-msgstr ""
+msgstr "Está a chamar { number } (text)"
 
 #: rootio/configuration/forms.py:266
 msgid "Call from community caller { caller number } (text)"
-msgstr ""
+msgstr "Chamada de um membro da comunidade { caller number } (text)"
 
 #: rootio/configuration/forms.py:267
 msgid "was queued (text)"
-msgstr ""
+msgstr "foi adicionado á fila (text)"
 
 #: rootio/configuration/forms.py:268
 msgid "The call to { number } (text)"
-msgstr ""
+msgstr "A chamada para { number } (text)"
 
 #: rootio/configuration/forms.py:269
 msgid "failed. Please pres the hash key to try again (text)"
-msgstr ""
+msgstr "falhou. Por favor pressione # para tentar de novo (text)"
 
 #: rootio/configuration/forms.py:270
 msgid ""
 "Thank you for wanting to take part in this program. We will call you back "
 "shortly (text)"
 msgstr ""
+"Obrigado por quere fazer parte deste programa. Irá receber uma chamada em "
+"preve (text)"
 
 #: rootio/configuration/forms.py:271
 msgid "Please wait while we connect you to the host of this program (text)"
 msgstr ""
+"Por favor espere enquanto o conectamos ao hospedeiro deste programa (text)"
 
 #: rootio/configuration/views.py:100 rootio/radio/views.py:113
 msgid "Station updated."
@@ -338,7 +357,7 @@ msgstr "Configurações de sincronização atualizadas"
 
 #: rootio/configuration/views.py:349
 msgid "Content settings updated."
-msgstr ""
+msgstr "Conteudo das definições atualizado."
 
 #: rootio/content/forms.py:56 rootio/content/forms.py:98
 msgid "Name of the stream"
@@ -788,7 +807,7 @@ msgstr "Avatar"
 
 #: rootio/settings/forms.py:26 rootio/settings/forms.py:59
 msgid "Receive Program Notifications"
-msgstr ""
+msgstr "Receber notifcações do programa"
 
 #: rootio/settings/forms.py:27 rootio/settings/forms.py:60
 msgid "Gender"
@@ -870,7 +889,7 @@ msgstr "Função"
 
 #: rootio/user/forms.py:30
 msgid "Status"
-msgstr "Estado"
+msgstr "Posição"
 
 #: rootio/user/forms.py:33
 msgid "Created time"
@@ -878,8 +897,8 @@ msgstr "Data de criação"
 
 #: rootio/user/views.py:39
 msgid "A new activation link was sent via email"
-msgstr ""
+msgstr "Um novo link de ativação foi enviado por email"
 
 #: rootio/user/views.py:81
 msgid "User Created."
-msgstr ""
+msgstr "Utilizador criado."
