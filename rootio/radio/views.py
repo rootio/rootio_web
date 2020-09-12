@@ -644,6 +644,7 @@ def schedule_program_add_ajax():
     scheduled_program.station_id = data['station']
     scheduled_program.program_id = data['program']
     scheduled_program.start = dateutil.parser.parse(data['start'])
+    scheduled_program.start = pytz.timezone(station.timezone).localize(scheduled_program.start)
     scheduled_program.end = scheduled_program.start + program.duration
     scheduled_program.deleted = False
 
@@ -798,13 +799,16 @@ def scheduled_programs_color_feature_json(station_id):
     
     resp = []
     for s in scheduled_programs:
-        movable = datetime.now(pytz.timezone(station_timezone)) < s.start
+        movable = datetime.now(pytz.timezone(station_timezone)) < s._end
+        print s._end
+        print datetime.now(pytz.timezone(station_timezone))
+
         utc_dt = datetime.now(pytz.utc)
         # apply time shift and put it in UTC time
         utc_shifted = utc_dt.astimezone(pytz.timezone(station_timezone)).strftime('%Y-%m-%d %H:%M:%S')
         d = {'title': s.name,
-            'start': s.start.isoformat(),
-            'end': s._end.isoformat(),
+            'start': s.start.astimezone(timezone(station.timezone)),
+            'end': s._end.astimezone(timezone(station.timezone)),
             'id': s.id,
             'series_id': s.series_id,
             'color': s.color,
@@ -838,8 +842,8 @@ def scheduled_programs_json(station_id):
         utc_shifted = utc_dt.astimezone(pytz.timezone(s.station.timezone)).strftime('%Y-%m-%d %H:%M:%S')
         d = {'title': s.program.name,
             'now_timezone_utc_shifted': utc_shifted,
-            'start': s.start.isoformat(),
-            'end': s.end.isoformat(),
+            'start': s.start,
+            'end': s.end,
             'id': s.id,
             'status': s.status,
             'series_id': s.series_id,

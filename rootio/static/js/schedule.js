@@ -9,11 +9,6 @@
   // then invdate will be 07:00 in Toronto
   // and the diff is 5 hours
 
-
-  // ORIGINAL LINE
- // var diff = date.getTime() + invdate.getTime();
-
-  // CARLOS - Changed to:  (timezone was being done taking hours ... just did the example for Romania Time)
   var diff = date.getTime() - invdate.getTime();
 
   // so 12:00 in Toronto is 17:00 UTC
