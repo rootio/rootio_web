@@ -156,7 +156,6 @@ class ProgramHandler:
                 incomplete_data = True
                 total_data=[]
                 total_data.append(data)
-                self.__radio_station.logger.debug(data)
 
                 while incomplete_data:
                     #self.__radio_station.logger.debug('getting chunks...')
