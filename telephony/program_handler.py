@@ -121,6 +121,7 @@ class ProgramHandler:
         self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
+        self.__radio_station.db.commit()
         return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
     def __start_listeners(self):
@@ -146,8 +147,6 @@ class ProgramHandler:
         sck.send(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
 
         while True:
-
-            incomplete_data = False
             data = sck.recv(10240000)
 
             try:
@@ -178,8 +177,6 @@ class ProgramHandler:
                 except Exception as e:
                     self.__radio_station.logger.error("Error 1 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
                     return
-
-            #  self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
 
             try:
                 if "action" in event and "id" in event:
