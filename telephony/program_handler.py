@@ -121,6 +121,7 @@ class ProgramHandler:
         self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
+        self.__radio_station.db._model_changes = {}
         self.__radio_station.db.commit()
         return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
