@@ -294,11 +294,11 @@ class ProgramHandler:
 
     def __is_program_expired(self, scheduled_program):
         now = arrow.utcnow()
-        return (scheduled_program.start_utc + scheduled_program.program.duration) < (now + timedelta(minutes=1))
+        return (scheduled_program.start + scheduled_program.program.duration) < (now + timedelta(minutes=1))
 
     def __get_program_start_time(self, scheduled_program):
         now = arrow.utcnow().datetime
-        if scheduled_program.start_utc < now:  # Time at which program begins is already past
+        if scheduled_program.start < now:  # Time at which program begins is already past
             return now + timedelta(seconds=5)  # 5 second scheduling allowance
         else:
-            return scheduled_program.start_utc + timedelta(seconds=5)  # 5 second scheduling allowance
+            return scheduled_program.start + timedelta(seconds=5)  # 5 second scheduling allowance
