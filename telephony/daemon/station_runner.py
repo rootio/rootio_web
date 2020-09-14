@@ -33,7 +33,7 @@ class StationRunner:
         lst_thr.start()
 
         try:
-            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+            engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI, pool_size=100)
             session = sessionmaker(bind=engine)()
             stations = session.query(Station).all()
         except Exception as e:
