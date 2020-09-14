@@ -5,16 +5,17 @@ from time import sleep
 from datetime import date, datetime, timedelta, time
 import arrow
 
-import dateutil.tz
+import dateutil.parser
 import pytz
 from pytz import timezone
 from apscheduler.scheduler import Scheduler
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.orm import sessionmaker
 
 from rootio.config import DefaultConfig
 from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic
 from rootio.radio.models import ScheduledProgram
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 
 from radio_program import RadioProgram
 
@@ -219,64 +220,73 @@ class ProgramHandler:
         return result
 
     def __process_music_data(self, station_id, json_string):
-        songs_in_db = self.__get_dict_from_rows(self.__radio_station.db.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
+        engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
+        session = sessionmaker(bind=engine)()
+        songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
         artists_in_db = self.__get_dict_from_rows(
-            self.__radio_station.db.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
+            session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
         albums_in_db = self.__get_dict_from_rows(
-            self.__radio_station.db.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+            session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
 
         data = json.loads(json_string)
         for artist in data:
             if artist in artists_in_db:
                 music_artist = artists_in_db[artist]
+                music_artist.updated_at = dateutil.parser.parse(json_string['timestamp'])
             else:
                 # persist the artist
                 music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
+                music_artist.updated_at = dateutil.parser.parse(json_string['timestamp'])
                 artists_in_db[artist] = music_artist
-                self.__radio_station.db.add(music_artist)
-                try:
-                    self.__radio_station.db._model_changes = {}
-                    self.__radio_station.db.commit()
-                except DatabaseError:
-                    self.__radio_station.db.rollback()
-                    continue
-                except:
+                session.add(music_artist)
+            try:
+                session._model_changes = {}
+                session.commit()
+            except DatabaseError:
+                session.rollback()
+                continue
+            except:
                     continue
 
             for album in data[artist]:
                 if album in albums_in_db:
                     music_album = albums_in_db[album]
+                    music_album.updated_at = dateutil.parser.parse(json_string['timestamp'])
                 else:
                     # persist the album
                     music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
+                    music_album.updated_at = dateutil.parser.parse(json_string['timestamp'])
                     albums_in_db[album] = music_album
-                    self.__radio_station.db.add(music_album)
-                    try:
-                        self.__radio_station.db._model_changes = {}
-                        self.__radio_station.db.commit()
-                    except DatabaseError:
-                        self.__radio_station.db.rollback()
-                        continue
-                    except:
-                        continue
+                    session.add(music_album)
+                try:
+                    session._model_changes = {}
+                    session.commit()
+                except DatabaseError:
+                    session.rollback()
+                    continue
+                except:
+                    continue
 
                 for song in data[artist][album]['songs']:
                     if song['title'] in songs_in_db:
                         music_song = songs_in_db[song['title']]
+                        music_song.updated_at = dateutil.parser.parse(json_string['timestamp'])
                     else:
                         music_song = ContentMusic(
                             **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
                                'album_id': music_album.id, 'artist_id': music_artist.id})
+                        music_song.updated_at = dateutil.parser.parse(json_string['timestamp'])
                         songs_in_db[song['title']] = music_song
-                        self.__radio_station.db.add(music_song)
+                        session.add(music_song)
                     try:
-                        self.__radio_station.db._model_changes = {}
-                        self.__radio_station.db.commit()
+                        session._model_changes = {}
+                        session.commit()
                     except DatabaseError:
-                        self.__radio_station.db.rollback()
+                        session.rollback()
                         continue
                     except:
                         continue
+
 
 
     """
