@@ -13,7 +13,8 @@ from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import sessionmaker
 
 from rootio.config import DefaultConfig
-from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic
+from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic, ContentMusicPlaylist, \
+    ContentMusicPlaylistItem
 from rootio.radio.models import ScheduledProgram
 from sqlalchemy import text, create_engine
 
@@ -208,7 +209,7 @@ class ProgramHandler:
                                     .format(event["id"], scheduled_program.start))
                     elif event["action"] == "sync":
                         #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
-                        t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
+                        t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"], event["timestamp"]))
                         t.start()
             except Exception as e:
                 self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
@@ -219,7 +220,7 @@ class ProgramHandler:
             result[row.title] = row
         return result
 
-    def __process_music_data(self, station_id, json_string):
+    def __process_music_data(self, station_id, json_string, timestamp):
         engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
         session = sessionmaker(bind=engine)()
         songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
@@ -227,16 +228,17 @@ class ProgramHandler:
             session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
         albums_in_db = self.__get_dict_from_rows(
             session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+        sync_date = dateutil.parser.parse(timestamp)
 
         data = json.loads(json_string)
         for artist in data:
             if artist in artists_in_db:
                 music_artist = artists_in_db[artist]
-                music_artist.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                music_artist.updated_at = sync_date
             else:
                 # persist the artist
                 music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
-                music_artist.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                music_artist.updated_at = sync_date
                 artists_in_db[artist] = music_artist
                 session.add(music_artist)
             try:
@@ -251,11 +253,11 @@ class ProgramHandler:
             for album in data[artist]:
                 if album in albums_in_db:
                     music_album = albums_in_db[album]
-                    music_album.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                    music_album.updated_at = sync_date
                 else:
                     # persist the album
                     music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
-                    music_album.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                    music_album.updated_at = sync_date
                     albums_in_db[album] = music_album
                     session.add(music_album)
                 try:
@@ -270,12 +272,12 @@ class ProgramHandler:
                 for song in data[artist][album]['songs']:
                     if song['title'] in songs_in_db:
                         music_song = songs_in_db[song['title']]
-                        music_song.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                        music_song.updated_at = sync_date
                     else:
                         music_song = ContentMusic(
                             **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
                                'album_id': music_album.id, 'artist_id': music_artist.id})
-                        music_song.updated_at = dateutil.parser.parse(json_string['timestamp'])
+                        music_song.updated_at = sync_date
                         songs_in_db[song['title']] = music_song
                         session.add(music_song)
                     try:
@@ -286,13 +288,40 @@ class ProgramHandler:
                         continue
                     except:
                         continue
+        self.__delete_absent_records(sync_date, session)
+
+        try:
+            session.close()
+        except Exception as e:
+            self.__radio_station.logger.error(
+                "Error 2 {err} in ProgramHandler.__process_music_data".format(err=e.message))
 
 
+    def __delete_absent_records(self, sync_date, session):
+        songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date).all()
+        for song in songs:
+            session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1 and
+                                                           ContentMusicPlaylistItem.playlist_item_id == song.id).delete()
+            session.delete(song)
+            session.commit()
+
+        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date).delete()
+        for album in albums:
+            session.query(ContentMusicPlaylistItem).filter(
+                ContentMusicPlaylistItem.playlist_item_type_id == 2 and ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
+            session.delete(album)
+            session.commit()
+
+        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date).delete()
+        for artist in artists:
+            session.query(ContentMusicPlaylistItem).filter(
+                ContentMusicPlaylistItem.playlist_item_type_id == 3 and ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
+            session.delete(artist)
+            session.commit()
 
     """
     Gets the program to run from the current list of programs that are lined up for the day
     """
-
     def __get_current_program(self):
         for program in self.__scheduled_programs:
             if not self.__is_program_expired(program):
@@ -301,7 +330,6 @@ class ProgramHandler:
     """
     Returns whether or not the time for a particular program has passed
     """
-
     def __is_program_expired(self, scheduled_program):
         now = arrow.utcnow()
         return (scheduled_program.start + scheduled_program.program.duration) < (now + timedelta(minutes=1))
