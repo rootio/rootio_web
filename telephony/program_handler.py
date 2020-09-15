@@ -30,6 +30,8 @@ class ProgramHandler:
         self.__start_listeners()
         self.__is_starting_up = True
         self.__running_program = None
+        self.__in_sync = False
+        self.__time_stamp = None
         self.__interval_hours = 3  # Time after which to schedule again
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
@@ -208,9 +210,15 @@ class ProgramHandler:
                                 "Scheduled program with id {0} has been moved to start at time {1}"
                                     .format(event["id"], scheduled_program.start))
                     elif event["action"] == "sync":
-                        #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
-                        t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"], event["timestamp"]))
-                        t.start()
+                        if not self.__in_sync:
+                            self.__in_sync = True
+                            self.__timestamp = datetime.now().isoformat()
+                            #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
+                            t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"], self.__timestamp))
+                            t.start()
+                            #send a response
+                        sck.send(json.dumps({'status': True, 'date': self.__timestamp}))           
+ 
             except Exception as e:
                 self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
 
@@ -288,32 +296,36 @@ class ProgramHandler:
                         continue
                     except:
                         continue
-        self.__delete_absent_records(sync_date, session)
+        self.__delete_absent_records(sync_date, session, station_id)
 
         try:
             session.close()
         except Exception as e:
             self.__radio_station.logger.error(
                 "Error 2 {err} in ProgramHandler.__process_music_data".format(err=e.message))
+        self.__in_sync = False
 
-
-    def __delete_absent_records(self, sync_date, session):
-        songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date).all()
+    def __delete_absent_records(self, sync_date, session, station_id):
+        self.__radio_station.logger.info("Removing audio content older than {dt}".format(dt=sync_date.isoformat()))
+        songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date, ContentMusic.station_id == station_id).all()
         for song in songs:
+            self.__radio_station.logger.info("Removing non-existent song {sng}".format(sng=song.title))
             session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1,
                                                            ContentMusicPlaylistItem.playlist_item_id == song.id).delete()
             session.delete(song)
             session.commit()
 
-        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date).all()
+        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date, ContentMusicAlbum.station_id == station_id).all()
         for album in albums:
+            self.__radio_station.logger.info("Removing non-existent album {alb}".format(alb=album.title))
             session.query(ContentMusicPlaylistItem).filter(
                 ContentMusicPlaylistItem.playlist_item_type_id == 2, ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
             session.delete(album)
             session.commit()
 
-        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date).all()
+        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date, ContentMusicArtist.station_id == station_id).all()
         for artist in artists:
+            self.__radio_station.logger.info("Removing non-existent artist {art}".format(art=artist.title))
             session.query(ContentMusicPlaylistItem).filter(
                 ContentMusicPlaylistItem.playlist_item_type_id == 3, ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
             session.delete(artist)

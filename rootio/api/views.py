@@ -520,8 +520,8 @@ def get_dict_from_rows(rows):
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
     dt = datetime.datetime.now().isoformat()
-    process_music_data(station_id, request.data, dt)
-    return {'status': True, 'date': dt}  # TODO: Make the status dependent on the result of the upload
+    response = process_music_data(station_id, request.data, dt)
+    return json.loads(response)  # TODO: Make the status dependent on the result of the upload
 
 
 @api.route('/station/<int:station_id>/music_status', methods=['GET', 'POST'])
@@ -549,14 +549,15 @@ def send_scheduling_event(message):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
         sck.send(message)
-        # sck.recv(1024)
+        response= sck.recv(1024)
         sck.close()
+        return response
     except IOError:  # Socket errors, maybe service is not running
-        return
+        return None
 
 
 def process_music_data(station_id, json_string, date_string):
-    send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string, "timestamp":date_string}))
+    return send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string, "timestamp":date_string}))
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])

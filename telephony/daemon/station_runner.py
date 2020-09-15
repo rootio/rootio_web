@@ -114,6 +114,8 @@ class StationRunner:
                         self.__station_sockets[event["station"]].send(data)
                         self.__logger.info("Event of type {0} sent to station {1} on scheduled program {2}"
                                          .format(event["action"], event["station"], event["id"]))
+                        response = self.__station_sockets[event["station"]].recv(1024)
+                        sck.send(response)
                     except Exception as e:
                         self.__logger.error("Event of type {0} failed for station {1} on scheduled program {2}"
                                          .format(event["action"], event["station"], event["id"]))
