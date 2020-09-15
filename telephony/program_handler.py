@@ -300,22 +300,22 @@ class ProgramHandler:
     def __delete_absent_records(self, sync_date, session):
         songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date).all()
         for song in songs:
-            session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1 and
+            session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1,
                                                            ContentMusicPlaylistItem.playlist_item_id == song.id).delete()
             session.delete(song)
             session.commit()
 
-        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date).delete()
+        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date).all()
         for album in albums:
             session.query(ContentMusicPlaylistItem).filter(
-                ContentMusicPlaylistItem.playlist_item_type_id == 2 and ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
+                ContentMusicPlaylistItem.playlist_item_type_id == 2, ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
             session.delete(album)
             session.commit()
 
-        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date).delete()
+        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date).all()
         for artist in artists:
             session.query(ContentMusicPlaylistItem).filter(
-                ContentMusicPlaylistItem.playlist_item_type_id == 3 and ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
+                ContentMusicPlaylistItem.playlist_item_type_id == 3, ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
             session.delete(artist)
             session.commit()
 

@@ -542,7 +542,7 @@ def music_status(station_id):
 
     status = {"songs": {"count": song_count, "max_date": songs_max_date}, "albums": {"count": album_count, "max_date": albums_max_date}, "artists": {"count": artist_count, "max_date": artists_max_date} }
 
-    return status  # TODO: Make the status dependent on the result of the upload
+    return status
 
 def send_scheduling_event(message):
     try:
