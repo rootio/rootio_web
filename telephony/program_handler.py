@@ -19,7 +19,7 @@ from rootio.radio.models import ScheduledProgram
 from sqlalchemy import text, create_engine
 
 from radio_program import RadioProgram
-
+from db_agent import DBAgent
 
 class ProgramHandler:
 
@@ -229,15 +229,17 @@ class ProgramHandler:
         return result
 
     def __process_music_data(self, station_id, json_string, timestamp):
-        engine = create_engine(DefaultConfig.SQLALCHEMY_DATABASE_URI)
-        session = sessionmaker(bind=engine)()
-        songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
-        artists_in_db = self.__get_dict_from_rows(
-            session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
-        albums_in_db = self.__get_dict_from_rows(
-            session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
         sync_date = dateutil.parser.parse(timestamp)
+        self.__radio_station.logger.info("Starting music sync for {dt}".format(dt=sync_date.isoformat()))
+        query_session = DBAgent.get_session() 
+        songs_in_db = self.__get_dict_from_rows(query_session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
+        artists_in_db = self.__get_dict_from_rows(
+            query_session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
+        albums_in_db = self.__get_dict_from_rows(
+            query_session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+        query_session.close()
 
+        session = DBAgent.get_session()
         data = json.loads(json_string)
         for artist in data:
             if artist in artists_in_db:
@@ -296,40 +298,52 @@ class ProgramHandler:
                         continue
                     except:
                         continue
-        self.__delete_absent_records(sync_date, session, station_id)
 
         try:
             session.close()
         except Exception as e:
             self.__radio_station.logger.error(
                 "Error 2 {err} in ProgramHandler.__process_music_data".format(err=e.message))
-        self.__in_sync = False
 
-    def __delete_absent_records(self, sync_date, session, station_id):
+        self.__delete_absent_records(sync_date, station_id)
+
+        self.__in_sync = False
+        self.__radio_station.logger.info("Done with music sync for {dt}".format(dt=sync_date.isoformat()))
+
+    def __delete_absent_records(self, sync_date, station_id):
         self.__radio_station.logger.info("Removing audio content older than {dt}".format(dt=sync_date.isoformat()))
+        session = DBAgent.get_session()
         songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date, ContentMusic.station_id == station_id).all()
         for song in songs:
             self.__radio_station.logger.info("Removing non-existent song {sng}".format(sng=song.title))
             session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1,
                                                            ContentMusicPlaylistItem.playlist_item_id == song.id).delete()
             session.delete(song)
+            session._model_changes = {}
             session.commit()
-
+        session.close()
+        
+        session = DBAgent.get_session()
         albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date, ContentMusicAlbum.station_id == station_id).all()
         for album in albums:
             self.__radio_station.logger.info("Removing non-existent album {alb}".format(alb=album.title))
             session.query(ContentMusicPlaylistItem).filter(
-                ContentMusicPlaylistItem.playlist_item_type_id == 2, ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
+                    ContentMusicPlaylistItem.playlist_item_type_id == 2, ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
             session.delete(album)
+            session._model_changes = {}
             session.commit()
+        session.close()
 
+        session = DBAgent.get_session()
         artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date, ContentMusicArtist.station_id == station_id).all()
         for artist in artists:
             self.__radio_station.logger.info("Removing non-existent artist {art}".format(art=artist.title))
             session.query(ContentMusicPlaylistItem).filter(
-                ContentMusicPlaylistItem.playlist_item_type_id == 3, ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
+                    ContentMusicPlaylistItem.playlist_item_type_id == 3, ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
             session.delete(artist)
+            session._model_changes = {}
             session.commit()
+        session.close()
 
     """
     Gets the program to run from the current list of programs that are lined up for the day
