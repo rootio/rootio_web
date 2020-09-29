@@ -149,7 +149,7 @@ class ProgramHandler:
                     "[Station #{}] Could not connect to server, retrying in 30..."
                     .format(self.__radio_station.id))
                 sleep(30)
-        sck.send(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
+        sck.sendall(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
 
         while True:
             data = sck.recv(10240000)
@@ -217,7 +217,7 @@ class ProgramHandler:
                             t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"], self.__timestamp))
                             t.start()
                             #send a response
-                        sck.send(json.dumps({'status': True, 'date': self.__timestamp}))           
+                        sck.sendall(json.dumps({'status': True, 'date': self.__timestamp}))
  
             except Exception as e:
                 self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
@@ -231,20 +231,21 @@ class ProgramHandler:
     def __process_music_data(self, station_id, json_string, timestamp):
         sync_date = dateutil.parser.parse(timestamp)
         self.__radio_station.logger.info("Starting music sync for {dt}".format(dt=sync_date.isoformat()))
-        query_session = DBAgent.get_session() 
-        songs_in_db = self.__get_dict_from_rows(query_session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
+        session = DBAgent.get_session() 
+        songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
         artists_in_db = self.__get_dict_from_rows(
-            query_session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
+            session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
         albums_in_db = self.__get_dict_from_rows(
-            query_session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
-        query_session.close()
+            session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+        session.close()
 
-        session = DBAgent.get_session()
+        #session = DBAgent.get_session()
         data = json.loads(json_string)
         for artist in data:
             if artist in artists_in_db:
                 music_artist = artists_in_db[artist]
-                music_artist.updated_at = sync_date
+                session.query(ContentMusicArtist).filter(ContentMusicArtist.id == music_artist.id).update({'updated_at': sync_date})
+                #music_artist.updated_at = sync_date
             else:
                 # persist the artist
                 music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
@@ -263,7 +264,8 @@ class ProgramHandler:
             for album in data[artist]:
                 if album in albums_in_db:
                     music_album = albums_in_db[album]
-                    music_album.updated_at = sync_date
+                    session.query(ContentMusicAlbum).filter(ContentMusicAlbum.id == music_album.id).update({'updated_at': sync_date})
+                    #music_album.updated_at = sync_date
                 else:
                     # persist the album
                     music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
@@ -282,7 +284,8 @@ class ProgramHandler:
                 for song in data[artist][album]['songs']:
                     if song['title'] in songs_in_db:
                         music_song = songs_in_db[song['title']]
-                        music_song.updated_at = sync_date
+                        session.query(ContentMusic).filter(ContentMusic.id == music_song.id).update({'updated_at': sync_date})
+                        #music_song.updated_at = sync_date
                     else:
                         music_song = ContentMusic(
                             **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,

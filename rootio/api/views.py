@@ -547,8 +547,9 @@ def music_status(station_id):
 def send_scheduling_event(message):
     try:
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.settimeout(1)
         sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
-        sck.send(message)
+        sck.sendall(message)
         response= sck.recv(1024)
         sck.close()
         return response
