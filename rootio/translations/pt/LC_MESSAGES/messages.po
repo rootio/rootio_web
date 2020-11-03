@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-12-31 19:53+0000\n"
-"PO-Revision-Date: 2018-05-31 12:36+0000\n"
+"PO-Revision-Date: 2019-07-19 11:19+0000\n"
 "Last-Translator: Adriano Andrade <a3gtrk2@hotmail.com>, 2020\n"
 "Language-Team: Portuguese (https://www.transifex.com/rootio/teams/86903/pt/)\n"
 "MIME-Version: 1.0\n"
@@ -150,8 +150,9 @@ msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
 "one, if not ready, press two"
 msgstr ""
-"Está programado para hospedar uma entrevista a esta hora. Se estiver pronto "
-"pressione 1, se não estiver pronto pressione 2"
+"Você está programado para hospedar uma entrevista a esta hora. Se estiver "
+"pronto pressione 1, se nao estiver pronto pressione 2"
+
 
 #: rootio/configuration/forms.py:236
 msgid "Please wait while we connect you to the radio station"
@@ -238,18 +239,19 @@ msgstr "segundos (text)"
 #: rootio/configuration/forms.py:256
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
-"cancel, press two (text)"
+"cancel, press two"
 msgstr ""
 "Tem uma chamada em linha. Para conectar esta chamada á estação pressione 1, "
-"para cancelar pressione 2 (text)"
+"para cancelar pressione 2"
 
 #: rootio/configuration/forms.py:257
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
-"one, if not ready, press two (text)"
+"one, if not ready, press two"
 msgstr ""
 "Está agendado para hospedar um programa de entrevista a esta hora. Se "
-"estiver pronto pressione 1, se não estiver pressione 2 (text)"
+"estiver pronto pressione 1, se não estiver pressione 2"
+
 
 #: rootio/configuration/forms.py:258
 msgid "Please wait while we connect you to the radio station (text)"
@@ -890,7 +892,7 @@ msgstr "Função"
 
 #: rootio/user/forms.py:30
 msgid "Status"
-msgstr "Estado"
+msgstr "Posição"
 
 #: rootio/user/forms.py:33
 msgid "Created time"
