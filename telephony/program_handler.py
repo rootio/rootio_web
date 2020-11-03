@@ -5,19 +5,21 @@ from time import sleep
 from datetime import date, datetime, timedelta, time
 import arrow
 
-import dateutil.tz
+import dateutil.parser
 import pytz
 from pytz import timezone
 from apscheduler.scheduler import Scheduler
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.orm import sessionmaker
 
 from rootio.config import DefaultConfig
-from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic
+from rootio.content import ContentMusicArtist, ContentMusicAlbum, ContentMusic, ContentMusicPlaylist, \
+    ContentMusicPlaylistItem
 from rootio.radio.models import ScheduledProgram
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 
 from radio_program import RadioProgram
-
+from db_agent import DBAgent
 
 class ProgramHandler:
 
@@ -28,6 +30,8 @@ class ProgramHandler:
         self.__start_listeners()
         self.__is_starting_up = True
         self.__running_program = None
+        self.__in_sync = False
+        self.__time_stamp = None
         self.__interval_hours = 3  # Time after which to schedule again
         self.__radio_station.logger.info("Done initialising ProgramHandler for {0}".format(radio_station.station.name))
 
@@ -121,6 +125,8 @@ class ProgramHandler:
         self.__radio_station.logger.info("Loaded {1} programs for {0}".format(self.__radio_station.station.name, len(self.__scheduled_programs)))
 
     def __load_program(self, program_id):
+        self.__radio_station.db._model_changes = {}
+        self.__radio_station.db.commit()
         return self.__radio_station.db.query(ScheduledProgram).filter(ScheduledProgram.id == program_id).first()
 
     def __start_listeners(self):
@@ -143,11 +149,9 @@ class ProgramHandler:
                     "[Station #{}] Could not connect to server, retrying in 30..."
                     .format(self.__radio_station.id))
                 sleep(30)
-        sck.send(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
+        sck.sendall(json.dumps({'station': self.__radio_station.station.id, 'action': 'register'}))
 
         while True:
-
-            incomplete_data = False
             data = sck.recv(10240000)
 
             try:
@@ -156,7 +160,6 @@ class ProgramHandler:
                 incomplete_data = True
                 total_data=[]
                 total_data.append(data)
-                self.__radio_station.logger.debug(data)
 
                 while incomplete_data:
                     #self.__radio_station.logger.debug('getting chunks...')
@@ -179,8 +182,6 @@ class ProgramHandler:
                 except Exception as e:
                     self.__radio_station.logger.error("Error 1 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
                     return
-
-            #  self.__radio_station.logger.error('Processing JSON data for station {}:\n{}'.format(self.__radio_station.station.id, event))
 
             try:
                 if "action" in event and "id" in event:
@@ -209,9 +210,15 @@ class ProgramHandler:
                                 "Scheduled program with id {0} has been moved to start at time {1}"
                                     .format(event["id"], scheduled_program.start))
                     elif event["action"] == "sync":
-                        #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
-                        t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"]))
-                        t.start()
+                        if not self.__in_sync:
+                            self.__in_sync = True
+                            self.__timestamp = datetime.now().isoformat()
+                            #  self.__radio_station.logger.info("Syncing music for station {0}".format(event["id"]))
+                            t = threading.Thread(target=self.__process_music_data, args=(event["id"], event["music_data"], self.__timestamp))
+                            t.start()
+                            #send a response
+                        sck.sendall(json.dumps({'status': True, 'date': self.__timestamp}))
+ 
             except Exception as e:
                 self.__radio_station.logger.error("Error 2 {err} in ProgramHandler.__listen_for_scheduling_changes".format(err=e.message))
 
@@ -221,71 +228,129 @@ class ProgramHandler:
             result[row.title] = row
         return result
 
-    def __process_music_data(self, station_id, json_string):
-        songs_in_db = self.__get_dict_from_rows(self.__radio_station.db.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
+    def __process_music_data(self, station_id, json_string, timestamp):
+        sync_date = dateutil.parser.parse(timestamp)
+        self.__radio_station.logger.info("Starting music sync for {dt}".format(dt=sync_date.isoformat()))
+        session = DBAgent.get_session() 
+        songs_in_db = self.__get_dict_from_rows(session.query(ContentMusic).filter(ContentMusic.station_id == station_id).all())
         artists_in_db = self.__get_dict_from_rows(
-            self.__radio_station.db.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
+            session.query(ContentMusicArtist).filter(ContentMusicArtist.station_id == station_id).all())
         albums_in_db = self.__get_dict_from_rows(
-            self.__radio_station.db.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+            session.query(ContentMusicAlbum).filter(ContentMusicAlbum.station_id == station_id).all())
+        session.close()
 
+        #session = DBAgent.get_session()
         data = json.loads(json_string)
         for artist in data:
             if artist in artists_in_db:
                 music_artist = artists_in_db[artist]
+                session.query(ContentMusicArtist).filter(ContentMusicArtist.id == music_artist.id).update({'updated_at': sync_date})
+                #music_artist.updated_at = sync_date
             else:
                 # persist the artist
                 music_artist = ContentMusicArtist(**{'title': artist, 'station_id': station_id})
+                music_artist.updated_at = sync_date
                 artists_in_db[artist] = music_artist
-                self.__radio_station.db.add(music_artist)
-                try:
-                    self.__radio_station.db._model_changes = {}
-                    self.__radio_station.db.commit()
-                except DatabaseError:
-                    self.__radio_station.db.rollback()
-                    continue
-                except:
+                session.add(music_artist)
+            try:
+                session._model_changes = {}
+                session.commit()
+            except DatabaseError:
+                session.rollback()
+                continue
+            except:
                     continue
 
             for album in data[artist]:
                 if album in albums_in_db:
                     music_album = albums_in_db[album]
+                    session.query(ContentMusicAlbum).filter(ContentMusicAlbum.id == music_album.id).update({'updated_at': sync_date})
+                    #music_album.updated_at = sync_date
                 else:
                     # persist the album
                     music_album = ContentMusicAlbum(**{'title': album, 'station_id': station_id})
+                    music_album.updated_at = sync_date
                     albums_in_db[album] = music_album
-                    self.__radio_station.db.add(music_album)
-                    try:
-                        self.__radio_station.db._model_changes = {}
-                        self.__radio_station.db.commit()
-                    except DatabaseError:
-                        self.__radio_station.db.rollback()
-                        continue
-                    except:
-                        continue
+                    session.add(music_album)
+                try:
+                    session._model_changes = {}
+                    session.commit()
+                except DatabaseError:
+                    session.rollback()
+                    continue
+                except:
+                    continue
 
                 for song in data[artist][album]['songs']:
                     if song['title'] in songs_in_db:
                         music_song = songs_in_db[song['title']]
+                        session.query(ContentMusic).filter(ContentMusic.id == music_song.id).update({'updated_at': sync_date})
+                        #music_song.updated_at = sync_date
                     else:
                         music_song = ContentMusic(
                             **{'title': song['title'], 'duration': song['duration'], 'station_id': station_id,
                                'album_id': music_album.id, 'artist_id': music_artist.id})
+                        music_song.updated_at = sync_date
                         songs_in_db[song['title']] = music_song
-                        self.__radio_station.db.add(music_song)
+                        session.add(music_song)
                     try:
-                        self.__radio_station.db._model_changes = {}
-                        self.__radio_station.db.commit()
+                        session._model_changes = {}
+                        session.commit()
                     except DatabaseError:
-                        self.__radio_station.db.rollback()
+                        session.rollback()
                         continue
                     except:
                         continue
 
+        try:
+            session.close()
+        except Exception as e:
+            self.__radio_station.logger.error(
+                "Error 2 {err} in ProgramHandler.__process_music_data".format(err=e.message))
+
+        self.__delete_absent_records(sync_date, station_id)
+
+        self.__in_sync = False
+        self.__radio_station.logger.info("Done with music sync for {dt}".format(dt=sync_date.isoformat()))
+
+    def __delete_absent_records(self, sync_date, station_id):
+        self.__radio_station.logger.info("Removing audio content older than {dt}".format(dt=sync_date.isoformat()))
+        session = DBAgent.get_session()
+        songs = session.query(ContentMusic).filter(ContentMusic.updated_at < sync_date, ContentMusic.station_id == station_id).all()
+        for song in songs:
+            self.__radio_station.logger.info("Removing non-existent song {sng}".format(sng=song.title))
+            session.query(ContentMusicPlaylistItem).filter(ContentMusicPlaylistItem.playlist_item_type_id == 1,
+                                                           ContentMusicPlaylistItem.playlist_item_id == song.id).delete()
+            session.delete(song)
+            session._model_changes = {}
+            session.commit()
+        session.close()
+        
+        session = DBAgent.get_session()
+        albums = session.query(ContentMusicAlbum).filter(ContentMusicAlbum.updated_at < sync_date, ContentMusicAlbum.station_id == station_id).all()
+        for album in albums:
+            self.__radio_station.logger.info("Removing non-existent album {alb}".format(alb=album.title))
+            session.query(ContentMusicPlaylistItem).filter(
+                    ContentMusicPlaylistItem.playlist_item_type_id == 2, ContentMusicPlaylistItem.playlist_item_id == album.id).delete()
+            session.delete(album)
+            session._model_changes = {}
+            session.commit()
+        session.close()
+
+        session = DBAgent.get_session()
+        artists = session.query(ContentMusicArtist).filter(ContentMusicArtist.updated_at < sync_date, ContentMusicArtist.station_id == station_id).all()
+        for artist in artists:
+            self.__radio_station.logger.info("Removing non-existent artist {art}".format(art=artist.title))
+            session.query(ContentMusicPlaylistItem).filter(
+                    ContentMusicPlaylistItem.playlist_item_type_id == 3, ContentMusicPlaylistItem.playlist_item_id == artist.id).delete()
+            session.delete(artist)
+            session._model_changes = {}
+            session.commit()
+        session.close()
 
     """
     Gets the program to run from the current list of programs that are lined up for the day
     """
-
     def __get_current_program(self):
         for program in self.__scheduled_programs:
             if not self.__is_program_expired(program):
@@ -294,14 +359,13 @@ class ProgramHandler:
     """
     Returns whether or not the time for a particular program has passed
     """
-
     def __is_program_expired(self, scheduled_program):
         now = arrow.utcnow()
-        return (scheduled_program.start_utc + scheduled_program.program.duration) < (now + timedelta(minutes=1))
+        return (scheduled_program.start + scheduled_program.program.duration) < (now + timedelta(minutes=1))
 
     def __get_program_start_time(self, scheduled_program):
         now = arrow.utcnow().datetime
-        if scheduled_program.start_utc < now:  # Time at which program begins is already past
+        if scheduled_program.start < now:  # Time at which program begins is already past
             return now + timedelta(seconds=5)  # 5 second scheduling allowance
         else:
-            return scheduled_program.start_utc + timedelta(seconds=5)  # 5 second scheduling allowance
+            return scheduled_program.start + timedelta(seconds=5)  # 5 second scheduling allowance

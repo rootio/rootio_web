@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Emily Boaventura <emyboaventura96@gmail.com>, 2019
+# Carlos Correia <pm.correia.carlos@gmail.com>, 2020
 # Adriano Andrade <a3gtrk2@hotmail.com>, 2020
 # 
 #, fuzzy
@@ -152,6 +153,7 @@ msgstr ""
 "Você está programado para hospedar uma entrevista a esta hora. Se estiver "
 "pronto pressione 1, se nao estiver pronto pressione 2"
 
+
 #: rootio/configuration/forms.py:236
 msgid "Please wait while we connect you to the radio station"
 msgstr "Por favor espera enquanto o conectamos à estação de rádio"
@@ -237,7 +239,7 @@ msgstr "segundos (text)"
 #: rootio/configuration/forms.py:256
 msgid ""
 "You have a caller on the line. To connect to the station, press one, to "
-"cancel, press two (text)"
+"cancel, press two"
 msgstr ""
 "Tem uma chamada em linha. Para conectar esta chamada á estação pressione 1, "
 "para cancelar pressione 2"
@@ -245,10 +247,11 @@ msgstr ""
 #: rootio/configuration/forms.py:257
 msgid ""
 "You are scheduled to host a talk show at this time. If you are ready, press "
-"one, if not ready, press two (text)"
+"one, if not ready, press two"
 msgstr ""
 "Está agendado para hospedar um programa de entrevista a esta hora. Se "
 "estiver pronto pressione 1, se não estiver pressione 2"
+
 
 #: rootio/configuration/forms.py:258
 msgid "Please wait while we connect you to the radio station (text)"
@@ -532,7 +535,7 @@ msgstr "Não se precupe. Você poderá modificá-lo posteriormente."
 
 #: rootio/frontend/forms.py:33
 msgid "Agree to the <a target=\"blank\" href=\"/terms\">Terms of Service</a>"
-msgstr "Aceitar as ondições do serviço"
+msgstr "Aceitar as termos de serviço"
 
 #: rootio/frontend/forms.py:34
 msgid "Sign up"

@@ -148,8 +148,8 @@ class NewsAction:
         self.program.radio_station.logger.info(
             "Played all media, stopping media play in Media action for {0}".format(self.program.name))
         self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-        if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[0].uri):
-            self.stop(PlayStatus.success, event_json)  # program.notify_program_action_stopped(self)
+        #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[0].uri):
+        self.stop(PlayStatus.success, event_json)  # program.notify_program_action_stopped(self)
         self.__is_valid = False
 
     def __listen_for_media_play_stop(self):

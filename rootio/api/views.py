@@ -519,23 +519,46 @@ def get_dict_from_rows(rows):
 @returns_json
 def music_sync(station_id):
     """API method to grab music from the phone and  store it online"""
-    process_music_data(station_id, request.data)
-    return {'status': True}  # TODO: Make the status dependent on the result of the upload
+    dt = datetime.datetime.now().isoformat()
+    response = process_music_data(station_id, request.data, dt)
+    return json.loads(response)  # TODO: Make the status dependent on the result of the upload
 
+
+@api.route('/station/<int:station_id>/music_status', methods=['GET', 'POST'])
+#@api_key_or_auth_required
+@csrf.exempt
+@returns_json
+def music_status(station_id):
+    song_count = ContentMusic.query.filter(ContentMusic.station_id == station_id).count()
+    songs_max_date = db.session.query(func.max(ContentMusic.updated_at)).filter(ContentMusic.station_id == station_id).scalar()
+
+    album_count = ContentMusicAlbum.query.filter(ContentMusicAlbum.station_id == station_id).count()
+    albums_max_date = db.session.query(func.max(ContentMusicAlbum.updated_at)).filter(
+        ContentMusicAlbum.station_id == station_id).scalar()
+
+    artist_count = ContentMusicArtist.query.filter(ContentMusicArtist.station_id == station_id).count()
+    artists_max_date = db.session.query(func.max(ContentMusicArtist.updated_at)).filter(
+        ContentMusicArtist.station_id == station_id).scalar()
+
+    status = {"songs": {"count": song_count, "max_date": songs_max_date}, "albums": {"count": album_count, "max_date": albums_max_date}, "artists": {"count": artist_count, "max_date": artists_max_date} }
+
+    return status
 
 def send_scheduling_event(message):
     try:
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.settimeout(1)
         sck.connect((DefaultConfig.SCHEDULE_EVENTS_SERVER_IP, DefaultConfig.SCHEDULE_EVENTS_SERVER_PORT))
-        sck.send(message)
-        # sck.recv(1024)
+        sck.sendall(message)
+        response= sck.recv(1024)
         sck.close()
+        return response
     except IOError:  # Socket errors, maybe service is not running
-        return
+        return None
 
 
-def process_music_data(station_id, json_string):
-    send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string}))
+def process_music_data(station_id, json_string, date_string):
+    return send_scheduling_event(json.dumps({"action": "sync", "id": station_id,"station": station_id, "music_data": json_string, "timestamp":date_string}))
 
 
 @api.route('/station/<int:station_id>/playlists', methods=['GET', 'POST'])

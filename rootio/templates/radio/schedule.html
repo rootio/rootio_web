@@ -32,14 +32,14 @@
           firstDay: 1,
           timezone: '{{station.timezone}}',
         });
-  
-  
+
+
         //add event sources
         $('#calendar').fullCalendar('addEventSource',
           {url: '/radio/station/{{station.id}}/scheduledprograms_color_feature.json'}
         );
-  
-  
+
+
         $('#calendar').fullCalendar('addEventSource', {
           url: '/radio/station/{{station.id}}/scheduledblocks.json',
           backgroundColor: '#edb',
@@ -48,8 +48,8 @@
           startEditable: false,
           durationEditable: false,
         });
-  
-  
+
+
         $('#calendar').fullCalendar('render');
       });
       </script>
