@@ -1,5 +1,7 @@
+from sqlalchemy import desc
+
 from rootio.config import *
-from rootio.content.models import ContentPodcast
+from rootio.content.models import ContentPodcast, ContentPodcastDownload
 from .utils.audio import PlayStatus
 
 
@@ -7,7 +9,7 @@ class PodcastAction:
 
     def __init__(self, podcast_id, start_time, duration, program):
         self.__podcast_id = podcast_id
-        self.__podcast = None
+        self.__podcast_download = None
         self.__is_valid = True
         self.start_time = start_time
         self.duration = duration
@@ -21,7 +23,7 @@ class PodcastAction:
         self.program.set_running_action(self)
         try:
             self.__load_podcast()
-            if self.__podcast is not None and len(self.__podcast.podcast_downloads) > 0:
+            if self.__podcast_download is not None:
                 call_result = self.__request_station_call()
                 # CARLOS - is this supposed to be a no_media status?
                 if call_result is None or not call_result[0]:  # !!
@@ -51,9 +53,9 @@ class PodcastAction:
         self.__play_media(self.__call_answer_info)
 
     def __load_podcast(self):  # load the media to be played
-        self.__podcast = self.program.radio_station.db.query(ContentPodcast).filter(
-            ContentPodcast.id == self.__podcast_id).first()
-        self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
+        self.__podcast_download = self.program.radio_station.db.query(ContentPodcastDownload).filter(
+            ContentPodcastDownload.podcast_id == self.__podcast_id).order_by(desc(ContentPodcastDownload.date_published)).first()
+        #self.__podcast.podcast_downloads.sort(key=lambda x: x.date_published, reverse=True)
 
     def __request_station_call(self):  # call the number specified thru plivo
         # Check if the call exists, start with the least likely number to be called
@@ -113,13 +115,13 @@ class PodcastAction:
 
     def __play_media(self, call_info):  # play the media in the array
         self.program.log_program_activity("Playing media {0}".format(
-            self.__podcast.podcast_downloads[0].file_name))
+            self.__podcast_download.file_name))
         self.__listen_for_media_play_stop()
 
         # Always play the last file for news
         result = self.__call_handler.play(call_info['Channel-Call-UUID'],
-                                          os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast.id),
-                                                       self.__podcast.podcast_downloads[0].file_name))
+                                          os.path.join(DefaultConfig.CONTENT_DIR, 'podcast', str(self.__podcast_download.podcast_id),
+                                                       self.__podcast_download.file_name))
 
         self.program.log_program_activity('result of play is ' + result)
         if result.split(" ")[0] != "+OK":
@@ -134,8 +136,8 @@ class PodcastAction:
                 "Deregistered, all good, about to order hangup for {0}".format(self.program.name))
             result = self.__call_handler.stop_play(self.__call_answer_info['Channel-Call-UUID'],
                                                    os.path.join(DefaultConfig.CONTENT_DIR, 'podcast',
-                                                                str(self.__podcast.id),
-                                                                self.__podcast.podcast_downloads[0].file_name))
+                                                                str(self.__podcast_download.podcast_id),
+                                                                self.__podcast_download.file_name))
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in podcast_action.__stop_media".format(err=e.message))
