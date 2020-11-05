@@ -56,7 +56,7 @@ class MediaAction:
                     self.stop(PlayStatus.success)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.__start".format(err=str(e)))
-            self.stop(PlayStatus.failed)
+            #self.stop(PlayStatus.failed)
 
     def pause(self):
         self.__pause_media()
