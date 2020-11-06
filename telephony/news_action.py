@@ -141,16 +141,17 @@ class NewsAction:
 
     def notify_call_hangup(self, event_json):
         self.program.log_program_activity('Call hangup before end of program!')
-        #self.stop(False, event_json)
         self.__request_station_call()
 
     def notify_media_play_stop(self, event_json):
-        self.program.radio_station.logger.info(
-            "Played all media, stopping media play in Media action for {0}".format(self.program.name))
-        self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
-        #if event_json["Media-Bug-Target"] == os.path.join(DefaultConfig.CONTENT_DIR, self.__track.files[0].uri):
-        self.stop(PlayStatus.success, event_json)  # program.notify_program_action_stopped(self)
-        self.__is_valid = False
+        try:
+            self.program.radio_station.logger.info(
+                "Played all media, stopping media play in Media action for {0}".format(self.program.name))
+            self.program.log_program_activity("Hangup on complete is true for {0}".format(self.program.name))
+            self.__is_valid = False
+        except Exception as e:
+            self.program.radio_station.logger.error("error {err} in podcast_action.__stop_media".format(err=e.message))
+        self.stop(PlayStatus.success, event_json)
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, str(

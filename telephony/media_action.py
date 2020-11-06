@@ -216,11 +216,10 @@ class MediaAction:
                 #         self.__is_valid = False
                 else:
                     self.program.log_program_activity("Continuous play is not enabled. Should proceed to next track/hangup")
-                    self.stop(PlayStatus.success, event_json)
                     self.__is_valid = False
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in media_action.notify_media_play_stop".format(err=e.message))
-            self.stop(PlayStatus.failed, event_json)
+        self.stop(PlayStatus.success, event_json)
 
     def __listen_for_media_play_stop(self):
         self.__call_handler.register_for_media_playback_stop(self, self.__call_answer_info['Caller-Destination-Number'][-9:])
