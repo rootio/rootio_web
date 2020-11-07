@@ -141,7 +141,6 @@ class PodcastAction:
             self.program.log_program_activity('result of stop play is ' + result)
         except Exception as e:
             self.program.radio_station.logger.error("error {err} in podcast_action.__stop_media".format(err=e.message))
-        self.stop(PlayStatus.success, event_json)
 
     def notify_call_hangup(self, event_json):
         self.program.log_program_activity('Call hangup before end of program!')
