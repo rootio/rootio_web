@@ -19,7 +19,8 @@ from podcast_action import PodcastAction
 from rootio.config import DefaultConfig
 from rootio_mailer.rootio_mail_message import RootIOMailMessage
 from .utils.audio import PlayStatus
-
+from telephony.db_agent import DBAgent
+from rootio.radio import ScheduledProgram
 
 class RadioProgram:
 
@@ -32,7 +33,7 @@ class RadioProgram:
         self.id = program.id
         self.name = program.id
         self.__program_handler = program_handler
-        self.scheduled_program = program
+        self.scheduled_program = program #self.__load_scheduled_program()
         self.radio_station = radio_station
         self.__shutting_down = False
         self.__scheduler = Scheduler()
@@ -183,27 +184,31 @@ class RadioProgram:
         except Exception as e:
             self.radio_station.logger.error("Error {er} in send program summary for {prg}".format(er=str(e),  prg=self.scheduled_program.program.name))
 
-    def __log_program_status(self):
+    
+    def __load_scheduled_program(self):
+        session = DBAgent.get_session()
         try:
-            conn = psycopg2.connect(DefaultConfig.SQLALCHEMY_DATABASE_URI)
-            cur = conn.cursor()
-            cur.execute("update radio_scheduledprogram set status = %s where id = %s", (self.__status, self.scheduled_program.id))
-            conn.commit()
-
-        except psycopg2.Error as e:
-            try:
-                self.radio_station.logger.error("Error(1) {err} in radio_program.__log_program_status".format(err=e.message))
-            except Exception as e:
-                return
+            return session.query(ScheduledProgram).filter(ScheduledProgram.id == self.id).first()
         except Exception as e:
-            self.radio_station.logger.error("Error(3) {err} in radio_program.__log_program_status".format(err=e.message))
+            self.radio_station.logger.error("Error {er} in __load_scheduled_program {prg}".format(er=str(e),  prg=self.scheduled_program.program.name))
         finally:
-            try:
-                cur.close()
-                conn.close()
-            except Exception as e:
-                self.radio_station.logger.error(
-                       "Error(4) {err} in radio_program.__log_program_status".format(err=e.message))
+            #session.close()
+            pass
+
+    def __log_program_status(self):
+        session = DBAgent.get_session()
+        scheduled_program = session.query(ScheduledProgram).filter(ScheduledProgram.id == self.id).first()
+        scheduled_program.status = self.__status
+        try:
+            session._model_changes = {}
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            self.radio_station.logger.error("Error {er} in __log_program_status {prg}".format(er=str(e),
+                                                                                                  prg=self.scheduled_program.program.name))
+        finally:
+            session.close()
+
 
     def __get_network_users(self):
         station_users = self.radio_station.station.network.networkusers
