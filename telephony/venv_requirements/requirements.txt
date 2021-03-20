@@ -31,7 +31,7 @@ intervals==0.8.0
 ipython==1.1.0
 isodate==0.5.0
 itsdangerous==0.23
-Jinja2==2.7.1
+Jinja2==2.11.3
 Mako==0.8.1
 Markdown==2.4.1
 MarkupSafe==0.18
