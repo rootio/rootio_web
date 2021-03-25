@@ -24,7 +24,7 @@ Markdown==2.5.2
 MarkupSafe==0.23
 Pairtree==0.7.1-T
 PyExecJS==1.0.4
-PyYAML==5.1
+PyYAML==5.4
 Pygments==2.0.1
 Pympler==0.6
 RunSnakeRun==2.0.4
