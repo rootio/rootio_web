@@ -72,7 +72,7 @@ pycrypto==2.6.1
 pycups==1.9.63
 pycurl==7.19.5
 PyExecJS==1.0.4
-Pygments==2.0.1
+Pygments==2.7.4
 pygobject
 pylint==1.6.5
 pyOpenSSL==0.14
