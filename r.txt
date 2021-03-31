@@ -45,7 +45,7 @@ isort==4.2.5
 itsdangerous==0.24
 Jinja2==2.7.1
 lazy-object-proxy==1.2.2
-lxml==4.2.5
+lxml==4.6.3
 Mako==0.8.1
 Markdown==2.5.2
 MarkupSafe==0.23
