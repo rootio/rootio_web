@@ -91,7 +91,7 @@ python-magic==0.4.15
 psycopg2==2.5.1
 psycopg2-binary==2.7.5
 ptyprocess==0.6.0
-py==1.4.32
+py==1.10.0
 pycrypto==2.6.1
 pyexcel==0.5.13
 pyexcel-handsontable==0.0.2
