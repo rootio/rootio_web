@@ -106,7 +106,7 @@ urwid==1.2.1
 validators==0.7
 virtualenv==15.0.3
 webassets==0.10.1
-Werkzeug==0.9.3
+Werkzeug==0.15.3
 wrapt==1.10.8
 wstools==0.4.3
 WTForms==1.0.4

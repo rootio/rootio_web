@@ -35,7 +35,7 @@ UgliPyJS==0.2.5
 WTForms==2.2
 WTForms-Alchemy==0.16.7
 WTForms-Components==0.9.1
-Werkzeug==0.11.4
+Werkzeug==0.15.3
 Yapsy==1.10.423
 alembic==0.8.8
 anyjson==0.3.3
