@@ -101,7 +101,7 @@ SquareMap==1.0.4
 subprocess32==3.2.7
 suds==0.4
 tzlocal==1.1.2
-urllib3==1.9.1
+urllib3==1.26.5
 urwid==1.2.1
 validators==0.7
 virtualenv==15.0.3
