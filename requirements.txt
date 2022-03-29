@@ -78,7 +78,7 @@ numpy==1.12.0
 ofs==0.4.2
 openpyxl==2.5.14
 packaging==17.1
-paramiko==1.15.2
+paramiko==2.10.1
 pathlib==1.0.1
 pathlib2==2.3.2
 pbr==1.10.0
