@@ -74,7 +74,7 @@ lxml==4.2.5
 mem-top==0.1.7
 memory-profiler==0.43
 nose==1.3.0
-numpy==1.12.0
+numpy==1.22.0
 ofs==0.4.2
 openpyxl==2.5.14
 packaging==17.1
