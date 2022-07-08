@@ -99,7 +99,7 @@ SQLAlchemy==0.8.2
 SQLAlchemy-Utils==0.25.0
 SquareMap==1.0.4
 subprocess32==3.2.7
-suds==0.4
+suds==1.0.0
 tzlocal==1.1.2
 urllib3==1.9.1
 urwid==1.2.1
