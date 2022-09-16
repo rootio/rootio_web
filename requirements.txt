@@ -19,7 +19,7 @@ Flask-Testing==0.6.1
 Flask-WTF==0.9.1
 FreeSWITCH-ESL-Python==1.2
 Jinja2==2.7.1
-Mako==0.8.1
+Mako==1.2.2
 Markdown==2.5.2
 MarkupSafe==0.23
 Pairtree==0.7.1-T
